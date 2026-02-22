@@ -1,4 +1,6 @@
-import { SectionHeader } from '@/components/ui'
+'use client'
+
+import { SectionHeader, RevealSection, RevealGroup, RevealItem } from '@/components/ui'
 
 const STEPS = [
   {
@@ -25,7 +27,7 @@ const STEPS = [
 
 export function ProcessSection() {
   return (
-    <section className="py-space-9 px-6">
+    <RevealSection className="py-space-9 px-6">
       <div className="max-w-content mx-auto">
         <SectionHeader
           centered
@@ -34,20 +36,22 @@ export function ProcessSection() {
           איך אנחנו עובדים?
         </SectionHeader>
 
-        <div className="grid md:grid-cols-4 gap-space-5 mt-space-8">
+        <RevealGroup className="grid md:grid-cols-4 gap-space-5 mt-space-8">
           {STEPS.map(({ number, title, description }) => (
-            <div key={number} className="text-center">
-              <div className="mx-auto w-16 h-16 rounded-full bg-primary flex items-center justify-center mb-space-4">
-                <span className="text-white font-bold text-h4">{number}</span>
+            <RevealItem key={number}>
+              <div className="text-center">
+                <div className="mx-auto w-16 h-16 rounded-full bg-primary flex items-center justify-center mb-space-4">
+                  <span className="text-white font-bold text-h4">{number}</span>
+                </div>
+                <h3 className="text-h4 font-semibold text-primary">{title}</h3>
+                <p className="text-text-secondary text-body mt-2">
+                  {description}
+                </p>
               </div>
-              <h3 className="text-h4 font-semibold text-primary">{title}</h3>
-              <p className="text-text-secondary text-body mt-2">
-                {description}
-              </p>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
-    </section>
+    </RevealSection>
   )
 }

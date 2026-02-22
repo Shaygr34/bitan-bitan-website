@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useRef, useEffect, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { ChevronDown } from 'lucide-react'
+import { EASE_OUT_QUART } from '@/lib/motion'
 
 type AccordionItemProps = {
   title: string
@@ -15,24 +17,6 @@ export function AccordionItem({
   defaultOpen = false,
 }: AccordionItemProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [height, setHeight] = useState<number | undefined>(
-    defaultOpen ? undefined : 0
-  )
-
-  useEffect(() => {
-    if (!contentRef.current) return
-    if (isOpen) {
-      setHeight(contentRef.current.scrollHeight)
-    } else {
-      setHeight(0)
-    }
-  }, [isOpen])
-
-  // After transition ends when opening, set height to auto for dynamic content
-  const handleTransitionEnd = () => {
-    if (isOpen) setHeight(undefined)
-  }
 
   return (
     <div className="border-b border-border last:border-b-0">
@@ -43,24 +27,28 @@ export function AccordionItem({
         aria-expanded={isOpen}
       >
         <span>{title}</span>
-        <ChevronDown
-          className={[
-            'h-5 w-5 shrink-0 ms-3 text-text-muted transition-transform duration-base',
-            isOpen && 'rotate-180',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-        />
+        <motion.span
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: EASE_OUT_QUART as unknown as number[] }}
+        >
+          <ChevronDown className="h-5 w-5 shrink-0 ms-3 text-text-muted" />
+        </motion.span>
       </button>
-      <div
-        style={{ height: height !== undefined ? `${height}px` : 'auto' }}
-        className="overflow-hidden transition-[height] duration-base ease-in-out"
-        onTransitionEnd={handleTransitionEnd}
-      >
-        <div ref={contentRef} className="pb-space-4 text-text-secondary leading-relaxed">
-          {children}
-        </div>
-      </div>
+      <AnimatePresence initial={defaultOpen}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: EASE_OUT_QUART as unknown as number[] }}
+            className="overflow-hidden"
+          >
+            <div className="pb-space-4 text-text-secondary leading-relaxed">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

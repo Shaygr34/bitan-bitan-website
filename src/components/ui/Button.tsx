@@ -57,7 +57,7 @@ export const Button = forwardRef<
   } = props
 
   const classes = [
-    'inline-flex items-center justify-center gap-2 font-medium transition-all duration-base cursor-pointer',
+    'inline-flex items-center justify-center gap-2 font-medium transition-all duration-base cursor-pointer hover:scale-[1.03] active:scale-[0.97]',
     variantClasses[variant],
     sizeClasses[size],
     className,

@@ -1,21 +1,222 @@
 import type { Metadata } from "next";
+import {
+  SectionHeader,
+  Card,
+  CardHeader,
+  CardBody,
+  WhatsAppCTA,
+  PhoneCTA,
+  Accordion,
+  AccordionItem,
+} from "@/components/ui";
+import {
+  Calculator,
+  BookOpen,
+  FileText,
+  Shield,
+  Briefcase,
+  Globe,
+  Users,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "שירותים — ביטן את ביטן רואי חשבון",
   description:
-    "שירותי ראיית חשבון, ייעוץ מס, הנהלת חשבונות ודוחות כספיים — ביטן את ביטן.",
+    "שירותי ראיית חשבון, ייעוץ מס, הנהלת חשבונות, דוחות כספיים, ביקורת, ליווי עסקי ומיסוי בינלאומי — ביטן את ביטן.",
 };
+
+const SERVICES = [
+  {
+    icon: Calculator,
+    title: "ייעוץ מס",
+    description:
+      "תכנון מס אסטרטגי ליחידים, חברות ועסקים — חיסכון מקסימלי במסגרת החוק.",
+    details: [
+      "תכנון מס שנתי ורב-שנתי",
+      "ייעוץ בעסקאות מורכבות",
+      "תכנון מס לפני מכירת נכסים או עסק",
+      "ייצוג מול רשויות המס",
+      "החזרי מס לשכירים",
+    ],
+  },
+  {
+    icon: BookOpen,
+    title: "הנהלת חשבונות",
+    description:
+      "ניהול ספרים מדויק ומקצועי, דיווחים תקופתיים ועמידה בדרישות רשויות המס.",
+    details: [
+      "הנהלת חשבונות חד-צידית ודו-צידית",
+      "דיווחים חודשיים למע\"מ ומס הכנסה",
+      "ניהול חשבוניות ותשלומים",
+      "התאמות בנקים",
+      "הכנת דוחות ניהוליים שוטפים",
+    ],
+  },
+  {
+    icon: FileText,
+    title: "דוחות כספיים",
+    description:
+      "הכנת דוחות כספיים שנתיים, דוחות מס הכנסה ודוחות מיוחדים בהתאם לתקנים.",
+    details: [
+      "דוחות כספיים שנתיים מבוקרים וסקורים",
+      "דוחות מס הכנסה ליחידים ולחברות",
+      "דוחות לבנקים ולגופים מוסדיים",
+      "דוחות מיוחדים לפי דרישה",
+    ],
+  },
+  {
+    icon: Shield,
+    title: "ביקורת חשבונות",
+    description:
+      "שירותי ביקורת מקצועיים להבטחת דיוק ותקינות הדיווח הכספי של העסק.",
+    details: [
+      "ביקורת דוחות כספיים",
+      "ביקורת פנימית",
+      "בדיקת נאותות (Due Diligence)",
+      "חוות דעת מקצועיות",
+    ],
+  },
+  {
+    icon: Briefcase,
+    title: "ליווי עסקי",
+    description:
+      "ייעוץ עסקי שוטף, תמיכה בקבלת החלטות פיננסיות וליווי בצמתים עסקיים קריטיים.",
+    details: [
+      "הקמת עסק חדש — בחירת מבנה משפטי ומס",
+      "תוכנית עסקית ותחזיות פיננסיות",
+      "ליווי בגיוסי הון ומימון",
+      "ייעוץ לפני ובמהלך עסקאות",
+      "ייעוץ לשיפור רווחיות",
+    ],
+  },
+  {
+    icon: Globe,
+    title: "מיסוי בינלאומי",
+    description:
+      "פתרונות מס לפעילות בינלאומית, אמנות מס, ומיסוי תושבי חוץ.",
+    details: [
+      "אמנות למניעת כפל מס",
+      "מיסוי עולים חדשים ותושבים חוזרים",
+      "מבנים בינלאומיים לחברות",
+      "דיווחים לרשויות מס בחו\"ל",
+    ],
+  },
+  {
+    icon: Users,
+    title: "שכר ותנאים סוציאליים",
+    description:
+      "ניהול שכר מקיף, חישובי פנסיה וביטוח לאומי, והתאמה לדרישות החוק.",
+    details: [
+      "הפקת תלושי שכר",
+      "דיווחים לביטוח לאומי ומס הכנסה",
+      "חישובי פיצויים וזכויות עובדים",
+      "ייעוץ בנושאי דיני עבודה",
+    ],
+  },
+] as const;
 
 export default function ServicesPage() {
   return (
-    <section className="py-space-9 px-6">
-      <div className="max-w-content mx-auto">
-        <h1 className="text-primary text-h1 font-bold">שירותים</h1>
-        <span className="gold-underline mt-4" />
-        <p className="text-text-secondary text-body-lg mt-space-5 max-w-narrow">
-          תוכן עמוד השירותים ייבנה בהמשך.
-        </p>
-      </div>
-    </section>
+    <div>
+      {/* Hero */}
+      <section className="bg-primary py-space-9 px-6">
+        <div className="max-w-content mx-auto">
+          <h1 className="text-white text-h1 font-bold">השירותים שלנו</h1>
+          <span className="gold-underline mt-4" />
+          <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">
+            מגוון שירותים פיננסיים מקיפים תחת קורת גג אחת — מותאמים לצרכים
+            הייחודיים של כל לקוח.
+          </p>
+        </div>
+      </section>
+
+      {/* Services grid */}
+      <section className="py-space-9 px-6">
+        <div className="max-w-content mx-auto">
+          <div className="grid md:grid-cols-2 gap-space-6">
+            {SERVICES.map(({ icon: Icon, title, description, details }) => (
+              <Card key={title} hover={false}>
+                <CardHeader>
+                  <div className="flex items-center gap-space-3">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h2 className="text-h3 font-bold text-primary">{title}</h2>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <p className="text-text-secondary text-body mb-space-4">
+                    {description}
+                  </p>
+                  <ul className="space-y-2">
+                    {details.map((detail) => (
+                      <li
+                        key={detail}
+                        className="flex items-start gap-2 text-body-sm text-text-secondary"
+                      >
+                        <span className="text-gold mt-1 shrink-0">●</span>
+                        {detail}
+                      </li>
+                    ))}
+                  </ul>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Process */}
+      <section className="bg-surface py-space-9 px-6">
+        <div className="max-w-content mx-auto">
+          <SectionHeader centered subtitle="תהליך פשוט ושקוף — מהפנייה הראשונה ועד שירות שוטף.">
+            איך מתחילים?
+          </SectionHeader>
+
+          <div className="max-w-narrow mx-auto mt-space-8">
+            <Accordion>
+              <AccordionItem title="1. פנייה ראשונית" defaultOpen>
+                צרו קשר בטלפון, בוואטסאפ או דרך האתר. נקבע פגישת היכרות בהתאם
+                לזמינות שלכם — אפשר גם בווידאו.
+              </AccordionItem>
+              <AccordionItem title="2. פגישת היכרות (ללא עלות)">
+                נכיר את העסק, נבין את הצרכים ונציג את השירותים הרלוונטיים. נענה
+                על כל שאלה ונציג הצעת מחיר שקופה.
+              </AccordionItem>
+              <AccordionItem title="3. התחלת עבודה">
+                לאחר אישור, נתחיל בתהליך קליטה מסודר — העברת מסמכים, הגדרת
+                גישות למערכות, ותיאום ציפיות.
+              </AccordionItem>
+              <AccordionItem title="4. שירות שוטף וליווי">
+                מענה מהיר, דיווחים בזמן, עדכונים יזומים על שינויים ברגולציה,
+                ותמיכה מתמשכת לאורך כל הדרך.
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-primary py-space-9 px-6">
+        <div className="max-w-content mx-auto text-center">
+          <h2 className="text-white text-h2 font-bold">
+            צריכים שירות מקצועי?
+          </h2>
+          <span className="gold-underline mt-3 mx-auto" />
+          <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto">
+            נשמח לשמוע על העסק שלכם ולהתאים חבילת שירות מותאמת.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 mt-space-7">
+            <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="lg" />
+            <PhoneCTA
+              label="חייגו אלינו"
+              variant="secondary"
+              size="lg"
+              className="border-white text-white hover:bg-white/10 hover:text-white"
+            />
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
