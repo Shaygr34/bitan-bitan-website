@@ -73,6 +73,15 @@ const config: Config = {
         base: "250ms",
         slow: "350ms",
       },
+      keyframes: {
+        "slide-in": {
+          from: { transform: "translateX(100%)" },
+          to: { transform: "translateX(0)" },
+        },
+      },
+      animation: {
+        "slide-in": "slide-in 250ms ease-out",
+      },
     },
   },
   plugins: [],
