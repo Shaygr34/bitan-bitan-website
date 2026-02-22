@@ -54,8 +54,8 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-space-5">
+          {/* Desktop nav — flex-1 + justify-center keeps links visually centered */}
+          <nav className="hidden md:flex flex-1 items-center justify-center gap-space-5">
             {NAV_LINKS.map(({ label, href }) => (
               <Link
                 key={href}
