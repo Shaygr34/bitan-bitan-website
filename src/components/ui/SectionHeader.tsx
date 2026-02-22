@@ -1,4 +1,8 @@
+'use client'
+
 import type { ReactNode } from 'react'
+import { motion } from 'motion/react'
+import { underlineGrow } from '@/lib/motion'
 
 type SectionHeaderProps = {
   children: ReactNode
@@ -16,9 +20,13 @@ export function SectionHeader({
   return (
     <div className={[centered && 'text-center', className].filter(Boolean).join(' ')}>
       <h2 className="text-h2 font-bold text-primary">{children}</h2>
-      <span
+      <motion.span
+        variants={underlineGrow}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
         className={[
-          'gold-underline mt-3',
+          'gold-underline mt-3 origin-right',
           centered && 'mx-auto',
         ]
           .filter(Boolean)

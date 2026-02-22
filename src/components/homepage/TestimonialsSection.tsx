@@ -1,4 +1,6 @@
-import { SectionHeader } from '@/components/ui'
+'use client'
+
+import { SectionHeader, RevealSection, RevealGroup, RevealItem } from '@/components/ui'
 
 const TESTIMONIALS = [
   {
@@ -23,7 +25,7 @@ const TESTIMONIALS = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-space-9 px-6">
+    <RevealSection className="py-space-9 px-6">
       <div className="max-w-content mx-auto">
         <SectionHeader
           centered
@@ -32,27 +34,25 @@ export function TestimonialsSection() {
           מה אומרים עלינו
         </SectionHeader>
 
-        <div className="grid md:grid-cols-3 gap-space-5 mt-space-8">
+        <RevealGroup className="grid md:grid-cols-3 gap-space-5 mt-space-8">
           {TESTIMONIALS.map(({ quote, name, role }) => (
-            <div
-              key={name}
-              className="bg-white rounded-xl border border-border p-space-6 shadow-sm"
-            >
-              {/* Quote mark */}
-              <span className="text-gold text-[3rem] leading-none font-serif">
-                &ldquo;
-              </span>
-              <p className="text-text-secondary text-body mt-2 leading-relaxed">
-                {quote}
-              </p>
-              <div className="mt-space-5 pt-space-3 border-t border-border-light">
-                <p className="text-primary font-semibold text-body">{name}</p>
-                <p className="text-text-muted text-body-sm">{role}</p>
+            <RevealItem key={name}>
+              <div className="bg-white rounded-xl border border-border p-space-6 shadow-sm transition-all duration-base hover:shadow-lg hover:-translate-y-1">
+                <span className="text-gold text-[3rem] leading-none font-serif">
+                  &ldquo;
+                </span>
+                <p className="text-text-secondary text-body mt-2 leading-relaxed">
+                  {quote}
+                </p>
+                <div className="mt-space-5 pt-space-3 border-t border-border-light">
+                  <p className="text-primary font-semibold text-body">{name}</p>
+                  <p className="text-text-muted text-body-sm">{role}</p>
+                </div>
               </div>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
-    </section>
+    </RevealSection>
   )
 }

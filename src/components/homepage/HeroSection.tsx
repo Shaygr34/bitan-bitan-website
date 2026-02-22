@@ -1,19 +1,46 @@
+'use client'
+
+import { motion } from 'motion/react'
 import { WhatsAppCTA, PhoneCTA } from '@/components/ui'
+import { fadeUp, fadeIn, underlineGrow } from '@/lib/motion'
+
+const heroStagger = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.15, delayChildren: 0.1 },
+  },
+}
 
 export function HeroSection() {
   return (
     <section className="bg-primary py-space-9 md:py-space-10 px-6">
-      <div className="max-w-content mx-auto">
-        <h1 className="text-white text-h1 font-bold leading-tight">
+      <motion.div
+        className="max-w-content mx-auto"
+        variants={heroStagger}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.h1
+          variants={fadeUp}
+          className="text-white text-h1 font-bold leading-tight"
+        >
           המומחים הפיננסיים של העסק שלכם
-        </h1>
-        <span className="gold-underline mt-4" />
-        <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">
+        </motion.h1>
+
+        <motion.span
+          variants={underlineGrow}
+          className="gold-underline mt-4 origin-right"
+        />
+
+        <motion.p
+          variants={fadeUp}
+          className="text-white/85 text-body-lg mt-space-5 max-w-narrow"
+        >
           משרד רואי חשבון ביטן את ביטן — דור שני של מומחיות פיננסית, ייעוץ מס
           וליווי עסקי מקצועי.
-        </p>
+        </motion.p>
 
-        <div className="flex flex-wrap gap-4 mt-space-7">
+        <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mt-space-7">
           <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="lg" />
           <PhoneCTA
             label="חייגו אלינו"
@@ -21,13 +48,16 @@ export function HeroSection() {
             size="lg"
             className="border-white text-white hover:bg-white/10 hover:text-white"
           />
-        </div>
+        </motion.div>
 
-        <p className="text-white/60 text-body-sm mt-space-5">
+        <motion.p
+          variants={fadeIn}
+          className="text-white/60 text-body-sm mt-space-5"
+        >
           <span dir="ltr">30+</span> שנות ניסיון · דור שני של רואי חשבון · תל
           אביב
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </section>
   )
 }

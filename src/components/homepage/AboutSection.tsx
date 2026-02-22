@@ -1,5 +1,7 @@
+'use client'
+
 import Link from 'next/link'
-import { SectionHeader } from '@/components/ui'
+import { SectionHeader, RevealSection, RevealGroup, RevealItem } from '@/components/ui'
 
 const DIFFERENTIATORS = [
   {
@@ -21,7 +23,7 @@ const DIFFERENTIATORS = [
 
 export function AboutSection() {
   return (
-    <section className="bg-surface py-space-9 px-6">
+    <RevealSection className="bg-surface py-space-9 px-6">
       <div className="max-w-content mx-auto">
         <div className="grid md:grid-cols-2 gap-space-8 items-start">
           {/* Text content */}
@@ -41,27 +43,29 @@ export function AboutSection() {
           </div>
 
           {/* Differentiators */}
-          <div className="space-y-space-5">
+          <RevealGroup className="space-y-space-5">
             {DIFFERENTIATORS.map(({ title, description }, i) => (
-              <div key={title} className="flex gap-space-4">
-                <div className="shrink-0 w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
-                  <span className="text-gold font-bold text-body-lg">
-                    {i + 1}
-                  </span>
+              <RevealItem key={title}>
+                <div className="flex gap-space-4">
+                  <div className="shrink-0 w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
+                    <span className="text-gold font-bold text-body-lg">
+                      {i + 1}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-h4 font-semibold text-primary">
+                      {title}
+                    </h3>
+                    <p className="text-text-secondary text-body mt-1">
+                      {description}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-h4 font-semibold text-primary">
-                    {title}
-                  </h3>
-                  <p className="text-text-secondary text-body mt-1">
-                    {description}
-                  </p>
-                </div>
-              </div>
+              </RevealItem>
             ))}
-          </div>
+          </RevealGroup>
         </div>
       </div>
-    </section>
+    </RevealSection>
   )
 }

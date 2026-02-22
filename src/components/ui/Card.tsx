@@ -12,7 +12,7 @@ export function Card({ children, className = '', hover = true }: CardProps) {
       className={[
         'bg-white rounded-xl border border-border p-space-5 shadow-sm',
         hover &&
-          'transition-all duration-base hover:shadow-lg hover:-translate-y-1',
+          'transition-all duration-base hover:shadow-lg hover:-translate-y-1 hover:border-gold/30',
         className,
       ]
         .filter(Boolean)

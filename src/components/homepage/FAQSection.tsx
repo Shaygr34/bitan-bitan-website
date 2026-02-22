@@ -1,6 +1,6 @@
 'use client'
 
-import { SectionHeader, Accordion, AccordionItem } from '@/components/ui'
+import { SectionHeader, Accordion, AccordionItem, RevealSection } from '@/components/ui'
 
 const FAQS = [
   {
@@ -32,7 +32,7 @@ const FAQS = [
 
 export function FAQSection() {
   return (
-    <section className="bg-surface py-space-9 px-6">
+    <RevealSection className="bg-surface py-space-9 px-6">
       <div className="max-w-content mx-auto">
         <SectionHeader
           centered
@@ -51,6 +51,6 @@ export function FAQSection() {
           </Accordion>
         </div>
       </div>
-    </section>
+    </RevealSection>
   )
 }
