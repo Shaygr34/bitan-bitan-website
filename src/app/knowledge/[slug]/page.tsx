@@ -5,6 +5,10 @@ import { getArticleBySlug, getArticleSlugs } from '@/sanity/queries'
 import { SectionHeader, WhatsAppCTA } from '@/components/ui'
 import { ArrowRight, Calendar, Tag, User } from 'lucide-react'
 
+/* Allow on-demand rendering for slugs published after the build */
+export const dynamicParams = true
+export const revalidate = 300 // ISR — revalidate every 5 min
+
 type Props = {
   params: Promise<{ slug: string }>
 }

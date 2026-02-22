@@ -11,6 +11,8 @@ import { FileText, Building2, Receipt, Shield, Banknote, BookOpen } from "lucide
 import { getArticles, getCategories } from "@/sanity/queries";
 import type { ArticleCard, Category } from "@/sanity/types";
 
+export const revalidate = 300 // ISR — revalidate every 5 min
+
 export const metadata: Metadata = {
   title: "מרכז ידע — ביטן את ביטן רואי חשבון",
   description:
