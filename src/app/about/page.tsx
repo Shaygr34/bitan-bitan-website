@@ -5,7 +5,6 @@ import {
   CardBody,
   WhatsAppCTA,
   PhoneCTA,
-  LTR,
 } from "@/components/ui";
 import { Users, Award, Handshake, Building } from "lucide-react";
 
@@ -43,11 +42,31 @@ const VALUES = [
 ] as const;
 
 const TIMELINE = [
-  { year: "1992", text: "הקמת המשרד על ידי אבי ביטן, רו\"ח" },
-  { year: "2005", text: "הרחבת שירותי המיסוי הבינלאומי" },
-  { year: "2015", text: "הצטרפות הדור השני — רון ביטן, רו\"ח" },
-  { year: "2020", text: "מעבר למשרדים החדשים במגדל אלקטרה סיטי" },
-  { year: "היום", text: "מעל 500 לקוחות מרוצים ושירות מקיף לעסקים בכל גודל" },
+  {
+    year: "1990",
+    title: "ההתחלה",
+    text: "שלמה ביטן, רו\"ח, מייסד את המשרד ומניח את היסודות — שירות אישי, מקצועיות ואמינות.",
+  },
+  {
+    year: "2000",
+    title: "צמיחה והתרחבות",
+    text: "המשרד מרחיב את מעגל הלקוחות ואת מגוון שירותי המיסוי, כולל ייעוץ בינלאומי.",
+  },
+  {
+    year: "2015",
+    title: "הדור השני",
+    text: "אבי ורון ביטן, בניו של שלמה, מקימים את ביטן את ביטן — דור שני שממשיך את המסורת עם גישה חדשנית.",
+  },
+  {
+    year: "2020",
+    title: "בית חדש",
+    text: "המשרד עובר למגדל אלקטרה סיטי בתל אביב — סביבת עבודה מודרנית ונגישה.",
+  },
+  {
+    year: "היום",
+    title: "מעל 500 לקוחות",
+    text: "מעצמאים ועסקים קטנים ועד חברות וסטארטאפים — שירות מקיף ומותאם אישית.",
+  },
 ] as const;
 
 export default function AboutPage() {
@@ -59,62 +78,88 @@ export default function AboutPage() {
           <h1 className="text-white text-h1 font-bold">אודות המשרד</h1>
           <span className="gold-underline mt-4" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">
-            משרד רואי חשבון ביטן את ביטן פועל בתל אביב מזה למעלה מ-30 שנה.
-            דור שני של מומחיות פיננסית, שירות אישי וליווי מקצועי שלא מתפשר.
+            דור שני של מומחיות פיננסית. המשרד הוקם על ידי שלמה ביטן,
+            רו&quot;ח, וממשיך להוביל בידי בניו — אבי ורון — עם אותם ערכים
+            ושירות שלא מתפשר.
           </p>
         </div>
       </section>
 
       {/* Story */}
-      <section className="py-space-9 px-6">
+      <section className="py-space-10 px-6">
         <div className="max-w-content mx-auto">
-          <div className="grid md:grid-cols-2 gap-space-8 items-start">
-            <div>
-              <SectionHeader>הסיפור שלנו</SectionHeader>
-              <div className="mt-space-5 space-y-4 text-text-secondary text-body leading-relaxed">
-                <p>
-                  המשרד הוקם בשנת 1992 על ידי אבי ביטן, רואה חשבון, מתוך חזון
-                  לספק שירות חשבונאי מקצועי ואישי לעסקים ויחידים. לאורך השנים,
-                  המשרד צמח והתפתח תוך שמירה על הערכים המייסדים — מקצועיות,
-                  אמינות ויחס אישי.
-                </p>
-                <p>
-                  בשנת 2015 הצטרף רון ביטן, רו&quot;ח, לצוות המשרד והביא עימו
-                  גישה חדשנית ומענה טכנולוגי מתקדם. השילוב בין ניסיון עשיר
-                  ופרספקטיבה חדשה מאפשר לנו לתת ללקוחותינו שירות ייחודי — דור
-                  שני של מומחיות.
-                </p>
-                <p>
-                  היום, המשרד ממוקם במגדל אלקטרה סיטי בתל אביב ומשרת למעלה מ-500
-                  לקוחות — מעצמאים ועסקים קטנים ועד חברות וסטארטאפים.
-                </p>
-              </div>
-            </div>
+          <SectionHeader subtitle="מסורת משפחתית של מצוינות מקצועית.">
+            הסיפור שלנו
+          </SectionHeader>
 
-            {/* Timeline */}
-            <div>
-              <h3 className="text-h3 font-bold text-primary mb-space-5">
-                ציוני דרך
-              </h3>
-              <div className="space-y-space-4">
-                {TIMELINE.map(({ year, text }) => (
-                  <div key={year} className="flex gap-space-4">
-                    <div className="shrink-0 w-16 text-gold font-bold text-body-lg" dir="ltr">
-                      {year}
+          <div className="mt-space-8 max-w-narrow space-y-6 text-text-secondary text-body leading-relaxed">
+            <p className="text-body-lg">
+              את הבסיס הניח <strong className="text-primary">שלמה ביטן, רו&quot;ח</strong> —
+              שהקים את המשרד המקורי בשנות ה-90 מתוך אמונה פשוטה: שירות חשבונאי
+              צריך להיות מקצועי, אמין ואישי. שלמה בנה מוניטין של יושרה ומומחיות
+              שליווה מאות לקוחות לאורך עשרות שנים.
+            </p>
+            <p>
+              בשנת 2015 הקימו בניו, <strong className="text-primary">אבי ורון ביטן</strong>,
+              את משרד <strong className="text-primary">ביטן את ביטן — רואי חשבון</strong>.
+              הם הביאו עימם את הערכים שספגו מאביהם, יחד עם גישה חדשנית ומענה
+              טכנולוגי מתקדם. השילוב בין מסורת של מצוינות לפרספקטיבה עכשווית
+              מאפשר למשרד לתת ללקוחותיו שירות ייחודי.
+            </p>
+            <p>
+              היום, המשרד ממוקם במגדל אלקטרה סיטי בתל אביב ומשרת למעלה מ-500
+              לקוחות — מעצמאים ועסקים קטנים ועד חברות וסטארטאפים. אנחנו מאמינים
+              שכל לקוח ראוי ליחס אישי ולליווי צמוד, ללא תלות בגודל העסק.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Timeline — full-width, breathing room */}
+      <section className="bg-surface py-space-10 px-6">
+        <div className="max-w-content mx-auto">
+          <SectionHeader centered>
+            ציוני דרך
+          </SectionHeader>
+
+          <div className="mt-space-9 max-w-narrow mx-auto relative">
+            {/* Vertical line */}
+            <div className="absolute start-[39px] top-0 bottom-0 w-px bg-border-light hidden md:block" />
+
+            <div className="space-y-space-8">
+              {TIMELINE.map(({ year, title, text }, i) => (
+                <div key={year} className="flex gap-space-5 md:gap-space-6 items-start">
+                  {/* Year badge */}
+                  <div className="shrink-0 relative">
+                    <div className="w-20 h-20 rounded-xl bg-primary flex flex-col items-center justify-center text-center shadow-sm">
+                      <span className="text-gold font-bold text-body-lg leading-none" dir="ltr">
+                        {year}
+                      </span>
                     </div>
-                    <div className="border-s-2 border-border-light ps-space-4">
-                      <p className="text-text-secondary text-body">{text}</p>
-                    </div>
+                    {/* Connector dot on the vertical line */}
+                    {i < TIMELINE.length - 1 && (
+                      <div className="hidden md:block absolute start-[39px] -bottom-[calc(var(--space-8)/2)] w-px" />
+                    )}
                   </div>
-                ))}
-              </div>
+
+                  {/* Content */}
+                  <div className="pt-1">
+                    <h3 className="text-h4 font-bold text-primary">
+                      {title}
+                    </h3>
+                    <p className="text-text-secondary text-body mt-2 leading-relaxed">
+                      {text}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Values */}
-      <section className="bg-surface py-space-9 px-6">
+      <section className="py-space-10 px-6">
         <div className="max-w-content mx-auto">
           <SectionHeader centered subtitle="הערכים שמנחים אותנו בכל יום עבודה.">
             הערכים שלנו
@@ -141,7 +186,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-primary py-space-9 px-6">
+      <section className="bg-primary py-space-10 px-6">
         <div className="max-w-content mx-auto text-center">
           <h2 className="text-white text-h2 font-bold">רוצים להכיר אותנו?</h2>
           <span className="gold-underline mt-3 mx-auto" />

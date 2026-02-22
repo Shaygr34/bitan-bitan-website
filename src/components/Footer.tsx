@@ -1,6 +1,12 @@
 import Link from 'next/link'
 import { LTR } from '@/components/ui'
-import { Phone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock, MessageCircle, Facebook, Linkedin, Instagram } from 'lucide-react'
+
+const SOCIAL_LINKS = [
+  { label: 'Facebook', href: '#', icon: Facebook },
+  { label: 'LinkedIn', href: '#', icon: Linkedin },
+  { label: 'Instagram', href: '#', icon: Instagram },
+] as const
 
 const NAV_LINKS = [
   { label: 'דף הבית', href: '/' },
@@ -89,7 +95,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Legal links */}
+          {/* Column 3: Legal links + Social */}
           <div>
             <p className="text-primary font-bold text-body mb-space-3">מידע משפטי</p>
             <ul className="space-y-space-2">
@@ -104,6 +110,23 @@ export function Footer() {
                 </li>
               ))}
             </ul>
+
+            {/* Social media */}
+            <p className="text-primary font-bold text-body mt-space-5 mb-space-3">עקבו אחרינו</p>
+            <div className="flex gap-3">
+              {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="w-9 h-9 rounded-lg bg-surface flex items-center justify-center text-text-muted hover:bg-primary hover:text-white transition-all duration-base"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
