@@ -15,7 +15,10 @@ type PhoneCTAProps = {
 function trackPhoneClick() {
   // gtag event stub — will be wired to Google Analytics in a later milestone
   if (typeof window !== 'undefined' && 'gtag' in window) {
-    ;(window as Record<string, unknown>).gtag?.('event', 'phone_click', {
+    const g = (window as Record<string, unknown>).gtag as
+      | ((...args: unknown[]) => void)
+      | undefined
+    g?.('event', 'phone_click', {
       event_category: 'contact',
       event_label: 'phone_cta',
     })

@@ -15,7 +15,10 @@ type WhatsAppCTAProps = {
 function trackWhatsAppClick() {
   // gtag event stub — will be wired to Google Analytics in a later milestone
   if (typeof window !== 'undefined' && 'gtag' in window) {
-    ;(window as Record<string, unknown>).gtag?.('event', 'whatsapp_click', {
+    const g = (window as Record<string, unknown>).gtag as
+      | ((...args: unknown[]) => void)
+      | undefined
+    g?.('event', 'whatsapp_click', {
       event_category: 'contact',
       event_label: 'whatsapp_cta',
     })
