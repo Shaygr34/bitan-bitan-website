@@ -7,7 +7,7 @@ import {
   WhatsAppCTA,
   PhoneCTA,
 } from "@/components/ui";
-import { Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, MessageCircle, Navigation, ExternalLink } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "צור קשר — ביטן את ביטן רואי חשבון",
@@ -57,6 +57,13 @@ const CONTACT_METHODS = [
     external: false,
   },
 ] as const;
+
+/* Electra Tower, HaRakevet 58, Tel Aviv */
+const OFFICE_LAT = 32.06375;
+const OFFICE_LNG = 34.78955;
+const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1691.5!2d${OFFICE_LNG}!3d${OFFICE_LAT}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151d4b9c1f22bf4d%3A0x502ba309bf77a4a2!2sElectra%20Tower!5e0!3m2!1siw!2sil!4v1700000000000`;
+const WAZE_URL = `https://waze.com/ul?ll=${OFFICE_LAT},${OFFICE_LNG}&navigate=yes&z=17`;
+const GOOGLE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${OFFICE_LAT},${OFFICE_LNG}`;
 
 export default function ContactPage() {
   return (
@@ -112,10 +119,17 @@ export default function ContactPage() {
               <div className="flex flex-wrap gap-3 mt-space-7">
                 <WhatsAppCTA label="WhatsApp" size="md" />
                 <PhoneCTA size="md" />
+                <a
+                  href="mailto:office@bitancpa.com"
+                  className="inline-flex items-center justify-center gap-2 border-2 border-primary text-primary font-medium text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary hover:text-white transition-all duration-base"
+                >
+                  <Mail className="h-4 w-4" />
+                  שלחו מייל
+                </a>
               </div>
             </div>
 
-            {/* Contact form placeholder */}
+            {/* Contact form */}
             <div>
               <Card hover={false}>
                 <CardBody>
@@ -204,27 +218,61 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Map placeholder */}
+      {/* Map section */}
       <section className="bg-surface py-space-9 px-6">
         <div className="max-w-content mx-auto">
           <SectionHeader centered>
             איך מגיעים?
           </SectionHeader>
-          <div className="mt-space-7 rounded-xl overflow-hidden border border-border bg-callout h-[300px] md:h-[400px] flex items-center justify-center">
-            <div className="text-center text-text-muted">
-              <MapPin className="h-12 w-12 mx-auto mb-space-3 text-border" />
-              <p className="text-body">
-                הרכבת 58, מגדל אלקטרה סיטי, קומה 11
-              </p>
-              <p className="text-body-sm mt-1">תל אביב</p>
-              <a
-                href="https://maps.google.com/?q=הרכבת+58+תל+אביב+מגדל+אלקטרה+סיטי"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-space-3 text-body-sm font-medium text-gold hover:text-gold-hover transition-colors"
-              >
-                פתח ב-Google Maps ←
-              </a>
+
+          <div className="mt-space-7 rounded-xl overflow-hidden border border-border shadow-lg">
+            {/* Embedded Google Map */}
+            <div className="relative h-[350px] md:h-[450px]">
+              <iframe
+                src={GOOGLE_MAPS_EMBED_URL}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="מיקום המשרד — מגדל אלקטרה סיטי, תל אביב"
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+
+            {/* Address bar + navigation buttons */}
+            <div className="bg-white px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-gold shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-body font-medium text-primary">
+                    הרכבת 58, מגדל אלקטרה סיטי, קומה 11
+                  </p>
+                  <p className="text-body-sm text-text-muted">תל אביב</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 shrink-0">
+                <a
+                  href={WAZE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#33CCFF] text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:brightness-110 transition-all"
+                >
+                  <Navigation className="h-4 w-4" />
+                  נווט ב-Waze
+                </a>
+                <a
+                  href={GOOGLE_MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 border-2 border-primary text-primary font-medium text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary hover:text-white transition-all"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Google Maps
+                </a>
+              </div>
             </div>
           </div>
         </div>

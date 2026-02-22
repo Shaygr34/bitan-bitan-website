@@ -66,9 +66,9 @@ export function Header() {
             <Image
               src="/logo.png"
               alt="ביטן את ביטן — רואי חשבון"
-              width={160}
-              height={48}
-              className="h-9 md:h-12 w-auto"
+              width={200}
+              height={56}
+              className="h-10 md:h-14 w-auto"
               priority
             />
           </Link>
