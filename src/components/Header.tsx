@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X, Phone } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { EASE_OUT_QUART } from '@/lib/motion'
+import { useSiteSettings } from '@/components/SiteSettingsContext'
 
 const NAV_LINKS = [
   { label: 'דף הבית', href: '/' },
@@ -26,9 +27,15 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export function Header() {
   const pathname = usePathname()
+  const s = useSiteSettings()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [showStickyCTA, setShowStickyCTA] = useState(false)
+
+  const phone = s?.phone ?? '03-5174295'
+  const phoneTel = phone.replace(/[^+\d]/g, '')
+  const whatsapp = s?.whatsapp ?? '+972527221111'
+  const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
 
   // Shadow on scroll + sticky CTA visibility
   useEffect(() => {
@@ -185,7 +192,7 @@ export function Header() {
             className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white border-t border-border shadow-lg px-4 py-3 flex gap-3"
           >
             <a
-              href="https://wa.me/972527221111"
+              href={`https://wa.me/${whatsappClean}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 inline-flex items-center justify-center gap-2 bg-gold text-primary font-bold text-body-sm py-2.5 rounded-lg hover:bg-gold-hover transition-colors"
@@ -194,11 +201,11 @@ export function Header() {
               WhatsApp
             </a>
             <a
-              href="tel:035174295"
+              href={`tel:${phoneTel}`}
               className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-white font-medium text-body-sm py-2.5 rounded-lg hover:bg-primary-light transition-colors"
             >
               <Phone className="h-4 w-4" />
-              <span dir="ltr">03-5174295</span>
+              <span dir="ltr">{phone}</span>
             </a>
           </motion.div>
         )}

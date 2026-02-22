@@ -17,7 +17,11 @@ import {
   Briefcase,
   Globe,
   Users,
+  type LucideIcon,
 } from "lucide-react";
+import { getServices } from "@/sanity/queries";
+import { PortableText } from "next-sanity";
+import type { Service } from "@/sanity/types";
 
 export const metadata: Metadata = {
   title: "שירותים — ביטן את ביטן רואי חשבון",
@@ -25,97 +29,58 @@ export const metadata: Metadata = {
     "שירותי ראיית חשבון, ייעוץ מס, הנהלת חשבונות, דוחות כספיים, ביקורת, ליווי עסקי ומיסוי בינלאומי — ביטן את ביטן.",
 };
 
-const SERVICES = [
-  {
-    icon: Calculator,
-    title: "ייעוץ מס",
-    description:
-      "תכנון מס אסטרטגי ליחידים, חברות ועסקים — חיסכון מקסימלי במסגרת החוק.",
-    details: [
-      "תכנון מס שנתי ורב-שנתי",
-      "ייעוץ בעסקאות מורכבות",
-      "תכנון מס לפני מכירת נכסים או עסק",
-      "ייצוג מול רשויות המס",
-      "החזרי מס לשכירים",
-    ],
-  },
-  {
-    icon: BookOpen,
-    title: "הנהלת חשבונות",
-    description:
-      "ניהול ספרים מדויק ומקצועי, דיווחים תקופתיים ועמידה בדרישות רשויות המס.",
-    details: [
-      "הנהלת חשבונות חד-צידית ודו-צידית",
-      "דיווחים חודשיים למע\"מ ומס הכנסה",
-      "ניהול חשבוניות ותשלומים",
-      "התאמות בנקים",
-      "הכנת דוחות ניהוליים שוטפים",
-    ],
-  },
-  {
-    icon: FileText,
-    title: "דוחות כספיים",
-    description:
-      "הכנת דוחות כספיים שנתיים, דוחות מס הכנסה ודוחות מיוחדים בהתאם לתקנים.",
-    details: [
-      "דוחות כספיים שנתיים מבוקרים וסקורים",
-      "דוחות מס הכנסה ליחידים ולחברות",
-      "דוחות לבנקים ולגופים מוסדיים",
-      "דוחות מיוחדים לפי דרישה",
-    ],
-  },
-  {
-    icon: Shield,
-    title: "ביקורת חשבונות",
-    description:
-      "שירותי ביקורת מקצועיים להבטחת דיוק ותקינות הדיווח הכספי של העסק.",
-    details: [
-      "ביקורת דוחות כספיים",
-      "ביקורת פנימית",
-      "בדיקת נאותות (Due Diligence)",
-      "חוות דעת מקצועיות",
-    ],
-  },
-  {
-    icon: Briefcase,
-    title: "ליווי עסקי",
-    description:
-      "ייעוץ עסקי שוטף, תמיכה בקבלת החלטות פיננסיות וליווי בצמתים עסקיים קריטיים.",
-    details: [
-      "הקמת עסק חדש — בחירת מבנה משפטי ומס",
-      "תוכנית עסקית ותחזיות פיננסיות",
-      "ליווי בגיוסי הון ומימון",
-      "ייעוץ לפני ובמהלך עסקאות",
-      "ייעוץ לשיפור רווחיות",
-    ],
-  },
-  {
-    icon: Globe,
-    title: "מיסוי בינלאומי",
-    description:
-      "פתרונות מס לפעילות בינלאומית, אמנות מס, ומיסוי תושבי חוץ.",
-    details: [
-      "אמנות למניעת כפל מס",
-      "מיסוי עולים חדשים ותושבים חוזרים",
-      "מבנים בינלאומיים לחברות",
-      "דיווחים לרשויות מס בחו\"ל",
-    ],
-  },
-  {
-    icon: Users,
-    title: "שכר ותנאים סוציאליים",
-    description:
-      "ניהול שכר מקיף, חישובי פנסיה וביטוח לאומי, והתאמה לדרישות החוק.",
-    details: [
-      "הפקת תלושי שכר",
-      "דיווחים לביטוח לאומי ומס הכנסה",
-      "חישובי פיצויים וזכויות עובדים",
-      "ייעוץ בנושאי דיני עבודה",
-    ],
-  },
+const ICON_MAP: Record<string, LucideIcon> = {
+  calculator: Calculator,
+  ledger: BookOpen,
+  bookopen: BookOpen,
+  chart: FileText,
+  filetext: FileText,
+  shield: Shield,
+  briefcase: Briefcase,
+  globe: Globe,
+  users: Users,
+};
+
+const FALLBACK_SERVICES = [
+  { icon: Calculator, title: "ייעוץ מס", description: "תכנון מס אסטרטגי ליחידים, חברות ועסקים — חיסכון מקסימלי במסגרת החוק.", details: ["תכנון מס שנתי ורב-שנתי", "ייעוץ בעסקאות מורכבות", "תכנון מס לפני מכירת נכסים או עסק", "ייצוג מול רשויות המס", "החזרי מס לשכירים"] },
+  { icon: BookOpen, title: "הנהלת חשבונות", description: "ניהול ספרים מדויק ומקצועי, דיווחים תקופתיים ועמידה בדרישות רשויות המס.", details: ["הנהלת חשבונות חד-צידית ודו-צידית", "דיווחים חודשיים למע\"מ ומס הכנסה", "ניהול חשבוניות ותשלומים", "התאמות בנקים", "הכנת דוחות ניהוליים שוטפים"] },
+  { icon: FileText, title: "דוחות כספיים", description: "הכנת דוחות כספיים שנתיות, דוחות מס הכנסה ודוחות מיוחדים בהתאם לתקנים.", details: ["דוחות כספיים שנתיים מבוקרים וסקורים", "דוחות מס הכנסה ליחידים ולחברות", "דוחות לבנקים ולגופים מוסדיים", "דוחות מיוחדים לפי דרישה"] },
+  { icon: Shield, title: "ביקורת חשבונות", description: "שירותי ביקורת מקצועיים להבטחת דיוק ותקינות הדיווח הכספי של העסק.", details: ["ביקורת דוחות כספיים", "ביקורת פנימית", "בדיקת נאותות (Due Diligence)", "חוות דעת מקצועיות"] },
+  { icon: Briefcase, title: "ליווי עסקי", description: "ייעוץ עסקי שוטף, תמיכה בקבלת החלטות פיננסיות וליווי בצמתים עסקיים קריטיים.", details: ["הקמת עסק חדש — בחירת מבנה משפטי ומס", "תוכנית עסקית ותחזוקות פיננסיות", "ליווי בגיוסי הון ומימון", "ייעוץ לפני ובמהלך עסקאות", "ייעוץ לשיפור רווחיות"] },
+  { icon: Globe, title: "מיסוי בינלאומי", description: "פתרונות מס לפעילות בינלאומית, אמנות מס, ומיסוי תושבי חוץ.", details: ["אמנות למניעת כפל מס", "מיסוי עולים חדשים ותושבים חוזרים", "מבנים בינלאומיים לחברות", "דיווחים לרשויות מס בחו\"ל"] },
+  { icon: Users, title: "שכר ותנאים סוציאליים", description: "ניהול שכר מקיף, חישובי פנסיה וביטוח לאומי, והתאמה לדרישות החוק.", details: ["הפקת תלושי שכר", "דיווחים לביטוח לאומי ומס הכנסה", "חישובי פיצויים וזכויות עובדים", "ייעוץ בנושאי דיני עבודה"] },
 ] as const;
 
-export default function ServicesPage() {
+function ServiceCard({ service }: { service: Service }) {
+  const Icon = (service.icon && ICON_MAP[service.icon.toLowerCase()]) || Briefcase;
+  return (
+    <Card hover={false}>
+      <CardHeader>
+        <div className="flex items-center gap-space-3">
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Icon className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-h3 font-bold text-primary">{service.title}</h2>
+        </div>
+      </CardHeader>
+      <CardBody>
+        <p className="text-text-secondary text-body mb-space-4">
+          {service.shortDescription}
+        </p>
+        {service.body && service.body.length > 0 && (
+          <div className="prose-sm text-text-secondary">
+            <PortableText value={service.body} />
+          </div>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
+export default async function ServicesPage() {
+  const services = await getServices();
+  const hasData = services && services.length > 0;
+
   return (
     <div>
       {/* Hero */}
@@ -134,34 +99,31 @@ export default function ServicesPage() {
       <section className="py-space-9 px-6">
         <div className="max-w-content mx-auto">
           <div className="grid md:grid-cols-2 gap-space-6">
-            {SERVICES.map(({ icon: Icon, title, description, details }) => (
-              <Card key={title} hover={false}>
-                <CardHeader>
-                  <div className="flex items-center gap-space-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <h2 className="text-h3 font-bold text-primary">{title}</h2>
-                  </div>
-                </CardHeader>
-                <CardBody>
-                  <p className="text-text-secondary text-body mb-space-4">
-                    {description}
-                  </p>
-                  <ul className="space-y-2">
-                    {details.map((detail) => (
-                      <li
-                        key={detail}
-                        className="flex items-start gap-2 text-body-sm text-text-secondary"
-                      >
-                        <span className="text-gold mt-1 shrink-0">●</span>
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                </CardBody>
-              </Card>
-            ))}
+            {hasData
+              ? services.map((svc) => <ServiceCard key={svc._id} service={svc} />)
+              : FALLBACK_SERVICES.map(({ icon: Icon, title, description, details }) => (
+                  <Card key={title} hover={false}>
+                    <CardHeader>
+                      <div className="flex items-center gap-space-3">
+                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-primary" />
+                        </div>
+                        <h2 className="text-h3 font-bold text-primary">{title}</h2>
+                      </div>
+                    </CardHeader>
+                    <CardBody>
+                      <p className="text-text-secondary text-body mb-space-4">{description}</p>
+                      <ul className="space-y-2">
+                        {details.map((detail) => (
+                          <li key={detail} className="flex items-start gap-2 text-body-sm text-text-secondary">
+                            <span className="text-gold mt-1 shrink-0">●</span>
+                            {detail}
+                          </li>
+                        ))}
+                      </ul>
+                    </CardBody>
+                  </Card>
+                ))}
           </div>
         </div>
       </section>

@@ -7,7 +7,7 @@ import {
   WhatsAppCTA,
   PhoneCTA,
 } from "@/components/ui";
-import { Phone, Mail, MapPin, Clock, MessageCircle, Navigation, ExternalLink } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "צור קשר — ביטן את ביטן רואי חשבון",
@@ -59,11 +59,30 @@ const CONTACT_METHODS = [
 ] as const;
 
 /* Electra Tower, HaRakevet 58, Tel Aviv */
-const OFFICE_LAT = 32.06375;
-const OFFICE_LNG = 34.78955;
-const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1691.5!2d${OFFICE_LNG}!3d${OFFICE_LAT}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151d4b9c1f22bf4d%3A0x502ba309bf77a4a2!2sElectra%20Tower!5e0!3m2!1siw!2sil!4v1700000000000`;
-const WAZE_URL = `https://waze.com/ul?ll=${OFFICE_LAT},${OFFICE_LNG}&navigate=yes&z=17`;
-const GOOGLE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${OFFICE_LAT},${OFFICE_LNG}`;
+const OFFICE_ADDRESS = 'הרכבת 58, מגדל אלקטרה סיטי, תל אביב';
+const OFFICE_ADDRESS_ENCODED = encodeURIComponent(OFFICE_ADDRESS);
+/* Embed with place query — shows a red pin on the map */
+const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${OFFICE_ADDRESS_ENCODED}&language=he&zoom=16`;
+/* Waze with address search (not coordinates) — shows proper name */
+const WAZE_URL = `https://waze.com/ul?q=${OFFICE_ADDRESS_ENCODED}&navigate=yes`;
+/* Google Maps with address search */
+const GOOGLE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${OFFICE_ADDRESS_ENCODED}`;
+
+function WazeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M20.54 6.63A8.99 8.99 0 0 0 12.04 2c-2.6 0-5.05 1.1-6.8 2.87A8.97 8.97 0 0 0 3 11.6c.1 1.74.67 3.38 1.6 4.77.15.2.15.5.01.74l-1.01 1.7c-.28.4.18.87.6.62l2.2-1.32c.2-.12.45-.13.66-.02a9.07 9.07 0 0 0 4.39 1.14h.27c4.73-.22 8.63-4.1 8.87-8.83.06-1.33-.15-2.6-.56-3.77h-.49zM8.31 12.45c-.82 0-1.49-.67-1.49-1.49s.67-1.49 1.49-1.49 1.49.67 1.49 1.49-.67 1.49-1.49 1.49zm5.38 0c-.82 0-1.49-.67-1.49-1.49s.67-1.49 1.49-1.49 1.49.67 1.49 1.49-.67 1.49-1.49 1.49z"/>
+    </svg>
+  )
+}
+
+function GoogleMapsIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+    </svg>
+  )
+}
 
 export default function ContactPage() {
   return (
@@ -260,7 +279,7 @@ export default function ContactPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-[#33CCFF] text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:brightness-110 transition-all"
                 >
-                  <Navigation className="h-4 w-4" />
+                  <WazeIcon className="h-5 w-5" />
                   נווט ב-Waze
                 </a>
                 <a
@@ -269,7 +288,7 @@ export default function ContactPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 border-2 border-primary text-primary font-medium text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary hover:text-white transition-all"
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <GoogleMapsIcon className="h-5 w-5" />
                   Google Maps
                 </a>
               </div>

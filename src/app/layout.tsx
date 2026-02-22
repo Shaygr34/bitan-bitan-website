@@ -3,6 +3,8 @@ import { Heebo } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SiteSettingsProvider } from "@/components/SiteSettingsContext";
+import { getSiteSettings } from "@/sanity/queries";
 
 const heebo = Heebo({
   subsets: ["hebrew", "latin"],
@@ -23,17 +25,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSiteSettings();
+
   return (
     <html lang="he" dir="rtl" className={heebo.variable}>
       <body className="font-heebo min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SiteSettingsProvider settings={settings}>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </SiteSettingsProvider>
       </body>
     </html>
   );
