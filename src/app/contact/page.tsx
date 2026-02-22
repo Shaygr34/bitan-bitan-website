@@ -22,6 +22,7 @@ const CONTACT_METHODS = [
     value: "03-5174295",
     href: "tel:035174295",
     ltr: true,
+    external: false,
   },
   {
     icon: Mail,
@@ -29,6 +30,7 @@ const CONTACT_METHODS = [
     value: "office@bitancpa.com",
     href: "mailto:office@bitancpa.com",
     ltr: true,
+    external: false,
   },
   {
     icon: MessageCircle,
@@ -44,6 +46,7 @@ const CONTACT_METHODS = [
     value: "הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב",
     href: undefined,
     ltr: false,
+    external: false,
   },
   {
     icon: Clock,
@@ -51,6 +54,7 @@ const CONTACT_METHODS = [
     value: "ראשון–חמישי 08:30–17:00",
     href: undefined,
     ltr: false,
+    external: false,
   },
 ] as const;
 
