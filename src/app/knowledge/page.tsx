@@ -9,6 +9,7 @@ import {
 } from "@/components/ui";
 import { FileText, Building2, Receipt, Shield, Banknote, BookOpen } from "lucide-react";
 import { getArticles, getCategories } from "@/sanity/queries";
+import { urlFor } from "@/sanity/image";
 import type { ArticleCard, Category } from "@/sanity/types";
 
 export const revalidate = 300 // ISR — revalidate every 5 min
@@ -42,15 +43,26 @@ function ArticleCardComponent({ article }: { article: ArticleCard }) {
   const catTitle = article.category?.title ?? 'כללי';
   const visual = CATEGORY_VISUALS[catTitle] ?? DEFAULT_VISUAL;
   const Icon = visual.icon;
+  const imageUrl = urlFor(article.mainImage, 600);
 
   return (
     <Link href={`/knowledge/${article.slug?.current ?? ''}`}>
       <Card className="!p-0 overflow-hidden">
         {/* Visual banner */}
         <div className={`relative h-36 bg-gradient-to-bl ${visual.gradient} flex items-center justify-center overflow-hidden`}>
-          <div className="absolute -top-6 -end-6 w-24 h-24 rounded-full bg-white/5" />
-          <div className="absolute -bottom-4 -start-4 w-16 h-16 rounded-full bg-white/5" />
-          <Icon className="h-12 w-12 text-white/30" strokeWidth={1.5} />
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={article.mainImage?.alt ?? article.title}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <>
+              <div className="absolute -top-6 -end-6 w-24 h-24 rounded-full bg-white/5" />
+              <div className="absolute -bottom-4 -start-4 w-16 h-16 rounded-full bg-white/5" />
+              <Icon className="h-12 w-12 text-white/30" strokeWidth={1.5} />
+            </>
+          )}
           <span className="absolute top-3 start-3 px-3 py-1 text-caption font-medium bg-white/20 text-white rounded-full backdrop-blur-sm">
             {catTitle}
           </span>
