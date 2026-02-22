@@ -1,26 +1,29 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { PortableText } from 'next-sanity'
-import { getArticleBySlug, getArticleSlugs } from '@/sanity/queries'
+import { getArticleBySlug } from '@/sanity/queries'
 import { SectionHeader, WhatsAppCTA } from '@/components/ui'
 import { ArrowRight, Calendar, Tag, User } from 'lucide-react'
 
-/* Allow on-demand rendering for slugs published after the build */
-export const dynamicParams = true
-export const revalidate = 300 // ISR — revalidate every 5 min
+/* Render article pages on-demand (SSR) — avoids cache/encoding issues with Hebrew slugs on Railway */
+export const dynamic = 'force-dynamic'
 
 type Props = {
   params: Promise<{ slug: string }>
 }
 
-export async function generateStaticParams() {
-  const slugs = await getArticleSlugs()
-  return slugs.map(({ slug }) => ({ slug }))
+/** Safely decode a slug that may arrive percent-encoded from the proxy */
+function decodeSlug(raw: string): string {
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    return raw
+  }
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params
-  const article = await getArticleBySlug(slug)
+  const article = await getArticleBySlug(decodeSlug(slug))
   if (!article) return { title: 'מאמר לא נמצא' }
   return {
     title: `${article.title} — ביטן את ביטן רואי חשבון`,
@@ -43,7 +46,7 @@ function formatDate(dateStr?: string): string {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params
-  const article = await getArticleBySlug(slug)
+  const article = await getArticleBySlug(decodeSlug(slug))
 
   if (!article) {
     notFound()
