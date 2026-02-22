@@ -12,12 +12,48 @@ import {
   RevealItem,
 } from '@/components/ui'
 import type { ArticleCard } from '@/sanity/types'
+import { urlFor } from '@/sanity/image'
 
 const FALLBACK_ARTICLES = [
   { tag: 'מס הכנסה', title: 'מדריך להגשת דוח שנתי למס הכנסה', excerpt: 'כל מה שצריך לדעת על הגשת הדוח השנתי — לוחות זמנים, מסמכים נדרשים וטיפים לחיסכון.' },
   { tag: 'חברות', title: 'הקמת חברה בע"מ — המדריך המלא', excerpt: 'שלב אחר שלב: רישום חברה, פתיחת תיקים ברשויות, ותכנון מס נכון מהיום הראשון.' },
   { tag: 'מע"מ', title: 'ניהול מע"מ לעסקים קטנים ובינוניים', excerpt: 'טיפים פרקטיים לניהול חשבוניות, דיווחים תקופתיים וזכויות לניכוי מע"מ תשומות.' },
 ] as const
+
+function ArticlePreviewCard({ article }: { article: ArticleCard }) {
+  const imgUrl = urlFor(article.mainImage, 400)
+  return (
+    <Link href={`/knowledge/${article.slug?.current ?? ''}`}>
+      <Card className={imgUrl ? '!p-0 overflow-hidden' : ''}>
+        {imgUrl && (
+          <div className="relative h-36 overflow-hidden">
+            <img
+              src={imgUrl}
+              alt={article.mainImage?.alt ?? article.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <CardHeader className={imgUrl ? 'px-space-5 pt-space-4' : ''}>
+          <span className="inline-block px-3 py-1 text-caption font-medium bg-primary/10 text-primary rounded-full">
+            {article.category?.title ?? 'כללי'}
+          </span>
+        </CardHeader>
+        <CardBody className={imgUrl ? 'px-space-5' : ''}>
+          <h3 className="text-h4 font-semibold text-primary">{article.title}</h3>
+          {article.excerpt && (
+            <p className="text-text-secondary text-body mt-2">{article.excerpt}</p>
+          )}
+        </CardBody>
+        <CardFooter className={imgUrl ? 'px-space-5 pb-space-4' : ''}>
+          <span className="text-body-sm font-medium text-gold hover:text-gold-hover transition-colors">
+            קראו עוד ←
+          </span>
+        </CardFooter>
+      </Card>
+    </Link>
+  )
+}
 
 type Props = { articles?: ArticleCard[] }
 
@@ -40,26 +76,7 @@ export function KnowledgePreview({ articles }: Props) {
           {displayArticles
             ? displayArticles.map((article) => (
                 <RevealItem key={article._id}>
-                  <Link href={`/knowledge/${article.slug?.current ?? ''}`}>
-                    <Card>
-                      <CardHeader>
-                        <span className="inline-block px-3 py-1 text-caption font-medium bg-primary/10 text-primary rounded-full">
-                          {article.category?.title ?? 'כללי'}
-                        </span>
-                      </CardHeader>
-                      <CardBody>
-                        <h3 className="text-h4 font-semibold text-primary">{article.title}</h3>
-                        {article.excerpt && (
-                          <p className="text-text-secondary text-body mt-2">{article.excerpt}</p>
-                        )}
-                      </CardBody>
-                      <CardFooter>
-                        <span className="text-body-sm font-medium text-gold hover:text-gold-hover transition-colors">
-                          קראו עוד ←
-                        </span>
-                      </CardFooter>
-                    </Card>
-                  </Link>
+                  <ArticlePreviewCard article={article} />
                 </RevealItem>
               ))
             : FALLBACK_ARTICLES.map(({ tag, title, excerpt }) => (

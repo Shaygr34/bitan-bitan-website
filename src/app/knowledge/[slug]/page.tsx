@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { PortableText } from 'next-sanity'
 import { getArticleBySlug } from '@/sanity/queries'
+import { urlFor } from '@/sanity/image'
 import { SectionHeader, WhatsAppCTA } from '@/components/ui'
 import { ArrowRight, Calendar, Tag, User } from 'lucide-react'
 
@@ -90,6 +91,22 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* Main image */}
+      {(() => {
+        const imageUrl = urlFor(article.mainImage, 1200)
+        return imageUrl ? (
+          <section className="px-6">
+            <div className="max-w-narrow mx-auto -mt-space-5">
+              <img
+                src={imageUrl}
+                alt={article.mainImage?.alt ?? article.title}
+                className="w-full rounded-xl shadow-lg object-cover max-h-[420px]"
+              />
+            </div>
+          </section>
+        ) : null
+      })()}
 
       {/* Body */}
       <section className="py-space-9 px-6">
