@@ -123,7 +123,7 @@ export function Header() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ duration: 0.3, ease: EASE_OUT_QUART as unknown as number[] }}
+              transition={{ duration: 0.3, ease: EASE_OUT_QUART }}
               className="absolute top-0 end-0 h-full w-[280px] bg-white shadow-xl flex flex-col"
             >
               {/* Close button */}
@@ -152,7 +152,7 @@ export function Header() {
                     key={href}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05, duration: 0.25, ease: EASE_OUT_QUART as unknown as number[] }}
+                    transition={{ delay: 0.1 + i * 0.05, duration: 0.25, ease: EASE_OUT_QUART }}
                   >
                     <Link
                       href={href}
@@ -181,7 +181,7 @@ export function Header() {
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ duration: 0.3, ease: EASE_OUT_QUART as unknown as number[] }}
+            transition={{ duration: 0.3, ease: EASE_OUT_QUART }}
             className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white border-t border-border shadow-lg px-4 py-3 flex gap-3"
           >
             <a
