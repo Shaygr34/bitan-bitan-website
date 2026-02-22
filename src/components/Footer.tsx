@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import { LTR } from '@/components/ui'
 import { Phone, Mail, MapPin, Clock, MessageCircle, Facebook, Linkedin, Instagram } from 'lucide-react'
+import { useSiteSettings } from '@/components/SiteSettingsContext'
 
 const SOCIAL_LINKS = [
   { label: 'Facebook', href: '#', icon: Facebook },
@@ -22,6 +25,16 @@ const LEGAL_LINKS = [
 ] as const
 
 export function Footer() {
+  const s = useSiteSettings()
+
+  const phone = s?.phone ?? '03-5174295'
+  const fax = s?.fax ?? '03-5174298'
+  const email = s?.email ?? 'office@bitancpa.com'
+  const address = s?.address ?? 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב'
+  const officeHours = s?.officeHours ?? 'ראשון–חמישי 08:30–17:00'
+  const whatsapp = s?.whatsapp ?? '+972527221111'
+  const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
+
   return (
     <footer className="bg-white border-t border-border">
       <div className="max-w-content mx-auto px-6 py-space-8">
@@ -29,41 +42,41 @@ export function Footer() {
           {/* Column 1: Firm info + contact */}
           <div>
             <p className="text-primary font-bold text-body-lg">
-              ביטן את ביטן — רואי חשבון
+              {s?.siteName ?? 'ביטן את ביטן — רואי חשבון'}
             </p>
 
             <ul className="mt-space-4 space-y-space-3 text-body-sm text-text-secondary">
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-text-muted" />
-                <span>הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב</span>
+                <span>{address}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0 text-text-muted" />
                 <a
-                  href="tel:035174295"
+                  href={`tel:${phone.replace(/[^+\d]/g, '')}`}
                   className="hover:text-primary transition-colors"
                 >
-                  <LTR>03-5174295</LTR>
+                  <LTR>{phone}</LTR>
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0 text-text-muted" />
                 <span className="text-text-muted">פקס:</span>
-                <LTR>03-5174298</LTR>
+                <LTR>{fax}</LTR>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-text-muted" />
                 <a
-                  href="mailto:office@bitancpa.com"
+                  href={`mailto:${email}`}
                   className="hover:text-primary transition-colors"
                 >
-                  <LTR>office@bitancpa.com</LTR>
+                  <LTR>{email}</LTR>
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <MessageCircle className="h-4 w-4 shrink-0 text-text-muted" />
                 <a
-                  href="https://wa.me/972527221111"
+                  href={`https://wa.me/${whatsappClean}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-primary transition-colors"
@@ -73,7 +86,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="h-4 w-4 shrink-0 text-text-muted" />
-                <span>ראשון–חמישי 08:30–17:00</span>
+                <span>{officeHours}</span>
               </li>
             </ul>
           </div>
@@ -136,7 +149,7 @@ export function Footer() {
             המידע באתר הינו כללי בלבד ואינו מהווה תחליף לייעוץ מקצועי פרטני.
           </p>
           <p>
-            © {new Date().getFullYear()} ביטן את ביטן — רואי חשבון. כל הזכויות
+            © {new Date().getFullYear()} {s?.siteName ?? 'ביטן את ביטן — רואי חשבון'}. כל הזכויות
             שמורות.
           </p>
         </div>

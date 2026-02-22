@@ -7,6 +7,8 @@ import {
   Shield,
   Briefcase,
   Globe,
+  Users,
+  type LucideIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -18,47 +20,47 @@ import {
   RevealGroup,
   RevealItem,
 } from '@/components/ui'
+import type { Service } from '@/sanity/types'
 
-const SERVICES = [
-  {
-    icon: Calculator,
-    title: 'ייעוץ מס',
-    description:
-      'תכנון מס אסטרטגי ליחידים, חברות ועסקים — חיסכון מקסימלי במסגרת החוק.',
-  },
-  {
-    icon: BookOpen,
-    title: 'הנהלת חשבונות',
-    description:
-      'ניהול ספרים מדויק ומקצועי, דיווחים תקופתיים ועמידה בדרישות רשויות המס.',
-  },
-  {
-    icon: FileText,
-    title: 'דוחות כספיים',
-    description:
-      'הכנת דוחות כספיים שנתיים, דוחות מס הכנסה ודוחות מיוחדים בהתאם לתקנים.',
-  },
-  {
-    icon: Shield,
-    title: 'ביקורת חשבונות',
-    description:
-      'שירותי ביקורת מקצועיים להבטחת דיוק ותקינות הדיווח הכספי של העסק.',
-  },
-  {
-    icon: Briefcase,
-    title: 'ליווי עסקי',
-    description:
-      'ייעוץ עסקי שוטף, תמיכה בקבלת החלטות פיננסיות וליווי בצמתים עסקיים קריטיים.',
-  },
-  {
-    icon: Globe,
-    title: 'מיסוי בינלאומי',
-    description:
-      'פתרונות מס לפעילות בינלאומית, אמנות מס, ומיסוי תושבי חוץ.',
-  },
+/** Map Sanity icon names to Lucide components */
+const ICON_MAP: Record<string, LucideIcon> = {
+  calculator: Calculator,
+  ledger: BookOpen,
+  bookopen: BookOpen,
+  chart: FileText,
+  filetext: FileText,
+  shield: Shield,
+  briefcase: Briefcase,
+  globe: Globe,
+  users: Users,
+}
+
+const FALLBACK_SERVICES = [
+  { icon: Calculator, title: 'ייעוץ מס', description: 'תכנון מס אסטרטגי ליחידים, חברות ועסקים — חיסכון מקסימלי במסגרת החוק.' },
+  { icon: BookOpen, title: 'הנהלת חשבונות', description: 'ניהול ספרים מדויק ומקצועי, דיווחים תקופתיים ועמידה בדרישות רשויות המס.' },
+  { icon: FileText, title: 'דוחות כספיים', description: 'הכנת דוחות כספיים שנתיים, דוחות מס הכנסה ודוחות מיוחדים בהתאם לתקנים.' },
+  { icon: Shield, title: 'ביקורת חשבונות', description: 'שירותי ביקורת מקצועיים להבטחת דיוק ותקינות הדיווח הכספי של העסק.' },
+  { icon: Briefcase, title: 'ליווי עסקי', description: 'ייעוץ עסקי שוטף, תמיכה בקבלת החלטות פיננסיות וליווי בצמתים עסקיים קריטיים.' },
+  { icon: Globe, title: 'מיסוי בינלאומי', description: 'פתרונות מס לפעילות בינלאומית, אמנות מס, ומיסוי תושבי חוץ.' },
 ] as const
 
-export function ServicesSection() {
+type Props = { services?: Service[] }
+
+export function ServicesSection({ services }: Props) {
+  const items = services && services.length > 0
+    ? services.map((svc) => ({
+        key: svc._id,
+        Icon: (svc.icon && ICON_MAP[svc.icon.toLowerCase()]) || Briefcase,
+        title: svc.title,
+        description: svc.shortDescription,
+      }))
+    : FALLBACK_SERVICES.map((s) => ({
+        key: s.title,
+        Icon: s.icon,
+        title: s.title,
+        description: s.description,
+      }))
+
   return (
     <RevealSection className="py-space-9 px-6">
       <div className="max-w-content mx-auto">
@@ -70,8 +72,8 @@ export function ServicesSection() {
         </SectionHeader>
 
         <RevealGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5 mt-space-8">
-          {SERVICES.map(({ icon: Icon, title, description }) => (
-            <RevealItem key={title}>
+          {items.map(({ key, Icon, title, description }) => (
+            <RevealItem key={key}>
               <Card>
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-space-3">
