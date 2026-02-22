@@ -1,0 +1,93 @@
+/*
+ * ביטן את ביטן — Design Tokens
+ * Source of truth: Website Brand Contract v1.0
+ *
+ * Color ratio per viewport:
+ *   Navy: 60-70%  |  Gold: 5-10% (lines/underlines only)  |  White/off-white: 20-30%
+ *   Gold CTA button: max 1 per viewport
+ */
+
+:root {
+  /* ─── Core Palette ─── */
+  --color-primary: #1B2A4A;          /* Navy — dominant brand color */
+  --color-primary-light: #2A3F6E;    /* Navy lighter — hover states */
+  --color-gold: #C5A572;             /* Gold — accent lines, underlines, focus rings */
+  --color-gold-hover: #B8955F;       /* Gold darker — CTA hover */
+
+  /* ─── Backgrounds ─── */
+  --color-bg: #FFFFFF;               /* White — primary background */
+  --color-surface: #F8F7F4;          /* Off-white/warm gray — alternate sections */
+  --color-callout-bg: #F0EDE6;       /* Callout box background */
+
+  /* ─── Text ─── */
+  --color-text: #1B2A4A;             /* Primary text — navy */
+  --color-text-secondary: #4A5568;   /* Secondary text */
+  --color-text-muted: #718096;       /* Muted text — captions, meta */
+  --color-text-on-dark: #FFFFFF;     /* Text on dark backgrounds */
+  --color-text-on-dark-muted: rgba(255, 255, 255, 0.85); /* Subtitle on dark bg */
+
+  /* ─── Borders ─── */
+  --color-border: #E2E0DB;           /* Default border color */
+  --color-border-light: #F0EDE6;     /* Lighter border */
+
+  /* ─── Buttons ─── */
+  --color-btn-primary: #1B2A4A;      /* Navy button */
+  --color-btn-primary-hover: #2A3F6E;
+  --color-btn-cta: #C5A572;          /* Gold CTA — max 1 per viewport */
+  --color-btn-cta-hover: #B8955F;
+
+  /* ─── Typography Scale ─── */
+  --font-family: 'Heebo', sans-serif;
+
+  --text-h1: 2.5rem;        /* 40px */
+  --text-h2: 2rem;          /* 32px */
+  --text-h3: 1.5rem;        /* 24px */
+  --text-h4: 1.25rem;       /* 20px */
+  --text-body-lg: 1.125rem; /* 18px */
+  --text-body: 1rem;        /* 16px */
+  --text-body-sm: 0.875rem; /* 14px */
+  --text-caption: 0.75rem;  /* 12px */
+  --text-nav: 0.9375rem;    /* 15px */
+
+  --leading-tight: 1.3;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.8;
+
+  /* ─── Spacing Scale ─── */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-7: 2.5rem;   /* 40px */
+  --space-8: 3rem;     /* 48px */
+  --space-9: 4rem;     /* 64px */
+  --space-10: 5rem;    /* 80px */
+  --space-11: 6rem;    /* 96px */
+  --space-12: 8rem;    /* 128px */
+
+  /* ─── Radii ─── */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-pill: 9999px;
+
+  /* ─── Shadows ─── */
+  --shadow-sm: 0 1px 2px rgba(27, 42, 74, 0.05);
+  --shadow-md: 0 4px 6px rgba(27, 42, 74, 0.07), 0 2px 4px rgba(27, 42, 74, 0.04);
+  --shadow-lg: 0 10px 15px rgba(27, 42, 74, 0.1), 0 4px 6px rgba(27, 42, 74, 0.05);
+  --shadow-xl: 0 20px 25px rgba(27, 42, 74, 0.1), 0 10px 10px rgba(27, 42, 74, 0.04);
+
+  /* ─── Transitions ─── */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* ─── Layout ─── */
+  --navbar-height-desktop: 72px;
+  --navbar-height-mobile: 56px;
+  --max-width-content: 1200px;
+  --max-width-narrow: 800px;
+}

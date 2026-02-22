@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import design tokens */
+@import "../styles/bitan-tokens.css";
+
+/*
+ * Base RTL + Typography defaults
+ * All text is right-aligned by default via dir="rtl" on <html>.
+ * Heebo is loaded via next/font in layout.tsx with font-display: swap.
+ */
+
+@layer base {
+  body {
+    font-family: var(--font-family);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    line-height: var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: var(--leading-tight);
+    font-weight: 700;
+  }
+
+  h1 { font-size: var(--text-h1); }
+  h2 { font-size: var(--text-h2); }
+  h3 { font-size: var(--text-h3); }
+  h4 { font-size: var(--text-h4); }
+
+  /* Gold underline utility — used under H1/H2 per brand */
+  .gold-underline {
+    display: block;
+    width: 120px;
+    height: 3px;
+    background-color: var(--color-gold);
+    margin-top: 0.75rem;
+  }
+
+  /* Focus ring — gold per brand contract */
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+
+  /* Ensure list markers are on the right side in RTL */
+  ul, ol {
+    padding-inline-start: 1.5rem;
+  }
+}
