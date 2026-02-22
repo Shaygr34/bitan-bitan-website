@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 
@@ -47,11 +48,15 @@ export function Header() {
       >
         <div className="max-w-content mx-auto h-full px-6 flex items-center justify-between">
           {/* Logo — right side (RTL: first in DOM = right) */}
-          <Link href="/" className="flex items-baseline gap-1 shrink-0">
-            <span className="text-primary font-bold text-h4">ביטן את ביטן</span>
-            <span className="text-text-muted font-normal text-body-sm">
-              רואי חשבון
-            </span>
+          <Link href="/" className="shrink-0">
+            <Image
+              src="/logo.png"
+              alt="ביטן את ביטן — רואי חשבון"
+              width={160}
+              height={48}
+              className="h-9 md:h-12 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop nav — flex-1 + justify-center keeps links visually centered */}
@@ -98,7 +103,13 @@ export function Header() {
           <nav className="absolute top-0 end-0 h-full w-[280px] bg-white shadow-xl flex flex-col animate-slide-in">
             {/* Close button */}
             <div className="h-[56px] flex items-center justify-between px-6 border-b border-border">
-              <span className="text-primary font-bold text-h4">ביטן את ביטן</span>
+              <Image
+                src="/logo.png"
+                alt="ביטן את ביטן — רואי חשבון"
+                width={120}
+                height={36}
+                className="h-8 w-auto"
+              />
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
