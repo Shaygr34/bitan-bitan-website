@@ -29,7 +29,7 @@ export function AccordionItem({
         <span>{title}</span>
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.25, ease: EASE_OUT_QUART as unknown as number[] }}
+          transition={{ duration: 0.25, ease: EASE_OUT_QUART }}
         >
           <ChevronDown className="h-5 w-5 shrink-0 ms-3 text-text-muted" />
         </motion.span>
@@ -40,7 +40,7 @@ export function AccordionItem({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: EASE_OUT_QUART as unknown as number[] }}
+            transition={{ duration: 0.3, ease: EASE_OUT_QUART }}
             className="overflow-hidden"
           >
             <div className="pb-space-4 text-text-secondary leading-relaxed">
