@@ -61,25 +61,34 @@ const CONTACT_METHODS = [
 /* Electra Tower, HaRakevet 58, Tel Aviv */
 const OFFICE_ADDRESS = 'הרכבת 58, מגדל אלקטרה סיטי, תל אביב';
 const OFFICE_ADDRESS_ENCODED = encodeURIComponent(OFFICE_ADDRESS);
+const OFFICE_LAT = 32.0688;
+const OFFICE_LNG = 34.7898;
 /* Embed with place query — shows a red pin on the map */
 const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${OFFICE_ADDRESS_ENCODED}&language=he&zoom=16`;
-/* Waze with address search (not coordinates) — shows proper name */
-const WAZE_URL = `https://waze.com/ul?q=${OFFICE_ADDRESS_ENCODED}&navigate=yes`;
-/* Google Maps with address search */
-const GOOGLE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${OFFICE_ADDRESS_ENCODED}`;
+/* Waze deep link — coordinates are the most reliable for navigation */
+const WAZE_URL = `https://waze.com/ul?ll=${OFFICE_LAT},${OFFICE_LNG}&navigate=yes&z=17`;
+/* Google Maps — directions mode triggers navigation */
+const GOOGLE_MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${OFFICE_LAT},${OFFICE_LNG}&travelmode=driving`;
 
+/** Official Waze brand icon — ghost face (Font Awesome, CC BY 4.0) */
 function WazeIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M20.54 6.63A8.99 8.99 0 0 0 12.04 2c-2.6 0-5.05 1.1-6.8 2.87A8.97 8.97 0 0 0 3 11.6c.1 1.74.67 3.38 1.6 4.77.15.2.15.5.01.74l-1.01 1.7c-.28.4.18.87.6.62l2.2-1.32c.2-.12.45-.13.66-.02a9.07 9.07 0 0 0 4.39 1.14h.27c4.73-.22 8.63-4.1 8.87-8.83.06-1.33-.15-2.6-.56-3.77h-.49zM8.31 12.45c-.82 0-1.49-.67-1.49-1.49s.67-1.49 1.49-1.49 1.49.67 1.49 1.49-.67 1.49-1.49 1.49zm5.38 0c-.82 0-1.49-.67-1.49-1.49s.67-1.49 1.49-1.49 1.49.67 1.49 1.49-.67 1.49-1.49 1.49z"/>
+    <svg viewBox="0 0 512 512" className={className} aria-hidden="true">
+      <path fill="currentColor" d="M502.17 201.67C516.69 287.53 471.23 369.59 389 409.8c13 34.1-12.4 70.2-48.32 70.2a51.68 51.68 0 0 1-51.57-49c-6.44.19-64.2 0-76.33-.64A51.69 51.69 0 0 1 159 479.92c-33.86-1.36-57.95-34.84-47-67.92-37.21-13.11-72.54-34.87-99.62-70.8-13-17.28-.48-41.8 20.84-41.8 46.31 0 32.22-54.17 43.15-110.26C94.8 95.2 193.12 32 288.09 32c102.48 0 197.15 70.67 214.08 169.67zM373.51 388.28c42-19.18 81.33-56.71 96.29-102.14 40.48-123.09-64.15-228-181.71-228-83.45 0-170.32 55.42-186.07 136-9.53 48.91 5 131.35-68.75 131.35C58.21 358.6 91.6 378.11 127 389.54c24.66-21.8 63.87-15.47 79.83 14.34 14.22 1 79.19 1.18 87.9.82a51.69 51.69 0 0 1 78.78-16.42zM205.12 187.13c0-34.74 50.84-34.75 50.84 0s-50.84 34.74-50.84 0zm116.57 0c0-34.74 50.86-34.75 50.86 0s-50.86 34.75-50.86 0zm-122.61 70.69c-3.44-16.94 22.18-22.18 25.62-5.21l.06.28c4.14 21.42 29.85 44 64.12 43.07 35.68-.94 59.25-22.21 64.11-42.77 4.46-16.05 28.6-10.36 25.47 6-5.23 22.18-31.21 62-91.46 62.9-42.55 0-80.88-27.84-87.9-64.25z"/>
     </svg>
   )
 }
 
+/** Google Maps brand icon — colored pin (Google brand colors) */
 function GoogleMapsIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+    <svg viewBox="0 0 92 92" className={className} aria-hidden="true">
+      {/* Pin body — red */}
+      <path d="M46 4C28.88 4 15 17.88 15 35c0 22.54 27.41 47.76 28.58 48.83a3.5 3.5 0 0 0 4.84 0C49.59 82.76 77 57.54 77 35 77 17.88 63.12 4 46 4z" fill="#EA4335"/>
+      {/* Inner circle — white */}
+      <circle cx="46" cy="35" r="12" fill="white"/>
+      {/* Inner circle accent — blue */}
+      <circle cx="46" cy="35" r="7" fill="#4285F4"/>
     </svg>
   )
 }
@@ -277,7 +286,7 @@ export default function ContactPage() {
                   href={WAZE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#33CCFF] text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:brightness-110 transition-all"
+                  className="inline-flex items-center gap-2 bg-[#30B6FC] text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#1DA1E6] transition-all"
                 >
                   <WazeIcon className="h-5 w-5" />
                   נווט ב-Waze
@@ -286,7 +295,7 @@ export default function ContactPage() {
                   href={GOOGLE_MAPS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 border-2 border-primary text-primary font-medium text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary hover:text-white transition-all"
+                  className="inline-flex items-center gap-2 bg-white border-2 border-[#4285F4] text-[#4285F4] font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#4285F4] hover:text-white transition-all"
                 >
                   <GoogleMapsIcon className="h-5 w-5" />
                   Google Maps

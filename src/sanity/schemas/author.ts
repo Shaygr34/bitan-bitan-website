@@ -15,7 +15,16 @@ export default defineType({
       name: 'slug',
       title: 'כתובת URL',
       type: 'slug',
-      options: { source: 'name', maxLength: 96 },
+      options: {
+        source: 'name',
+        maxLength: 96,
+        slugify: (input: string) =>
+          input
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\u0590-\u05FFa-zA-Z0-9-]/g, '')
+            .slice(0, 96),
+      },
       validation: (rule) => rule.required(),
     }),
     defineField({
