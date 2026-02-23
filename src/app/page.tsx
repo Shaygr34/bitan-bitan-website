@@ -9,28 +9,45 @@ import {
   FAQSection,
   CTASection,
 } from '@/components/homepage'
-import { getServices, getFAQs, getTestimonials, getArticles, getSiteSettings } from '@/sanity/queries'
+import { getServices, getFAQs, getTestimonials, getArticles, getHomePage } from '@/sanity/queries'
 
 export default async function Home() {
-  const [services, faqs, testimonials, articles, settings] = await Promise.all([
+  const [services, faqs, testimonials, articles, homePage] = await Promise.all([
     getServices(),
     getFAQs(),
     getTestimonials(),
     getArticles(),
-    getSiteSettings(),
+    getHomePage(),
   ])
 
   return (
     <>
-      <HeroSection />
-      <TrustBar trustPoints={settings?.trustPoints} />
+      <HeroSection
+        headline={homePage?.heroHeadline}
+        subtitle={homePage?.heroSubtitle}
+        footerNote={homePage?.heroFooterNote}
+      />
+      <TrustBar trustPoints={homePage?.trustPoints} />
       <ServicesSection services={services} />
-      <AboutSection />
-      <ProcessSection />
+      <AboutSection
+        heading={homePage?.aboutHeading}
+        subtitle={homePage?.aboutSubtitle}
+        linkText={homePage?.aboutLinkText}
+        differentiators={homePage?.aboutDifferentiators}
+      />
+      <ProcessSection
+        heading={homePage?.processHeading}
+        subtitle={homePage?.processSubtitle}
+        steps={homePage?.processSteps}
+      />
       <KnowledgePreview articles={articles} />
       <TestimonialsSection testimonials={testimonials} />
       <FAQSection faqs={faqs} />
-      <CTASection />
+      <CTASection
+        headline={homePage?.ctaHeadline}
+        subtitle={homePage?.ctaSubtitle}
+        footerNote={homePage?.ctaFooterNote}
+      />
     </>
   )
 }

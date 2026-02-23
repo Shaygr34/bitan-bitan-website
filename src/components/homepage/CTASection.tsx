@@ -11,7 +11,13 @@ const ctaStagger = {
   },
 }
 
-export function CTASection() {
+type CTAProps = {
+  headline?: string
+  subtitle?: string
+  footerNote?: string
+}
+
+export function CTASection({ headline, subtitle, footerNote }: CTAProps) {
   return (
     <section className="bg-primary py-space-9 md:py-space-10 px-6">
       <motion.div
@@ -22,7 +28,7 @@ export function CTASection() {
         viewport={{ once: true, margin: '-60px' }}
       >
         <motion.h2 variants={fadeUp} className="text-white text-h2 font-bold">
-          מוכנים להתחיל?
+          {headline ?? 'מוכנים להתחיל?'}
         </motion.h2>
         <motion.span
           variants={underlineGrow}
@@ -32,8 +38,8 @@ export function CTASection() {
           variants={fadeUp}
           className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto"
         >
-          צרו קשר עוד היום לפגישת ייעוץ ראשונית ללא עלות. נשמח להכיר ולהבין
-          איך נוכל לעזור.
+          {subtitle ??
+            'צרו קשר עוד היום לפגישת ייעוץ ראשונית ללא עלות. נשמח להכיר ולהבין איך נוכל לעזור.'}
         </motion.p>
 
         <motion.div
@@ -53,7 +59,7 @@ export function CTASection() {
           variants={fadeUp}
           className="text-white/50 text-body-sm mt-space-5"
         >
-          ללא התחייבות · תשובה תוך 24 שעות · שיחה חינם
+          {footerNote ?? 'ללא התחייבות · תשובה תוך 24 שעות · שיחה חינם'}
         </motion.p>
       </motion.div>
     </section>

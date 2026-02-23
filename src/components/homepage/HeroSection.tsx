@@ -11,7 +11,13 @@ const heroStagger = {
   },
 }
 
-export function HeroSection() {
+type HeroProps = {
+  headline?: string
+  subtitle?: string
+  footerNote?: string
+}
+
+export function HeroSection({ headline, subtitle, footerNote }: HeroProps) {
   return (
     <section className="bg-primary py-space-9 md:py-space-10 px-6">
       <motion.div
@@ -24,7 +30,7 @@ export function HeroSection() {
           variants={fadeUp}
           className="text-white text-h1 font-bold leading-tight"
         >
-          המומחים הפיננסיים של העסק שלכם
+          {headline ?? 'המומחים הפיננסיים של העסק שלכם'}
         </motion.h1>
 
         <motion.span
@@ -36,8 +42,8 @@ export function HeroSection() {
           variants={fadeUp}
           className="text-white/85 text-body-lg mt-space-5 max-w-narrow"
         >
-          משרד רואי חשבון ביטן את ביטן — רואי חשבון, יועצי מס ומשפטנים. ייעוץ
-          מס, דוחות כספיים וליווי עסקי מקצועי.
+          {subtitle ??
+            'משרד רואי חשבון ביטן את ביטן — רואי חשבון, יועצי מס ומשפטנים. ייעוץ מס, דוחות כספיים וליווי עסקי מקצועי.'}
         </motion.p>
 
         <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mt-space-7">
@@ -54,7 +60,7 @@ export function HeroSection() {
           variants={fadeIn}
           className="text-white/60 text-body-sm mt-space-5"
         >
-          רואי חשבון ומשפטנים · ייעוץ מס וליווי עסקי · תל אביב
+          {footerNote ?? 'רואי חשבון ומשפטנים · ייעוץ מס וליווי עסקי · תל אביב'}
         </motion.p>
       </motion.div>
     </section>

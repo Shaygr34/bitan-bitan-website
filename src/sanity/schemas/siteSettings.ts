@@ -50,24 +50,6 @@ export default defineType({
       description: 'למשל: א׳-ה׳ 09:00-17:00',
     }),
     defineField({
-      name: 'trustPoints',
-      title: 'נקודות אמון (עמוד הבית)',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            defineField({ name: 'heading', title: 'כותרת', type: 'string', validation: (r) => r.required() }),
-            defineField({ name: 'description', title: 'תיאור', type: 'string', validation: (r) => r.required() }),
-          ],
-          preview: {
-            select: { title: 'heading', subtitle: 'description' },
-          },
-        },
-      ],
-      description: 'ארבע נקודות אמון שמוצגות בעמוד הבית מתחת להירו.',
-    }),
-    defineField({
       name: 'googleMapsUrl',
       title: 'קישור Google Maps',
       type: 'url',
