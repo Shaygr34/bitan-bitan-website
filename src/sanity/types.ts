@@ -24,6 +24,12 @@ export type SanitySlug = {
 
 /* ─── Site Settings ─── */
 
+export type SiteTrustPoint = {
+  _key: string
+  heading: string
+  description: string
+}
+
 export type SiteSettings = {
   _id: string
   siteName: string
@@ -34,6 +40,7 @@ export type SiteSettings = {
   email: string
   address: string
   officeHours: string
+  trustPoints?: SiteTrustPoint[]
   googleMapsUrl?: string
   logo?: SanityImage
   ogImage?: SanityImage
@@ -87,6 +94,7 @@ export type AboutPage = {
   _id: string
   storyHeadline: string
   storyBody: PortableTextBlock[]
+  credentialsNote?: string
   differentiators?: AboutPageDifferentiator[]
   audienceCards?: AboutPageAudienceCard[]
   processSteps?: AboutPageProcessStep[]

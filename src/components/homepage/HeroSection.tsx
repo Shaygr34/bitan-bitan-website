@@ -36,8 +36,8 @@ export function HeroSection() {
           variants={fadeUp}
           className="text-white/85 text-body-lg mt-space-5 max-w-narrow"
         >
-          משרד רואי חשבון ביטן את ביטן — דור שני של מומחיות פיננסית, ייעוץ מס
-          וליווי עסקי מקצועי.
+          משרד רואי חשבון ביטן את ביטן — רואי חשבון, יועצי מס ומשפטנים. ייעוץ
+          מס, דוחות כספיים וליווי עסקי מקצועי.
         </motion.p>
 
         <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mt-space-7">
@@ -54,8 +54,7 @@ export function HeroSection() {
           variants={fadeIn}
           className="text-white/60 text-body-sm mt-space-5"
         >
-          <span dir="ltr">30+</span> שנות ניסיון · דור שני של רואי חשבון · תל
-          אביב
+          רואי חשבון ומשפטנים · ייעוץ מס וליווי עסקי · תל אביב
         </motion.p>
       </motion.div>
     </section>
