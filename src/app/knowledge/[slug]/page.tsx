@@ -2,12 +2,21 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { PortableText } from 'next-sanity'
-import { getArticleBySlug } from '@/sanity/queries'
+import { getArticleBySlug, getRelatedArticles } from '@/sanity/queries'
 import { urlFor } from '@/sanity/image'
 import { SectionHeader, WhatsAppCTA } from '@/components/ui'
 import { JsonLd } from '@/components/JsonLd'
 import { SITE_URL } from '@/lib/site-url'
-import { ArrowRight, Calendar, Tag, User } from 'lucide-react'
+import {
+  ArrowRight,
+  Calendar,
+  Tag,
+  User,
+  Lightbulb,
+  BarChart3,
+  CheckCircle2,
+  AlertTriangle,
+} from 'lucide-react'
 
 /* Render article pages on-demand (SSR) — avoids cache/encoding issues with Hebrew slugs on Railway */
 export const dynamic = 'force-dynamic'
@@ -59,6 +68,15 @@ function formatDate(dateStr?: string): string {
   }
 }
 
+const DIFFICULTY_LABELS: Record<string, { label: string; color: string }> = {
+  basic: { label: 'בסיסי — מתאים לכולם', color: 'bg-green-100 text-green-800' },
+  intermediate: { label: 'בינוני — דורש ידע מוקדם', color: 'bg-amber-100 text-amber-800' },
+  advanced: { label: 'מתקדם — לבעלי ניסיון', color: 'bg-red-100 text-red-800' },
+}
+
+const DEFAULT_DISCLAIMER =
+  'המידע במאמר זה הינו כללי בלבד ואינו מהווה תחליף לייעוץ מקצועי פרטני. מומלץ להתייעץ עם רואה חשבון לפני קבלת החלטות פיננסיות.'
+
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params
   const article = await getArticleBySlug(decodeSlug(slug))
@@ -66,6 +84,11 @@ export default async function ArticlePage({ params }: Props) {
   if (!article) {
     notFound()
   }
+
+  // Fetch related articles in parallel (same category)
+  const relatedArticles = article.category?._id
+    ? await getRelatedArticles(article.category._id, article._id)
+    : []
 
   const articleImageUrl = urlFor(article.mainImage, 1200)
   const articleJsonLd = {
@@ -86,6 +109,9 @@ export default async function ArticlePage({ params }: Props) {
     inLanguage: 'he',
   }
 
+  const difficultyInfo = article.difficulty ? DIFFICULTY_LABELS[article.difficulty] : null
+  const disclaimer = article.disclaimer ?? DEFAULT_DISCLAIMER
+
   return (
     <div>
       <JsonLd data={articleJsonLd} />
@@ -102,7 +128,7 @@ export default async function ArticlePage({ params }: Props) {
           <h1 className="text-white text-h1 font-bold">{article.title}</h1>
           <span className="gold-underline mt-4" />
 
-          {/* Meta */}
+          {/* Meta row */}
           <div className="flex flex-wrap items-center gap-4 mt-space-5 text-white/70 text-body-sm">
             {article.publishedAt && (
               <span className="flex items-center gap-1.5">
@@ -120,6 +146,14 @@ export default async function ArticlePage({ params }: Props) {
               <span className="flex items-center gap-1.5">
                 <Tag className="h-4 w-4" />
                 {article.category.title}
+              </span>
+            )}
+            {difficultyInfo && (
+              <span className="flex items-center gap-1.5">
+                <BarChart3 className="h-4 w-4" />
+                <span className={`px-2 py-0.5 rounded-full text-caption font-medium ${difficultyInfo.color}`}>
+                  {difficultyInfo.label}
+                </span>
               </span>
             )}
           </div>
@@ -145,6 +179,19 @@ export default async function ArticlePage({ params }: Props) {
       {/* Body */}
       <section className="py-space-9 px-6">
         <div className="max-w-narrow mx-auto">
+          {/* TL;DR box */}
+          {article.tldr && (
+            <div className="bg-gold/10 border border-gold/30 rounded-xl p-space-5 mb-space-7">
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb className="h-5 w-5 text-gold" />
+                <span className="text-body font-bold text-primary">בקצרה</span>
+              </div>
+              <p className="text-text-secondary text-body leading-relaxed">
+                {article.tldr}
+              </p>
+            </div>
+          )}
+
           {article.excerpt && (
             <p className="text-body-lg text-text-secondary mb-space-7 leading-relaxed border-s-4 border-gold ps-space-4">
               {article.excerpt}
@@ -159,6 +206,26 @@ export default async function ArticlePage({ params }: Props) {
             <p className="text-text-muted text-body text-center py-space-8">
               תוכן המאמר יעלה בקרוב.
             </p>
+          )}
+
+          {/* Checklist: "מה לעשות עכשיו" */}
+          {article.checklist && article.checklist.length > 0 && (
+            <div className="mt-space-8 bg-surface rounded-xl p-space-5 border border-border">
+              <h3 className="text-h4 font-bold text-primary mb-space-4 flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-gold" />
+                מה לעשות עכשיו?
+              </h3>
+              <ul className="space-y-3">
+                {article.checklist.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-body text-text-secondary">
+                    <span className="shrink-0 w-6 h-6 rounded-full bg-gold/15 flex items-center justify-center mt-0.5">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-gold" />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
 
           {/* Tags */}
@@ -176,11 +243,71 @@ export default async function ArticlePage({ params }: Props) {
               </div>
             </div>
           )}
+
+          {/* Disclaimer */}
+          <div className="mt-space-8 pt-space-5 border-t border-border-light print-show">
+            <div className="flex items-start gap-3 bg-surface rounded-lg p-space-4">
+              <AlertTriangle className="h-5 w-5 text-text-muted shrink-0 mt-0.5" />
+              <p className="text-caption text-text-muted leading-relaxed">
+                {disclaimer}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
+      {/* Related Articles */}
+      {relatedArticles.length > 0 && (
+        <section className="bg-surface py-space-9 px-6">
+          <div className="max-w-content mx-auto">
+            <SectionHeader centered subtitle="תוכן נוסף שעשוי לעניין אתכם.">
+              מאמרים קשורים
+            </SectionHeader>
+            <div className="grid md:grid-cols-3 gap-space-5 mt-space-7">
+              {relatedArticles.map((related) => {
+                const relatedImageUrl = urlFor(related.mainImage, 600)
+                return (
+                  <Link
+                    key={related._id}
+                    href={`/knowledge/${related.slug?.current ?? ''}`}
+                    className="bg-white rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+                  >
+                    {relatedImageUrl ? (
+                      <div className="relative h-32 overflow-hidden">
+                        <Image
+                          src={relatedImageUrl}
+                          alt={related.mainImage?.alt ?? related.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-32 bg-gradient-to-bl from-primary to-primary-light" />
+                    )}
+                    <div className="p-space-4">
+                      <h3 className="text-body font-semibold text-primary line-clamp-2">
+                        {related.title}
+                      </h3>
+                      {related.excerpt && (
+                        <p className="text-body-sm text-text-secondary mt-1 line-clamp-2">
+                          {related.excerpt}
+                        </p>
+                      )}
+                      <span className="inline-block mt-2 text-body-sm font-medium text-gold">
+                        קראו עוד
+                      </span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* CTA */}
-      <section className="bg-surface py-space-9 px-6">
+      <section className={`${relatedArticles.length > 0 ? '' : 'bg-surface'} py-space-9 px-6`}>
         <div className="max-w-content mx-auto text-center">
           <SectionHeader
             centered

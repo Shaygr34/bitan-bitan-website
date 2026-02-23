@@ -88,3 +88,74 @@
     scroll-behavior: auto;
   }
 }
+
+/* ─── Print styles ─── */
+@media print {
+  /* Hide non-essential UI */
+  header,
+  footer,
+  .sticky-cta,
+  [data-sticky-cta],
+  nav,
+  .gold-underline,
+  button,
+  a[href^="https://wa.me"],
+  a[href^="tel:"] {
+    display: none !important;
+  }
+
+  /* Reset page for A4-friendly output */
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #000 !important;
+    background: #fff !important;
+  }
+
+  /* Remove card shadows/borders for clean print */
+  .shadow-sm,
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+
+  /* Make sure images don't overflow */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Prevent page breaks inside key elements */
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+  }
+
+  blockquote, figure, table, pre {
+    page-break-inside: avoid;
+  }
+
+  /* Show disclaimer in print */
+  .print-show {
+    display: block !important;
+  }
+
+  /* Expand all accordions for print */
+  details[open] > summary,
+  [data-accordion-content] {
+    display: block !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Show URL after links for reference */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 10pt;
+    color: #666;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 2cm;
+    size: A4;
+  }
+}

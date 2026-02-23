@@ -199,6 +199,10 @@ export type ArticleCard = {
 export type ArticleFull = ArticleCard & {
   body?: PortableTextBlock[]
   tags?: Tag[]
+  tldr?: string
+  difficulty?: 'basic' | 'intermediate' | 'advanced'
+  checklist?: string[]
+  disclaimer?: string
 }
 
 /* ─── Legal Page ─── */
