@@ -125,7 +125,7 @@ export default async function AboutPage() {
             {(page?.differentiators ?? FALLBACK_DIFFERENTIATORS).map((item) => {
               const Icon = getIcon(item.icon)
               return (
-                <RevealItem key={'_key' in item ? item._key : item.title}>
+                <RevealItem key={item._key}>
                   <Card>
                     <CardBody>
                       <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center mb-space-3">
@@ -160,7 +160,7 @@ export default async function AboutPage() {
             {(page?.audienceCards ?? FALLBACK_AUDIENCE).map((card) => {
               const Icon = getIcon(card.icon)
               return (
-                <RevealItem key={'_key' in card ? card._key : card.title}>
+                <RevealItem key={card._key}>
                   <Card>
                     <CardBody className="text-center">
                       <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-space-3">
@@ -193,7 +193,7 @@ export default async function AboutPage() {
 
           <RevealGroup className="mt-space-8 max-w-narrow mx-auto space-y-space-5">
             {(page?.processSteps ?? FALLBACK_PROCESS).map((step) => (
-              <RevealItem key={'_key' in step ? step._key : step.stepNumber}>
+              <RevealItem key={step._key}>
                 <div className="flex gap-space-4 items-start">
                   <div className="shrink-0 w-12 h-12 rounded-full bg-gold flex items-center justify-center">
                     <span
@@ -232,7 +232,7 @@ export default async function AboutPage() {
             {(page?.values ?? FALLBACK_VALUES).map((value) => {
               const Icon = getIcon(value.icon)
               return (
-                <RevealItem key={'_key' in value ? value._key : value.title}>
+                <RevealItem key={value._key}>
                   <Card>
                     <CardBody>
                       <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-space-3">
