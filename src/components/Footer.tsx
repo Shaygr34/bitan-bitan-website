@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { LTR } from '@/components/ui'
 import { Phone, Mail, MapPin, Clock, Facebook, Linkedin, Instagram } from 'lucide-react'
+import { useSiteSettings } from '@/components/SiteSettingsContext'
+import { trackPhoneClick, trackWhatsAppClick } from '@/lib/analytics'
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -11,15 +13,6 @@ function WhatsAppIcon({ className }: { className?: string }) {
     </svg>
   )
 }
-
-import { useSiteSettings } from '@/components/SiteSettingsContext'
-import { trackPhoneClick, trackWhatsAppClick } from '@/lib/analytics'
-
-const SOCIAL_LINKS = [
-  { label: 'Facebook', href: 'https://www.facebook.com/bitancpa/?locale=he_IL', icon: Facebook },
-  { label: 'LinkedIn', href: '#', icon: Linkedin },
-  { label: 'Instagram', href: 'https://www.instagram.com/bitancpa/', icon: Instagram },
-] as const
 
 const NAV_LINKS = [
   { label: 'דף הבית', href: '/' },
@@ -45,6 +38,15 @@ export function Footer() {
   const officeHours = s?.officeHours ?? 'ראשון–חמישי 08:30–17:00'
   const whatsapp = s?.whatsapp ?? '+972527221111'
   const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
+  const disclaimer =
+    s?.footerDisclaimer ??
+    'המידע באתר הינו כללי בלבד ואינו מהווה תחליף לייעוץ מקצועי פרטני.'
+
+  const socialLinks = [
+    { label: 'Facebook', href: s?.facebookUrl ?? 'https://www.facebook.com/bitancpa/?locale=he_IL', icon: Facebook },
+    { label: 'LinkedIn', href: s?.linkedinUrl ?? '', icon: Linkedin },
+    { label: 'Instagram', href: s?.instagramUrl ?? 'https://www.instagram.com/bitancpa/', icon: Instagram },
+  ].filter(({ href }) => href && href !== '#')
 
   return (
     <footer className="bg-white border-t border-border">
@@ -138,29 +140,31 @@ export function Footer() {
             </ul>
 
             {/* Social media */}
-            <p className="text-primary font-bold text-body mt-space-5 mb-space-3">עקבו אחרינו</p>
-            <div className="flex gap-3">
-              {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-9 h-9 rounded-lg bg-surface flex items-center justify-center text-text-muted hover:bg-primary hover:text-white transition-all duration-base"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
+            {socialLinks.length > 0 && (
+              <>
+                <p className="text-primary font-bold text-body mt-space-5 mb-space-3">עקבו אחרינו</p>
+                <div className="flex gap-3">
+                  {socialLinks.map(({ label, href, icon: Icon }) => (
+                    <a
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="w-9 h-9 rounded-lg bg-surface flex items-center justify-center text-text-muted hover:bg-primary hover:text-white transition-all duration-base"
+                    >
+                      <Icon className="h-4 w-4" />
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Bottom bar: disclaimer + copyright */}
         <div className="mt-space-7 pt-space-4 border-t border-border-light text-text-muted text-caption space-y-1">
-          <p>
-            המידע באתר הינו כללי בלבד ואינו מהווה תחליף לייעוץ מקצועי פרטני.
-          </p>
+          <p>{disclaimer}</p>
           <p>
             © {new Date().getFullYear()} {s?.siteName ?? 'ביטן את ביטן — רואי חשבון'}. כל הזכויות
             שמורות.

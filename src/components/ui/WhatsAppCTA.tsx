@@ -2,6 +2,7 @@
 
 import { Button } from './Button'
 import { trackWhatsAppClick } from '@/lib/analytics'
+import { useSiteSettings } from '@/components/SiteSettingsContext'
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -27,16 +28,20 @@ type WhatsAppCTAProps = {
 }
 
 export function WhatsAppCTA({
-  phone = '+972527221111',
-  message = '',
-  label = 'שלחו לנו WhatsApp',
+  phone,
+  message,
+  label,
   location = 'cta',
   variant = 'cta',
   size = 'md',
   className = '',
 }: WhatsAppCTAProps) {
-  const cleanPhone = phone.replace(/[^+\d]/g, '')
-  const url = `https://wa.me/${cleanPhone.replace('+', '')}${message ? `?text=${encodeURIComponent(message)}` : ''}`
+  const s = useSiteSettings()
+  const resolvedPhone = phone ?? s?.whatsapp ?? '+972527221111'
+  const resolvedLabel = label ?? s?.ctaWhatsAppLabel ?? 'שלחו לנו WhatsApp'
+  const resolvedMessage = message ?? s?.ctaWhatsAppMessage ?? ''
+  const cleanPhone = resolvedPhone.replace(/[^+\d]/g, '')
+  const url = `https://wa.me/${cleanPhone.replace('+', '')}${resolvedMessage ? `?text=${encodeURIComponent(resolvedMessage)}` : ''}`
 
   return (
     <Button
@@ -49,7 +54,7 @@ export function WhatsAppCTA({
       onClick={() => trackWhatsAppClick(location)}
     >
       <WhatsAppIcon className="h-5 w-5 shrink-0" />
-      {label}
+      {resolvedLabel}
     </Button>
   )
 }

@@ -35,6 +35,15 @@ export type SiteSettings = {
   address: string
   officeHours: string
   googleMapsUrl?: string
+  wazeUrl?: string
+  googleMapsEmbedUrl?: string
+  facebookUrl?: string
+  linkedinUrl?: string
+  instagramUrl?: string
+  ctaWhatsAppLabel?: string
+  ctaPhoneLabel?: string
+  ctaWhatsAppMessage?: string
+  footerDisclaimer?: string
   logo?: SanityImage
   ogImage?: SanityImage
 }

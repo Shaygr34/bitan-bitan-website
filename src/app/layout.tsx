@@ -36,32 +36,47 @@ export const metadata: Metadata = {
   },
 }
 
-const ORGANIZATION_JSONLD = {
-  '@context': 'https://schema.org',
-  '@type': 'AccountingService',
-  name: 'ביטן את ביטן — רואי חשבון',
-  description:
-    'משרד רואי חשבון המעניק שירותי ייעוץ מס, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי.',
-  url: SITE_URL,
-  telephone: '03-5174295',
-  email: 'office@bitancpa.com',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11',
-    addressLocality: 'תל אביב',
-    addressCountry: 'IL',
-  },
-  openingHoursSpecification: {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-    opens: '08:30',
-    closes: '17:00',
-  },
-  areaServed: {
-    '@type': 'Country',
-    name: 'Israel',
-  },
-  inLanguage: 'he',
+function buildOrganizationJsonLd(s: {
+  siteName?: string
+  siteDescription?: string
+  phone?: string
+  email?: string
+  address?: string
+} | null) {
+  const name = s?.siteName ?? 'ביטן את ביטן — רואי חשבון'
+  const description =
+    s?.siteDescription ??
+    'משרד רואי חשבון המעניק שירותי ייעוץ מס, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי.'
+  const phone = s?.phone ?? '03-5174295'
+  const email = s?.email ?? 'office@bitancpa.com'
+  const address = s?.address ?? 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב'
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AccountingService',
+    name,
+    description,
+    url: SITE_URL,
+    telephone: phone,
+    email,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: address,
+      addressLocality: 'תל אביב',
+      addressCountry: 'IL',
+    },
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+      opens: '08:30',
+      closes: '17:00',
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: 'Israel',
+    },
+    inLanguage: 'he',
+  }
 }
 
 export default async function RootLayout({
@@ -75,7 +90,7 @@ export default async function RootLayout({
     <html lang="he" dir="rtl" className={heebo.variable}>
       <body className="font-heebo min-h-screen flex flex-col">
         <GoogleAnalytics />
-        <JsonLd data={ORGANIZATION_JSONLD} />
+        <JsonLd data={buildOrganizationJsonLd(settings)} />
         <SiteSettingsProvider settings={settings}>
           <Header />
           <main className="flex-1">{children}</main>
