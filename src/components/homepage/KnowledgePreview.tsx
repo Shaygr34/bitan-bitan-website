@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   SectionHeader,
   Card,
@@ -27,10 +28,12 @@ function ArticlePreviewCard({ article }: { article: ArticleCard }) {
       <Card className={imgUrl ? '!p-0 overflow-hidden' : ''}>
         {imgUrl && (
           <div className="relative h-36 overflow-hidden">
-            <img
+            <Image
               src={imgUrl}
               alt={article.mainImage?.alt ?? article.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>
         )}

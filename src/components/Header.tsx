@@ -8,6 +8,7 @@ import { Menu, X, Phone } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { EASE_OUT_QUART } from '@/lib/motion'
 import { useSiteSettings } from '@/components/SiteSettingsContext'
+import { trackWhatsAppClick, trackPhoneClick } from '@/lib/analytics'
 
 const NAV_LINKS = [
   { label: 'דף הבית', href: '/' },
@@ -195,6 +196,7 @@ export function Header() {
               href={`https://wa.me/${whatsappClean}`}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick('header_sticky')}
               className="flex-1 inline-flex items-center justify-center gap-2 bg-gold text-primary font-bold text-body-sm py-2.5 rounded-lg hover:bg-gold-hover transition-colors"
             >
               <WhatsAppIcon className="h-4 w-4" />
@@ -202,6 +204,7 @@ export function Header() {
             </a>
             <a
               href={`tel:${phoneTel}`}
+              onClick={() => trackPhoneClick('header_sticky')}
               className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-white font-medium text-body-sm py-2.5 rounded-lg hover:bg-primary-light transition-colors"
             >
               <Phone className="h-4 w-4" />

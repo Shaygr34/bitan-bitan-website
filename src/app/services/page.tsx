@@ -24,9 +24,15 @@ import { PortableText } from "next-sanity";
 import type { Service } from "@/sanity/types";
 
 export const metadata: Metadata = {
-  title: "שירותים — ביטן את ביטן רואי חשבון",
+  title: 'השירותים שלנו',
   description:
-    "שירותי ראיית חשבון, ייעוץ מס, הנהלת חשבונות, דוחות כספיים, ביקורת, ליווי עסקי ומיסוי בינלאומי — ביטן את ביטן.",
+    'שירותי ראיית חשבון, ייעוץ מס, הנהלת חשבונות, דוחות כספיים, ביקורת, ליווי עסקי ומיסוי בינלאומי — ביטן את ביטן.',
+  alternates: { canonical: '/services' },
+  openGraph: {
+    title: 'השירותים שלנו — ביטן את ביטן רואי חשבון',
+    description:
+      'שירותי ראיית חשבון, ייעוץ מס, הנהלת חשבונות, דוחות כספיים, ביקורת וליווי עסקי.',
+  },
 };
 
 const ICON_MAP: Record<string, LucideIcon> = {

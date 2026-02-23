@@ -13,6 +13,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 import { useSiteSettings } from '@/components/SiteSettingsContext'
+import { trackPhoneClick, trackWhatsAppClick } from '@/lib/analytics'
 
 const SOCIAL_LINKS = [
   { label: 'Facebook', href: 'https://www.facebook.com/bitancpa/?locale=he_IL', icon: Facebook },
@@ -65,6 +66,7 @@ export function Footer() {
                 <a
                   href={`tel:${phone.replace(/[^+\d]/g, '')}`}
                   className="hover:text-primary transition-colors"
+                  onClick={() => trackPhoneClick('footer')}
                 >
                   <LTR>{phone}</LTR>
                 </a>
@@ -90,6 +92,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-primary transition-colors"
+                  onClick={() => trackWhatsAppClick('footer')}
                 >
                   WhatsApp
                 </a>

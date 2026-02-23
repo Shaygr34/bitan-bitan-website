@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { ChevronDown } from 'lucide-react'
 import { EASE_OUT_QUART } from '@/lib/motion'
+import { trackFAQExpand } from '@/lib/analytics'
 
 type AccordionItemProps = {
   title: string
@@ -22,7 +23,10 @@ export function AccordionItem({
     <div className="border-b border-border last:border-b-0">
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isOpen) trackFAQExpand(title)
+          setIsOpen(!isOpen)
+        }}
         className="w-full flex items-center justify-between py-space-4 text-start text-body-lg font-medium text-primary hover:text-primary-light transition-colors duration-fast cursor-pointer"
         aria-expanded={isOpen}
       >

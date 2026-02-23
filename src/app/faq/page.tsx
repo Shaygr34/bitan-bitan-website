@@ -1,16 +1,22 @@
 import type { Metadata } from 'next'
-import { PortableText } from 'next-sanity'
-import { getFAQs, getCategories } from '@/sanity/queries'
+import { getFAQs } from '@/sanity/queries'
 import { SectionHeader, WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import { FAQAccordion } from './FAQAccordion'
+import { JsonLd } from '@/components/JsonLd'
 import type { FAQ } from '@/sanity/types'
 
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'שאלות נפוצות — ביטן את ביטן רואי חשבון',
+  title: 'שאלות נפוצות',
   description:
     'תשובות לשאלות נפוצות בנושאי מס הכנסה, הנהלת חשבונות, הקמת חברה ועוד — משרד רואי חשבון ביטן את ביטן.',
+  alternates: { canonical: '/faq' },
+  openGraph: {
+    title: 'שאלות נפוצות — ביטן את ביטן רואי חשבון',
+    description:
+      'תשובות לשאלות נפוצות בנושאי מס הכנסה, הנהלת חשבונות, הקמת חברה ועוד.',
+  },
 }
 
 /** Group FAQs by category title, preserving order within each group */
@@ -47,8 +53,41 @@ export default async function FAQPage() {
   const hasData = faqs && faqs.length > 0
   const groups = hasData ? groupByCategory(faqs) : null
 
+  /* Build FAQPage JSON-LD from Sanity data or fallback */
+  const faqJsonLdItems = hasData
+    ? faqs.map((faq) => ({
+        '@type': 'Question' as const,
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer' as const,
+          text: faq.answer
+            .map((block) =>
+              'children' in block
+                ? (block.children as { text?: string }[])
+                    .map((c) => c.text ?? '')
+                    .join('')
+                : '',
+            )
+            .join(' '),
+        },
+      }))
+    : FALLBACK_GROUPS.flatMap((g) =>
+        g.items.map((item) => ({
+          '@type': 'Question' as const,
+          name: item.q,
+          acceptedAnswer: { '@type': 'Answer' as const, text: item.a },
+        })),
+      )
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqJsonLdItems,
+  }
+
   return (
     <div>
+      <JsonLd data={faqJsonLd} />
       {/* Hero */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto">

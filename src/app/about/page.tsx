@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { PortableText } from 'next-sanity'
 import {
   SectionHeader,
@@ -34,9 +35,15 @@ import type { LucideIcon } from 'lucide-react'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'אודות — ביטן את ביטן רואי חשבון',
+  title: 'אודות המשרד',
   description:
     'הכירו את אבי ורון ביטן — רואי חשבון ומשפטנים. ייעוץ מס, ליווי עסקי, דוחות כספיים וביקורת לחברות פרטיות ועסקים.',
+  alternates: { canonical: '/about' },
+  openGraph: {
+    title: 'אודות המשרד — ביטן את ביטן רואי חשבון',
+    description:
+      'הכירו את אבי ורון ביטן — רואי חשבון ומשפטנים. ייעוץ מס, ליווי עסקי וביקורת.',
+  },
 }
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -306,11 +313,13 @@ function PartnerCard({ partner }: { partner: Author }) {
   return (
     <Card hover={false} className="overflow-hidden">
       {imageUrl ? (
-        <div className="h-48 bg-primary/5 overflow-hidden -m-space-5 mb-0">
-          <img
+        <div className="relative h-48 bg-primary/5 overflow-hidden -m-space-5 mb-0">
+          <Image
             src={imageUrl}
             alt={partner.name}
-            className="w-full h-full object-cover object-top"
+            fill
+            className="object-cover object-top"
+            sizes="(max-width: 768px) 100vw, 400px"
           />
         </div>
       ) : (

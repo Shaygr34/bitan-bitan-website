@@ -5,8 +5,9 @@ import { getLegalPage } from '@/sanity/queries'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'מדיניות פרטיות — ביטן את ביטן רואי חשבון',
+  title: 'מדיניות פרטיות',
   description: 'מדיניות הפרטיות של אתר ביטן את ביטן רואי חשבון.',
+  alternates: { canonical: '/privacy' },
 }
 
 export default async function PrivacyPage() {

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import {
   HeroSection,
   TrustBar,
@@ -10,6 +11,18 @@ import {
   CTASection,
 } from '@/components/homepage'
 import { getServices, getFAQs, getTestimonials, getArticles, getHomePage } from '@/sanity/queries'
+
+export const metadata: Metadata = {
+  title: 'ביטן את ביטן — רואי חשבון | ייעוץ מס וליווי עסקי בתל אביב',
+  description:
+    'משרד רואי חשבון ביטן את ביטן — ייעוץ מס, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי לחברות, עסקים ויחידים.',
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: 'ביטן את ביטן — רואי חשבון | ייעוץ מס וליווי עסקי בתל אביב',
+    description:
+      'משרד רואי חשבון ביטן את ביטן — ייעוץ מס, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי.',
+  },
+}
 
 export default async function Home() {
   const [services, faqs, testimonials, articles, homePage] = await Promise.all([
