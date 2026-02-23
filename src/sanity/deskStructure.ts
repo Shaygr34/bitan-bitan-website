@@ -15,6 +15,7 @@ const singleton = (S: StructureBuilder, id: string, title: string, schemaType: s
 
 export const structure = (S: StructureBuilder) =>
   S.list()
+    .id('root')
     .title('ניהול תוכן')
     .items([
       /* ── Settings ── */
@@ -30,30 +31,37 @@ export const structure = (S: StructureBuilder) =>
 
       /* ── Services ── */
       S.listItem()
+        .id('service')
         .title('שירותים')
         .schemaType('service')
         .child(S.documentTypeList('service').title('שירותים')),
 
       /* ── Knowledge Centre ── */
       S.listItem()
+        .id('knowledgeCentre')
         .title('מרכז ידע')
         .child(
           S.list()
+            .id('knowledgeCentreList')
             .title('מרכז ידע')
             .items([
               S.listItem()
+                .id('article')
                 .title('מאמרים')
                 .schemaType('article')
                 .child(S.documentTypeList('article').title('מאמרים')),
               S.listItem()
+                .id('guide')
                 .title('מדריכים')
                 .schemaType('guide')
                 .child(S.documentTypeList('guide').title('מדריכים')),
               S.listItem()
+                .id('category')
                 .title('קטגוריות')
                 .schemaType('category')
                 .child(S.documentTypeList('category').title('קטגוריות')),
               S.listItem()
+                .id('tag')
                 .title('תגיות')
                 .schemaType('tag')
                 .child(S.documentTypeList('tag').title('תגיות')),
@@ -62,6 +70,7 @@ export const structure = (S: StructureBuilder) =>
 
       /* ── FAQ ── */
       S.listItem()
+        .id('faq')
         .title('שאלות נפוצות')
         .schemaType('faq')
         .child(S.documentTypeList('faq').title('שאלות נפוצות')),
@@ -70,11 +79,13 @@ export const structure = (S: StructureBuilder) =>
 
       /* ── People & Social Proof ── */
       S.listItem()
+        .id('author')
         .title('צוות')
         .schemaType('author')
         .child(S.documentTypeList('author').title('צוות')),
 
       S.listItem()
+        .id('testimonial')
         .title('המלצות')
         .schemaType('testimonial')
         .child(S.documentTypeList('testimonial').title('המלצות')),
@@ -83,6 +94,7 @@ export const structure = (S: StructureBuilder) =>
 
       /* ── Legal ── */
       S.listItem()
+        .id('legalPage')
         .title('משפטי אתר')
         .schemaType('legalPage')
         .child(S.documentTypeList('legalPage').title('משפטי אתר')),
