@@ -19,6 +19,12 @@ export default defineType({
       of: [{ type: 'block' }],
       validation: (rule) => rule.required(),
     }),
+    defineField({
+      name: 'credentialsNote',
+      title: 'שורת הסמכות',
+      type: 'string',
+      description: 'למשל: "רואי חשבון ויועצי מס מוסמכים — וגם משפטנים (לא עורכי דין)."',
+    }),
 
     /* ─── Differentiators ─── */
     defineField({

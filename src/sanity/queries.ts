@@ -41,6 +41,7 @@ const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   email,
   address,
   officeHours,
+  trustPoints,
   googleMapsUrl,
   logo,
   ogImage
@@ -180,6 +181,7 @@ const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"][0]{
   _id,
   storyHeadline,
   storyBody,
+  credentialsNote,
   differentiators,
   audienceCards,
   processSteps,

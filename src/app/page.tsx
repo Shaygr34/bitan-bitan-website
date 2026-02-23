@@ -9,20 +9,21 @@ import {
   FAQSection,
   CTASection,
 } from '@/components/homepage'
-import { getServices, getFAQs, getTestimonials, getArticles } from '@/sanity/queries'
+import { getServices, getFAQs, getTestimonials, getArticles, getSiteSettings } from '@/sanity/queries'
 
 export default async function Home() {
-  const [services, faqs, testimonials, articles] = await Promise.all([
+  const [services, faqs, testimonials, articles, settings] = await Promise.all([
     getServices(),
     getFAQs(),
     getTestimonials(),
     getArticles(),
+    getSiteSettings(),
   ])
 
   return (
     <>
       <HeroSection />
-      <TrustBar />
+      <TrustBar trustPoints={settings?.trustPoints} />
       <ServicesSection services={services} />
       <AboutSection />
       <ProcessSection />
