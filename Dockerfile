@@ -32,6 +32,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Runtime-only secret for Sanity webhook revalidation (not needed at build time)
+# Set via Railway env vars: SANITY_REVALIDATE_SECRET=<your-secret>
+
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
