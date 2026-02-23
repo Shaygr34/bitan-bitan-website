@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   SectionHeader,
   Card,
@@ -15,9 +16,15 @@ import type { ArticleCard, Category } from "@/sanity/types";
 export const revalidate = 300 // ISR — revalidate every 5 min
 
 export const metadata: Metadata = {
-  title: "מרכז ידע — ביטן את ביטן רואי חשבון",
+  title: 'מרכז ידע',
   description:
-    "מאמרים, מדריכים ומידע מקצועי בנושאי מס, חשבונאות וניהול פיננסי — מרכז הידע של ביטן את ביטן.",
+    'מאמרים, מדריכים ומידע מקצועי בנושאי מס, חשבונאות וניהול פיננסי — מרכז הידע של ביטן את ביטן.',
+  alternates: { canonical: '/knowledge' },
+  openGraph: {
+    title: 'מרכז ידע — ביטן את ביטן רואי חשבון',
+    description:
+      'מאמרים, מדריכים ומידע מקצועי בנושאי מס, חשבונאות וניהול פיננסי.',
+  },
 };
 
 /* Category → visual config for card banners */
@@ -51,10 +58,12 @@ function ArticleCardComponent({ article }: { article: ArticleCard }) {
         {/* Visual banner */}
         <div className={`relative h-36 bg-gradient-to-bl ${visual.gradient} flex items-center justify-center overflow-hidden`}>
           {imageUrl ? (
-            <img
+            <Image
               src={imageUrl}
               alt={article.mainImage?.alt ?? article.title}
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
             <>

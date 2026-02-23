@@ -1,9 +1,12 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { PortableText } from 'next-sanity'
 import { getArticleBySlug } from '@/sanity/queries'
 import { urlFor } from '@/sanity/image'
 import { SectionHeader, WhatsAppCTA } from '@/components/ui'
+import { JsonLd } from '@/components/JsonLd'
+import { SITE_URL } from '@/lib/site-url'
 import { ArrowRight, Calendar, Tag, User } from 'lucide-react'
 
 /* Render article pages on-demand (SSR) — avoids cache/encoding issues with Hebrew slugs on Railway */
@@ -24,11 +27,22 @@ function decodeSlug(raw: string): string {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params
-  const article = await getArticleBySlug(decodeSlug(slug))
+  const decoded = decodeSlug(slug)
+  const article = await getArticleBySlug(decoded)
   if (!article) return { title: 'מאמר לא נמצא' }
+
+  const imageUrl = urlFor(article.mainImage, 1200)
   return {
-    title: `${article.title} — ביטן את ביטן רואי חשבון`,
+    title: article.title,
     description: article.excerpt ?? '',
+    alternates: { canonical: `/knowledge/${encodeURIComponent(decoded)}` },
+    openGraph: {
+      title: `${article.title} — ביטן את ביטן רואי חשבון`,
+      description: article.excerpt ?? '',
+      type: 'article',
+      publishedTime: article.publishedAt,
+      ...(imageUrl ? { images: [{ url: imageUrl }] } : {}),
+    },
   }
 }
 
@@ -53,8 +67,28 @@ export default async function ArticlePage({ params }: Props) {
     notFound()
   }
 
+  const articleImageUrl = urlFor(article.mainImage, 1200)
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    ...(article.excerpt ? { description: article.excerpt } : {}),
+    ...(articleImageUrl ? { image: articleImageUrl } : {}),
+    ...(article.publishedAt ? { datePublished: article.publishedAt } : {}),
+    ...(article.author?.name
+      ? { author: { '@type': 'Person', name: article.author.name } }
+      : {}),
+    publisher: {
+      '@type': 'Organization',
+      name: 'ביטן את ביטן — רואי חשבון',
+      url: SITE_URL,
+    },
+    inLanguage: 'he',
+  }
+
   return (
     <div>
+      <JsonLd data={articleJsonLd} />
       {/* Hero */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto">
@@ -93,20 +127,20 @@ export default async function ArticlePage({ params }: Props) {
       </section>
 
       {/* Main image */}
-      {(() => {
-        const imageUrl = urlFor(article.mainImage, 1200)
-        return imageUrl ? (
-          <section className="px-6">
-            <div className="max-w-narrow mx-auto -mt-space-5">
-              <img
-                src={imageUrl}
-                alt={article.mainImage?.alt ?? article.title}
-                className="w-full rounded-xl shadow-lg object-cover max-h-[420px]"
-              />
-            </div>
-          </section>
-        ) : null
-      })()}
+      {articleImageUrl && (
+        <section className="px-6">
+          <div className="max-w-narrow mx-auto -mt-space-5 relative aspect-[16/9] max-h-[420px] overflow-hidden rounded-xl shadow-lg">
+            <Image
+              src={articleImageUrl}
+              alt={article.mainImage?.alt ?? article.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 720px"
+              priority
+            />
+          </div>
+        </section>
+      )}
 
       {/* Body */}
       <section className="py-space-9 px-6">

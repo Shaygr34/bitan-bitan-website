@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from './Button'
+import { trackWhatsAppClick } from '@/lib/analytics'
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -19,28 +20,17 @@ type WhatsAppCTAProps = {
   phone?: string
   message?: string
   label?: string
+  location?: string
   variant?: 'primary' | 'cta'
   size?: 'sm' | 'md' | 'lg'
   className?: string
-}
-
-function trackWhatsAppClick() {
-  // gtag event stub — will be wired to Google Analytics in a later milestone
-  if (typeof window !== 'undefined' && 'gtag' in window) {
-    const g = (window as Record<string, unknown>).gtag as
-      | ((...args: unknown[]) => void)
-      | undefined
-    g?.('event', 'whatsapp_click', {
-      event_category: 'contact',
-      event_label: 'whatsapp_cta',
-    })
-  }
 }
 
 export function WhatsAppCTA({
   phone = '+972527221111',
   message = '',
   label = 'שלחו לנו WhatsApp',
+  location = 'cta',
   variant = 'cta',
   size = 'md',
   className = '',
@@ -56,7 +46,7 @@ export function WhatsAppCTA({
       variant={variant}
       size={size}
       className={className}
-      onClick={trackWhatsAppClick}
+      onClick={() => trackWhatsAppClick(location)}
     >
       <WhatsAppIcon className="h-5 w-5 shrink-0" />
       {label}

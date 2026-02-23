@@ -3,31 +3,21 @@
 import { Phone } from 'lucide-react'
 import { Button } from './Button'
 import { LTR } from './LTR'
+import { trackPhoneClick } from '@/lib/analytics'
 
 type PhoneCTAProps = {
   phone?: string
   label?: string
+  location?: string
   variant?: 'primary' | 'secondary' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
 
-function trackPhoneClick() {
-  // gtag event stub — will be wired to Google Analytics in a later milestone
-  if (typeof window !== 'undefined' && 'gtag' in window) {
-    const g = (window as Record<string, unknown>).gtag as
-      | ((...args: unknown[]) => void)
-      | undefined
-    g?.('event', 'phone_click', {
-      event_category: 'contact',
-      event_label: 'phone_cta',
-    })
-  }
-}
-
 export function PhoneCTA({
   phone = '03-5174295',
   label,
+  location = 'cta',
   variant = 'primary',
   size = 'md',
   className = '',
@@ -42,7 +32,7 @@ export function PhoneCTA({
       icon={Phone}
       iconPosition="start"
       className={className}
-      onClick={trackPhoneClick}
+      onClick={() => trackPhoneClick(location)}
     >
       {label ?? <LTR>{phone}</LTR>}
     </Button>

@@ -5,8 +5,9 @@ import { getLegalPage } from '@/sanity/queries'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'תנאי שימוש — ביטן את ביטן רואי חשבון',
+  title: 'תנאי שימוש',
   description: 'תנאי השימוש של אתר ביטן את ביטן רואי חשבון.',
+  alternates: { canonical: '/terms' },
 }
 
 export default async function TermsPage() {

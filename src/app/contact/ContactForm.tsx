@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { Card, CardBody } from '@/components/ui'
 import { CheckCircle2, AlertCircle } from 'lucide-react'
+import { trackFormSubmit } from '@/lib/analytics'
 
 type FieldErrors = {
   name?: string
@@ -50,8 +51,8 @@ export function ContactForm() {
     }
 
     setErrors({})
+    trackFormSubmit()
     // Email provider not wired yet — show success UI
-    // TODO (M10+): wire to API route / email provider
     setStatus('success')
   }
 

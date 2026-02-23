@@ -9,9 +9,15 @@ import { ContactForm } from "./ContactForm";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "צור קשר — ביטן את ביטן רואי חשבון",
+  title: 'צור קשר',
   description:
-    "צרו קשר עם משרד רואי חשבון ביטן את ביטן — טלפון, דוא״ל, וואטסאפ או ביקור במשרד בתל אביב.",
+    'צרו קשר עם משרד רואי חשבון ביטן את ביטן — טלפון, דוא״ל, וואטסאפ או ביקור במשרד בתל אביב.',
+  alternates: { canonical: '/contact' },
+  openGraph: {
+    title: 'צור קשר — ביטן את ביטן רואי חשבון',
+    description:
+      'צרו קשר עם משרד רואי חשבון ביטן את ביטן — טלפון, דוא״ל, וואטסאפ או ביקור במשרד.',
+  },
 };
 
 function WhatsAppContactIcon(props: { className?: string }) {

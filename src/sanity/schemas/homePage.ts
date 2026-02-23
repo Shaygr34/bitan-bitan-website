@@ -110,8 +110,8 @@ export default defineType({
           ],
           preview: {
             select: { title: 'title', step: 'stepNumber' },
-            prepare({ title, step }: { title: string; step: number }) {
-              return { title: `${step}. ${title}` }
+            prepare(selection: Record<string, unknown>) {
+              return { title: `${selection.step}. ${selection.title}` }
             },
           },
         },
