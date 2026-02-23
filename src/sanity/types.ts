@@ -48,6 +48,52 @@ export type Author = {
   role?: string
   bio?: string
   image?: SanityImage
+  isPartner?: boolean
+  specializations?: string[]
+  experienceYears?: number
+}
+
+/* ─── About Page ─── */
+
+export type AboutPageDifferentiator = {
+  _key: string
+  title: string
+  description: string
+  icon?: string
+}
+
+export type AboutPageAudienceCard = {
+  _key: string
+  title: string
+  description: string
+  icon?: string
+}
+
+export type AboutPageProcessStep = {
+  _key: string
+  stepNumber: number
+  title: string
+  description: string
+}
+
+export type AboutPageValue = {
+  _key: string
+  title: string
+  description: string
+  icon?: string
+}
+
+export type AboutPage = {
+  _id: string
+  storyHeadline: string
+  storyBody: PortableTextBlock[]
+  differentiators?: AboutPageDifferentiator[]
+  audienceCards?: AboutPageAudienceCard[]
+  processSteps?: AboutPageProcessStep[]
+  values?: AboutPageValue[]
+  officeNote?: string
+  ctaHeadline?: string
+  ctaSubtitle?: string
 }
 
 /* ─── Category ─── */

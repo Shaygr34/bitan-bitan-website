@@ -1,3 +1,4 @@
+import aboutPage from './aboutPage'
 import article from './article'
 import author from './author'
 import category from './category'
@@ -26,6 +27,9 @@ export const schemaTypes = [
 
   // People
   author,
+
+  // Pages
+  aboutPage,
 
   // Settings
   siteSettings,

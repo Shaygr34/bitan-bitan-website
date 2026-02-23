@@ -13,6 +13,8 @@ import type {
   LegalPage,
   FAQ,
   Testimonial,
+  AboutPage,
+  Author,
 } from './types'
 
 /* ─── Revalidation ─── */
@@ -170,6 +172,43 @@ const TESTIMONIALS_QUERY = `*[_type == "testimonial"] | order(order asc){
 
 export async function getTestimonials(): Promise<Testimonial[]> {
   return sanityFetch<Testimonial[]>(TESTIMONIALS_QUERY)
+}
+
+/* ─── About Page (singleton) ─── */
+
+const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"][0]{
+  _id,
+  storyHeadline,
+  storyBody,
+  differentiators,
+  audienceCards,
+  processSteps,
+  values,
+  officeNote,
+  ctaHeadline,
+  ctaSubtitle
+}`
+
+export async function getAboutPage(): Promise<AboutPage | null> {
+  return sanityFetch<AboutPage | null>(ABOUT_PAGE_QUERY)
+}
+
+/* ─── Partners (authors with isPartner == true) ─── */
+
+const PARTNERS_QUERY = `*[_type == "author" && isPartner == true]{
+  _id,
+  name,
+  slug,
+  role,
+  bio,
+  image,
+  isPartner,
+  specializations,
+  experienceYears
+}`
+
+export async function getPartners(): Promise<Author[]> {
+  return sanityFetch<Author[]>(PARTNERS_QUERY)
 }
 
 /* ─── Legal Pages ─── */

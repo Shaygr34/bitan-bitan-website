@@ -44,6 +44,24 @@ export default defineType({
       type: 'image',
       options: { hotspot: true },
     }),
+    defineField({
+      name: 'isPartner',
+      title: 'שותף במשרד',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'specializations',
+      title: 'תחומי התמחות',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' },
+    }),
+    defineField({
+      name: 'experienceYears',
+      title: 'שנות ניסיון',
+      type: 'number',
+    }),
   ],
   preview: {
     select: { title: 'name', subtitle: 'role', media: 'image' },
