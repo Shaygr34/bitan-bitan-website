@@ -640,6 +640,40 @@ const aboutPage = {
   ctaSubtitle: 'נשמח לשבת איתכם לפגישת היכרות ללא עלות ולהבין איך נוכל לעזור.',
 }
 
+// ─── Home Page (singleton) ────────────────────────────────
+const homePage = {
+  _id: 'homePage',
+  _type: 'homePage',
+  heroHeadline: 'המומחים הפיננסיים של העסק שלכם',
+  heroSubtitle: 'משרד רואי חשבון ביטן את ביטן — רואי חשבון, יועצי מס ומשפטנים. ייעוץ מס, דוחות כספיים וליווי עסקי מקצועי.',
+  heroFooterNote: 'רואי חשבון ומשפטנים · ייעוץ מס וליווי עסקי · תל אביב',
+  trustPoints: [
+    { _key: 'tp1', heading: 'שקיפות מלאה', description: 'בתהליך ובדיווח' },
+    { _key: 'tp2', heading: 'ליווי חברות', description: 'פרטיות ובעלי שליטה' },
+    { _key: 'tp3', heading: 'תכנון מס', description: 'וייצוג מול הרשויות' },
+    { _key: 'tp4', heading: 'תהליכי עבודה', description: 'מסודרים וברורים' },
+  ],
+  aboutHeading: 'למה ביטן את ביטן?',
+  aboutSubtitle: 'משרד רואי חשבון ביטן את ביטן מלווה חברות פרטיות, בעלי שליטה ועסקים בשירותי ראיית חשבון, ייעוץ מס, ביקורת וליווי עסקי מקצועי.',
+  aboutLinkText: 'קראו עוד עלינו ←',
+  aboutDifferentiators: [
+    { _key: 'ad1', title: 'רואי חשבון ומשפטנים', description: 'שילוב ייחודי של ידע חשבונאי ומשפטי — מענה רחב ומקצועי ללקוחות.' },
+    { _key: 'ad2', title: 'ליווי אישי ומקצועי', description: 'כל לקוח מקבל מענה ישיר מרואה חשבון. אנחנו שותפים לדרך, לא רק נותני שירות.' },
+    { _key: 'ad3', title: 'מענה מקיף', description: 'תחת קורת גג אחת — חשבונאות, מיסוי, ייעוץ עסקי וליווי פיננסי מלא.' },
+  ],
+  processHeading: 'איך אנחנו עובדים?',
+  processSubtitle: 'תהליך עבודה מסודר ושקוף — מפגישת ההיכרות ועד ליווי שוטף.',
+  processSteps: [
+    { _key: 'ps1', stepNumber: 1, title: 'פגישת היכרות', description: 'שיחה ראשונית להבנת הצרכים, המטרות והמצב הפיננסי הנוכחי.' },
+    { _key: 'ps2', stepNumber: 2, title: 'תכנון אסטרטגיה', description: 'בניית תוכנית עבודה מותאמת אישית — מס, חשבונאות וליווי עסקי.' },
+    { _key: 'ps3', stepNumber: 3, title: 'ביצוע מקצועי', description: 'יישום מדויק ומקצועי של התוכנית, עם דיווח שוטף ושקיפות מלאה.' },
+    { _key: 'ps4', stepNumber: 4, title: 'ליווי שוטף', description: 'מענה מהיר, עדכונים בזמן אמת ותמיכה מתמשכת בכל שלב בדרך.' },
+  ],
+  ctaHeadline: 'מוכנים להתחיל?',
+  ctaSubtitle: 'צרו קשר עוד היום לפגישת ייעוץ ראשונית ללא עלות. נשמח להכיר ולהבין איך נוכל לעזור.',
+  ctaFooterNote: 'ללא התחייבות · תשובה תוך 24 שעות · שיחה חינם',
+}
+
 // ─── Site Settings ─────────────────────────────────────────
 const siteSettings = {
   _id: 'siteSettings',
@@ -653,12 +687,6 @@ const siteSettings = {
   email: 'office@bitancpa.com',
   address: 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב',
   officeHours: 'א׳-ה׳ 09:00-17:00',
-  trustPoints: [
-    { _key: 'tp1', heading: 'שקיפות מלאה', description: 'בתהליך ובדיווח' },
-    { _key: 'tp2', heading: 'ליווי חברות', description: 'פרטיות ובעלי שליטה' },
-    { _key: 'tp3', heading: 'תכנון מס', description: 'וייצוג מול הרשויות' },
-    { _key: 'tp4', heading: 'תהליכי עבודה', description: 'מסודרים וברורים' },
-  ],
 }
 
 // ─── Run ───────────────────────────────────────────────────
@@ -674,6 +702,7 @@ async function seed() {
     ...testimonials,
     ...articles,
     ...legalPages,
+    homePage,
     aboutPage,
     siteSettings,
   ]
@@ -695,6 +724,7 @@ async function seed() {
   console.log('   Testimonials:  ', testimonials.length)
   console.log('   Articles:      ', articles.map((a) => a.title).join(', '))
   console.log('   Legal pages:   ', legalPages.map((p) => p.title).join(', '))
+  console.log('   Home page:     ', homePage.heroHeadline.slice(0, 40) + '...')
   console.log('   About page:    ', aboutPage.storyHeadline.slice(0, 40) + '...')
   console.log('   SiteSettings:  ', siteSettings.siteName)
 }

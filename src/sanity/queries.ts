@@ -6,6 +6,7 @@
 import { client } from './client'
 import type {
   SiteSettings,
+  HomePage,
   Service,
   Category,
   ArticleCard,
@@ -41,7 +42,6 @@ const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   email,
   address,
   officeHours,
-  trustPoints,
   googleMapsUrl,
   logo,
   ogImage
@@ -173,6 +173,30 @@ const TESTIMONIALS_QUERY = `*[_type == "testimonial"] | order(order asc){
 
 export async function getTestimonials(): Promise<Testimonial[]> {
   return sanityFetch<Testimonial[]>(TESTIMONIALS_QUERY)
+}
+
+/* ─── Home Page (singleton) ─── */
+
+const HOME_PAGE_QUERY = `*[_type == "homePage"][0]{
+  _id,
+  heroHeadline,
+  heroSubtitle,
+  heroFooterNote,
+  trustPoints,
+  aboutHeading,
+  aboutSubtitle,
+  aboutLinkText,
+  aboutDifferentiators,
+  processHeading,
+  processSubtitle,
+  processSteps,
+  ctaHeadline,
+  ctaSubtitle,
+  ctaFooterNote
+}`
+
+export async function getHomePage(): Promise<HomePage | null> {
+  return sanityFetch<HomePage | null>(HOME_PAGE_QUERY)
 }
 
 /* ─── About Page (singleton) ─── */

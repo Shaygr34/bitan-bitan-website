@@ -3,7 +3,9 @@
 import Link from 'next/link'
 import { SectionHeader, RevealSection, RevealGroup, RevealItem } from '@/components/ui'
 
-const DIFFERENTIATORS = [
+type Differentiator = { title: string; description: string }
+
+const DEFAULT_DIFFERENTIATORS: Differentiator[] = [
   {
     title: 'רואי חשבון ומשפטנים',
     description:
@@ -19,17 +21,39 @@ const DIFFERENTIATORS = [
     description:
       'תחת קורת גג אחת — חשבונאות, מיסוי, ייעוץ עסקי וליווי פיננסי מלא.',
   },
-] as const
+]
 
-export function AboutSection() {
+type AboutProps = {
+  heading?: string
+  subtitle?: string
+  linkText?: string
+  differentiators?: Differentiator[]
+}
+
+export function AboutSection({
+  heading,
+  subtitle,
+  linkText,
+  differentiators,
+}: AboutProps) {
+  const items =
+    differentiators && differentiators.length > 0
+      ? differentiators
+      : DEFAULT_DIFFERENTIATORS
+
   return (
     <RevealSection className="bg-surface py-space-9 px-6">
       <div className="max-w-content mx-auto">
         <div className="grid md:grid-cols-2 gap-space-8 items-start">
           {/* Text content */}
           <div>
-            <SectionHeader subtitle="משרד רואי חשבון ביטן את ביטן מלווה חברות פרטיות, בעלי שליטה ועסקים בשירותי ראיית חשבון, ייעוץ מס, ביקורת וליווי עסקי מקצועי.">
-              למה ביטן את ביטן?
+            <SectionHeader
+              subtitle={
+                subtitle ??
+                'משרד רואי חשבון ביטן את ביטן מלווה חברות פרטיות, בעלי שליטה ועסקים בשירותי ראיית חשבון, ייעוץ מס, ביקורת וליווי עסקי מקצועי.'
+              }
+            >
+              {heading ?? 'למה ביטן את ביטן?'}
             </SectionHeader>
 
             <div className="mt-space-6">
@@ -37,14 +61,14 @@ export function AboutSection() {
                 href="/about"
                 className="inline-flex items-center text-nav font-medium text-gold hover:text-gold-hover transition-colors duration-fast"
               >
-                קראו עוד עלינו ←
+                {linkText ?? 'קראו עוד עלינו ←'}
               </Link>
             </div>
           </div>
 
           {/* Differentiators */}
           <RevealGroup className="space-y-space-5">
-            {DIFFERENTIATORS.map(({ title, description }, i) => (
+            {items.map(({ title, description }, i) => (
               <RevealItem key={title}>
                 <div className="flex gap-space-4">
                   <div className="shrink-0 w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">

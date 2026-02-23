@@ -24,12 +24,6 @@ export type SanitySlug = {
 
 /* ─── Site Settings ─── */
 
-export type SiteTrustPoint = {
-  _key: string
-  heading: string
-  description: string
-}
-
 export type SiteSettings = {
   _id: string
   siteName: string
@@ -40,10 +34,48 @@ export type SiteSettings = {
   email: string
   address: string
   officeHours: string
-  trustPoints?: SiteTrustPoint[]
   googleMapsUrl?: string
   logo?: SanityImage
   ogImage?: SanityImage
+}
+
+/* ─── Home Page ─── */
+
+export type HomePageTrustPoint = {
+  _key: string
+  heading: string
+  description: string
+}
+
+export type HomePageDifferentiator = {
+  _key: string
+  title: string
+  description: string
+}
+
+export type HomePageProcessStep = {
+  _key: string
+  stepNumber: number
+  title: string
+  description: string
+}
+
+export type HomePage = {
+  _id: string
+  heroHeadline?: string
+  heroSubtitle?: string
+  heroFooterNote?: string
+  trustPoints?: HomePageTrustPoint[]
+  aboutHeading?: string
+  aboutSubtitle?: string
+  aboutLinkText?: string
+  aboutDifferentiators?: HomePageDifferentiator[]
+  processHeading?: string
+  processSubtitle?: string
+  processSteps?: HomePageProcessStep[]
+  ctaHeadline?: string
+  ctaSubtitle?: string
+  ctaFooterNote?: string
 }
 
 /* ─── Author ─── */

@@ -4,6 +4,7 @@ import author from './author'
 import category from './category'
 import faq from './faq'
 import guide from './guide'
+import homePage from './homePage'
 import legalPage from './legalPage'
 import service from './service'
 import siteSettings from './siteSettings'
@@ -29,6 +30,7 @@ export const schemaTypes = [
   author,
 
   // Pages
+  homePage,
   aboutPage,
 
   // Settings
