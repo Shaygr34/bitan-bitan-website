@@ -53,12 +53,14 @@ export function ServicesSection({ services }: Props) {
         Icon: (svc.icon && ICON_MAP[svc.icon.toLowerCase()]) || Briefcase,
         title: svc.title,
         description: svc.shortDescription,
+        href: svc.slug?.current ? `/services#service-${svc.slug.current}` : '/services',
       }))
     : FALLBACK_SERVICES.map((s) => ({
         key: s.title,
         Icon: s.icon,
         title: s.title,
         description: s.description,
+        href: '/services',
       }))
 
   return (
@@ -72,19 +74,21 @@ export function ServicesSection({ services }: Props) {
         </SectionHeader>
 
         <RevealGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5 mt-space-8">
-          {items.map(({ key, Icon, title, description }) => (
+          {items.map(({ key, Icon, title, description, href }) => (
             <RevealItem key={key}>
-              <Card>
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-space-3">
-                    <Icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-h4 font-semibold text-primary">{title}</h3>
-                </CardHeader>
-                <CardBody>
-                  <p className="text-text-secondary text-body">{description}</p>
-                </CardBody>
-              </Card>
+              <Link href={href}>
+                <Card>
+                  <CardHeader>
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-space-3">
+                      <Icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="text-h4 font-semibold text-primary">{title}</h3>
+                  </CardHeader>
+                  <CardBody>
+                    <p className="text-text-secondary text-body">{description}</p>
+                  </CardBody>
+                </Card>
+              </Link>
             </RevealItem>
           ))}
         </RevealGroup>

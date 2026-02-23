@@ -37,6 +37,9 @@ function pathsForType(type: string, slug?: string): string[] {
     case 'author':
       return ['/about']
 
+    case 'contactLead':
+      return [] // No public pages to revalidate
+
     case 'siteSettings':
       // Global — every page reads site settings via layout
       return ['/']

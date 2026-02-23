@@ -11,7 +11,8 @@ import {
 import { FileText, Building2, Receipt, Shield, Banknote, BookOpen } from "lucide-react";
 import { getArticles, getCategories } from "@/sanity/queries";
 import { urlFor } from "@/sanity/image";
-import type { ArticleCard, Category } from "@/sanity/types";
+import type { ArticleCard } from "@/sanity/types";
+import { KnowledgeFilterable } from "./CategoryFilter";
 
 export const revalidate = 300 // ISR — revalidate every 5 min
 
@@ -109,12 +110,7 @@ export default async function KnowledgePage() {
     getCategories(),
   ]);
 
-  const hasArticles = articles && articles.length > 0;
   const hasCategories = categories && categories.length > 0;
-
-  const categoryList = hasCategories
-    ? [{ _id: 'all', title: 'הכל' }, ...categories]
-    : [{ title: 'הכל' }, { title: 'מס הכנסה' }, { title: 'מע"מ' }, { title: 'חברות' }, { title: 'ביטוח לאומי' }, { title: 'שכר' }];
 
   return (
     <div>
@@ -130,62 +126,44 @@ export default async function KnowledgePage() {
         </div>
       </section>
 
-      {/* Category pills */}
-      <section className="border-b border-border bg-white sticky top-[56px] md:top-[72px] z-30 px-6">
-        <div className="max-w-content mx-auto py-space-3 flex gap-2 overflow-x-auto">
-          {categoryList.map((cat, i) => (
-            <span
-              key={'_id' in cat ? (cat as Category)._id : cat.title}
-              className={[
-                "shrink-0 px-4 py-1.5 rounded-full text-body-sm font-medium transition-colors cursor-pointer",
-                i === 0
-                  ? "bg-primary text-white"
-                  : "bg-surface text-text-secondary hover:bg-callout",
-              ].join(" ")}
-            >
-              {cat.title}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* Articles grid */}
-      <section className="py-space-9 px-6">
-        <div className="max-w-content mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5">
-            {hasArticles
-              ? articles.map((article) => (
-                  <ArticleCardComponent key={article._id} article={article} />
-                ))
-              : FALLBACK_ARTICLES.map(({ category, title, excerpt, date }) => {
-                  const visual = CATEGORY_VISUALS[category] ?? DEFAULT_VISUAL;
-                  const Icon = visual.icon;
-                  return (
-                    <Card key={title} className="!p-0 overflow-hidden">
-                      <div className={`relative h-36 bg-gradient-to-bl ${visual.gradient} flex items-center justify-center overflow-hidden`}>
-                        <div className="absolute -top-6 -end-6 w-24 h-24 rounded-full bg-white/5" />
-                        <div className="absolute -bottom-4 -start-4 w-16 h-16 rounded-full bg-white/5" />
-                        <Icon className="h-12 w-12 text-white/30" strokeWidth={1.5} />
-                        <span className="absolute top-3 start-3 px-3 py-1 text-caption font-medium bg-white/20 text-white rounded-full backdrop-blur-sm">
-                          {category}
-                        </span>
-                      </div>
-                      <CardBody className="px-space-5 pt-space-4">
-                        <h2 className="text-h4 font-semibold text-primary">{title}</h2>
-                        <p className="text-text-secondary text-body mt-2">{excerpt}</p>
-                      </CardBody>
-                      <CardFooter className="flex items-center justify-between mx-space-5 mb-space-4">
-                        <span className="text-text-muted text-caption">{date}</span>
-                        <span className="text-body-sm font-medium text-gold hover:text-gold-hover transition-colors cursor-pointer">
-                          קראו עוד
-                        </span>
-                      </CardFooter>
-                    </Card>
-                  );
-                })}
-          </div>
-        </div>
-      </section>
+      {/* Category filter + Articles grid (client-side filtering) */}
+      <KnowledgeFilterable
+        categories={hasCategories ? categories : []}
+        articles={articles ?? []}
+        renderArticle={(article) => (
+          <ArticleCardComponent key={article._id} article={article} />
+        )}
+        renderFallback={() => (
+          <>
+            {FALLBACK_ARTICLES.map(({ category, title, excerpt, date }) => {
+              const visual = CATEGORY_VISUALS[category] ?? DEFAULT_VISUAL;
+              const Icon = visual.icon;
+              return (
+                <Card key={title} className="!p-0 overflow-hidden">
+                  <div className={`relative h-36 bg-gradient-to-bl ${visual.gradient} flex items-center justify-center overflow-hidden`}>
+                    <div className="absolute -top-6 -end-6 w-24 h-24 rounded-full bg-white/5" />
+                    <div className="absolute -bottom-4 -start-4 w-16 h-16 rounded-full bg-white/5" />
+                    <Icon className="h-12 w-12 text-white/30" strokeWidth={1.5} />
+                    <span className="absolute top-3 start-3 px-3 py-1 text-caption font-medium bg-white/20 text-white rounded-full backdrop-blur-sm">
+                      {category}
+                    </span>
+                  </div>
+                  <CardBody className="px-space-5 pt-space-4">
+                    <h2 className="text-h4 font-semibold text-primary">{title}</h2>
+                    <p className="text-text-secondary text-body mt-2">{excerpt}</p>
+                  </CardBody>
+                  <CardFooter className="flex items-center justify-between mx-space-5 mb-space-4">
+                    <span className="text-text-muted text-caption">{date}</span>
+                    <span className="text-body-sm font-medium text-gold hover:text-gold-hover transition-colors cursor-pointer">
+                      קראו עוד
+                    </span>
+                  </CardFooter>
+                </Card>
+              );
+            })}
+          </>
+        )}
+      />
 
       {/* CTA */}
       <section className="bg-surface py-space-9 px-6">

@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react'
 import { Card, CardBody } from '@/components/ui'
-import { CheckCircle2, AlertCircle } from 'lucide-react'
+import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { trackFormSubmit } from '@/lib/analytics'
 
 type FieldErrors = {
@@ -32,11 +32,12 @@ function validate(data: FormData): FieldErrors {
 
 export function ContactForm() {
   const [errors, setErrors] = useState<FieldErrors>({})
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const data = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const data = new FormData(form)
 
     // Honeypot — if filled, silently "succeed"
     if ((data.get('website') as string)?.trim()) {
@@ -51,9 +52,29 @@ export function ContactForm() {
     }
 
     setErrors({})
-    trackFormSubmit()
-    // Email provider not wired yet — show success UI
-    setStatus('success')
+    setStatus('sending')
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: (data.get('name') as string).trim(),
+          phone: (data.get('phone') as string).trim(),
+          email: (data.get('email') as string)?.trim() || undefined,
+          message: (data.get('message') as string)?.trim() || undefined,
+          website: (data.get('website') as string)?.trim() || undefined,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Failed')
+
+      trackFormSubmit()
+      setStatus('success')
+      form.reset()
+    } catch {
+      setStatus('error')
+    }
   }
 
   if (status === 'success') {
@@ -85,6 +106,14 @@ export function ContactForm() {
         <h3 className="text-h3 font-bold text-primary mb-space-5">
           השאירו פרטים
         </h3>
+
+        {status === 'error' && (
+          <div className="mb-space-4 p-space-3 bg-red-50 border border-red-200 rounded-lg text-body-sm text-red-700 flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            שגיאה בשליחת הטופס. נסו שוב או צרו קשר בטלפון.
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} noValidate className="space-y-space-4">
           {/* Honeypot — hidden from real users */}
           <div className="absolute -left-[9999px]" aria-hidden="true">
@@ -210,9 +239,17 @@ export function ContactForm() {
 
           <button
             type="submit"
-            className="w-full inline-flex items-center justify-center gap-2 bg-gold text-primary font-bold text-body py-3 rounded-lg hover:bg-gold-hover hover:scale-[1.03] active:scale-[0.97] transition-all duration-base cursor-pointer"
+            disabled={status === 'sending'}
+            className="w-full inline-flex items-center justify-center gap-2 bg-gold text-primary font-bold text-body py-3 rounded-lg hover:bg-gold-hover hover:scale-[1.03] active:scale-[0.97] transition-all duration-base cursor-pointer disabled:opacity-60 disabled:pointer-events-none"
           >
-            שליחה
+            {status === 'sending' ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                שולח...
+              </>
+            ) : (
+              'שליחה'
+            )}
           </button>
           <p className="text-text-muted text-caption text-center">
             נחזור אליכם תוך יום עסקים אחד.

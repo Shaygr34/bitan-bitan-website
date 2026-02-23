@@ -60,8 +60,9 @@ const FALLBACK_SERVICES = [
 
 function ServiceCard({ service }: { service: Service }) {
   const Icon = (service.icon && ICON_MAP[service.icon.toLowerCase()]) || Briefcase;
+  const slug = service.slug?.current ?? '';
   return (
-    <Card hover={false}>
+    <Card hover={false} id={slug ? `service-${slug}` : undefined}>
       <CardHeader>
         <div className="flex items-center gap-space-3">
           <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
