@@ -3,6 +3,7 @@ import author from './author'
 import category from './category'
 import faq from './faq'
 import guide from './guide'
+import legalPage from './legalPage'
 import service from './service'
 import siteSettings from './siteSettings'
 import tag from './tag'
@@ -12,6 +13,7 @@ export const schemaTypes = [
   // Content types
   article,
   guide,
+  legalPage,
 
   // Taxonomy
   category,

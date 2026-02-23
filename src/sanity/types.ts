@@ -106,6 +106,16 @@ export type ArticleFull = ArticleCard & {
   tags?: Tag[]
 }
 
+/* ─── Legal Page ─── */
+
+export type LegalPage = {
+  _id: string
+  title: string
+  slug: SanitySlug
+  lastUpdated?: string
+  body: PortableTextBlock[]
+}
+
 /* ─── FAQ ─── */
 
 export type FAQ = {
