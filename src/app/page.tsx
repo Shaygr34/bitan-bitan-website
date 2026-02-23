@@ -10,6 +10,7 @@ import {
   FAQSection,
   CTASection,
 } from '@/components/homepage'
+import { TrustModule } from '@/components/TrustModule'
 import { getServices, getFAQs, getTestimonials, getArticles, getHomePage } from '@/sanity/queries'
 
 export const metadata: Metadata = {
@@ -55,6 +56,7 @@ export default async function Home() {
       />
       <KnowledgePreview articles={articles} />
       <TestimonialsSection testimonials={testimonials} />
+      <TrustModule showProcess={false} showPrepare={false} />
       <FAQSection faqs={faqs} />
       <CTASection
         headline={homePage?.ctaHeadline}

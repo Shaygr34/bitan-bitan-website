@@ -22,6 +22,7 @@ import {
 import { getServices } from "@/sanity/queries";
 import { PortableText } from "next-sanity";
 import type { Service } from "@/sanity/types";
+import { TrustModule } from "@/components/TrustModule";
 
 export const metadata: Metadata = {
   title: 'השירותים שלנו',
@@ -163,6 +164,9 @@ export default async function ServicesPage() {
           </div>
         </div>
       </section>
+
+      {/* Trust Module */}
+      <TrustModule showProcess={false} />
 
       {/* CTA */}
       <section className="bg-primary py-space-9 px-6">

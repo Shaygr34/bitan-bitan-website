@@ -8,6 +8,7 @@ import {
 import { ContactForm } from "./ContactForm";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { getSiteSettings } from "@/sanity/queries";
+import { TrustModule } from "@/components/TrustModule";
 
 export const metadata: Metadata = {
   title: 'צור קשר',
@@ -242,6 +243,9 @@ export default async function ContactPage() {
           </div>
         </div>
       </section>
+
+      {/* Trust Module — process + prepare docs */}
+      <TrustModule showProcess={true} showPrepare={true} />
     </div>
   );
 }
