@@ -7,6 +7,7 @@ import {
 } from "@/components/ui";
 import { ContactForm } from "./ContactForm";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { getSiteSettings } from "@/sanity/queries";
 
 export const metadata: Metadata = {
   title: 'צור קשר',
@@ -28,62 +29,14 @@ function WhatsAppContactIcon(props: { className?: string }) {
   )
 }
 
-const CONTACT_METHODS = [
-  {
-    icon: Phone,
-    label: "טלפון",
-    value: "03-5174295",
-    href: "tel:035174295",
-    ltr: true,
-    external: false,
-  },
-  {
-    icon: Mail,
-    label: "דוא\"ל",
-    value: "office@bitancpa.com",
-    href: "mailto:office@bitancpa.com",
-    ltr: true,
-    external: false,
-  },
-  {
-    icon: WhatsAppContactIcon,
-    label: "WhatsApp",
-    value: "+972-52-722-1111",
-    href: "https://wa.me/972527221111",
-    ltr: true,
-    external: true,
-  },
-  {
-    icon: MapPin,
-    label: "כתובת",
-    value: "הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב",
-    href: undefined,
-    ltr: false,
-    external: false,
-  },
-  {
-    icon: Clock,
-    label: "שעות פעילות",
-    value: "ראשון–חמישי 08:30–17:00",
-    href: undefined,
-    ltr: false,
-    external: false,
-  },
-] as const;
+/* ─── Map defaults — use "ביטן את ביטן פיננסים" as canonical search term ─── */
+const BUSINESS_NAME = 'ביטן את ביטן פיננסים'
+const BUSINESS_NAME_ENCODED = encodeURIComponent(BUSINESS_NAME)
+const DEFAULT_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${BUSINESS_NAME_ENCODED}&language=he&zoom=16`
+const DEFAULT_WAZE_URL = `https://waze.com/ul?q=${BUSINESS_NAME_ENCODED}&navigate=yes&z=17`
+const DEFAULT_GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${BUSINESS_NAME_ENCODED}`
 
-/* Electra Tower, HaRakevet 58, Tel Aviv */
-const OFFICE_ADDRESS = 'הרכבת 58, מגדל אלקטרה סיטי, תל אביב';
-const OFFICE_ADDRESS_ENCODED = encodeURIComponent(OFFICE_ADDRESS);
-const OFFICE_LAT = 32.0688;
-const OFFICE_LNG = 34.7898;
-/* Embed with place query — shows a red pin on the map */
-const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${OFFICE_ADDRESS_ENCODED}&language=he&zoom=16`;
-/* Waze deep link — coordinates are the most reliable for navigation */
-const WAZE_URL = `https://waze.com/ul?ll=${OFFICE_LAT},${OFFICE_LNG}&navigate=yes&z=17`;
-/* Google Maps — directions mode triggers navigation */
-const GOOGLE_MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${OFFICE_LAT},${OFFICE_LNG}&travelmode=driving`;
-
-/** Official Waze brand icon — ghost face (Font Awesome, CC BY 4.0) */
+/** Official Waze brand icon */
 function WazeIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 512 512" className={className} aria-hidden="true">
@@ -92,21 +45,76 @@ function WazeIcon({ className }: { className?: string }) {
   )
 }
 
-/** Google Maps brand icon — colored pin (Google brand colors) */
+/** Google Maps brand icon */
 function GoogleMapsIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 92 92" className={className} aria-hidden="true">
-      {/* Pin body — red */}
       <path d="M46 4C28.88 4 15 17.88 15 35c0 22.54 27.41 47.76 28.58 48.83a3.5 3.5 0 0 0 4.84 0C49.59 82.76 77 57.54 77 35 77 17.88 63.12 4 46 4z" fill="#EA4335"/>
-      {/* Inner circle — white */}
       <circle cx="46" cy="35" r="12" fill="white"/>
-      {/* Inner circle accent — blue */}
       <circle cx="46" cy="35" r="7" fill="#4285F4"/>
     </svg>
   )
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const s = await getSiteSettings()
+
+  const phone = s?.phone ?? '03-5174295'
+  const phoneTel = phone.replace(/[^+\d]/g, '')
+  const email = s?.email ?? 'office@bitancpa.com'
+  const whatsapp = s?.whatsapp ?? '+972527221111'
+  const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
+  const whatsappDisplay = whatsapp.replace(/(\+972)(\d{2})(\d{3})(\d{4})/, '$1-$2-$3-$4')
+  const address = s?.address ?? 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב'
+  const officeHours = s?.officeHours ?? 'ראשון–חמישי 08:30–17:00'
+
+  const wazeUrl = s?.wazeUrl ?? DEFAULT_WAZE_URL
+  const gmapsUrl = s?.googleMapsUrl ?? DEFAULT_GMAPS_URL
+  const embedUrl = s?.googleMapsEmbedUrl ?? DEFAULT_EMBED_URL
+
+  const contactMethods = [
+    {
+      icon: Phone,
+      label: "טלפון",
+      value: phone,
+      href: `tel:${phoneTel}`,
+      ltr: true,
+      external: false,
+    },
+    {
+      icon: Mail,
+      label: 'דוא"ל',
+      value: email,
+      href: `mailto:${email}`,
+      ltr: true,
+      external: false,
+    },
+    {
+      icon: WhatsAppContactIcon,
+      label: "WhatsApp",
+      value: whatsappDisplay,
+      href: `https://wa.me/${whatsappClean}`,
+      ltr: true,
+      external: true,
+    },
+    {
+      icon: MapPin,
+      label: "כתובת",
+      value: address,
+      href: undefined as string | undefined,
+      ltr: false,
+      external: false,
+    },
+    {
+      icon: Clock,
+      label: "שעות פעילות",
+      value: officeHours,
+      href: undefined as string | undefined,
+      ltr: false,
+      external: false,
+    },
+  ]
+
   return (
     <div>
       {/* Hero */}
@@ -132,7 +140,7 @@ export default function ContactPage() {
               </SectionHeader>
 
               <div className="mt-space-6 space-y-space-4">
-                {CONTACT_METHODS.map(({ icon: Icon, label, value, href, ltr, external }) => (
+                {contactMethods.map(({ icon: Icon, label, value, href, ltr, external }) => (
                   <div key={label} className="flex items-start gap-space-3">
                     <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                       <Icon className="h-5 w-5 text-primary" />
@@ -161,7 +169,7 @@ export default function ContactPage() {
                 <WhatsAppCTA label="WhatsApp" size="md" />
                 <PhoneCTA size="md" />
                 <a
-                  href="mailto:office@bitancpa.com"
+                  href={`mailto:${email}`}
                   className="inline-flex items-center justify-center gap-2 border-2 border-primary text-primary font-medium text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary hover:text-white transition-all duration-base"
                 >
                   <Mail className="h-4 w-4" />
@@ -189,14 +197,14 @@ export default function ContactPage() {
             {/* Embedded Google Map */}
             <div className="relative h-[350px] md:h-[450px]">
               <iframe
-                src={GOOGLE_MAPS_EMBED_URL}
+                src={embedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="מיקום המשרד — מגדל אלקטרה סיטי, תל אביב"
+                title="מיקום המשרד — ביטן את ביטן פיננסים, מגדל אלקטרה סיטי, תל אביב"
                 className="absolute inset-0 w-full h-full"
               />
             </div>
@@ -206,16 +214,13 @@ export default function ContactPage() {
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-gold shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-body font-medium text-primary">
-                    הרכבת 58, מגדל אלקטרה סיטי, קומה 11
-                  </p>
-                  <p className="text-body-sm text-text-muted">תל אביב</p>
+                  <p className="text-body font-medium text-primary">{address}</p>
                 </div>
               </div>
 
               <div className="flex gap-3 shrink-0">
                 <a
-                  href={WAZE_URL}
+                  href={wazeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-[#30B6FC] text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#1DA1E6] transition-all"
@@ -224,7 +229,7 @@ export default function ContactPage() {
                   נווט ב-Waze
                 </a>
                 <a
-                  href={GOOGLE_MAPS_URL}
+                  href={gmapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-white border-2 border-[#4285F4] text-[#4285F4] font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#4285F4] hover:text-white transition-all"

@@ -686,7 +686,10 @@ const siteSettings = {
   whatsapp: '+972527221111',
   email: 'office@bitancpa.com',
   address: 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב',
-  officeHours: 'א׳-ה׳ 09:00-17:00',
+  officeHours: 'ראשון–חמישי 08:30–17:00',
+  facebookUrl: 'https://www.facebook.com/bitancpa/?locale=he_IL',
+  instagramUrl: 'https://www.instagram.com/bitancpa/',
+  footerDisclaimer: 'המידע באתר הינו כללי בלבד ואינו מהווה תחליף לייעוץ מקצועי פרטני.',
 }
 
 // ─── Run ───────────────────────────────────────────────────

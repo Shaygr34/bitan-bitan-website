@@ -4,6 +4,7 @@ import { Phone } from 'lucide-react'
 import { Button } from './Button'
 import { LTR } from './LTR'
 import { trackPhoneClick } from '@/lib/analytics'
+import { useSiteSettings } from '@/components/SiteSettingsContext'
 
 type PhoneCTAProps = {
   phone?: string
@@ -15,14 +16,17 @@ type PhoneCTAProps = {
 }
 
 export function PhoneCTA({
-  phone = '03-5174295',
+  phone,
   label,
   location = 'cta',
   variant = 'primary',
   size = 'md',
   className = '',
 }: PhoneCTAProps) {
-  const telHref = `tel:${phone.replace(/[^+\d]/g, '')}`
+  const s = useSiteSettings()
+  const resolvedPhone = phone ?? s?.phone ?? '03-5174295'
+  const resolvedLabel = label ?? s?.ctaPhoneLabel
+  const telHref = `tel:${resolvedPhone.replace(/[^+\d]/g, '')}`
 
   return (
     <Button
@@ -34,7 +38,7 @@ export function PhoneCTA({
       className={className}
       onClick={() => trackPhoneClick(location)}
     >
-      {label ?? <LTR>{phone}</LTR>}
+      {resolvedLabel ?? <LTR>{resolvedPhone}</LTR>}
     </Button>
   )
 }

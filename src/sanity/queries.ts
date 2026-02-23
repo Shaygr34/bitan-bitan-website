@@ -43,6 +43,15 @@ const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   address,
   officeHours,
   googleMapsUrl,
+  wazeUrl,
+  googleMapsEmbedUrl,
+  facebookUrl,
+  linkedinUrl,
+  instagramUrl,
+  ctaWhatsAppLabel,
+  ctaPhoneLabel,
+  ctaWhatsAppMessage,
+  footerDisclaimer,
   logo,
   ogImage
 }`
