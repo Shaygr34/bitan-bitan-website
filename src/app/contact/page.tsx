@@ -1,19 +1,26 @@
 import type { Metadata } from "next";
 import {
   SectionHeader,
-  Card,
-  CardBody,
   LTR,
   WhatsAppCTA,
   PhoneCTA,
 } from "@/components/ui";
-import { Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react";
+import { ContactForm } from "./ContactForm";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "צור קשר — ביטן את ביטן רואי חשבון",
   description:
     "צרו קשר עם משרד רואי חשבון ביטן את ביטן — טלפון, דוא״ל, וואטסאפ או ביקור במשרד בתל אביב.",
 };
+
+function WhatsAppContactIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={props.className} aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  )
+}
 
 const CONTACT_METHODS = [
   {
@@ -33,7 +40,7 @@ const CONTACT_METHODS = [
     external: false,
   },
   {
-    icon: MessageCircle,
+    icon: WhatsAppContactIcon,
     label: "WhatsApp",
     value: "+972-52-722-1111",
     href: "https://wa.me/972527221111",
@@ -159,88 +166,7 @@ export default function ContactPage() {
 
             {/* Contact form */}
             <div>
-              <Card hover={false}>
-                <CardBody>
-                  <h3 className="text-h3 font-bold text-primary mb-space-5">
-                    השאירו פרטים
-                  </h3>
-                  <form className="space-y-space-4">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-body-sm font-medium text-primary mb-1"
-                      >
-                        שם מלא
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                        className="w-full px-4 py-3 border border-border rounded-lg text-body text-primary bg-white placeholder:text-text-muted focus:border-gold focus:ring-1 focus:ring-gold transition-colors"
-                        placeholder="הכניסו את שמכם"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="phone"
-                        className="block text-body-sm font-medium text-primary mb-1"
-                      >
-                        טלפון
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        required
-                        dir="ltr"
-                        className="w-full px-4 py-3 border border-border rounded-lg text-body text-primary bg-white placeholder:text-text-muted focus:border-gold focus:ring-1 focus:ring-gold transition-colors text-start"
-                        placeholder="050-000-0000"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-body-sm font-medium text-primary mb-1"
-                      >
-                        דוא&quot;ל
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        dir="ltr"
-                        className="w-full px-4 py-3 border border-border rounded-lg text-body text-primary bg-white placeholder:text-text-muted focus:border-gold focus:ring-1 focus:ring-gold transition-colors text-start"
-                        placeholder="example@email.com"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="message"
-                        className="block text-body-sm font-medium text-primary mb-1"
-                      >
-                        הודעה
-                      </label>
-                      <textarea
-                        id="message"
-                        name="message"
-                        rows={4}
-                        className="w-full px-4 py-3 border border-border rounded-lg text-body text-primary bg-white placeholder:text-text-muted focus:border-gold focus:ring-1 focus:ring-gold transition-colors resize-none"
-                        placeholder="ספרו לנו כיצד נוכל לעזור..."
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full inline-flex items-center justify-center gap-2 bg-gold text-primary font-bold text-body py-3 rounded-lg hover:bg-gold-hover hover:scale-[1.03] active:scale-[0.97] transition-all duration-base cursor-pointer"
-                    >
-                      שליחה
-                    </button>
-                    <p className="text-text-muted text-caption text-center">
-                      נחזור אליכם תוך יום עסקים אחד.
-                    </p>
-                  </form>
-                </CardBody>
-              </Card>
+              <ContactForm />
             </div>
           </div>
         </div>

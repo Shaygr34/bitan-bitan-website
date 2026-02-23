@@ -10,6 +10,7 @@ import type {
   Category,
   ArticleCard,
   ArticleFull,
+  LegalPage,
   FAQ,
   Testimonial,
 } from './types'
@@ -169,4 +170,18 @@ const TESTIMONIALS_QUERY = `*[_type == "testimonial"] | order(order asc){
 
 export async function getTestimonials(): Promise<Testimonial[]> {
   return sanityFetch<Testimonial[]>(TESTIMONIALS_QUERY)
+}
+
+/* ─── Legal Pages ─── */
+
+const LEGAL_PAGE_QUERY = `*[_type == "legalPage" && slug.current == $slug][0]{
+  _id,
+  title,
+  slug,
+  lastUpdated,
+  body
+}`
+
+export async function getLegalPage(slug: string): Promise<LegalPage | null> {
+  return sanityFetch<LegalPage | null>(LEGAL_PAGE_QUERY, { slug })
 }
