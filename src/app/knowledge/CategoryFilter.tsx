@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import type { ArticleCard, Category } from '@/sanity/types'
+import { trackCategoryFilter } from '@/lib/analytics'
 
 const PAGE_SIZE = 12
 
@@ -30,9 +31,10 @@ export function KnowledgeFilterable({
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
 
-  const handleCategoryChange = useCallback((id: string) => {
+  const handleCategoryChange = useCallback((id: string, title: string) => {
     setActiveId(id)
     setVisibleCount(PAGE_SIZE)
+    trackCategoryFilter(title)
   }, [])
 
   return (
@@ -44,7 +46,7 @@ export function KnowledgeFilterable({
             <button
               key={cat._id}
               type="button"
-              onClick={() => handleCategoryChange(cat._id)}
+              onClick={() => handleCategoryChange(cat._id, cat.title)}
               className={[
                 'shrink-0 px-4 py-1.5 rounded-full text-body-sm font-medium transition-colors cursor-pointer',
                 activeId === cat._id
