@@ -25,6 +25,7 @@ Won't affect users but will affect maintainability and next developer's life.
 | 2 | **Wire site-wide OG image** | `siteSettings.ogImage` field exists in Sanity schema but is **never read** in `layout.tsx` metadata. Social shares show no image. | `src/app/layout.tsx` + `siteSettings` schema | HIGH |
 | 3 | **Move Google Maps API key to env var** | API key `AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8` is hardcoded in source code (client-visible). Can be rate-limited or abused. | `src/app/contact/page.tsx:36` | HIGH |
 | 4 | **Remove or gate `/dev` page** | QA component catalog page is accessible in production. Has `href="#"` demo links. Should not ship. | `src/app/dev/page.tsx` | MEDIUM |
+| 4b | **Remove spec PDF from `/public`** | `m5-1-motion-polish-spec.md.pdf` (942KB) is a dev spec doc sitting in the public directory — publicly downloadable by anyone. | `public/m5-1-motion-polish-spec.md.pdf` | MEDIUM |
 | 5 | **Add error boundaries** | No `error.tsx` anywhere. If a page component crashes, user sees raw Next.js error instead of branded fallback. | `src/app/error.tsx` (create) | MEDIUM |
 | 6 | **Fix email validation regex** | Contact form regex `^[^\s@]+@[^\s@]+\.[^\s@]+$` accepts `a@b.c`, consecutive dots, single-char domains. Too permissive. | `src/app/contact/ContactForm.tsx:26` | MEDIUM |
 | 7 | **Tighten fallback content strategy** | 6 pages have extensive hardcoded fallback data (services, FAQ, about, knowledge, testimonials). These mask Sanity data issues — if CMS is empty, site looks "full" with fake data. | Multiple page.tsx files | MEDIUM |
