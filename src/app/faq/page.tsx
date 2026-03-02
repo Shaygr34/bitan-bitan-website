@@ -4,6 +4,7 @@ import { SectionHeader, WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import { FAQAccordion } from './FAQAccordion'
 import { JsonLd } from '@/components/JsonLd'
 import type { FAQ } from '@/sanity/types'
+import { warnFallback } from '@/lib/fallback-warning'
 
 export const revalidate = 300
 
@@ -51,6 +52,7 @@ const FALLBACK_GROUPS = [
 export default async function FAQPage() {
   const faqs = await getFAQs()
   const hasData = faqs && faqs.length > 0
+  if (!hasData) warnFallback('FAQPage')
   const groups = hasData ? groupByCategory(faqs) : null
 
   /* Build FAQPage JSON-LD from Sanity data or fallback */

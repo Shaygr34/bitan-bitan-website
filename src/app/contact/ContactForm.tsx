@@ -23,7 +23,7 @@ function validate(data: FormData): FieldErrors {
   if (!phone || !/^[\d\-+() ]{7,}$/.test(phone)) {
     errors.phone = 'נא להזין מספר טלפון תקין'
   }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     errors.email = 'נא להזין כתובת דוא"ל תקינה'
   }
 

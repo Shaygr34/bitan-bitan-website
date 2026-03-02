@@ -7,6 +7,7 @@ import { SiteSettingsProvider } from '@/components/SiteSettingsContext'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
 import { JsonLd } from '@/components/JsonLd'
 import { getSiteSettings } from '@/sanity/queries'
+import { urlFor } from '@/sanity/image'
 import { SITE_URL } from '@/lib/site-url'
 
 const heebo = Heebo({
@@ -15,25 +16,32 @@ const heebo = Heebo({
   variable: '--font-heebo',
 })
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: 'ביטן את ביטן — רואי חשבון',
-    template: '%s | ביטן את ביטן',
-  },
-  description:
-    'משרד רואי חשבון ביטן את ביטן — ייעוץ מס, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי. תל אביב.',
-  openGraph: {
-    siteName: 'ביטן את ביטן — רואי חשבון',
-    locale: 'he_IL',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-  },
-  alternates: {
-    canonical: '/',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings()
+  const ogImageUrl = urlFor(settings?.ogImage, 1200)
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: 'ביטן את ביטן — רואי חשבון',
+      template: '%s | ביטן את ביטן',
+    },
+    description:
+      'משרד רואי חשבון ביטן את ביטן — ייעוץ מס, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי. תל אביב.',
+    openGraph: {
+      siteName: 'ביטן את ביטן — רואי חשבון',
+      locale: 'he_IL',
+      type: 'website',
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl, width: 1200, height: 630 }] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
+    },
+    alternates: {
+      canonical: '/',
+    },
+  }
 }
 
 function buildOrganizationJsonLd(s: {
@@ -93,7 +101,7 @@ export default async function RootLayout({
         <JsonLd data={buildOrganizationJsonLd(settings)} />
         <SiteSettingsProvider settings={settings}>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pb-[var(--mobile-cta-height)] md:pb-0">{children}</main>
           <Footer />
         </SiteSettingsProvider>
       </body>

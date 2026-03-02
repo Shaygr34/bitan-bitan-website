@@ -99,6 +99,8 @@
   nav,
   .gold-underline,
   button,
+  iframe,
+  .no-print,
   a[href^="https://wa.me"],
   a[href^="tel:"] {
     display: none !important;
@@ -110,12 +112,34 @@
     line-height: 1.5;
     color: #000 !important;
     background: #fff !important;
+    padding: 0 !important;
+  }
+
+  /* Remove mobile CTA padding in print */
+  main {
+    padding-bottom: 0 !important;
   }
 
   /* Remove card shadows/borders for clean print */
   .shadow-sm,
-  .shadow-lg {
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl {
     box-shadow: none !important;
+  }
+
+  /* Flatten backgrounds for ink-friendly output */
+  .bg-primary,
+  .bg-surface,
+  .bg-callout {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .bg-primary *,
+  .text-white,
+  .text-white\/85 {
+    color: #000 !important;
   }
 
   /* Make sure images don't overflow */
@@ -130,6 +154,12 @@
   }
 
   blockquote, figure, table, pre {
+    page-break-inside: avoid;
+  }
+
+  /* Keep cards together */
+  [class*="Card"],
+  .rounded-xl {
     page-break-inside: avoid;
   }
 
@@ -151,6 +181,11 @@
     content: " (" attr(href) ")";
     font-size: 10pt;
     color: #666;
+  }
+
+  /* Don't append URL to internal nav links */
+  a[href^="/"]::after {
+    content: none;
   }
 
   /* Page margins */

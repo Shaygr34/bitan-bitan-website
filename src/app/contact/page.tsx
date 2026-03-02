@@ -33,7 +33,8 @@ function WhatsAppContactIcon(props: { className?: string }) {
 /* ─── Map defaults — use "ביטן את ביטן פיננסים" as canonical search term ─── */
 const BUSINESS_NAME = 'ביטן את ביטן פיננסים'
 const BUSINESS_NAME_ENCODED = encodeURIComponent(BUSINESS_NAME)
-const DEFAULT_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${BUSINESS_NAME_ENCODED}&language=he&zoom=16`
+const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? ''
+const DEFAULT_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=${MAPS_API_KEY}&q=${BUSINESS_NAME_ENCODED}&language=he&zoom=16`
 const DEFAULT_WAZE_URL = `https://waze.com/ul?q=${BUSINESS_NAME_ENCODED}&navigate=yes&z=17`
 const DEFAULT_GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${BUSINESS_NAME_ENCODED}`
 

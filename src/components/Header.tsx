@@ -63,7 +63,7 @@ export function Header() {
       <header
         className={[
           'sticky top-0 z-50 bg-white border-b border-border transition-shadow duration-base',
-          'h-[56px] md:h-[72px]',
+          'h-[var(--navbar-height-mobile)] md:h-[var(--navbar-height-desktop)]',
           scrolled && 'shadow-md',
         ]
           .filter(Boolean)
@@ -136,7 +136,7 @@ export function Header() {
               className="absolute top-0 end-0 h-full w-[280px] bg-white shadow-xl flex flex-col"
             >
               {/* Close button */}
-              <div className="h-[56px] flex items-center justify-between px-6 border-b border-border">
+              <div className="h-[var(--navbar-height-mobile)] flex items-center justify-between px-6 border-b border-border">
                 <Image
                   src="/logo.png"
                   alt="ביטן את ביטן — רואי חשבון"

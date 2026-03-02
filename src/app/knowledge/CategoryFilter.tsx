@@ -50,7 +50,7 @@ export function KnowledgeFilterable({
   return (
     <>
       {/* Category pills */}
-      <section className="border-b border-border bg-white sticky top-[56px] md:top-[72px] z-30 px-6">
+      <section className="border-b border-border bg-white sticky top-[var(--navbar-height-mobile)] md:top-[var(--navbar-height-desktop)] z-30 px-6">
         <div className="max-w-content mx-auto py-space-3 flex gap-2 overflow-x-auto">
           {allCategories.map((cat) => (
             <button

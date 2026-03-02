@@ -15,6 +15,7 @@ import {
 import { getAboutPage, getPartners } from '@/sanity/queries'
 import { urlFor } from '@/sanity/image'
 import type { Author } from '@/sanity/types'
+import { warnFallback } from '@/lib/fallback-warning'
 import {
   Shield,
   Users,
@@ -69,6 +70,8 @@ function getIcon(name?: string): LucideIcon {
 
 export default async function AboutPage() {
   const [page, partners] = await Promise.all([getAboutPage(), getPartners()])
+  if (!page) warnFallback('AboutPage')
+  if (!partners || partners.length === 0) warnFallback('AboutPage:partners')
 
   const credentialsNote =
     page?.credentialsNote ??

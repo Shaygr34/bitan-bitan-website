@@ -13,6 +13,7 @@ import { getArticles, getCategories } from "@/sanity/queries";
 import { urlFor } from "@/sanity/image";
 import type { ArticleCard } from "@/sanity/types";
 import { KnowledgeFilterable } from "./CategoryFilter";
+import { warnFallback } from "@/lib/fallback-warning";
 
 export const revalidate = 300 // ISR — revalidate every 5 min
 
@@ -110,6 +111,7 @@ export default async function KnowledgePage() {
     getCategories(),
   ]);
 
+  if (!articles || articles.length === 0) warnFallback('KnowledgePage');
   const hasCategories = categories && categories.length > 0;
 
   return (

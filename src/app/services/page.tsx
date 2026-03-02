@@ -23,6 +23,7 @@ import { getServices } from "@/sanity/queries";
 import { PortableText } from "next-sanity";
 import type { Service } from "@/sanity/types";
 import { TrustModule } from "@/components/TrustModule";
+import { warnFallback } from "@/lib/fallback-warning";
 
 export const metadata: Metadata = {
   title: 'השירותים שלנו',
@@ -88,6 +89,7 @@ function ServiceCard({ service }: { service: Service }) {
 export default async function ServicesPage() {
   const services = await getServices();
   const hasData = services && services.length > 0;
+  if (!hasData) warnFallback('ServicesPage');
 
   return (
     <div>
