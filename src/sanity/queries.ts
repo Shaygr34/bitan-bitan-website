@@ -123,6 +123,10 @@ const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0]
   publishedAt,
   mainImage,
   body,
+  tldr,
+  difficulty,
+  checklist,
+  disclaimer,
   category->{
     _id,
     title,
@@ -140,6 +144,29 @@ const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0]
 
 export async function getArticleBySlug(slug: string): Promise<ArticleFull | null> {
   return sanityFetch<ArticleFull | null>(ARTICLE_BY_SLUG_QUERY, { slug })
+}
+
+/* ─── Related Articles (same category, excluding current) ─── */
+
+const RELATED_ARTICLES_QUERY = `*[_type == "article" && category._ref == $categoryId && _id != $currentId] | order(publishedAt desc)[0...3]{
+  _id,
+  title,
+  slug,
+  excerpt,
+  publishedAt,
+  mainImage,
+  category->{
+    _id,
+    title,
+    slug
+  },
+  author->{
+    name
+  }
+}`
+
+export async function getRelatedArticles(categoryId: string, currentId: string): Promise<ArticleCard[]> {
+  return sanityFetch<ArticleCard[]>(RELATED_ARTICLES_QUERY, { categoryId, currentId })
 }
 
 /* ─── All article slugs (for generateStaticParams) ─── */

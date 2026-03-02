@@ -92,6 +92,15 @@ export const structure = (S: StructureBuilder) =>
 
       S.divider(),
 
+      /* ── Leads ── */
+      S.listItem()
+        .id('contactLead')
+        .title('פניות מהאתר')
+        .schemaType('contactLead')
+        .child(S.documentTypeList('contactLead').title('פניות מהאתר')),
+
+      S.divider(),
+
       /* ── Legal ── */
       S.listItem()
         .id('legalPage')
