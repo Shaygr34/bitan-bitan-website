@@ -172,6 +172,7 @@ export type Service = {
   shortDescription: string
   body?: PortableTextBlock[]
   icon?: string
+  image?: SanityImage
   order: number
 }
 

@@ -9,6 +9,7 @@ import { ContactForm } from "./ContactForm";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { getSiteSettings } from "@/sanity/queries";
 import { TrustModule } from "@/components/TrustModule";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export const metadata: Metadata = {
   title: 'צור קשר',
@@ -122,6 +123,9 @@ export default async function ContactPage() {
       {/* Hero */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto">
+          <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
+            <Breadcrumb items={[{ label: 'צור קשר' }]} />
+          </div>
           <h1 className="text-white text-h1 font-bold">צור קשר</h1>
           <span className="gold-underline mt-4" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">

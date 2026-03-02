@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { SITE_URL } from '@/lib/site-url'
-import { getArticleSlugs } from '@/sanity/queries'
+import { getArticleSlugs, getServiceSlugs } from '@/sanity/queries'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString()
@@ -17,6 +17,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ]
 
+  /* Dynamic service detail pages */
+  let servicePages: MetadataRoute.Sitemap = []
+  try {
+    const slugs = await getServiceSlugs()
+    servicePages = slugs.map(({ slug }) => ({
+      url: `${SITE_URL}/services/${encodeURIComponent(slug)}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }))
+  } catch {
+    // Sanity unreachable — skip
+  }
+
   /* Dynamic knowledge article pages */
   let articlePages: MetadataRoute.Sitemap = []
   try {
@@ -31,5 +45,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Sanity unreachable — return static pages only
   }
 
-  return [...staticPages, ...articlePages]
+  return [...staticPages, ...servicePages, ...articlePages]
 }

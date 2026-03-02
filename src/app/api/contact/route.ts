@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'next-sanity'
 import { apiVersion, dataset, projectId } from '@/sanity/env'
+import { sendLeadNotification } from '@/lib/email'
 
 const writeClient = createClient({
   projectId,
@@ -29,20 +30,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'נא להזין מספר טלפון תקין' }, { status: 400 })
     }
 
-    // Create lead document in Sanity
-    await writeClient.create({
-      _type: 'contactLead',
+    const lead = {
       name: name.trim(),
       phone: phone.trim(),
       email: email?.trim() || undefined,
       message: message?.trim() || undefined,
+    }
+
+    // Save to Sanity (primary — must succeed)
+    await writeClient.create({
+      _type: 'contactLead',
+      ...lead,
       submittedAt: new Date().toISOString(),
       status: 'new',
     })
 
+    // Send email notification (secondary — fire and forget, don't block response)
+    sendLeadNotification(lead).catch(() => {
+      // Email failure is non-critical; lead is already saved in Sanity
+    })
+
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('Contact form error:', err)
+    // Log error details server-side for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Contact form error:', err)
+    }
     return NextResponse.json(
       { error: 'שגיאה בשליחת הטופס, נסו שוב' },
       { status: 500 },

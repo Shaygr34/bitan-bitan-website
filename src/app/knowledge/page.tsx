@@ -14,6 +14,7 @@ import { urlFor } from "@/sanity/image";
 import type { ArticleCard } from "@/sanity/types";
 import { KnowledgeFilterable } from "./CategoryFilter";
 import { warnFallback } from "@/lib/fallback-warning";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export const revalidate = 300 // ISR — revalidate every 5 min
 
@@ -119,6 +120,9 @@ export default async function KnowledgePage() {
       {/* Hero */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto">
+          <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
+            <Breadcrumb items={[{ label: 'מרכז ידע' }]} />
+          </div>
           <h1 className="text-white text-h1 font-bold">מרכז ידע</h1>
           <span className="gold-underline mt-4" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">

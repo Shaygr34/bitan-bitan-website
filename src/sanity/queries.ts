@@ -69,11 +69,39 @@ const SERVICES_QUERY = `*[_type == "service"] | order(order asc){
   shortDescription,
   body,
   icon,
+  image,
   order
 }`
 
 export async function getServices(): Promise<Service[]> {
   return sanityFetch<Service[]>(SERVICES_QUERY)
+}
+
+/* ─── Single Service ─── */
+
+const SERVICE_BY_SLUG_QUERY = `*[_type == "service" && slug.current == $slug][0]{
+  _id,
+  title,
+  slug,
+  shortDescription,
+  body,
+  icon,
+  image,
+  order
+}`
+
+export async function getServiceBySlug(slug: string): Promise<Service | null> {
+  return sanityFetch<Service | null>(SERVICE_BY_SLUG_QUERY, { slug })
+}
+
+/* ─── All service slugs (for generateStaticParams) ─── */
+
+const SERVICE_SLUGS_QUERY = `*[_type == "service" && defined(slug.current)]{
+  "slug": slug.current
+}`
+
+export async function getServiceSlugs(): Promise<{ slug: string }[]> {
+  return sanityFetch<{ slug: string }[]>(SERVICE_SLUGS_QUERY)
 }
 
 /* ─── Categories ─── */
