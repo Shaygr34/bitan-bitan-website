@@ -75,3 +75,30 @@ export function trackFAQExpand(question: string) {
     page_path: typeof window !== 'undefined' ? window.location.pathname : '',
   })
 }
+
+export function trackCategoryFilter(category: string) {
+  trackEvent('category_filter', {
+    category,
+    page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+  })
+}
+
+export function trackRelatedArticleClick(articleTitle: string) {
+  trackEvent('related_article_click', {
+    article_title: articleTitle,
+    page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+  })
+}
+
+export function trackPrintPage() {
+  trackEvent('print_page', {
+    page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+  })
+}
+
+export function trackSocialClick(platform: string) {
+  trackEvent('social_click', {
+    platform,
+    page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+  })
+}

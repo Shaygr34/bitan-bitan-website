@@ -4,7 +4,7 @@ import author from './author'
 import category from './category'
 import contactLead from './contactLead'
 import faq from './faq'
-import guide from './guide'
+
 import homePage from './homePage'
 import legalPage from './legalPage'
 import service from './service'
@@ -15,7 +15,6 @@ import testimonial from './testimonial'
 export const schemaTypes = [
   // Content types
   article,
-  guide,
   legalPage,
 
   // Taxonomy

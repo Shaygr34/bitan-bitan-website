@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   SectionHeader,
   Card,
   CardHeader,
   CardBody,
+  CardFooter,
   WhatsAppCTA,
   PhoneCTA,
   Accordion,
@@ -17,12 +19,15 @@ import {
   Briefcase,
   Globe,
   Users,
+  ArrowLeft,
   type LucideIcon,
 } from "lucide-react";
 import { getServices } from "@/sanity/queries";
 import { PortableText } from "next-sanity";
 import type { Service } from "@/sanity/types";
 import { TrustModule } from "@/components/TrustModule";
+import { warnFallback } from "@/lib/fallback-warning";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export const metadata: Metadata = {
   title: 'השירותים שלנו',
@@ -62,38 +67,45 @@ function ServiceCard({ service }: { service: Service }) {
   const Icon = (service.icon && ICON_MAP[service.icon.toLowerCase()]) || Briefcase;
   const slug = service.slug?.current ?? '';
   return (
-    <Card hover={false} id={slug ? `service-${slug}` : undefined}>
-      <CardHeader>
-        <div className="flex items-center gap-space-3">
-          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Icon className="h-6 w-6 text-primary" />
+    <Link href={slug ? `/services/${slug}` : '/contact'}>
+      <Card id={slug ? `service-${slug}` : undefined}>
+        <CardHeader>
+          <div className="flex items-center gap-space-3">
+            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Icon className="h-6 w-6 text-primary" />
+            </div>
+            <h2 className="text-h3 font-bold text-primary">{service.title}</h2>
           </div>
-          <h2 className="text-h3 font-bold text-primary">{service.title}</h2>
-        </div>
-      </CardHeader>
-      <CardBody>
-        <p className="text-text-secondary text-body mb-space-4">
-          {service.shortDescription}
-        </p>
-        {service.body && service.body.length > 0 && (
-          <div className="prose-sm text-text-secondary">
-            <PortableText value={service.body} />
-          </div>
-        )}
-      </CardBody>
-    </Card>
+        </CardHeader>
+        <CardBody>
+          <p className="text-text-secondary text-body">
+            {service.shortDescription}
+          </p>
+        </CardBody>
+        <CardFooter>
+          <span className="inline-flex items-center gap-1 text-body-sm font-medium text-gold hover:text-gold-hover transition-colors">
+            פרטים נוספים
+            <ArrowLeft className="h-4 w-4" />
+          </span>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 }
 
 export default async function ServicesPage() {
   const services = await getServices();
   const hasData = services && services.length > 0;
+  if (!hasData) warnFallback('ServicesPage');
 
   return (
     <div>
       {/* Hero */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto">
+          <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
+            <Breadcrumb items={[{ label: 'שירותים' }]} />
+          </div>
           <h1 className="text-white text-h1 font-bold">השירותים שלנו</h1>
           <span className="gold-underline mt-4" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">

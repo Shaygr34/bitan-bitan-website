@@ -7,8 +7,8 @@ import { urlFor } from '@/sanity/image'
 import { SectionHeader, WhatsAppCTA } from '@/components/ui'
 import { JsonLd } from '@/components/JsonLd'
 import { SITE_URL } from '@/lib/site-url'
+import { Breadcrumb } from '@/components/Breadcrumb'
 import {
-  ArrowRight,
   Calendar,
   Tag,
   User,
@@ -118,13 +118,12 @@ export default async function ArticlePage({ params }: Props) {
       {/* Hero */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto">
-          <Link
-            href="/knowledge"
-            className="inline-flex items-center gap-2 text-white/70 text-body-sm hover:text-white transition-colors mb-space-4"
-          >
-            <ArrowRight className="h-4 w-4 rotate-180" />
-            חזרה למרכז הידע
-          </Link>
+          <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
+            <Breadcrumb items={[
+              { label: 'מרכז ידע', href: '/knowledge' },
+              { label: article.title },
+            ]} />
+          </div>
           <h1 className="text-white text-h1 font-bold">{article.title}</h1>
           <span className="gold-underline mt-4" />
 

@@ -15,6 +15,8 @@ import {
 import { getAboutPage, getPartners } from '@/sanity/queries'
 import { urlFor } from '@/sanity/image'
 import type { Author } from '@/sanity/types'
+import { warnFallback } from '@/lib/fallback-warning'
+import { Breadcrumb } from '@/components/Breadcrumb'
 import {
   Shield,
   Users,
@@ -69,6 +71,8 @@ function getIcon(name?: string): LucideIcon {
 
 export default async function AboutPage() {
   const [page, partners] = await Promise.all([getAboutPage(), getPartners()])
+  if (!page) warnFallback('AboutPage')
+  if (!partners || partners.length === 0) warnFallback('AboutPage:partners')
 
   const credentialsNote =
     page?.credentialsNote ??
@@ -79,6 +83,9 @@ export default async function AboutPage() {
       {/* 1. Hero */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto">
+          <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
+            <Breadcrumb items={[{ label: 'אודות' }]} />
+          </div>
           <h1 className="text-white text-h1 font-bold">אודות המשרד</h1>
           <span className="gold-underline mt-4" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">

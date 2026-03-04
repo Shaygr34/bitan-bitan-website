@@ -1,32 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import type { ArticleCard, Category } from '@/sanity/types'
+import { trackCategoryFilter } from '@/lib/analytics'
 
-type Props = {
-  categories: Category[]
-  children: (filteredFilter: {
-    activeCategory: string
-    setActiveCategory: (id: string) => void
-  }) => React.ReactNode
-}
+const PAGE_SIZE = 12
 
-/**
- * Client-side category filter wrapper.
- * Renders pills and exposes the active category for filtering.
- */
-export function CategoryFilter({
-  categories,
-  onFilter,
-}: {
-  categories: Pick<Category, '_id' | 'title'>[]
-  onFilter: (categoryId: string) => void
-  activeId: string
-}) {
-  return null // not used standalone
-}
-
-/** Full category filter with pills + article grid */
+/** Full category filter with pills + article grid + load more */
 export function KnowledgeFilterable({
   categories,
   articles,
@@ -39,6 +19,7 @@ export function KnowledgeFilterable({
   renderFallback: () => React.ReactNode
 }) {
   const [activeId, setActiveId] = useState('all')
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   const allCategories = [{ _id: 'all', title: 'הכל' }, ...categories]
 
@@ -47,16 +28,25 @@ export function KnowledgeFilterable({
       ? articles
       : articles.filter((a) => a.category?._id === activeId)
 
+  const visible = filtered.slice(0, visibleCount)
+  const hasMore = visibleCount < filtered.length
+
+  const handleCategoryChange = useCallback((id: string, title: string) => {
+    setActiveId(id)
+    setVisibleCount(PAGE_SIZE)
+    trackCategoryFilter(title)
+  }, [])
+
   return (
     <>
       {/* Category pills */}
-      <section className="border-b border-border bg-white sticky top-[56px] md:top-[72px] z-30 px-6">
+      <section className="border-b border-border bg-white sticky top-[var(--navbar-height-mobile)] md:top-[var(--navbar-height-desktop)] z-30 px-6">
         <div className="max-w-content mx-auto py-space-3 flex gap-2 overflow-x-auto">
           {allCategories.map((cat) => (
             <button
               key={cat._id}
               type="button"
-              onClick={() => setActiveId(cat._id)}
+              onClick={() => handleCategoryChange(cat._id, cat.title)}
               className={[
                 'shrink-0 px-4 py-1.5 rounded-full text-body-sm font-medium transition-colors cursor-pointer',
                 activeId === cat._id
@@ -75,9 +65,22 @@ export function KnowledgeFilterable({
         <div className="max-w-content mx-auto">
           {articles.length > 0 ? (
             filtered.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5">
-                {filtered.map((article) => renderArticle(article))}
-              </div>
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5">
+                  {visible.map((article) => renderArticle(article))}
+                </div>
+                {hasMore && (
+                  <div className="text-center mt-space-8">
+                    <button
+                      type="button"
+                      onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                      className="inline-flex items-center gap-2 bg-surface text-primary font-bold text-body px-8 py-3 rounded-lg hover:bg-callout transition-colors cursor-pointer"
+                    >
+                      הציגו עוד ({filtered.length - visibleCount} נותרו)
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <p className="text-text-muted text-body text-center py-space-8">
                 אין מאמרים בקטגוריה זו כרגע.

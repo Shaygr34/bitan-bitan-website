@@ -90,4 +90,5 @@
   --navbar-height-mobile: 56px;
   --max-width-content: 1200px;
   --max-width-narrow: 800px;
+  --mobile-cta-height: 60px;        /* sticky CTA bar height on mobile */
 }
