@@ -4,11 +4,13 @@ type CardProps = {
   children: ReactNode
   className?: string
   hover?: boolean
+  id?: string
 }
 
-export function Card({ children, className = '', hover = true }: CardProps) {
+export function Card({ children, className = '', hover = true, id }: CardProps) {
   return (
     <div
+      id={id}
       className={[
         'bg-white rounded-xl border border-border p-space-5 shadow-sm',
         hover &&
