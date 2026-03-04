@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { RefreshCw, Home } from 'lucide-react'
 
 export default function Error({
@@ -38,13 +39,13 @@ export default function Error({
             <RefreshCw className="h-5 w-5" />
             נסו שוב
           </button>
-          <a
+          <Link
             href="/"
             className="inline-flex items-center gap-2 border-2 border-primary text-primary font-bold text-body px-6 py-3 rounded-lg hover:bg-primary hover:text-white transition-colors"
           >
             <Home className="h-5 w-5" />
             לדף הבית
-          </a>
+          </Link>
         </div>
       </div>
     </div>
