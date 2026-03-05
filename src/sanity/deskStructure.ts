@@ -51,11 +51,6 @@ export const structure = (S: StructureBuilder) =>
                 .schemaType('article')
                 .child(S.documentTypeList('article').title('מאמרים')),
               S.listItem()
-                .id('guide')
-                .title('מדריכים')
-                .schemaType('guide')
-                .child(S.documentTypeList('guide').title('מדריכים')),
-              S.listItem()
                 .id('category')
                 .title('קטגוריות')
                 .schemaType('category')
