@@ -4,11 +4,12 @@
 
 Marketing website for **ביטן את ביטן**, an Israeli CPA & tax advisory firm based in Tel Aviv. Built with Next.js 15 (App Router) + Sanity CMS v3 + Tailwind CSS + TypeScript. Hebrew-first, fully RTL. Deployed via Docker on Railway. **V1 is feature-complete** — all milestones (M1–M11) done, site completion sprint done. Currently in pre-launch / V2 planning phase.
 
-## Current State (2026-03-04)
+## Current State (2026-03-05)
 
-- **Build:** BROKEN on `main` (3 errors). Fix in PR #36 — must merge before any new work.
-- **Errors:** (1) `error.tsx` uses `<a>` not `<Link>`, (2) `Card.tsx` missing `id` prop, (3) knowledge page passes functions across RSC boundary.
-- **Deploy:** Railway auto-deploys on `main` merge. Currently broken due to above.
+- **Build:** Passing on `main`. Railway deploying successfully.
+- **Deploy:** Railway auto-deploys on `main` merge. Docker standalone build.
+- **Studio:** Working at `/studio` — isolated via route groups (no site chrome interference).
+- **CMS:** All content populated (services, about, FAQ, testimonials). Phase 3 service body drafts pending review.
 - **Full audit:** `docs/codebase-state-report-2026-03-04.md`
 
 ## Tech Stack
@@ -30,29 +31,31 @@ Marketing website for **ביטן את ביטן**, an Israeli CPA & tax advisory 
 
 ```
 src/
-├── app/                          # Next.js App Router pages
-│   ├── page.tsx                  # Home (/)
-│   ├── icon.svg                  # Favicon (placeholder "בב")
-│   ├── apple-icon.svg            # Apple touch icon
-│   ├── error.tsx                 # Error boundary (branded Hebrew UI)
+├── app/
+│   ├── layout.tsx                # Root layout — minimal shell (html/body/font only)
+│   ├── globals.css               # Global styles + token imports
 │   ├── global-error.tsx          # Root layout error boundary
-│   ├── not-found.tsx             # Custom 404
-│   ├── sitemap.ts                # Dynamic sitemap.xml
-│   ├── robots.ts                 # robots.txt
-│   ├── about/page.tsx            # About (/about) — 557 lines, largest file
-│   ├── services/page.tsx         # Services (/services)
-│   ├── services/[slug]/page.tsx  # Service detail (/services/:slug) — 11 pages SSG
-│   ├── knowledge/page.tsx        # Knowledge hub (/knowledge) — load-more pagination
-│   ├── knowledge/[slug]/page.tsx # Article detail (/knowledge/:slug)
-│   ├── knowledge/CategoryFilter.tsx # Client: category pills + filter + pagination
-│   ├── faq/page.tsx              # FAQ (/faq)
-│   ├── contact/page.tsx          # Contact (/contact)
-│   ├── contact/ContactForm.tsx   # Client: form with validation
-│   ├── privacy/page.tsx          # Privacy policy (/privacy)
-│   ├── terms/page.tsx            # Terms of use (/terms)
-│   ├── api/revalidate/           # Sanity webhook → ISR revalidation
-│   ├── api/contact/              # Contact form → Sanity contactLead + email
-│   └── studio/[[...tool]]/       # Embedded Sanity Studio
+│   ├── (site)/                   # Route group — all public pages (has Header/Footer/metadata)
+│   │   ├── layout.tsx            # Site layout — Header, Footer, GA4, JSON-LD, SiteSettingsProvider
+│   │   ├── page.tsx              # Home (/)
+│   │   ├── icon.svg              # Favicon
+│   │   ├── apple-icon.svg        # Apple touch icon
+│   │   ├── error.tsx             # Error boundary (branded Hebrew UI)
+│   │   ├── not-found.tsx         # Custom 404
+│   │   ├── sitemap.ts            # Dynamic sitemap.xml
+│   │   ├── robots.ts             # robots.txt
+│   │   ├── about/page.tsx        # About (/about)
+│   │   ├── services/page.tsx     # Services (/services)
+│   │   ├── services/[slug]/page.tsx  # Service detail (/services/:slug) — 11 pages SSG
+│   │   ├── knowledge/page.tsx    # Knowledge hub (/knowledge) — load-more pagination
+│   │   ├── knowledge/[slug]/page.tsx # Article detail (/knowledge/:slug)
+│   │   ├── faq/page.tsx          # FAQ (/faq)
+│   │   ├── contact/page.tsx      # Contact (/contact)
+│   │   ├── privacy/page.tsx      # Privacy policy (/privacy)
+│   │   ├── terms/page.tsx        # Terms of use (/terms)
+│   │   └── api/                  # API routes (revalidate, contact)
+│   └── (studio)/                 # Route group — Sanity Studio (NO site chrome)
+│       └── studio/[[...tool]]/   # Studio at /studio (ssr: false, dynamic import)
 ├── components/
 │   ├── Header.tsx                # Sticky header + mobile hamburger + sticky CTA bar
 │   ├── Footer.tsx                # 3-column footer
@@ -84,8 +87,15 @@ src/
 
 ## Key Architecture
 
+### Route Groups (Critical Architecture)
+- **`(site)/`** — all public pages; layout has Header, Footer, metadata, getSiteSettings(), GA4, JSON-LD
+- **`(studio)/`** — Sanity Studio only; clean layout with no site chrome, no async data fetching
+- Root `layout.tsx` is minimal: just `<html>/<body>` + Heebo font
+- This isolation prevents the site's async server components from crashing the Studio in production
+- Studio uses `next/dynamic` with `ssr: false` to load client-only
+
 ### RTL
-- `<html lang="he" dir="rtl">` in `layout.tsx`
+- `<html lang="he" dir="rtl">` in root `layout.tsx`
 - **No `left/right` CSS** — exclusively logical properties (`start/end`, `ps/pe`, `ms/me`)
 - `<LTR>` wrapper component for phone numbers, emails, fax
 
@@ -162,21 +172,19 @@ input.trim().replace(/\s+/g, '-').replace(/[^\u0590-\u05FFa-zA-Z0-9-]/g, '').sli
 | M10 | ✅ SEO, GA4, sitemap, robots.txt, JSON-LD |
 | M11 | ✅ Comprehensive QA audit |
 | Sprint | ✅ 24/25 tasks (see `docs/site-completion-sprint.md`) |
-| M12 Launch Prep | 🟡 Build fix needed (PR #36), email env vars, placeholder assets |
+| M12 Launch Prep | 🟡 Email env vars, placeholder assets |
 
 ## Known Issues (Priority Order)
 
-1. **BUILD BROKEN on main** — 3 errors, all fixed in PR #36. Merge immediately.
-2. **Email not working** — Resend env vars (`RESEND_API_KEY`, `CONTACT_EMAIL_TO`) not set in Railway.
-3. **Placeholder favicon/OG image** — "בב" SVGs, not real brand assets.
-4. **about/page.tsx is 557 lines** — has ~155 lines of fallback data; consider splitting if page grows.
-5. **No test infrastructure** — zero tests. Consider adding if V2 introduces interactive features.
-6. **No CI/CD** — no GitHub Actions for lint/build checks on PRs.
-7. **Client-side article filter** — won't scale past ~50 articles; needs server-side pagination.
+1. **Email not working** — Resend env vars (`RESEND_API_KEY`, `CONTACT_EMAIL_TO`) not set in Railway.
+2. **Placeholder favicon/OG image** — "בב" SVGs, not real brand assets.
+3. **No test infrastructure** — zero tests. Consider adding if V2 introduces interactive features.
+4. **No CI/CD** — no GitHub Actions for lint/build checks on PRs.
+5. **Client-side article filter** — won't scale past ~50 articles; needs server-side pagination.
 
 ## What's Not Done
 
-- **Legacy redirects** — `next.config.ts` has empty `redirects()` scaffold. Populate when old URLs are known.
+- **Legacy redirects** — `next.config.ts` has 4 Hebrew→English service URL redirects (uncommitted). More may be needed.
 - **Safari/iOS testing** — code is correct but untested on real devices.
 - **Guide pages** — schema removed. If needed, decide: separate type vs. article + tag.
 - **WordPress migration** — zero prep. No URL mapping, no WP export, no migration tooling.
