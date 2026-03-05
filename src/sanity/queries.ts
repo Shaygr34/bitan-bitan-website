@@ -14,6 +14,7 @@ import type {
   LegalPage,
   FAQ,
   Testimonial,
+  ClientLogo,
   AboutPage,
   Author,
 } from './types'
@@ -111,7 +112,9 @@ const CATEGORIES_QUERY = `*[_type == "category"] | order(order asc){
   title,
   slug,
   description,
-  order
+  order,
+  "parent": parent->{_id, title, slug},
+  "articleCount": count(*[_type == "article" && category._ref == ^._id])
 }`
 
 export async function getCategories(): Promise<Category[]> {
@@ -139,6 +142,47 @@ const ARTICLES_QUERY = `*[_type == "article"] | order(publishedAt desc){
 
 export async function getArticles(): Promise<ArticleCard[]> {
   return sanityFetch<ArticleCard[]>(ARTICLES_QUERY)
+}
+
+/* ─── Filtered Articles (server-side pagination) ─── */
+
+const FILTERED_ARTICLES_QUERY = `*[_type == "article" && (
+  $categorySlug == "" ||
+  category->slug.current == $categorySlug ||
+  category->parent->slug.current == $categorySlug
+)] | order(publishedAt desc) [$start...$end] {
+  _id,
+  title,
+  slug,
+  excerpt,
+  publishedAt,
+  mainImage,
+  category->{ _id, title, slug },
+  author->{ name }
+}`
+
+export async function getFilteredArticles(
+  categorySlug: string,
+  start: number,
+  end: number,
+): Promise<ArticleCard[]> {
+  return sanityFetch<ArticleCard[]>(FILTERED_ARTICLES_QUERY, {
+    categorySlug,
+    start,
+    end,
+  })
+}
+
+/* ─── Article Count (for pagination) ─── */
+
+const ARTICLE_COUNT_QUERY = `count(*[_type == "article" && (
+  $categorySlug == "" ||
+  category->slug.current == $categorySlug ||
+  category->parent->slug.current == $categorySlug
+)])`
+
+export async function getArticleCount(categorySlug: string): Promise<number> {
+  return sanityFetch<number>(ARTICLE_COUNT_QUERY, { categorySlug })
 }
 
 /* ─── Single Article ─── */
@@ -237,6 +281,19 @@ const TESTIMONIALS_QUERY = `*[_type == "testimonial"] | order(order asc){
 
 export async function getTestimonials(): Promise<Testimonial[]> {
   return sanityFetch<Testimonial[]>(TESTIMONIALS_QUERY)
+}
+
+/* ─── Client Logos ─── */
+
+const CLIENT_LOGOS_QUERY = `*[_type == "clientLogo" && isActive == true] | order(sortOrder asc){
+  _id,
+  companyName,
+  logo,
+  url
+}`
+
+export async function getClientLogos(): Promise<ClientLogo[]> {
+  return sanityFetch<ClientLogo[]>(CLIENT_LOGOS_QUERY)
 }
 
 /* ─── Home Page (singleton) ─── */

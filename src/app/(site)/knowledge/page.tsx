@@ -3,12 +3,25 @@ import {
   SectionHeader,
   WhatsAppCTA,
 } from "@/components/ui";
-import { getArticles, getCategories } from "@/sanity/queries";
-import { KnowledgeFilterable } from "./CategoryFilter";
+import {
+  getArticles,
+  getCategories,
+  getFilteredArticles,
+  getArticleCount,
+} from "@/sanity/queries";
+import {
+  ArticleCardComponent,
+  FallbackCard,
+  CategoryPills,
+} from "./CategoryFilter";
+import { Pagination } from "./Pagination";
+import { KnowledgeSearch } from "@/components/KnowledgeSearch";
 import { warnFallback } from "@/lib/fallback-warning";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
 export const revalidate = 300 // ISR — revalidate every 5 min
+
+const PAGE_SIZE = 12
 
 export const metadata: Metadata = {
   title: 'מרכז ידע',
@@ -32,14 +45,35 @@ const FALLBACK_ARTICLES = [
   { category: "שכר", title: "חישוב פיצויי פיטורין — מדריך למעסיקים ולעובדים", excerpt: "איך מחשבים פיצויים? מתי חייבים לשלם? ומה קורה כשיש קרן פנסיה? המדריך המלא.", date: "10 בדצמבר 2025" },
 ] as const;
 
-export default async function KnowledgePage() {
-  const [articles, categories] = await Promise.all([
-    getArticles(),
-    getCategories(),
-  ]);
+interface KnowledgePageProps {
+  searchParams: Promise<{ category?: string; page?: string }>
+}
 
-  if (!articles || articles.length === 0) warnFallback('KnowledgePage');
-  const hasCategories = categories && categories.length > 0;
+export default async function KnowledgePage({ searchParams }: KnowledgePageProps) {
+  const params = await searchParams
+  const activeCategory = params.category ?? ''
+  const currentPage = Math.max(1, parseInt(params.page ?? '1', 10) || 1)
+  const start = (currentPage - 1) * PAGE_SIZE
+  const end = start + PAGE_SIZE
+
+  const [categories, articles, totalCount, allArticles] = await Promise.all([
+    getCategories(),
+    getFilteredArticles(activeCategory, start, end),
+    getArticleCount(activeCategory),
+    getArticles(),
+  ])
+
+  if (!allArticles || allArticles.length === 0) warnFallback('KnowledgePage');
+  const hasArticles = articles && articles.length > 0
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
+
+  // Lightweight search data — only what search needs
+  const searchArticles = (allArticles ?? []).map((a) => ({
+    title: a.title,
+    slug: a.slug?.current ?? '',
+    excerpt: a.excerpt ?? '',
+    categoryTitle: a.category?.title ?? '',
+  }))
 
   return (
     <div>
@@ -58,12 +92,50 @@ export default async function KnowledgePage() {
         </div>
       </section>
 
-      {/* Category filter + Articles grid (client-side filtering) */}
-      <KnowledgeFilterable
-        categories={hasCategories ? categories : []}
-        articles={articles ?? []}
-        fallbackArticles={FALLBACK_ARTICLES as unknown as { category: string; title: string; excerpt: string; date: string }[]}
+      {/* Search bar */}
+      <section className="bg-white px-6 pt-space-5 pb-space-3">
+        <div className="max-w-content mx-auto">
+          <KnowledgeSearch articles={searchArticles} />
+        </div>
+      </section>
+
+      {/* Category pills (parent + subcategory rows) */}
+      <CategoryPills
+        categories={categories ?? []}
+        activeCategory={activeCategory}
       />
+
+      {/* Articles grid */}
+      <section className="py-space-9 px-6">
+        <div className="max-w-content mx-auto">
+          {(allArticles ?? []).length > 0 ? (
+            hasArticles ? (
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5">
+                  {articles.map((article) => (
+                    <ArticleCardComponent key={article._id} article={article} />
+                  ))}
+                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  activeCategory={activeCategory}
+                />
+              </>
+            ) : (
+              <p className="text-text-muted text-body text-center py-space-8">
+                אין מאמרים בקטגוריה זו כרגע.
+              </p>
+            )
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5">
+              {FALLBACK_ARTICLES.map((fa) => (
+                <FallbackCard key={fa.title} {...fa} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="bg-surface py-space-9 px-6">

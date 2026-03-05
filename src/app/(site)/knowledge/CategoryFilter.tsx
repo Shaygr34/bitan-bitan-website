@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -12,8 +11,6 @@ import { FileText, Building2, Receipt, Shield, Banknote, BookOpen } from 'lucide
 import { urlFor } from '@/sanity/image'
 import type { ArticleCard, Category } from '@/sanity/types'
 import { trackCategoryFilter } from '@/lib/analytics'
-
-const PAGE_SIZE = 12
 
 /* Category → visual config for card banners */
 const CATEGORY_VISUALS: Record<string, { gradient: string; icon: typeof FileText }> = {
@@ -34,7 +31,7 @@ function formatDate(dateStr?: string): string {
   }
 }
 
-function ArticleCardComponent({ article }: { article: ArticleCard }) {
+export function ArticleCardComponent({ article }: { article: ArticleCard }) {
   const catTitle = article.category?.title ?? 'כללי'
   const visual = CATEGORY_VISUALS[catTitle] ?? DEFAULT_VISUAL
   const Icon = visual.icon
@@ -87,7 +84,7 @@ type FallbackArticle = {
   date: string
 }
 
-function FallbackCard({ category, title, excerpt, date }: FallbackArticle) {
+export function FallbackCard({ category, title, excerpt, date }: FallbackArticle) {
   const visual = CATEGORY_VISUALS[category] ?? DEFAULT_VISUAL
   const Icon = visual.icon
   return (
@@ -114,95 +111,109 @@ function FallbackCard({ category, title, excerpt, date }: FallbackArticle) {
   )
 }
 
-/** Full category filter with pills + article grid + load more */
-export function KnowledgeFilterable({
-  categories,
-  articles,
-  fallbackArticles,
-}: {
-  categories: Pick<Category, '_id' | 'title'>[]
-  articles: ArticleCard[]
-  fallbackArticles: FallbackArticle[]
-}) {
-  const [activeId, setActiveId] = useState('all')
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+/* ─── Category Pills (URL-based, two-row layout) ─── */
 
-  const allCategories = [{ _id: 'all', title: 'הכל' }, ...categories]
+interface CategoryPillsProps {
+  categories: Category[]
+  activeCategory: string
+}
 
-  const filtered =
-    activeId === 'all'
-      ? articles
-      : articles.filter((a) => a.category?._id === activeId)
+export function CategoryPills({ categories, activeCategory }: CategoryPillsProps) {
+  const parentCategories = categories.filter((c) => !c.parent)
+  const activeParent = parentCategories.find((c) => c.slug?.current === activeCategory)
 
-  const visible = filtered.slice(0, visibleCount)
-  const hasMore = visibleCount < filtered.length
+  // If the active slug is a subcategory, find its parent
+  const activeSubcategory = categories.find(
+    (c) => c.parent && c.slug?.current === activeCategory,
+  )
+  const resolvedParent = activeParent ?? (activeSubcategory ? parentCategories.find((p) => p._id === activeSubcategory.parent?._id) : null)
 
-  const handleCategoryChange = useCallback((id: string, title: string) => {
-    setActiveId(id)
-    setVisibleCount(PAGE_SIZE)
-    trackCategoryFilter(title)
-  }, [])
+  const subcategories = resolvedParent
+    ? categories.filter((c) => c.parent?._id === resolvedParent._id)
+    : []
 
   return (
-    <>
-      {/* Category pills */}
-      <section className="border-b border-border bg-white sticky top-[var(--navbar-height-mobile)] md:top-[var(--navbar-height-desktop)] z-30 px-6">
-        <div className="max-w-content mx-auto py-space-3 flex gap-2 overflow-x-auto">
-          {allCategories.map((cat) => (
-            <button
-              key={cat._id}
-              type="button"
-              onClick={() => handleCategoryChange(cat._id, cat.title)}
+    <section className="border-b border-border bg-white sticky top-[var(--navbar-height-mobile)] md:top-[var(--navbar-height-desktop)] z-30 px-6">
+      <div className="max-w-content mx-auto py-space-3">
+        {/* Row 1: Parent category pills */}
+        <div className="flex gap-2 overflow-x-auto">
+          <Link
+            href="/knowledge"
+            onClick={() => trackCategoryFilter('הכל')}
+            className={[
+              'shrink-0 px-4 py-1.5 rounded-full text-body-sm font-medium transition-colors',
+              !activeCategory
+                ? 'bg-primary text-white'
+                : 'bg-surface text-text-secondary hover:bg-callout',
+            ].join(' ')}
+          >
+            הכל
+          </Link>
+          {parentCategories.map((cat) => {
+            const isActive = cat.slug?.current === activeCategory || cat._id === resolvedParent?._id
+            return (
+              <Link
+                key={cat._id}
+                href={`/knowledge?category=${cat.slug?.current ?? ''}`}
+                onClick={() => trackCategoryFilter(cat.title)}
+                className={[
+                  'shrink-0 px-4 py-1.5 rounded-full text-body-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary text-white'
+                    : 'bg-surface text-text-secondary hover:bg-callout',
+                ].join(' ')}
+              >
+                {cat.title}
+                {cat.articleCount != null && cat.articleCount > 0 && (
+                  <span className={`ms-1.5 text-caption ${isActive ? 'text-white/70' : 'text-text-muted'}`}>
+                    ({cat.articleCount})
+                  </span>
+                )}
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Row 2: Subcategory pills (when a parent is active) */}
+        {subcategories.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto mt-2 pt-2 border-t border-border/50">
+            <Link
+              href={`/knowledge?category=${resolvedParent!.slug?.current ?? ''}`}
               className={[
-                'shrink-0 px-4 py-1.5 rounded-full text-body-sm font-medium transition-colors cursor-pointer',
-                activeId === cat._id
-                  ? 'bg-primary text-white'
+                'shrink-0 px-3 py-1 rounded-full text-caption font-medium transition-colors',
+                activeCategory === resolvedParent!.slug?.current
+                  ? 'bg-gold/10 text-gold border border-gold/30'
                   : 'bg-surface text-text-secondary hover:bg-callout',
               ].join(' ')}
             >
-              {cat.title}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Articles grid */}
-      <section className="py-space-9 px-6">
-        <div className="max-w-content mx-auto">
-          {articles.length > 0 ? (
-            filtered.length > 0 ? (
-              <>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5">
-                  {visible.map((article) => (
-                    <ArticleCardComponent key={article._id} article={article} />
-                  ))}
-                </div>
-                {hasMore && (
-                  <div className="text-center mt-space-8">
-                    <button
-                      type="button"
-                      onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
-                      className="inline-flex items-center gap-2 bg-surface text-primary font-bold text-body px-8 py-3 rounded-lg hover:bg-callout transition-colors cursor-pointer"
-                    >
-                      הציגו עוד ({filtered.length - visibleCount} נותרו)
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-text-muted text-body text-center py-space-8">
-                אין מאמרים בקטגוריה זו כרגע.
-              </p>
-            )
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5">
-              {fallbackArticles.map((fa) => (
-                <FallbackCard key={fa.title} {...fa} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-    </>
+              הכל ב{resolvedParent!.title}
+            </Link>
+            {subcategories.map((sub) => {
+              const isActive = sub.slug?.current === activeCategory
+              return (
+                <Link
+                  key={sub._id}
+                  href={`/knowledge?category=${sub.slug?.current ?? ''}`}
+                  onClick={() => trackCategoryFilter(sub.title)}
+                  className={[
+                    'shrink-0 px-3 py-1 rounded-full text-caption font-medium transition-colors',
+                    isActive
+                      ? 'bg-gold/10 text-gold border border-gold/30'
+                      : 'bg-surface text-text-secondary hover:bg-callout',
+                  ].join(' ')}
+                >
+                  {sub.title}
+                  {sub.articleCount != null && sub.articleCount > 0 && (
+                    <span className={`ms-1 ${isActive ? 'text-gold/70' : 'text-text-muted'}`}>
+                      ({sub.articleCount})
+                    </span>
+                  )}
+                </Link>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </section>
   )
 }

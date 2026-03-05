@@ -2,6 +2,7 @@ import aboutPage from './aboutPage'
 import article from './article'
 import author from './author'
 import category from './category'
+import clientLogo from './clientLogo'
 import contactLead from './contactLead'
 import faq from './faq'
 
@@ -25,6 +26,7 @@ export const schemaTypes = [
   service,
   faq,
   testimonial,
+  clientLogo,
   contactLead,
 
   // People

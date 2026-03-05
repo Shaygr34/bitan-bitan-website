@@ -28,6 +28,19 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'parent',
+      title: 'קטגוריית אב',
+      type: 'reference',
+      to: [{ type: 'category' }],
+      description: 'השאירו ריק לקטגוריה ראשית. בחרו קטגוריית אב כדי ליצור תת-קטגוריה.',
+      options: {
+        filter: ({ document }) => ({
+          filter: '_id != $id && !defined(parent)',
+          params: { id: document._id.replace('drafts.', '') },
+        }),
+      },
+    }),
+    defineField({
       name: 'description',
       title: 'תיאור',
       type: 'text',
@@ -41,6 +54,12 @@ export default defineType({
     }),
   ],
   preview: {
-    select: { title: 'title' },
+    select: { title: 'title', parentTitle: 'parent.title' },
+    prepare({ title, parentTitle }) {
+      return {
+        title,
+        subtitle: parentTitle ? `תת-קטגוריה של: ${parentTitle}` : 'קטגוריה ראשית',
+      }
+    },
   },
 })

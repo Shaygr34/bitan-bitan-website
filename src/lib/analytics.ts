@@ -96,6 +96,14 @@ export function trackPrintPage() {
   })
 }
 
+export function trackKnowledgeSearch(query: string, resultsCount: number) {
+  trackEvent('knowledge_search', {
+    search_query: query,
+    results_count: resultsCount,
+    page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+  })
+}
+
 export function trackSocialClick(platform: string) {
   trackEvent('social_click', {
     platform,

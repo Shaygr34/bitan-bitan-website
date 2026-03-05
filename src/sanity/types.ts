@@ -153,6 +153,8 @@ export type Category = {
   slug: SanitySlug
   description?: string
   order: number
+  parent?: { _id: string; title: string; slug: SanitySlug }
+  articleCount?: number
 }
 
 /* ─── Tag ─── */
@@ -227,6 +229,15 @@ export type FAQ = {
     title: string
   }
   order: number
+}
+
+/* ─── Client Logo ─── */
+
+export type ClientLogo = {
+  _id: string
+  companyName: string
+  logo: SanityImage
+  url?: string
 }
 
 /* ─── Testimonial ─── */

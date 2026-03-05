@@ -51,10 +51,32 @@ export const structure = (S: StructureBuilder) =>
                 .schemaType('article')
                 .child(S.documentTypeList('article').title('מאמרים')),
               S.listItem()
-                .id('category')
-                .title('קטגוריות')
+                .id('parentCategories')
+                .title('קטגוריות ראשיות')
                 .schemaType('category')
-                .child(S.documentTypeList('category').title('קטגוריות')),
+                .child(
+                  S.documentList()
+                    .title('קטגוריות ראשיות')
+                    .filter('_type == "category" && !defined(parent)')
+                    .child((categoryId) =>
+                      S.list()
+                        .title('קטגוריה')
+                        .items([
+                          S.listItem()
+                            .title('פרטי קטגוריה')
+                            .child(S.document().schemaType('category').documentId(categoryId)),
+                          S.listItem()
+                            .title('תתי-קטגוריות')
+                            .schemaType('category')
+                            .child(
+                              S.documentList()
+                                .title('תתי-קטגוריות')
+                                .filter('_type == "category" && parent._ref == $parentId')
+                                .params({ parentId: categoryId })
+                            ),
+                        ]),
+                    ),
+                ),
               S.listItem()
                 .id('tag')
                 .title('תגיות')
@@ -84,6 +106,12 @@ export const structure = (S: StructureBuilder) =>
         .title('המלצות')
         .schemaType('testimonial')
         .child(S.documentTypeList('testimonial').title('המלצות')),
+
+      S.listItem()
+        .id('clientLogo')
+        .title('לוגואים')
+        .schemaType('clientLogo')
+        .child(S.documentTypeList('clientLogo').title('לוגואים')),
 
       S.divider(),
 
