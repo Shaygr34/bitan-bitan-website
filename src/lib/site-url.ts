@@ -12,7 +12,9 @@
 
 function getSiteUrl(): string {
   if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')
+    const raw = process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')
+    // Ensure the URL has a protocol — new URL() throws without one
+    return raw.startsWith('http') ? raw : `https://${raw}`
   }
 
   if (process.env.RAILWAY_PUBLIC_DOMAIN) {
