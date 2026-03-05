@@ -9,7 +9,7 @@ export default function StudioLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="fixed inset-0 z-[9999] bg-white">
+    <div style={{ height: '100vh' }}>
       {children}
     </div>
   )
