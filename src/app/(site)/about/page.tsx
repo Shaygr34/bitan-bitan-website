@@ -77,7 +77,7 @@ export default async function AboutPage() {
 
   const credentialsNote =
     page?.credentialsNote ??
-    'רואי חשבון ויועצי מס מוסמכים — וגם משפטנים (לא עורכי דין).'
+    'רואי חשבון ויועצי מס מוסמכים — וגם משפטנים.'
 
   return (
     <div>
@@ -104,11 +104,7 @@ export default async function AboutPage() {
       {/* 2. Story */}
       <RevealSection className="py-space-10 px-6">
         <div className="max-w-content mx-auto">
-          <SectionHeader subtitle="הרקע שלנו בקצרה.">
-            הסיפור שלנו
-          </SectionHeader>
-
-          <div className="mt-space-8 max-w-narrow space-y-6 text-text-secondary text-body leading-relaxed">
+          <div className="max-w-narrow space-y-6 text-text-secondary text-body leading-relaxed">
             {page?.storyBody ? (
               <PortableText value={page.storyBody} />
             ) : (
