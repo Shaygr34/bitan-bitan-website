@@ -26,7 +26,8 @@ export function PhoneCTA({
   const s = useSiteSettings()
   const resolvedPhone = phone ?? s?.phone ?? '03-5174295'
   const resolvedLabel = label ?? s?.ctaPhoneLabel
-  const telHref = `tel:${resolvedPhone.replace(/[^+\d]/g, '')}`
+  const digits = resolvedPhone.replace(/[^+\d]/g, '')
+  const telHref = `tel:${digits.startsWith('+') ? digits : `+972${digits.replace(/^0/, '')}`}`
 
   return (
     <Button

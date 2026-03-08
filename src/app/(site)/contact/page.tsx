@@ -29,7 +29,7 @@ const BUSINESS_NAME = 'ביטן את ביטן פיננסים'
 const BUSINESS_NAME_ENCODED = encodeURIComponent(BUSINESS_NAME)
 const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? ''
 const DEFAULT_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=${MAPS_API_KEY}&q=${BUSINESS_NAME_ENCODED}&language=he&zoom=16`
-const DEFAULT_NAV_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('הרכבת 58 תל אביב')}&travelmode=driving`
+const DEFAULT_NAV_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('הרכבת 58 תל אביב מגדל אלקטרה סיטי')}&travelmode=driving`
 const DEFAULT_GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${BUSINESS_NAME_ENCODED}`
 
 /** Official Waze brand icon */
@@ -56,7 +56,8 @@ export default async function ContactPage() {
   const s = await getSiteSettings()
 
   const phone = s?.phone ?? '03-5174295'
-  const phoneTel = phone.replace(/[^+\d]/g, '')
+  const phoneDigits = phone.replace(/[^+\d]/g, '')
+  const phoneTel = phoneDigits.startsWith('+') ? phoneDigits : `+972${phoneDigits.replace(/^0/, '')}`
   const email = s?.email ?? 'office@bitancpa.com'
   const whatsapp = s?.whatsapp ?? '+972527221111'
   const whatsappClean = whatsapp.replace(/[^0-9]/g, '')

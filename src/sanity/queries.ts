@@ -17,6 +17,7 @@ import type {
   ClientLogo,
   AboutPage,
   Author,
+  TeamMember,
 } from './types'
 
 /* ─── Revalidation ─── */
@@ -71,7 +72,10 @@ const SERVICES_QUERY = `*[_type == "service"] | order(order asc){
   body,
   icon,
   image,
-  order
+  order,
+  processSteps,
+  targetAudience,
+  faqs
 }`
 
 export async function getServices(): Promise<Service[]> {
@@ -88,7 +92,10 @@ const SERVICE_BY_SLUG_QUERY = `*[_type == "service" && slug.current == $slug][0]
   body,
   icon,
   image,
-  order
+  order,
+  processSteps,
+  targetAudience,
+  faqs
 }`
 
 export async function getServiceBySlug(slug: string): Promise<Service | null> {
@@ -114,7 +121,7 @@ const CATEGORIES_QUERY = `*[_type == "category"] | order(order asc){
   description,
   order,
   "parent": parent->{_id, title, slug},
-  "articleCount": count(*[_type == "article" && category._ref == ^._id])
+  "articleCount": count(*[_type == "article" && (category._ref == ^._id || category->parent._ref == ^._id)])
 }`
 
 export async function getCategories(): Promise<Category[]> {
@@ -356,6 +363,20 @@ const PARTNERS_QUERY = `*[_type == "author" && isPartner == true]{
 
 export async function getPartners(): Promise<Author[]> {
   return sanityFetch<Author[]>(PARTNERS_QUERY)
+}
+
+/* ─── Team Members ─── */
+
+const TEAM_MEMBERS_QUERY = `*[_type == "teamMember"] | order(order asc){
+  _id,
+  name,
+  role,
+  image,
+  order
+}`
+
+export async function getTeamMembers(): Promise<TeamMember[]> {
+  return sanityFetch<TeamMember[]>(TEAM_MEMBERS_QUERY)
 }
 
 /* ─── Legal Pages ─── */

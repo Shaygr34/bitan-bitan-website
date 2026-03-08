@@ -31,7 +31,8 @@ export function Header() {
   const [showStickyCTA, setShowStickyCTA] = useState(false)
 
   const phone = s?.phone ?? '03-5174295'
-  const phoneTel = phone.replace(/[^+\d]/g, '')
+  const phoneDigits = phone.replace(/[^+\d]/g, '')
+  const phoneTel = phoneDigits.startsWith('+') ? phoneDigits : `+972${phoneDigits.replace(/^0/, '')}`
   const whatsapp = s?.whatsapp ?? '+972527221111'
   const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
 

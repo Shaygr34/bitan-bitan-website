@@ -91,6 +91,9 @@ type Props = {
 }
 
 export function ClientLogosSection({ logos }: Props) {
+  // Hide section entirely when no real logos exist
+  if (logos.length === 0) return null
+
   // Split logos into two rows for opposite-direction scrolling
   const mid = Math.ceil(logos.length / 2)
   const row1 = logos.length > 0 ? logos.slice(0, mid) : []

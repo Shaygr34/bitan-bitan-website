@@ -167,6 +167,19 @@ export type Tag = {
 
 /* ─── Service ─── */
 
+export type ServiceProcessStep = {
+  _key: string
+  stepNumber: number
+  title: string
+  description: string
+}
+
+export type ServiceFAQ = {
+  _key: string
+  question: string
+  answer: string
+}
+
 export type Service = {
   _id: string
   title: string
@@ -176,6 +189,9 @@ export type Service = {
   icon?: string
   image?: SanityImage
   order: number
+  processSteps?: ServiceProcessStep[]
+  targetAudience?: string[]
+  faqs?: ServiceFAQ[]
 }
 
 /* ─── Article (listing) ─── */
@@ -238,6 +254,16 @@ export type ClientLogo = {
   companyName: string
   logo: SanityImage
   url?: string
+}
+
+/* ─── Team Member ─── */
+
+export type TeamMember = {
+  _id: string
+  name: string
+  role?: string
+  image?: SanityImage
+  order: number
 }
 
 /* ─── Testimonial ─── */

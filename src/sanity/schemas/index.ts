@@ -11,6 +11,7 @@ import legalPage from './legalPage'
 import service from './service'
 import siteSettings from './siteSettings'
 import tag from './tag'
+import teamMember from './teamMember'
 import testimonial from './testimonial'
 
 export const schemaTypes = [
@@ -31,6 +32,7 @@ export const schemaTypes = [
 
   // People
   author,
+  teamMember,
 
   // Pages
   homePage,

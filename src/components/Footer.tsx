@@ -64,7 +64,7 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0 text-text-muted" />
                 <a
-                  href={`tel:${phone.replace(/[^+\d]/g, '')}`}
+                  href={`tel:${phone.startsWith('+') ? phone.replace(/[^+\d]/g, '') : `+972${phone.replace(/[^+\d]/g, '').replace(/^0/, '')}`}`}
                   className="hover:text-primary transition-colors"
                   onClick={() => trackPhoneClick('footer')}
                 >

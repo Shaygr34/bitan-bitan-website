@@ -209,7 +209,7 @@ export function ContactForm() {
                   ? 'border-red-400 focus:border-red-400 focus:ring-red-400'
                   : 'border-border focus:border-gold focus:ring-gold',
               ].join(' ')}
-              placeholder="example@email.com"
+              placeholder="name@example.co.il"
               onChange={() => errors.email && setErrors((prev) => ({ ...prev, email: undefined }))}
             />
             {errors.email && (

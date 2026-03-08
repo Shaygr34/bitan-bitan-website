@@ -102,9 +102,15 @@ export const structure = (S: StructureBuilder) =>
       /* ── People & Social Proof ── */
       S.listItem()
         .id('author')
-        .title('צוות')
+        .title('שותפים / כותבים')
         .schemaType('author')
-        .child(S.documentTypeList('author').title('צוות')),
+        .child(S.documentTypeList('author').title('שותפים / כותבים')),
+
+      S.listItem()
+        .id('teamMember')
+        .title('חברי צוות')
+        .schemaType('teamMember')
+        .child(S.documentTypeList('teamMember').title('חברי צוות')),
 
       S.listItem()
         .id('testimonial')

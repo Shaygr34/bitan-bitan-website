@@ -136,7 +136,7 @@ export function CategoryPills({ categories, activeCategory }: CategoryPillsProps
     <section className="border-b border-border bg-white sticky top-[var(--navbar-height-mobile)] md:top-[var(--navbar-height-desktop)] z-30 px-6">
       <div className="max-w-content mx-auto py-space-3">
         {/* Row 1: Parent category pills */}
-        <div className="flex gap-2 overflow-x-auto">
+        <div className="flex gap-2 overflow-x-auto [mask-image:linear-gradient(to_left,transparent,black_40px,black_calc(100%-40px),transparent)] [-webkit-mask-image:linear-gradient(to_left,transparent,black_40px,black_calc(100%-40px),transparent)] md:[mask-image:none] md:[-webkit-mask-image:none]">
           <Link
             href="/knowledge"
             onClick={() => trackCategoryFilter('הכל')}
@@ -176,7 +176,7 @@ export function CategoryPills({ categories, activeCategory }: CategoryPillsProps
 
         {/* Row 2: Subcategory pills (when a parent is active) */}
         {subcategories.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto mt-2 pt-2 border-t border-border/50">
+          <div className="flex gap-2 overflow-x-auto mt-2 pt-2 border-t border-border/50 [mask-image:linear-gradient(to_left,transparent,black_40px,black_calc(100%-40px),transparent)] [-webkit-mask-image:linear-gradient(to_left,transparent,black_40px,black_calc(100%-40px),transparent)] md:[mask-image:none] md:[-webkit-mask-image:none]">
             <Link
               href={`/knowledge?category=${resolvedParent!.slug?.current ?? ''}`}
               className={[

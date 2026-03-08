@@ -12,9 +12,10 @@ import {
   RevealItem,
   LTR,
 } from '@/components/ui'
-import { getAboutPage, getPartners } from '@/sanity/queries'
+import { getAboutPage, getPartners, getTeamMembers } from '@/sanity/queries'
 import { urlFor } from '@/sanity/image'
 import type { Author } from '@/sanity/types'
+import { TeamSection } from '@/components/TeamSection'
 import { warnFallback } from '@/lib/fallback-warning'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import {
@@ -70,7 +71,7 @@ function getIcon(name?: string): LucideIcon {
 }
 
 export default async function AboutPage() {
-  const [page, partners] = await Promise.all([getAboutPage(), getPartners()])
+  const [page, partners, teamMembers] = await Promise.all([getAboutPage(), getPartners(), getTeamMembers()])
   if (!page) warnFallback('AboutPage')
   if (!partners || partners.length === 0) warnFallback('AboutPage:partners')
 
@@ -133,6 +134,9 @@ export default async function AboutPage() {
           </RevealGroup>
         </div>
       </RevealSection>
+
+      {/* 3b. Team */}
+      <TeamSection members={teamMembers} />
 
       {/* 4. Differentiators */}
       <RevealSection className="py-space-10 px-6">

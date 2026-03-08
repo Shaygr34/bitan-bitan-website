@@ -68,7 +68,7 @@ function buildOrganizationJsonLd(s: {
     openingHoursSpecification: {
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-      opens: '08:30',
+      opens: '09:00',
       closes: '17:00',
     },
     areaServed: {

@@ -53,7 +53,7 @@ export function ServicesSection({ services }: Props) {
         Icon: (svc.icon && ICON_MAP[svc.icon.toLowerCase()]) || Briefcase,
         title: svc.title,
         description: svc.shortDescription,
-        href: svc.slug?.current ? `/services#service-${svc.slug.current}` : '/services',
+        href: svc.slug?.current ? `/services/${svc.slug.current}` : '/services',
       }))
     : FALLBACK_SERVICES.map((s) => ({
         key: s.title,

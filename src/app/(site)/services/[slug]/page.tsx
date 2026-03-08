@@ -115,6 +115,64 @@ export default async function ServiceDetailPage({ params }: Props) {
         </div>
       </section>
 
+      {/* Process Steps */}
+      {service.processSteps && service.processSteps.length > 0 && (
+        <section className="bg-surface py-space-9 px-6">
+          <div className="max-w-narrow mx-auto">
+            <SectionHeader>איך התהליך עובד?</SectionHeader>
+            <div className="mt-space-7 space-y-space-5">
+              {service.processSteps.map((step) => (
+                <div key={step._key} className="flex gap-space-4 items-start">
+                  <div className="shrink-0 w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+                    <span className="text-primary font-bold text-body" dir="ltr">
+                      {step.stepNumber}
+                    </span>
+                  </div>
+                  <div className="pt-0.5">
+                    <h3 className="text-h4 font-bold text-primary">{step.title}</h3>
+                    <p className="text-text-secondary text-body mt-1">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Target Audience */}
+      {service.targetAudience && service.targetAudience.length > 0 && (
+        <section className="py-space-9 px-6">
+          <div className="max-w-narrow mx-auto">
+            <SectionHeader>למי השירות מתאים?</SectionHeader>
+            <ul className="mt-space-6 space-y-space-3">
+              {service.targetAudience.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="shrink-0 w-2 h-2 rounded-full bg-gold mt-2.5" />
+                  <span className="text-text-secondary text-body">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* Service FAQs */}
+      {service.faqs && service.faqs.length > 0 && (
+        <section className="bg-surface py-space-9 px-6">
+          <div className="max-w-narrow mx-auto">
+            <SectionHeader>שאלות נפוצות</SectionHeader>
+            <div className="mt-space-7 space-y-space-5">
+              {service.faqs.map((faq) => (
+                <div key={faq._key}>
+                  <h3 className="text-h4 font-semibold text-primary">{faq.question}</h3>
+                  <p className="text-text-secondary text-body mt-2 leading-relaxed">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* CTA */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto text-center">

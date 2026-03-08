@@ -53,6 +53,51 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'processSteps',
+      title: 'איך התהליך עובד?',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({ name: 'stepNumber', title: 'מספר שלב', type: 'number' }),
+            defineField({ name: 'title', title: 'כותרת', type: 'string' }),
+            defineField({ name: 'description', title: 'תיאור', type: 'text', rows: 2 }),
+          ],
+          preview: {
+            select: { title: 'title', stepNumber: 'stepNumber' },
+            prepare: ({ title, stepNumber }) => ({
+              title: `${stepNumber}. ${title}`,
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: 'targetAudience',
+      title: 'למי השירות מתאים?',
+      type: 'array',
+      of: [{ type: 'string' }],
+      description: 'רשימת קהלי יעד (לדוגמה: חברות פרטיות, עצמאים)',
+    }),
+    defineField({
+      name: 'faqs',
+      title: 'שאלות נפוצות',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({ name: 'question', title: 'שאלה', type: 'string' }),
+            defineField({ name: 'answer', title: 'תשובה', type: 'text', rows: 3 }),
+          ],
+          preview: {
+            select: { title: 'question' },
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'order',
       title: 'סדר תצוגה',
       type: 'number',
