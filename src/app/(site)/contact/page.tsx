@@ -29,7 +29,7 @@ const BUSINESS_NAME = 'ביטן את ביטן פיננסים'
 const BUSINESS_NAME_ENCODED = encodeURIComponent(BUSINESS_NAME)
 const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? ''
 const DEFAULT_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=${MAPS_API_KEY}&q=${BUSINESS_NAME_ENCODED}&language=he&zoom=16`
-const DEFAULT_NAV_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('הרכבת 58 תל אביב מגדל אלקטרה סיטי')}&travelmode=driving`
+const DEFAULT_NAV_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('מגדל אלקטרה סיטי הרכבת 58 תל אביב')}&travelmode=driving`
 const DEFAULT_GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${BUSINESS_NAME_ENCODED}`
 
 /** Official Waze brand icon */
@@ -220,22 +220,22 @@ export default async function ContactPage() {
 
               <div className="flex gap-3 shrink-0">
                 <a
-                  href={navUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-primary text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary-light transition-all"
-                >
-                  <MapPin className="h-5 w-5" />
-                  נווט למשרד
-                </a>
-                <a
                   href={gmapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-white border-2 border-[#4285F4] text-[#4285F4] font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#4285F4] hover:text-white transition-all"
+                  className="inline-flex items-center gap-2 bg-white border-2 border-[#EA4335] text-[#EA4335] font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#EA4335] hover:text-white transition-all"
                 >
                   <GoogleMapsIcon className="h-5 w-5" />
                   Google Maps
+                </a>
+                <a
+                  href={navUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#30B6FC] text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#28a0e0] transition-all"
+                >
+                  <WazeIcon className="h-5 w-5" />
+                  נווט ב-Waze
                 </a>
               </div>
             </div>
