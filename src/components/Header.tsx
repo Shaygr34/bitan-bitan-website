@@ -72,8 +72,8 @@ export function Header() {
               src="/logo.png"
               alt="ביטן את ביטן — רואי חשבון"
               width={200}
-              height={56}
-              className="h-10 md:h-14 w-auto"
+              height={51}
+              className="w-[160px] md:w-[200px] h-auto"
               priority
             />
           </Link>
@@ -136,9 +136,9 @@ export function Header() {
                 <Image
                   src="/logo.png"
                   alt="ביטן את ביטן — רואי חשבון"
-                  width={120}
+                  width={140}
                   height={36}
-                  className="h-8 w-auto"
+                  className="w-[140px] h-auto"
                 />
                 <button
                   type="button"

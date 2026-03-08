@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { LTR } from '@/components/ui'
 import { Phone, Mail, MapPin, Clock, Facebook, Linkedin, Instagram } from 'lucide-react'
 import { useSiteSettings } from '@/components/SiteSettingsContext'
@@ -47,9 +48,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-space-8">
           {/* Column 1: Firm info + contact */}
           <div>
-            <p className="text-primary font-bold text-body-lg">
-              {s?.siteName ?? 'ביטן את ביטן — רואי חשבון'}
-            </p>
+            <Image
+              src="/logo.png"
+              alt="ביטן את ביטן — רואי חשבון"
+              width={180}
+              height={46}
+              className="w-[180px] h-auto"
+            />
 
             <ul className="mt-space-4 space-y-space-3 text-body-sm text-text-secondary">
               <li className="flex items-start gap-2">
