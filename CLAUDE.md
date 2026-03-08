@@ -9,10 +9,11 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V3.1 — March 2026)
+## Current State (V3.2 — March 2026)
 - 37 articles (7 original + 27 WP migration + 2 Bitan Finance + 1 new)
 - 23 FAQs (5 original + 18 Bitan Finance)
-- 11 services — unique body content, with optional processSteps/targetAudience/faqs enrichment fields
+- 11 services — unique body content, all enriched with processSteps, targetAudience, faqs
+- Newsletter signup system on /knowledge (compact) and /knowledge/[slug] (full with pre-selected category)
 - 7 parent categories + 10 subcategories — two-row filter UI with mobile fade gradients
 - Knowledge Center: server-side filtering (URL params), subcategory drill-down, client-side search, pagination 12/page
 - Elfsight Google Reviews widget on homepage
@@ -30,8 +31,8 @@ CMS: Sanity project ul4uwnp7, dataset production
 - Homepage service cards deep-link to /services/[slug]
 - Parent category articleCount includes subcategory articles
 
-## Schemas (14)
-article · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember
+## Schemas (15)
+article · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber
 
 ## Key Conventions
 - Server components default, 'use client' only for interactivity
@@ -59,7 +60,9 @@ article · author · category (with parent self-reference for subcategories) · 
 - src/sanity/deskStructure.ts — Hierarchical Studio nav with parent→subcategory drill-down
 - src/sanity/queries.ts — All GROQ queries including getFilteredArticles with parent/child category support
 - src/sanity/types.ts — TypeScript types mirroring query projections
-- src/lib/analytics.ts — GA4 event helpers including trackKnowledgeSearch
+- src/components/NewsletterSignup.tsx — Newsletter form (compact/full modes, category pills, Framer Motion)
+- src/app/api/newsletter/route.ts — POST handler (email validation, dupe check, Sanity create)
+- src/lib/analytics.ts — GA4 event helpers including trackKnowledgeSearch, trackNewsletterSignup
 - src/lib/site-url.ts — Canonical URL resolution (auto-prefixes https://)
 - src/components/TeamSection.tsx — Team members grid on About page
 - scripts/generate-article-images.mjs — Gemini image generation + Sanity upload
@@ -82,8 +85,8 @@ NOT SET: CONTACT_EMAIL_TO
 - Team member photos are placeholders (pending from firm)
 - Google Maps on /contact may show rejection if API key referrer not configured for domain
 - No tests, no CI/CD
-- Service pages enrichment fields (processSteps/targetAudience/faqs) empty — pending content entry
+- Service pages missing header images (Gemini generation planned but not yet done)
 
 ## Not In Scope
-No client login · No payments · No i18n · No newsletter yet (planned)
+No client login · No payments · No i18n
 Content Factory is a SEPARATE repo (apps/os-hub) — not this project
