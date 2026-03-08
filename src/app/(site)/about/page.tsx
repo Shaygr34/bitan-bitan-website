@@ -87,7 +87,7 @@ export default async function AboutPage() {
           <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
             <Breadcrumb items={[{ label: 'אודות' }]} />
           </div>
-          <h1 className="text-white text-h1 font-bold">אודות המשרד</h1>
+          <h1 className="text-white text-h1 font-bold">{page?.heroTitle ?? 'אודות המשרד'}</h1>
           <span className="gold-underline mt-4" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">
             {page?.storyHeadline ??
@@ -117,7 +117,7 @@ export default async function AboutPage() {
       {/* 3. Partners */}
       <RevealSection className="bg-surface py-space-10 px-6">
         <div className="max-w-content mx-auto">
-          <SectionHeader centered>השותפים</SectionHeader>
+          <SectionHeader centered>{page?.partnersTitle ?? 'השותפים'}</SectionHeader>
 
           <RevealGroup className="grid md:grid-cols-2 gap-space-7 mt-space-8 max-w-[800px] mx-auto">
             {(partners.length > 0 ? partners : FALLBACK_PARTNERS).map(
@@ -132,16 +132,20 @@ export default async function AboutPage() {
       </RevealSection>
 
       {/* 3b. Team */}
-      <TeamSection members={teamMembers} />
+      <TeamSection
+        members={teamMembers}
+        title={page?.teamTitle}
+        subtitle={page?.teamSubtitle}
+      />
 
       {/* 4. Differentiators */}
       <RevealSection className="py-space-10 px-6">
         <div className="max-w-content mx-auto">
           <SectionHeader
             centered
-            subtitle="הגורמים שהופכים את השירות שלנו לייחודי."
+            subtitle={page?.differentiatorsSubtitle ?? 'הגורמים שהופכים את השירות שלנו לייחודי.'}
           >
-            מה מייחד אותנו
+            {page?.differentiatorsTitle ?? 'מה מייחד אותנו'}
           </SectionHeader>
 
           <RevealGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-space-5 mt-space-8">
@@ -174,9 +178,9 @@ export default async function AboutPage() {
         <div className="max-w-content mx-auto">
           <SectionHeader
             centered
-            subtitle="אנחנו מלווים מגוון רחב של לקוחות — מחברות פרטיות ובעלי שליטה ועד עסקים קטנים ועצמאים."
+            subtitle={page?.audienceSubtitle ?? 'אנחנו מלווים מגוון רחב של לקוחות — מחברות פרטיות ובעלי שליטה ועד עסקים קטנים ועצמאים.'}
           >
-            למי אנחנו מתאימים?
+            {page?.audienceTitle ?? 'למי אנחנו מתאימים?'}
           </SectionHeader>
 
           <RevealGroup className="grid md:grid-cols-2 lg:grid-cols-4 gap-space-5 mt-space-8">
@@ -209,9 +213,9 @@ export default async function AboutPage() {
         <div className="max-w-content mx-auto">
           <SectionHeader
             centered
-            subtitle="תהליך פשוט ושקוף — מהפנייה הראשונה ועד ליווי שוטף."
+            subtitle={page?.processSubtitle ?? 'תהליך פשוט ושקוף — מהפנייה הראשונה ועד ליווי שוטף.'}
           >
-            איך מתחילים?
+            {page?.processTitle ?? 'איך מתחילים?'}
           </SectionHeader>
 
           <RevealGroup className="mt-space-8 max-w-narrow mx-auto space-y-space-5">
@@ -246,9 +250,9 @@ export default async function AboutPage() {
         <div className="max-w-content mx-auto">
           <SectionHeader
             centered
-            subtitle="הערכים שמנחים אותנו בכל יום עבודה."
+            subtitle={page?.valuesSubtitle ?? 'הערכים שמנחים אותנו בכל יום עבודה.'}
           >
-            הערכים שלנו
+            {page?.valuesTitle ?? 'הערכים שלנו'}
           </SectionHeader>
 
           <RevealGroup className="grid md:grid-cols-2 lg:grid-cols-4 gap-space-5 mt-space-8">

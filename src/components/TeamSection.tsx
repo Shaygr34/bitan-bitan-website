@@ -13,9 +13,11 @@ import { User } from 'lucide-react'
 
 type Props = {
   members: TeamMember[]
+  title?: string
+  subtitle?: string
 }
 
-export function TeamSection({ members }: Props) {
+export function TeamSection({ members, title, subtitle }: Props) {
   if (members.length === 0) return null
 
   return (
@@ -23,9 +25,9 @@ export function TeamSection({ members }: Props) {
       <div className="max-w-content mx-auto">
         <SectionHeader
           centered
-          subtitle="הצוות המקצועי שלנו — כאן בשבילכם."
+          subtitle={subtitle ?? 'הצוות המקצועי שלנו — כאן בשבילכם.'}
         >
-          הצוות שלנו
+          {title ?? 'הצוות שלנו'}
         </SectionHeader>
 
         <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-5 mt-space-8 max-w-content mx-auto">

@@ -133,12 +133,24 @@ export type AboutPageValue = {
 
 export type AboutPage = {
   _id: string
+  heroTitle?: string
   storyHeadline: string
   storyBody: PortableTextBlock[]
   credentialsNote?: string
+  partnersTitle?: string
+  teamTitle?: string
+  teamSubtitle?: string
+  differentiatorsTitle?: string
+  differentiatorsSubtitle?: string
   differentiators?: AboutPageDifferentiator[]
+  audienceTitle?: string
+  audienceSubtitle?: string
   audienceCards?: AboutPageAudienceCard[]
+  processTitle?: string
+  processSubtitle?: string
   processSteps?: AboutPageProcessStep[]
+  valuesTitle?: string
+  valuesSubtitle?: string
   values?: AboutPageValue[]
   officeNote?: string
   ctaHeadline?: string
