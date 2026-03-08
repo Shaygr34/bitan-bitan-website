@@ -56,20 +56,25 @@ export const structure = (S: StructureBuilder) =>
                 .schemaType('category')
                 .child(
                   S.documentList()
+                    .id('parentCategoriesList')
                     .title('קטגוריות ראשיות')
                     .filter('_type == "category" && !defined(parent)')
                     .child((categoryId) =>
                       S.list()
+                        .id(`category-${categoryId}`)
                         .title('קטגוריה')
                         .items([
                           S.listItem()
+                            .id(`category-detail-${categoryId}`)
                             .title('פרטי קטגוריה')
                             .child(S.document().schemaType('category').documentId(categoryId)),
                           S.listItem()
+                            .id(`subcategories-${categoryId}`)
                             .title('תתי-קטגוריות')
                             .schemaType('category')
                             .child(
                               S.documentList()
+                                .id(`subcategoriesList-${categoryId}`)
                                 .title('תתי-קטגוריות')
                                 .filter('_type == "category" && parent._ref == $parentId')
                                 .params({ parentId: categoryId })
