@@ -29,7 +29,7 @@ const BUSINESS_NAME = 'ביטן את ביטן פיננסים'
 const BUSINESS_NAME_ENCODED = encodeURIComponent(BUSINESS_NAME)
 const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? ''
 const DEFAULT_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=${MAPS_API_KEY}&q=${BUSINESS_NAME_ENCODED}&language=he&zoom=16`
-const DEFAULT_WAZE_URL = `https://waze.com/ul?q=${BUSINESS_NAME_ENCODED}&navigate=yes&z=17`
+const DEFAULT_WAZE_URL = 'https://waze.com/ul?ll=32.0636,34.7721&navigate=yes'
 const DEFAULT_GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${BUSINESS_NAME_ENCODED}`
 
 /** Official Waze brand icon */
