@@ -103,11 +103,14 @@ type TrustModuleProps = {
   showProcess?: boolean
   /** Show/hide the "what to prepare" section */
   showPrepare?: boolean
+  /** Show/hide the soft CTA at the bottom (hide when page has its own CTA) */
+  showCTA?: boolean
 }
 
 export function TrustModule({
   showProcess = true,
   showPrepare = true,
+  showCTA = true,
 }: TrustModuleProps) {
   return (
     <>
@@ -207,21 +210,23 @@ export function TrustModule({
       )}
 
       {/* Soft CTA */}
-      <section className="py-space-8 px-6">
-        <div className="max-w-narrow mx-auto text-center">
-          <p className="text-body-lg text-text-secondary mb-space-5">
-            יש שאלות? נשמח לעזור — בלי התחייבות.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="md" />
-            <PhoneCTA
-              label="חייגו אלינו"
-              variant="secondary"
-              size="md"
-            />
+      {showCTA && (
+        <section className="py-space-8 px-6">
+          <div className="max-w-narrow mx-auto text-center">
+            <p className="text-body-lg text-text-secondary mb-space-5">
+              יש שאלות? נשמח לעזור — בלי התחייבות.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="md" />
+              <PhoneCTA
+                label="חייגו אלינו"
+                variant="secondary"
+                size="md"
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   )
 }

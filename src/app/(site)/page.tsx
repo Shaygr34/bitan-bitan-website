@@ -7,11 +7,12 @@ import {
   ProcessSection,
   KnowledgePreview,
   TestimonialsSection,
+  ClientLogosSection,
   FAQSection,
   CTASection,
 } from '@/components/homepage'
 import { TrustModule } from '@/components/TrustModule'
-import { getServices, getFAQs, getArticles, getHomePage } from '@/sanity/queries'
+import { getServices, getFAQs, getArticles, getHomePage, getClientLogos } from '@/sanity/queries'
 
 export const metadata: Metadata = {
   title: 'ביטן את ביטן — רואי חשבון | ייעוץ מס וליווי עסקי בתל אביב',
@@ -26,11 +27,12 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const [services, faqs, articles, homePage] = await Promise.all([
+  const [services, faqs, articles, homePage, clientLogos] = await Promise.all([
     getServices(),
     getFAQs(),
     getArticles(),
     getHomePage(),
+    getClientLogos(),
   ])
 
   return (
@@ -53,9 +55,10 @@ export default async function Home() {
         subtitle={homePage?.processSubtitle}
         steps={homePage?.processSteps}
       />
-      <KnowledgePreview articles={articles} />
       <TestimonialsSection />
-      <TrustModule showProcess={false} showPrepare={false} />
+      <ClientLogosSection logos={clientLogos} />
+      <KnowledgePreview articles={articles} />
+      <TrustModule showProcess={false} showPrepare={false} showCTA={false} />
       <FAQSection faqs={faqs} />
       <CTASection
         headline={homePage?.ctaHeadline}

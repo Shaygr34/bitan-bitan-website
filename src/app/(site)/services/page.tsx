@@ -179,7 +179,7 @@ export default async function ServicesPage() {
       </section>
 
       {/* Trust Module */}
-      <TrustModule showProcess={false} />
+      <TrustModule showProcess={false} showCTA={false} />
 
       {/* CTA */}
       <section className="bg-primary py-space-9 px-6">
