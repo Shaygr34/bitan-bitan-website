@@ -110,3 +110,10 @@ export function trackSocialClick(platform: string) {
     page_path: typeof window !== 'undefined' ? window.location.pathname : '',
   })
 }
+
+export function trackNewsletterSignup(categories: string[]) {
+  trackEvent('newsletter_signup', {
+    event_category: 'engagement',
+    event_label: categories.join(', '),
+  })
+}

@@ -392,3 +392,21 @@ const LEGAL_PAGE_QUERY = `*[_type == "legalPage" && slug.current == $slug][0]{
 export async function getLegalPage(slug: string): Promise<LegalPage | null> {
   return sanityFetch<LegalPage | null>(LEGAL_PAGE_QUERY, { slug })
 }
+
+/* ─── Newsletter ─── */
+
+const NEWSLETTER_CHECK_QUERY = `count(*[_type == "newsletterSubscriber" && email == $email && isActive == true])`
+
+export async function checkNewsletterSubscriber(email: string): Promise<number> {
+  return sanityFetch<number>(NEWSLETTER_CHECK_QUERY, { email })
+}
+
+const PARENT_CATEGORIES_QUERY = `*[_type == "category" && !defined(parent)] | order(order asc){
+  _id,
+  title,
+  slug
+}`
+
+export async function getParentCategories(): Promise<Category[]> {
+  return sanityFetch<Category[]>(PARENT_CATEGORIES_QUERY)
+}

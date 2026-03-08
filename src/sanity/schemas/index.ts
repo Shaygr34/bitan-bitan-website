@@ -13,6 +13,7 @@ import siteSettings from './siteSettings'
 import tag from './tag'
 import teamMember from './teamMember'
 import testimonial from './testimonial'
+import newsletterSubscriber from './newsletterSubscriber'
 
 export const schemaTypes = [
   // Content types
@@ -37,6 +38,9 @@ export const schemaTypes = [
   // Pages
   homePage,
   aboutPage,
+
+  // Subscribers
+  newsletterSubscriber,
 
   // Settings
   siteSettings,

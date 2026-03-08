@@ -133,6 +133,13 @@ export const structure = (S: StructureBuilder) =>
         .schemaType('contactLead')
         .child(S.documentTypeList('contactLead').title('פניות מהאתר')),
 
+      /* ── Newsletter ── */
+      S.listItem()
+        .id('newsletterSubscriber')
+        .title('רשימת תפוצה')
+        .schemaType('newsletterSubscriber')
+        .child(S.documentTypeList('newsletterSubscriber').title('רשימת תפוצה')),
+
       S.divider(),
 
       /* ── Legal ── */

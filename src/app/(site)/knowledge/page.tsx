@@ -8,7 +8,9 @@ import {
   getCategories,
   getFilteredArticles,
   getArticleCount,
+  getParentCategories,
 } from "@/sanity/queries";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import {
   ArticleCardComponent,
   FallbackCard,
@@ -56,11 +58,12 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
   const start = (currentPage - 1) * PAGE_SIZE
   const end = start + PAGE_SIZE
 
-  const [categories, articles, totalCount, allArticles] = await Promise.all([
+  const [categories, articles, totalCount, allArticles, parentCategories] = await Promise.all([
     getCategories(),
     getFilteredArticles(activeCategory, start, end),
     getArticleCount(activeCategory),
     getArticles(),
+    getParentCategories(),
   ])
 
   if (!allArticles || allArticles.length === 0) warnFallback('KnowledgePage');
@@ -96,6 +99,13 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
       <section className="bg-white px-6 pt-space-5 pb-space-3">
         <div className="max-w-content mx-auto">
           <KnowledgeSearch articles={searchArticles} />
+        </div>
+      </section>
+
+      {/* Newsletter signup */}
+      <section className="bg-white px-6 pb-space-3">
+        <div className="max-w-content mx-auto">
+          <NewsletterSignup categories={parentCategories} compact />
         </div>
       </section>
 

@@ -266,6 +266,17 @@ export type TeamMember = {
   order: number
 }
 
+/* ─── Newsletter Subscriber ─── */
+
+export type NewsletterSubscriber = {
+  _id: string
+  email: string
+  name?: string
+  subscribedCategories: { _ref: string }[]
+  isActive: boolean
+  subscribedAt: string
+}
+
 /* ─── Testimonial ─── */
 
 export type Testimonial = {
