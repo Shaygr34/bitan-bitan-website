@@ -7,7 +7,7 @@ import {
   CardBody,
   CardFooter,
 } from '@/components/ui'
-import { FileText, Building2, Receipt, Shield, Banknote, BookOpen } from 'lucide-react'
+import { FileText, Building2, Receipt, Shield, Banknote, BookOpen, Download } from 'lucide-react'
 import { urlFor } from '@/sanity/image'
 import type { ArticleCard, Category } from '@/sanity/types'
 import { trackCategoryFilter } from '@/lib/analytics'
@@ -59,6 +59,18 @@ export function ArticleCardComponent({ article }: { article: ArticleCard }) {
           <span className="absolute top-3 start-3 px-3 py-1 text-caption font-medium bg-white/20 text-white rounded-full backdrop-blur-sm">
             {catTitle}
           </span>
+          {article.contentType === 'guide' && (
+            <span className="absolute top-3 end-3 px-2.5 py-1 text-caption font-bold bg-gold text-white rounded-full flex items-center gap-1 shadow-sm">
+              <Download className="h-3 w-3" />
+              מדריך PDF
+            </span>
+          )}
+          {article.contentType === 'circular' && (
+            <span className="absolute top-3 end-3 px-2.5 py-1 text-caption font-bold bg-gold text-white rounded-full flex items-center gap-1 shadow-sm">
+              <Download className="h-3 w-3" />
+              חוזר מקצועי
+            </span>
+          )}
         </div>
         <CardBody className="px-space-5 pt-space-4">
           <h2 className="text-h4 font-semibold text-primary">{article.title}</h2>

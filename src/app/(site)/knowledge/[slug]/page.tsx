@@ -17,6 +17,7 @@ import {
   BarChart3,
   CheckCircle2,
   AlertTriangle,
+  Download,
 } from 'lucide-react'
 
 /* Render article pages on-demand (SSR) — avoids cache/encoding issues with Hebrew slugs on Railway */
@@ -244,6 +245,27 @@ export default async function ArticlePage({ params }: Props) {
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* PDF Download */}
+          {article.downloadableFile?.url && (
+            <div className="mt-space-8">
+              <a
+                href={`${article.downloadableFile.url}?dl=`}
+                download
+                className="flex items-center justify-center gap-3 w-full bg-gold hover:bg-gold-hover text-white font-bold text-body-lg py-4 px-6 rounded-xl transition-all duration-base shadow-md hover:shadow-lg"
+              >
+                <Download className="h-6 w-6" />
+                {article.contentType === 'circular'
+                  ? 'הורדת החוזר המקצועי (PDF)'
+                  : 'הורדת המדריך המלא (PDF)'}
+                {article.downloadableFile.size && (
+                  <span className="text-white/70 text-body-sm font-normal">
+                    ({(article.downloadableFile.size / 1024 / 1024).toFixed(1)} MB)
+                  </span>
+                )}
+              </a>
             </div>
           )}
 

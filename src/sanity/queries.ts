@@ -136,6 +136,7 @@ const ARTICLES_QUERY = `*[_type == "article"] | order(publishedAt desc){
   slug,
   excerpt,
   publishedAt,
+  contentType,
   mainImage,
   category->{
     _id,
@@ -163,6 +164,7 @@ const FILTERED_ARTICLES_QUERY = `*[_type == "article" && (
   slug,
   excerpt,
   publishedAt,
+  contentType,
   mainImage,
   category->{ _id, title, slug },
   author->{ name }
@@ -200,12 +202,19 @@ const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0]
   slug,
   excerpt,
   publishedAt,
+  contentType,
   mainImage,
   body,
   tldr,
   difficulty,
   checklist,
   disclaimer,
+  downloadableFile{
+    ...,
+    "url": asset->url,
+    "size": asset->size,
+    "originalFilename": asset->originalFilename
+  },
   category->{
     _id,
     title,

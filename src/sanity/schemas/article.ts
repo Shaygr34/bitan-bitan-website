@@ -130,6 +130,28 @@ export default defineType({
       description: 'הערה משפטית (ברירת מחדל: "המידע במאמר זה הינו כללי...")',
     }),
     defineField({
+      name: 'downloadableFile',
+      title: 'קובץ להורדה',
+      type: 'file',
+      description: 'PDF or document available for download',
+      options: {
+        accept: '.pdf,.doc,.docx',
+      },
+    }),
+    defineField({
+      name: 'contentType',
+      title: 'סוג תוכן',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'מאמר', value: 'article' },
+          { title: 'מדריך + PDF', value: 'guide' },
+          { title: 'חוזר מקצועי', value: 'circular' },
+        ],
+      },
+      initialValue: 'article',
+    }),
+    defineField({
       name: 'seoTitle',
       title: 'כותרת SEO',
       type: 'string',

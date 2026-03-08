@@ -194,6 +194,19 @@ export type Service = {
   faqs?: ServiceFAQ[]
 }
 
+/* ─── File Asset ─── */
+
+export type SanityFileAsset = {
+  _type: 'file'
+  asset: {
+    _ref: string
+    _type: 'reference'
+    url?: string
+    size?: number
+    originalFilename?: string
+  }
+}
+
 /* ─── Article (listing) ─── */
 
 export type ArticleCard = {
@@ -202,6 +215,7 @@ export type ArticleCard = {
   slug: SanitySlug
   excerpt?: string
   publishedAt?: string
+  contentType?: 'article' | 'guide' | 'circular'
   category?: {
     _id: string
     title: string
@@ -222,6 +236,11 @@ export type ArticleFull = ArticleCard & {
   difficulty?: 'basic' | 'intermediate' | 'advanced'
   checklist?: string[]
   disclaimer?: string
+  downloadableFile?: SanityFileAsset & {
+    url?: string
+    size?: number
+    originalFilename?: string
+  }
 }
 
 /* ─── Legal Page ─── */
