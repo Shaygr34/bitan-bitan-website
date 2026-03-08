@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getFAQs } from '@/sanity/queries'
 import { SectionHeader, WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import { FAQAccordion } from './FAQAccordion'
+import { FAQFilterable } from './FAQFilterable'
 import { JsonLd } from '@/components/JsonLd'
 import type { FAQ } from '@/sanity/types'
 import { warnFallback } from '@/lib/fallback-warning'
@@ -108,25 +109,20 @@ export default async function FAQPage() {
 
       {/* FAQ groups */}
       <section className="py-space-9 px-6">
-        <div className="max-w-narrow mx-auto space-y-space-8">
-          {groups
-            ? groups.map(({ category, items }) => (
-                <div key={category}>
-                  <h2 className="text-h3 font-bold text-primary mb-space-4">
-                    {category}
-                  </h2>
-                  <FAQAccordion faqs={items} />
-                </div>
-              ))
-            : FALLBACK_GROUPS.map(({ category, items }) => (
-                <div key={category}>
-                  <h2 className="text-h3 font-bold text-primary mb-space-4">
-                    {category}
-                  </h2>
-                  <FAQAccordion fallbackItems={items} />
-                </div>
-              ))}
-        </div>
+        {groups ? (
+          <FAQFilterable groups={groups} />
+        ) : (
+          <div className="max-w-narrow mx-auto space-y-space-8">
+            {FALLBACK_GROUPS.map(({ category, items }) => (
+              <div key={category}>
+                <h2 className="text-h3 font-bold text-primary mb-space-4">
+                  {category}
+                </h2>
+                <FAQAccordion fallbackItems={items} />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* CTA */}
