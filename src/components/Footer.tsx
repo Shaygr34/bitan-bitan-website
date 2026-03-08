@@ -51,9 +51,9 @@ export function Footer() {
             <Image
               src="/logo-header.png"
               alt="ביטן את ביטן — רואי חשבון"
-              width={180}
-              height={35}
-              className="w-[180px] h-auto"
+              width={150}
+              height={40}
+              className="w-[150px] h-auto"
             />
 
             <ul className="mt-space-4 space-y-space-3 text-body-sm text-text-secondary">

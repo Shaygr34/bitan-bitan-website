@@ -8,7 +8,7 @@ into two transparent PNGs:
 Both upscaled 2x with LANCZOS for crisp rendering.
 """
 
-from PIL import Image
+from PIL import Image, ImageFilter
 import numpy as np
 from pathlib import Path
 
@@ -75,6 +75,18 @@ def process_logo(src_path, text_color, out_path):
     # 5. Background stays transparent (alpha=0, already default)
 
     result = Image.fromarray(out, "RGBA")
+
+    # Post-processing: clean up JPEG artifacts and sharpen
+    result = result.filter(ImageFilter.MedianFilter(size=3))  # radius=1 → size=3
+    result = result.filter(ImageFilter.UnsharpMask(radius=1, percent=120, threshold=2))
+
+    # Clean alpha channel: snap near-transparent and near-opaque
+    arr = np.array(result)
+    alpha = arr[:, :, 3]
+    alpha[alpha < 30] = 0
+    alpha[alpha > 220] = 255
+    arr[:, :, 3] = alpha
+    result = Image.fromarray(arr, "RGBA")
 
     # Trim transparent padding
     bbox = result.getbbox()
