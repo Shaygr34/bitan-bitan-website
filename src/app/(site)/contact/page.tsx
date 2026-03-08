@@ -29,7 +29,7 @@ const BUSINESS_NAME = 'ביטן את ביטן פיננסים'
 const BUSINESS_NAME_ENCODED = encodeURIComponent(BUSINESS_NAME)
 const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? ''
 const DEFAULT_EMBED_URL = `https://www.google.com/maps/embed/v1/place?key=${MAPS_API_KEY}&q=${BUSINESS_NAME_ENCODED}&language=he&zoom=16`
-const DEFAULT_WAZE_URL = `https://waze.com/ul?q=${encodeURIComponent('ביטן את ביטן פיננסים הרכבת 58 תל אביב')}&navigate=yes`
+const DEFAULT_NAV_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('הרכבת 58 תל אביב')}&travelmode=driving`
 const DEFAULT_GMAPS_URL = `https://www.google.com/maps/search/?api=1&query=${BUSINESS_NAME_ENCODED}`
 
 /** Official Waze brand icon */
@@ -64,7 +64,7 @@ export default async function ContactPage() {
   const address = s?.address ?? 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב'
   const officeHours = s?.officeHours ?? 'ראשון–חמישי 08:30–17:00'
 
-  const wazeUrl = s?.wazeUrl ?? DEFAULT_WAZE_URL
+  const navUrl = s?.wazeUrl ?? DEFAULT_NAV_URL
   const gmapsUrl = s?.googleMapsUrl ?? DEFAULT_GMAPS_URL
   const embedUrl = s?.googleMapsEmbedUrl ?? DEFAULT_EMBED_URL
 
@@ -219,13 +219,13 @@ export default async function ContactPage() {
 
               <div className="flex gap-3 shrink-0">
                 <a
-                  href={wazeUrl}
+                  href={navUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#30B6FC] text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#1DA1E6] transition-all"
+                  className="inline-flex items-center gap-2 bg-primary text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary-light transition-all"
                 >
-                  <WazeIcon className="h-5 w-5" />
-                  נווט ב-Waze
+                  <MapPin className="h-5 w-5" />
+                  נווט למשרד
                 </a>
                 <a
                   href={gmapsUrl}

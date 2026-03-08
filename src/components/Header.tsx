@@ -72,7 +72,7 @@ export function Header() {
               src="/logo.png"
               alt="ביטן את ביטן — רואי חשבון"
               width={200}
-              height={51}
+              height={39}
               className="w-[160px] md:w-[200px] h-auto"
               priority
             />
@@ -137,7 +137,7 @@ export function Header() {
                   src="/logo.png"
                   alt="ביטן את ביטן — רואי חשבון"
                   width={140}
-                  height={36}
+                  height={27}
                   className="w-[140px] h-auto"
                 />
                 <button

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * Generate branded OG image (1200x630) for social sharing.
- * Uses sharp with SVG text overlay + embedded Heebo font.
+ * Uses the real designer logo on navy background with Heebo subtitle.
  *
  * Usage: node scripts/generate-og-image.mjs
  */
 
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
@@ -20,21 +20,44 @@ const HEIGHT = 630
 // Brand colors
 const NAVY = '#102040'
 const GOLD = '#C5A572'
-const WHITE = '#FFFFFF'
 
-// Load and encode font as base64 for SVG embedding
+// Load Heebo font (download first if missing: curl -sL "https://raw.githubusercontent.com/google/fonts/main/ofl/heebo/Heebo%5Bwght%5D.ttf" -o /tmp/Heebo.ttf)
 const fontPath = '/tmp/Heebo.ttf'
+if (!existsSync(fontPath)) {
+  console.error('Heebo font not found at /tmp/Heebo.ttf — download it first')
+  process.exit(1)
+}
 const fontBase64 = readFileSync(fontPath).toString('base64')
 
-// Load logo
-const logoPath = resolve(ROOT, 'public/logo.png')
-const logoBuffer = await sharp(logoPath)
-  .resize(200, 200, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-  .png()
-  .toBuffer()
-const logoBase64 = logoBuffer.toString('base64')
+// Load the light logo (white/gold text on transparent — designed for dark backgrounds)
+const logoSrcPath = resolve(ROOT, 'docs/לוגו/לוגו/logo.png')
 
-// Build SVG overlay with embedded font, logo, line, and text
+// Trim transparent padding
+const logoCropped = await sharp(logoSrcPath)
+  .trim({ threshold: 10 })
+  .toBuffer()
+
+const logoMeta = await sharp(logoCropped).metadata()
+console.log(`Logo cropped: ${logoMeta.width}x${logoMeta.height}`)
+
+// Resize logo to ~500px wide for the OG card
+const LOGO_WIDTH = 500
+const logoResized = await sharp(logoCropped)
+  .resize(LOGO_WIDTH, null, { fit: 'inside' })
+  .toBuffer()
+
+const logoResizedMeta = await sharp(logoResized).metadata()
+const LOGO_HEIGHT = logoResizedMeta.height
+console.log(`Logo resized: ${LOGO_WIDTH}x${LOGO_HEIGHT}`)
+
+const logoBase64 = logoResized.toString('base64')
+
+// Position calculations — center the logo vertically in the upper portion
+const LOGO_Y = 150
+const LINE_Y = LOGO_Y + LOGO_HEIGHT + 40
+const TEXT_Y = LINE_Y + 55
+
+// Build SVG overlay with subtitle text
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}">
   <defs>
     <style>
@@ -46,41 +69,30 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${
     </style>
   </defs>
 
-  <!-- Logo -->
+  <!-- Real designer logo (light version for dark bg) -->
   <image
     href="data:image/png;base64,${logoBase64}"
-    x="${(WIDTH - 200) / 2}" y="80"
-    width="200" height="200"
+    x="${(WIDTH - LOGO_WIDTH) / 2}" y="${LOGO_Y}"
+    width="${LOGO_WIDTH}" height="${LOGO_HEIGHT}"
   />
 
   <!-- Gold line -->
   <line
-    x1="${WIDTH / 2 - 120}" y1="310"
-    x2="${WIDTH / 2 + 120}" y2="310"
+    x1="${WIDTH / 2 - 160}" y1="${LINE_Y}"
+    x2="${WIDTH / 2 + 160}" y2="${LINE_Y}"
     stroke="${GOLD}" stroke-width="2"
   />
 
-  <!-- Main title -->
-  <text
-    x="${WIDTH / 2}" y="380"
-    text-anchor="middle"
-    font-family="Heebo, sans-serif"
-    font-weight="700"
-    font-size="42"
-    fill="${WHITE}"
-    direction="rtl"
-  >ביטן את ביטן — רואי חשבון ומשפטנים</text>
-
   <!-- Subtitle -->
   <text
-    x="${WIDTH / 2}" y="440"
+    x="${WIDTH / 2}" y="${TEXT_Y}"
     text-anchor="middle"
     font-family="Heebo, sans-serif"
     font-weight="400"
-    font-size="28"
+    font-size="26"
     fill="${GOLD}"
     direction="rtl"
-  >ייעוץ מס · דוחות כספיים · ליווי עסקי</text>
+  >רואי חשבון ומשפטנים · ייעוץ מס · ליווי עסקי</text>
 </svg>`
 
 // Generate final image

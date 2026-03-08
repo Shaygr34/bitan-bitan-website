@@ -52,7 +52,7 @@ export function Footer() {
               src="/logo.png"
               alt="ביטן את ביטן — רואי חשבון"
               width={180}
-              height={46}
+              height={35}
               className="w-[180px] h-auto"
             />
 
