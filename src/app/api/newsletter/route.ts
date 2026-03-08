@@ -1,13 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { client } from '@/sanity/client'
 
+const token = process.env.SANITY_API_TOKEN
+
 const WRITE_CLIENT = client.withConfig({
-  token: process.env.SANITY_API_TOKEN,
+  token,
   useCdn: false,
 })
 
 export async function POST(req: NextRequest) {
   try {
+    // Check token presence at runtime
+    if (!token) {
+      console.error('Newsletter: SANITY_API_TOKEN is not set')
+      return NextResponse.json(
+        { error: 'שגיאת תצורה בשרת. פנו אלינו ישירות.' },
+        { status: 500 }
+      )
+    }
+
     const body = await req.json()
     const { email, name, categoryIds } = body as {
       email?: string
@@ -50,7 +61,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Newsletter signup error:', err)
-    return NextResponse.json({ error: 'שגיאה בהרשמה. נסו שוב.' }, { status: 500 })
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('Newsletter signup error:', message)
+    return NextResponse.json(
+      { error: 'שגיאה בהרשמה. נסו שוב.', debug: process.env.NODE_ENV === 'development' ? message : undefined },
+      { status: 500 }
+    )
   }
 }
