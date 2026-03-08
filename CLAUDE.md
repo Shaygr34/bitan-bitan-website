@@ -9,8 +9,8 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V3.2 — March 2026)
-- 37 articles (7 original + 27 WP migration + 2 Bitan Finance + 1 new)
+## Current State (V3.3 — March 2026)
+- 51 articles (36 existing + 15 PDF guides/circulars with downloadable files)
 - 23 FAQs (5 original + 18 Bitan Finance)
 - 11 services — unique body content, all enriched with processSteps, targetAudience, faqs
 - Newsletter signup system on /knowledge (compact) and /knowledge/[slug] (full with pre-selected category)
@@ -19,7 +19,8 @@ CMS: Sanity project ul4uwnp7, dataset production
 - Elfsight Google Reviews widget on homepage
 - 14 testimonial docs in Sanity (backup, not rendered — Elfsight replaced them)
 - Client logo conveyor belt — hidden when no real logos exist (returns null), real logos pending
-- AI-generated article images for all articles (Gemini, script at scripts/generate-article-images.mjs)
+- PDF download system: downloadableFile + contentType fields, gold download button on article page, badges on cards
+- AI-generated article images for original articles (Gemini, script at scripts/generate-article-images.mjs)
 - 104 WP redirects in next.config.ts
 - ISR 300s + Sanity webhook revalidation working
 - CMS fully editable in Sanity Studio at /studio
@@ -32,7 +33,7 @@ CMS: Sanity project ul4uwnp7, dataset production
 - Parent category articleCount includes subcategory articles
 
 ## Schemas (15)
-article · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber
+article (with downloadableFile/contentType) · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber
 
 ## Key Conventions
 - Server components default, 'use client' only for interactivity
@@ -66,7 +67,9 @@ article · author · category (with parent self-reference for subcategories) · 
 - src/lib/site-url.ts — Canonical URL resolution (auto-prefixes https://)
 - src/components/TeamSection.tsx — Team members grid on About page
 - scripts/generate-article-images.mjs — Gemini image generation + Sanity upload
+- scripts/upload-pdf-articles.mjs — PDF upload + article creation script
 - scripts/generate-og-image.mjs — Branded OG image with sharp + real logo
+- assets/pdfs/ — 15 PDF guides/circulars (source files)
 - tailwind.config.ts — Full token integration + scroll-left/scroll-right keyframes
 
 ## Env Vars (Railway)
@@ -86,6 +89,7 @@ NOT SET: CONTACT_EMAIL_TO
 - Google Maps on /contact may show rejection if API key referrer not configured for domain
 - No tests, no CI/CD
 - Service pages missing header images (Gemini generation planned but not yet done)
+- 15 PDF guide articles missing AI-generated images (GOOGLE_AI_API_KEY not set locally)
 
 ## Not In Scope
 No client login · No payments · No i18n
