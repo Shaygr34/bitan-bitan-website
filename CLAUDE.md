@@ -89,7 +89,7 @@ NOT SET: CONTACT_EMAIL_TO
 - Google Maps on /contact may show rejection if API key referrer not configured for domain
 - No tests, no CI/CD
 - Service pages missing header images (Gemini generation planned but not yet done)
-- 15 PDF guide articles missing AI-generated images (GOOGLE_AI_API_KEY not set locally)
+- GOOGLE_AI_API_KEY not in .env.local (set via env var when running generate-article-images.mjs)
 
 ## Not In Scope
 No client login · No payments · No i18n
