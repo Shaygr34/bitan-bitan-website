@@ -22,7 +22,7 @@ export default defineType({
       name: 'credentialsNote',
       title: 'שורת הסמכות',
       type: 'string',
-      description: 'למשל: "רואי חשבון ויועצי מס מוסמכים — וגם משפטנים."',
+      description: 'שורה קצרה על ההסמכות המקצועיות של השותפים',
     }),
 
     /* ─── Story ─── */
