@@ -8,7 +8,7 @@ const writeClient = createClient({
   dataset,
   apiVersion,
   useCdn: false,
-  token: process.env.SANITY_API_TOKEN,
+  token: process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_API_TOKEN,
 })
 
 export async function POST(req: NextRequest) {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { client } from '@/sanity/client'
 
-const token = process.env.SANITY_API_TOKEN
+const token = process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_API_TOKEN
 
 const WRITE_CLIENT = client.withConfig({
   token,
