@@ -49,7 +49,7 @@ export function Footer() {
           {/* Column 1: Firm info + contact */}
           <div>
             <Image
-              src="/logo.png"
+              src="/logo-header.png"
               alt="ביטן את ביטן — רואי חשבון"
               width={180}
               height={35}

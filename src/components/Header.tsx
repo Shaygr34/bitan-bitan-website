@@ -70,7 +70,7 @@ export function Header() {
           {/* Logo — right side (RTL: first in DOM = right) */}
           <Link href="/" className="shrink-0">
             <Image
-              src="/logo.png"
+              src="/logo-header.png"
               alt="ביטן את ביטן — רואי חשבון"
               width={200}
               height={39}
@@ -135,7 +135,7 @@ export function Header() {
               {/* Close button */}
               <div className="h-[var(--navbar-height-mobile)] flex items-center justify-between px-6 border-b border-border">
                 <Image
-                  src="/logo.png"
+                  src="/logo-header.png"
                   alt="ביטן את ביטן — רואי חשבון"
                   width={140}
                   height={27}
