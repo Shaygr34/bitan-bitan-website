@@ -281,6 +281,7 @@ export type TeamMember = {
   _id: string
   name: string
   role?: string
+  bio?: string
   image?: SanityImage
   order: number
 }

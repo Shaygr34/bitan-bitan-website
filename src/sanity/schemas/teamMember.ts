@@ -23,6 +23,13 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'bio',
+      title: 'ביוגרפיה',
+      type: 'text',
+      rows: 4,
+      description: 'תיאור קצר של חבר הצוות',
+    }),
+    defineField({
       name: 'order',
       title: 'סדר תצוגה',
       type: 'number',

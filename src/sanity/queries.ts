@@ -380,6 +380,7 @@ const TEAM_MEMBERS_QUERY = `*[_type == "teamMember"] | order(order asc){
   _id,
   name,
   role,
+  bio,
   image,
   order
 }`

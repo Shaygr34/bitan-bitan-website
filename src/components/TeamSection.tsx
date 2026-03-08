@@ -28,36 +28,43 @@ export function TeamSection({ members }: Props) {
           הצוות שלנו
         </SectionHeader>
 
-        <RevealGroup className="grid grid-cols-2 md:grid-cols-4 gap-space-5 mt-space-8 max-w-[900px] mx-auto">
+        <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-5 mt-space-8 max-w-content mx-auto">
           {members.map((member) => {
             const imageUrl = urlFor(member.image, 300)
             return (
               <RevealItem key={member._id}>
-                <Card hover={false}>
-                  <CardBody className="text-center">
+                <Card hover={false} className="h-full">
+                  <CardBody className="flex items-start gap-space-4">
                     {imageUrl ? (
-                      <div className="relative w-20 h-20 rounded-full overflow-hidden mx-auto mb-space-3">
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0">
                         <Image
                           src={imageUrl}
                           alt={member.name}
                           fill
                           className="object-cover"
-                          sizes="80px"
+                          sizes="64px"
                         />
                       </div>
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-gold/10 flex items-center justify-center mx-auto mb-space-3">
-                        <User className="h-8 w-8 text-primary/30" />
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-gold/10 flex items-center justify-center shrink-0">
+                        <User className="h-7 w-7 text-primary/30" />
                       </div>
                     )}
-                    <h3 className="text-body font-semibold text-primary">
-                      {member.name}
-                    </h3>
-                    {member.role && (
-                      <p className="text-caption text-text-muted mt-1">
-                        {member.role}
-                      </p>
-                    )}
+                    <div className="min-w-0">
+                      <h3 className="text-body font-semibold text-primary">
+                        {member.name}
+                      </h3>
+                      {member.role && (
+                        <p className="text-caption text-gold font-medium mt-0.5">
+                          {member.role}
+                        </p>
+                      )}
+                      {member.bio && (
+                        <p className="text-caption text-text-muted mt-1.5 leading-relaxed">
+                          {member.bio}
+                        </p>
+                      )}
+                    </div>
                   </CardBody>
                 </Card>
               </RevealItem>
