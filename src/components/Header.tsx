@@ -22,12 +22,15 @@ const NAV_LINKS = [
 
 /** Scroll distance in pixels before showing the sticky mobile CTA bar */
 const STICKY_CTA_THRESHOLD = 600
+/** Scroll distance before navbar transitions to dark/blur mode */
+const NAV_BLUR_THRESHOLD = 80
 
 export function Header() {
   const pathname = usePathname()
   const s = useSiteSettings()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [navBlurred, setNavBlurred] = useState(false)
   const [showStickyCTA, setShowStickyCTA] = useState(false)
 
   const phone = s?.phone ?? '03-5174295'
@@ -36,11 +39,19 @@ export function Header() {
   const whatsapp = s?.whatsapp ?? '+972527221111'
   const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
 
-  // Shadow on scroll + sticky CTA visibility
+  // Shadow on scroll + sticky CTA visibility + nav blur
   useEffect(() => {
+    let ticking = false
     const onScroll = () => {
-      setScrolled(window.scrollY > 0)
-      setShowStickyCTA(window.scrollY > STICKY_CTA_THRESHOLD)
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        const y = window.scrollY
+        setScrolled(y > 0)
+        setNavBlurred(y > NAV_BLUR_THRESHOLD)
+        setShowStickyCTA(y > STICKY_CTA_THRESHOLD)
+        ticking = false
+      })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -59,9 +70,12 @@ export function Header() {
     <>
       <header
         className={[
-          'sticky top-0 z-50 bg-white border-b border-border transition-shadow duration-base',
+          'sticky top-0 z-50 transition-all duration-500',
           'h-[var(--navbar-height-mobile)] md:h-[var(--navbar-height-desktop)]',
-          scrolled && 'shadow-md',
+          navBlurred
+            ? 'bg-[#1B2A4A]/95 backdrop-blur-md shadow-lg border-b border-white/10'
+            : 'bg-white border-b border-border',
+          scrolled && !navBlurred && 'shadow-md',
         ]
           .filter(Boolean)
           .join(' ')}
@@ -70,11 +84,11 @@ export function Header() {
           {/* Logo — right side (RTL: first in DOM = right) */}
           <Link href="/" className="shrink-0">
             <Image
-              src="/logo-header.png"
+              src={navBlurred ? '/logo-light.png' : '/logo-header.png'}
               alt="ביטן את ביטן — רואי חשבון"
               width={160}
               height={43}
-              className="w-[130px] md:w-[160px] h-auto"
+              className="w-[130px] md:w-[160px] h-auto transition-opacity duration-500"
               priority
             />
           </Link>
@@ -86,7 +100,10 @@ export function Header() {
                 key={href}
                 href={href}
                 className={[
-                  'relative text-nav font-medium text-primary transition-colors duration-fast hover:text-primary-light py-1',
+                  'relative text-nav font-medium transition-colors duration-500 py-1',
+                  navBlurred
+                    ? 'text-white/90 hover:text-white'
+                    : 'text-primary hover:text-primary-light',
                   isActive(href) &&
                     'after:absolute after:bottom-0 after:inset-x-0 after:h-[3px] after:bg-gold after:rounded-full',
                 ]
@@ -102,7 +119,10 @@ export function Header() {
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="md:hidden p-2 -m-2 text-primary cursor-pointer"
+            className={[
+              'md:hidden p-2 -m-2 cursor-pointer transition-colors duration-500',
+              navBlurred ? 'text-white' : 'text-primary',
+            ].join(' ')}
             aria-label="פתח תפריט"
           >
             <Menu className="h-6 w-6" />
