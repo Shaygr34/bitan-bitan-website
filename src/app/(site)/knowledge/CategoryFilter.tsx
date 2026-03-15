@@ -128,9 +128,10 @@ export function FallbackCard({ category, title, excerpt, date }: FallbackArticle
 interface CategoryPillsProps {
   categories: Category[]
   activeCategory: string
+  directOnly?: boolean
 }
 
-export function CategoryPills({ categories, activeCategory }: CategoryPillsProps) {
+export function CategoryPills({ categories, activeCategory, directOnly = false }: CategoryPillsProps) {
   const parentCategories = categories.filter((c) => !c.parent)
   const activeParent = parentCategories.find((c) => c.slug?.current === activeCategory)
 
@@ -143,6 +144,11 @@ export function CategoryPills({ categories, activeCategory }: CategoryPillsProps
   const subcategories = resolvedParent
     ? categories.filter((c) => c.parent?._id === resolvedParent._id)
     : []
+
+  // Compute "כללי" count: parent total minus sum of subcategory counts
+  const generalCount = resolvedParent && subcategories.length > 0
+    ? (resolvedParent.articleCount ?? 0) - subcategories.reduce((sum, sub) => sum + (sub.articleCount ?? 0), 0)
+    : 0
 
   return (
     <section className="border-b border-border bg-white sticky top-[var(--navbar-height-mobile)] md:top-[var(--navbar-height-desktop)] z-30 px-6">
@@ -193,13 +199,29 @@ export function CategoryPills({ categories, activeCategory }: CategoryPillsProps
               href={`/knowledge?category=${resolvedParent!.slug?.current ?? ''}`}
               className={[
                 'shrink-0 px-3 py-1 rounded-full text-caption font-medium transition-colors',
-                activeCategory === resolvedParent!.slug?.current
+                activeCategory === resolvedParent!.slug?.current && !directOnly
                   ? 'bg-gold/10 text-gold border border-gold/30'
                   : 'bg-surface text-text-secondary hover:bg-callout',
               ].join(' ')}
             >
               הכל ב{resolvedParent!.title}
             </Link>
+            {generalCount > 0 && (
+              <Link
+                href={`/knowledge?category=${resolvedParent!.slug?.current ?? ''}&sub=direct`}
+                className={[
+                  'shrink-0 px-3 py-1 rounded-full text-caption font-medium transition-colors',
+                  directOnly
+                    ? 'bg-gold/10 text-gold border border-gold/30'
+                    : 'bg-surface text-text-secondary hover:bg-callout',
+                ].join(' ')}
+              >
+                כללי
+                <span className={`ms-1 ${directOnly ? 'text-gold/70' : 'text-text-muted'}`}>
+                  ({generalCount})
+                </span>
+              </Link>
+            )}
             {subcategories.map((sub) => {
               const isActive = sub.slug?.current === activeCategory
               return (

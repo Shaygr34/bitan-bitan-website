@@ -17,7 +17,9 @@ export function NewsletterSignup({ categories, preSelectedCategoryId, compact = 
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
-    preSelectedCategoryId ? new Set([preSelectedCategoryId]) : new Set()
+    preSelectedCategoryId
+      ? new Set([preSelectedCategoryId])
+      : new Set(categories.map((c) => c._id))
   )
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -34,7 +36,7 @@ export function NewsletterSignup({ categories, preSelectedCategoryId, compact = 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!email || selectedIds.size === 0) {
-      setErrorMsg(selectedIds.size === 0 ? 'נא לבחור לפחות נושא אחד' : 'נא להזין כתובת דוא"ל')
+      setErrorMsg(!email ? 'נא להזין כתובת דוא"ל' : 'נא לבחור לפחות נושא אחד')
       setStatus('error')
       return
     }

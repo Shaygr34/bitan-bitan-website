@@ -48,20 +48,21 @@ const FALLBACK_ARTICLES = [
 ] as const;
 
 interface KnowledgePageProps {
-  searchParams: Promise<{ category?: string; page?: string }>
+  searchParams: Promise<{ category?: string; page?: string; sub?: string }>
 }
 
 export default async function KnowledgePage({ searchParams }: KnowledgePageProps) {
   const params = await searchParams
   const activeCategory = params.category ?? ''
+  const directOnly = params.sub === 'direct'
   const currentPage = Math.max(1, parseInt(params.page ?? '1', 10) || 1)
   const start = (currentPage - 1) * PAGE_SIZE
   const end = start + PAGE_SIZE
 
   const [categories, articles, totalCount, allArticles, parentCategories] = await Promise.all([
     getCategories(),
-    getFilteredArticles(activeCategory, start, end),
-    getArticleCount(activeCategory),
+    getFilteredArticles(activeCategory, start, end, directOnly),
+    getArticleCount(activeCategory, directOnly),
     getArticles(),
     getParentCategories(),
   ])
@@ -113,6 +114,7 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
       <CategoryPills
         categories={categories ?? []}
         activeCategory={activeCategory}
+        directOnly={directOnly}
       />
 
       {/* Articles grid */}
@@ -130,6 +132,7 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
                   currentPage={currentPage}
                   totalPages={totalPages}
                   activeCategory={activeCategory}
+                  directOnly={directOnly}
                 />
               </>
             ) : (

@@ -7,11 +7,13 @@ interface PaginationProps {
   currentPage: number
   totalPages: number
   activeCategory: string
+  directOnly?: boolean
 }
 
-function buildHref(page: number, category: string): string {
+function buildHref(page: number, category: string, directOnly?: boolean): string {
   const params = new URLSearchParams()
   if (category) params.set('category', category)
+  if (directOnly) params.set('sub', 'direct')
   if (page > 1) params.set('page', String(page))
   const qs = params.toString()
   return qs ? `/knowledge?${qs}` : '/knowledge'
@@ -38,7 +40,7 @@ function getPageNumbers(current: number, total: number): (number | null)[] {
   return pages
 }
 
-export function Pagination({ currentPage, totalPages, activeCategory }: PaginationProps) {
+export function Pagination({ currentPage, totalPages, activeCategory, directOnly }: PaginationProps) {
   if (totalPages <= 1) return null
 
   const pages = getPageNumbers(currentPage, totalPages)
@@ -48,7 +50,7 @@ export function Pagination({ currentPage, totalPages, activeCategory }: Paginati
       {/* Next page (RTL: chevron-right goes forward) */}
       {currentPage < totalPages ? (
         <Link
-          href={buildHref(currentPage + 1, activeCategory)}
+          href={buildHref(currentPage + 1, activeCategory, directOnly)}
           className="p-2 rounded-lg text-text-secondary hover:bg-surface transition-colors"
           aria-label="עמוד הבא"
         >
@@ -68,7 +70,7 @@ export function Pagination({ currentPage, totalPages, activeCategory }: Paginati
         ) : (
           <Link
             key={page}
-            href={buildHref(page, activeCategory)}
+            href={buildHref(page, activeCategory, directOnly)}
             className={[
               'min-w-[36px] h-9 flex items-center justify-center rounded-lg text-body-sm font-medium transition-colors',
               page === currentPage
@@ -85,7 +87,7 @@ export function Pagination({ currentPage, totalPages, activeCategory }: Paginati
       {/* Previous page (RTL: chevron-left goes back) */}
       {currentPage > 1 ? (
         <Link
-          href={buildHref(currentPage - 1, activeCategory)}
+          href={buildHref(currentPage - 1, activeCategory, directOnly)}
           className="p-2 rounded-lg text-text-secondary hover:bg-surface transition-colors"
           aria-label="עמוד קודם"
         >

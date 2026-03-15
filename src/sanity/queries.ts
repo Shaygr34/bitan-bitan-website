@@ -170,12 +170,29 @@ const FILTERED_ARTICLES_QUERY = `*[_type == "article" && (
   author->{ name }
 }`
 
+/** Direct-only: articles assigned directly to this category (not via parent→child) */
+const FILTERED_ARTICLES_DIRECT_QUERY = `*[_type == "article" &&
+  category->slug.current == $categorySlug
+] | order(publishedAt desc) [$start...$end] {
+  _id,
+  title,
+  slug,
+  excerpt,
+  publishedAt,
+  contentType,
+  mainImage,
+  category->{ _id, title, slug },
+  author->{ name }
+}`
+
 export async function getFilteredArticles(
   categorySlug: string,
   start: number,
   end: number,
+  directOnly = false,
 ): Promise<ArticleCard[]> {
-  return sanityFetch<ArticleCard[]>(FILTERED_ARTICLES_QUERY, {
+  const query = directOnly ? FILTERED_ARTICLES_DIRECT_QUERY : FILTERED_ARTICLES_QUERY
+  return sanityFetch<ArticleCard[]>(query, {
     categorySlug,
     start,
     end,
@@ -190,8 +207,13 @@ const ARTICLE_COUNT_QUERY = `count(*[_type == "article" && (
   category->parent->slug.current == $categorySlug
 )])`
 
-export async function getArticleCount(categorySlug: string): Promise<number> {
-  return sanityFetch<number>(ARTICLE_COUNT_QUERY, { categorySlug })
+const ARTICLE_COUNT_DIRECT_QUERY = `count(*[_type == "article" &&
+  category->slug.current == $categorySlug
+])`
+
+export async function getArticleCount(categorySlug: string, directOnly = false): Promise<number> {
+  const query = directOnly ? ARTICLE_COUNT_DIRECT_QUERY : ARTICLE_COUNT_QUERY
+  return sanityFetch<number>(query, { categorySlug })
 }
 
 /* ─── Single Article ─── */
