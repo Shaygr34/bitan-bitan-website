@@ -19,7 +19,7 @@ const PUBLIC_DIR = '/Users/shay/bitan-bitan-website/public/team'
 const PROMPT = `Transform this transparent-background headshot into a polished, professional corporate portrait photo.
 
 Requirements:
-- Add a smooth, elegant gradient background: deep navy blue (#102040) transitioning to a slightly lighter navy (#1B2A4A)
+- Add a smooth, neutral grey gradient background — medium grey center fading to slightly darker grey edges, like a classic studio backdrop
 - Apply subtle, natural studio lighting — soft key light from the upper right, gentle fill light
 - Add very subtle warm color correction for healthy, natural skin tones
 - Keep the person exactly as they are — do NOT alter facial features, hair, or expression
