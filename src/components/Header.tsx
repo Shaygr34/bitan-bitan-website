@@ -81,14 +81,23 @@ export function Header() {
           .join(' ')}
       >
         <div className="max-w-content mx-auto h-full px-6 flex items-center justify-between">
-          {/* Logo — right side (RTL: first in DOM = right) */}
-          <Link href="/" className="shrink-0">
+          {/* Logo — right side (RTL: first in DOM = right)
+              Both logos rendered, crossfade via opacity to prevent layout shift */}
+          <Link href="/" className="shrink-0 relative w-[130px] md:w-[160px] h-[35px] md:h-[43px]">
             <Image
-              src={navBlurred ? '/logo-light.png' : '/logo-header.png'}
+              src="/logo-header.png"
               alt="ביטן את ביטן — רואי חשבון"
-              width={160}
-              height={43}
-              className="w-[130px] md:w-[160px] h-auto transition-opacity duration-500"
+              fill
+              className={`object-contain object-right transition-opacity duration-500 ${navBlurred ? 'opacity-0' : 'opacity-100'}`}
+              sizes="160px"
+              priority
+            />
+            <Image
+              src="/logo-light.png"
+              alt="ביטן את ביטן — רואי חשבון"
+              fill
+              className={`object-contain object-right transition-opacity duration-500 ${navBlurred ? 'opacity-100' : 'opacity-0'}`}
+              sizes="160px"
               priority
             />
           </Link>

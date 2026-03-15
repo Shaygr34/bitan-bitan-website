@@ -107,7 +107,7 @@ export function Footer() {
           {/* Column 2: Nav links */}
           <div>
             <p className="text-primary font-bold text-body mb-space-3">ניווט</p>
-            <ul className="space-y-space-2">
+            <ul className="gold-bullet space-y-space-2">
               {NAV_LINKS.map(({ label, href }) => (
                 <li key={href}>
                   <Link
@@ -124,7 +124,7 @@ export function Footer() {
           {/* Column 3: Legal links + Social */}
           <div>
             <p className="text-primary font-bold text-body mb-space-3">מידע משפטי</p>
-            <ul className="space-y-space-2">
+            <ul className="gold-bullet space-y-space-2">
               {LEGAL_LINKS.map(({ label, href }) => (
                 <li key={href}>
                   <Link

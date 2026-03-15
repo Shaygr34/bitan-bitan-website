@@ -115,6 +115,25 @@
   transform-origin: right; /* RTL: grow from right */
 }
 
+/* ─── Gold diamond bullet points ─── */
+.gold-bullet li,
+.prose ul li {
+  list-style: none;
+  position: relative;
+  padding-inline-start: 1rem;
+}
+.gold-bullet li::before,
+.prose ul li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-gold);
+  transform: rotate(45deg);
+}
+
 /* WhatsApp floating button pulse glow */
 @keyframes whatsapp-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }

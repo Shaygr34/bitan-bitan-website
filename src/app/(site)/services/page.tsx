@@ -141,10 +141,9 @@ export default async function ServicesPage() {
                       </CardHeader>
                       <CardBody>
                         <p className="text-text-secondary text-body mb-space-4">{description}</p>
-                        <ul className="space-y-2">
+                        <ul className="gold-bullet space-y-2">
                           {details.map((detail) => (
-                            <li key={detail} className="flex items-start gap-2 text-body-sm text-text-secondary">
-                              <span className="text-gold mt-1 shrink-0">●</span>
+                            <li key={detail} className="text-body-sm text-text-secondary">
                               {detail}
                             </li>
                           ))}

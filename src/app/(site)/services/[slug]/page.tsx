@@ -144,11 +144,10 @@ export default async function ServiceDetailPage({ params }: Props) {
         <section className="py-space-9 px-6">
           <div className="max-w-narrow mx-auto">
             <SectionHeader>למי השירות מתאים?</SectionHeader>
-            <ul className="mt-space-6 space-y-space-3">
+            <ul className="gold-bullet mt-space-6 space-y-space-3">
               {service.targetAudience.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="shrink-0 w-2 h-2 rounded-full bg-gold mt-2.5" />
-                  <span className="text-text-secondary text-body">{item}</span>
+                <li key={i} className="text-text-secondary text-body">
+                  {item}
                 </li>
               ))}
             </ul>
