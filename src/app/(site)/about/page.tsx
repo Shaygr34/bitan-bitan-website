@@ -117,9 +117,11 @@ export default async function AboutPage() {
       {/* 3. Partners */}
       <RevealSection className="bg-surface py-space-10 px-6">
         <div className="max-w-content mx-auto">
-          <SectionHeader centered>{page?.partnersTitle ?? 'השותפים'}</SectionHeader>
+          <SectionHeader centered subtitle="המייסדים שמובילים את המשרד.">
+            {page?.partnersTitle ?? 'השותפים המייסדים'}
+          </SectionHeader>
 
-          <RevealGroup className="grid md:grid-cols-2 gap-space-7 mt-space-8 max-w-[800px] mx-auto">
+          <RevealGroup className="grid md:grid-cols-2 gap-space-7 mt-space-8 max-w-[900px] mx-auto">
             {(partners.length > 0 ? partners : FALLBACK_PARTNERS).map(
               (partner) => (
                 <RevealItem key={partner._id}>
@@ -319,29 +321,32 @@ export default async function AboutPage() {
 /* ─── Partner Card ─── */
 
 function PartnerCard({ partner }: { partner: Author }) {
-  const imageUrl = urlFor(partner.image, 400)
+  const imageUrl = urlFor(partner.image, 600)
 
   return (
-    <Card hover={false} className="overflow-hidden">
+    <div className="group bg-white rounded-2xl border border-border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-gold/30">
+      {/* Portrait photo — 3:4 aspect */}
       {imageUrl ? (
-        <div className="relative h-48 bg-primary/5 overflow-hidden -m-space-5 mb-0">
+        <div className="relative aspect-[3/4] bg-primary/5 overflow-hidden">
           <Image
             src={imageUrl}
             alt={partner.name}
             fill
-            className="object-cover object-top"
-            sizes="(max-width: 768px) 100vw, 400px"
+            className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+            sizes="(max-width: 768px) 100vw, 450px"
           />
         </div>
       ) : (
-        <div className="h-48 bg-gradient-to-br from-primary/10 to-gold/10 flex items-center justify-center -m-space-5 mb-0">
-          <User className="h-16 w-16 text-primary/30" />
+        <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-gold/5 flex items-center justify-center">
+          <User className="h-20 w-20 text-primary/20" />
         </div>
       )}
-      <CardBody className="pt-space-4">
+
+      {/* Info */}
+      <div className="p-space-5">
         <h3 className="text-h3 font-bold text-primary">{partner.name}</h3>
         {partner.role && (
-          <p className="text-gold font-medium text-body-sm mt-1">
+          <p className="text-gold font-semibold text-body-sm mt-1 tracking-wide">
             {partner.role}
           </p>
         )}
@@ -351,11 +356,11 @@ function PartnerCard({ partner }: { partner: Author }) {
           </p>
         )}
         {partner.specializations && partner.specializations.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-space-3">
+          <div className="flex flex-wrap gap-2 mt-space-4">
             {partner.specializations.map((spec) => (
               <span
                 key={spec}
-                className="text-caption bg-primary/5 text-primary px-2.5 py-1 rounded-full"
+                className="text-caption bg-primary/5 text-primary/80 px-3 py-1 rounded-full font-medium"
               >
                 {spec}
               </span>
@@ -363,12 +368,12 @@ function PartnerCard({ partner }: { partner: Author }) {
           </div>
         )}
         {partner.experienceYears && (
-          <p className="text-text-muted text-caption mt-space-3">
+          <p className="text-text-muted text-body-sm mt-space-3 font-medium">
             <LTR>{partner.experienceYears}+</LTR> שנות ניסיון
           </p>
         )}
-      </CardBody>
-    </Card>
+      </div>
+    </div>
   )
 }
 

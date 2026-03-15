@@ -1,8 +1,6 @@
 import Image from 'next/image'
 import {
   SectionHeader,
-  Card,
-  CardBody,
   RevealSection,
   RevealGroup,
   RevealItem,
@@ -30,50 +28,56 @@ export function TeamSection({ members, title, subtitle }: Props) {
           {title ?? 'הצוות שלנו'}
         </SectionHeader>
 
-        <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-5 mt-space-8 max-w-content mx-auto">
-          {members.map((member) => {
-            const imageUrl = urlFor(member.image, 300)
-            return (
-              <RevealItem key={member._id}>
-                <Card hover={false} className="h-full">
-                  <CardBody className="flex items-start gap-space-4">
-                    {imageUrl ? (
-                      <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0">
-                        <Image
-                          src={imageUrl}
-                          alt={member.name}
-                          fill
-                          className="object-cover"
-                          sizes="64px"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-gold/10 flex items-center justify-center shrink-0">
-                        <User className="h-7 w-7 text-primary/30" />
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <h3 className="text-body font-semibold text-primary">
-                        {member.name}
-                      </h3>
-                      {member.role && (
-                        <p className="text-caption text-gold font-medium mt-0.5">
-                          {member.role}
-                        </p>
-                      )}
-                      {member.bio && (
-                        <p className="text-caption text-text-muted mt-1.5 leading-relaxed">
-                          {member.bio}
-                        </p>
-                      )}
-                    </div>
-                  </CardBody>
-                </Card>
-              </RevealItem>
-            )
-          })}
+        <RevealGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-space-5 mt-space-8 max-w-content mx-auto">
+          {members.map((member) => (
+            <RevealItem key={member._id}>
+              <TeamMemberCard member={member} />
+            </RevealItem>
+          ))}
         </RevealGroup>
       </div>
     </RevealSection>
+  )
+}
+
+function TeamMemberCard({ member }: { member: TeamMember }) {
+  const imageUrl = urlFor(member.image, 400)
+
+  return (
+    <div className="group bg-white rounded-2xl border border-border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-gold/30">
+      {/* Photo */}
+      {imageUrl ? (
+        <div className="relative aspect-[3/4] bg-primary/5 overflow-hidden">
+          <Image
+            src={imageUrl}
+            alt={member.name}
+            fill
+            className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        </div>
+      ) : (
+        <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-gold/5 flex items-center justify-center">
+          <User className="h-16 w-16 text-primary/20" />
+        </div>
+      )}
+
+      {/* Info */}
+      <div className="p-space-4">
+        <h3 className="text-body font-bold text-primary leading-tight">
+          {member.name}
+        </h3>
+        {member.role && (
+          <p className="text-caption text-gold font-semibold mt-1 tracking-wide">
+            {member.role}
+          </p>
+        )}
+        {member.bio && (
+          <p className="text-caption text-text-muted mt-2 leading-relaxed line-clamp-3">
+            {member.bio}
+          </p>
+        )}
+      </div>
+    </div>
   )
 }
