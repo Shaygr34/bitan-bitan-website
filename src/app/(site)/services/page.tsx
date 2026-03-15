@@ -10,6 +10,9 @@ import {
   PhoneCTA,
   Accordion,
   AccordionItem,
+  RevealSection,
+  RevealGroup,
+  RevealItem,
 } from "@/components/ui";
 import {
   Calculator,
@@ -102,7 +105,7 @@ export default async function ServicesPage() {
     <div>
       {/* Hero */}
       <section className="bg-primary py-space-9 px-6">
-        <div className="max-w-content mx-auto">
+        <div className="max-w-content mx-auto hero-animate">
           <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
             <Breadcrumb items={[{ label: 'שירותים' }]} />
           </div>
@@ -116,40 +119,46 @@ export default async function ServicesPage() {
       </section>
 
       {/* Services grid */}
-      <section className="py-space-9 px-6">
+      <RevealSection className="py-space-9 px-6">
         <div className="max-w-content mx-auto">
-          <div className="grid md:grid-cols-2 gap-space-6">
+          <RevealGroup className="grid md:grid-cols-2 gap-space-6">
             {hasData
-              ? services.map((svc) => <ServiceCard key={svc._id} service={svc} />)
+              ? services.map((svc) => (
+                  <RevealItem key={svc._id}>
+                    <ServiceCard service={svc} />
+                  </RevealItem>
+                ))
               : FALLBACK_SERVICES.map(({ icon: Icon, title, description, details }) => (
-                  <Card key={title} hover={false}>
-                    <CardHeader>
-                      <div className="flex items-center gap-space-3">
-                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <Icon className="h-6 w-6 text-primary" />
+                  <RevealItem key={title}>
+                    <Card hover={false}>
+                      <CardHeader>
+                        <div className="flex items-center gap-space-3">
+                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Icon className="h-6 w-6 text-primary" />
+                          </div>
+                          <h2 className="text-h3 font-bold text-primary">{title}</h2>
                         </div>
-                        <h2 className="text-h3 font-bold text-primary">{title}</h2>
-                      </div>
-                    </CardHeader>
-                    <CardBody>
-                      <p className="text-text-secondary text-body mb-space-4">{description}</p>
-                      <ul className="space-y-2">
-                        {details.map((detail) => (
-                          <li key={detail} className="flex items-start gap-2 text-body-sm text-text-secondary">
-                            <span className="text-gold mt-1 shrink-0">●</span>
-                            {detail}
-                          </li>
-                        ))}
-                      </ul>
-                    </CardBody>
-                  </Card>
+                      </CardHeader>
+                      <CardBody>
+                        <p className="text-text-secondary text-body mb-space-4">{description}</p>
+                        <ul className="space-y-2">
+                          {details.map((detail) => (
+                            <li key={detail} className="flex items-start gap-2 text-body-sm text-text-secondary">
+                              <span className="text-gold mt-1 shrink-0">●</span>
+                              {detail}
+                            </li>
+                          ))}
+                        </ul>
+                      </CardBody>
+                    </Card>
+                  </RevealItem>
                 ))}
-          </div>
+          </RevealGroup>
         </div>
-      </section>
+      </RevealSection>
 
       {/* Process */}
-      <section className="bg-surface py-space-9 px-6">
+      <RevealSection className="bg-surface py-space-9 px-6">
         <div className="max-w-content mx-auto">
           <SectionHeader centered subtitle="תהליך פשוט ושקוף — מהפנייה הראשונה ועד שירות שוטף.">
             איך מתחילים?
@@ -176,7 +185,7 @@ export default async function ServicesPage() {
             </Accordion>
           </div>
         </div>
-      </section>
+      </RevealSection>
 
       {/* Trust Module */}
       <TrustModule showProcess={false} showCTA={false} />

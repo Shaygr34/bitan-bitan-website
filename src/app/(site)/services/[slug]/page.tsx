@@ -67,7 +67,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     <div>
       {/* Hero */}
       <section className="bg-primary py-space-9 px-6">
-        <div className="max-w-content mx-auto">
+        <div className="max-w-content mx-auto hero-animate">
           <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
             <Breadcrumb items={[
               { label: 'שירותים', href: '/services' },
