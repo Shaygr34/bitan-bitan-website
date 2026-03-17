@@ -315,7 +315,7 @@ async function generateImages() {
 
     try {
       const response = await ai.models.generateImages({
-        model: 'imagen-3.0-generate-002',
+        model: 'imagen-4.0-fast-generate-001',
         prompt: page.imagePrompt,
         config: {
           numberOfImages: 1,
