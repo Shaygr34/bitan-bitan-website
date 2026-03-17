@@ -1,17 +1,4 @@
 import { defineField, defineType } from 'sanity'
-import { createElement, type ReactNode } from 'react'
-
-/* ─── Color decorator components for Studio preview ─── */
-function colorDecorator(color: string, displayName: string) {
-  const Component = ({ children }: { children: ReactNode }) =>
-    createElement('span', { style: { color } }, children)
-  Component.displayName = displayName
-  return Component
-}
-const RedText = colorDecorator('#DC2626', 'RedText')
-const GoldText = colorDecorator('#C5A572', 'GoldText')
-const BlueText = colorDecorator('#2563EB', 'BlueText')
-const GreenText = colorDecorator('#16A34A', 'GreenText')
 
 export default defineType({
   name: 'article',
@@ -100,14 +87,27 @@ export default defineType({
         {
           type: 'block',
           marks: {
-            decorators: [
-              { title: 'Bold', value: 'strong' },
-              { title: 'Italic', value: 'em' },
-              { title: 'Underline', value: 'underline' },
-              { title: 'אדום', value: 'redText', icon: () => 'א', component: RedText },
-              { title: 'זהב', value: 'goldText', icon: () => 'ז', component: GoldText },
-              { title: 'כחול', value: 'blueText', icon: () => 'כ', component: BlueText },
-              { title: 'ירוק', value: 'greenText', icon: () => 'י', component: GreenText },
+            annotations: [
+              {
+                name: 'textColor',
+                title: 'צבע טקסט',
+                type: 'object',
+                fields: [
+                  defineField({
+                    name: 'color',
+                    title: 'צבע',
+                    type: 'string',
+                    options: {
+                      list: [
+                        { title: 'אדום — הדגשה/אזהרה', value: 'red' },
+                        { title: 'זהב — מותג', value: 'gold' },
+                        { title: 'כחול — הפניה', value: 'blue' },
+                        { title: 'ירוק — אישור', value: 'green' },
+                      ],
+                    },
+                  }),
+                ],
+              },
             ],
           },
         },

@@ -209,10 +209,15 @@ export default async function ArticlePage({ params }: Props) {
                 value={article.body}
                 components={{
                   marks: {
-                    redText: ({ children }) => <span className="text-red-600">{children}</span>,
-                    goldText: ({ children }) => <span style={{ color: '#C5A572' }}>{children}</span>,
-                    blueText: ({ children }) => <span className="text-blue-600">{children}</span>,
-                    greenText: ({ children }) => <span className="text-green-600">{children}</span>,
+                    textColor: ({ children, value }) => {
+                      const colorMap: Record<string, string> = {
+                        red: 'text-red-600',
+                        gold: 'text-[#C5A572]',
+                        blue: 'text-blue-600',
+                        green: 'text-green-600',
+                      }
+                      return <span className={colorMap[value?.color] || ''}>{children}</span>
+                    },
                   },
                 }}
               />
