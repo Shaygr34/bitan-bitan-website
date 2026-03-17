@@ -27,11 +27,12 @@ const nextConfig: NextConfig = {
       { source: '/cash-low', destination: '/knowledge', permanent: true },
 
       // ── חרבות ברזל (Iron Swords) old WP URLs → grants article ─
-      { source: '/מענק-חרבות-ברזל', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
-      { source: '/חרבות-ברזל', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
-      { source: '/מענקים-חרבות-ברזל', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
-      { source: '/מענק-חרבות-ברזל-לעסקים', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
-      { source: '/מלחמת-חרבות-ברזל', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      // Next.js requires percent-encoded sources for Hebrew URLs
+      { source: '/%D7%9E%D7%A2%D7%A0%D7%A7-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      { source: '/%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      { source: '/%D7%9E%D7%A2%D7%A0%D7%A7%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      { source: '/%D7%9E%D7%A2%D7%A0%D7%A7-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C-%D7%9C%D7%A2%D7%A1%D7%A7%D7%99%D7%9D', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      { source: '/%D7%9E%D7%9C%D7%97%D7%9E%D7%AA-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
 
       // ── Team bios → about ─────────────────────────────────────
       { source: '/avi_bitan', destination: '/about', permanent: true },
