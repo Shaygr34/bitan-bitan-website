@@ -92,6 +92,7 @@ export default defineType({
       name: 'body',
       title: 'תוכן',
       type: 'array',
+      validation: (rule) => rule.min(1).error('לא ניתן לפרסם מאמר ללא תוכן'),
       of: [
         {
           type: 'block',

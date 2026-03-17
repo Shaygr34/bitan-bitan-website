@@ -26,6 +26,13 @@ const nextConfig: NextConfig = {
       { source: '/car-tex', destination: '/knowledge', permanent: true },
       { source: '/cash-low', destination: '/knowledge', permanent: true },
 
+      // ── חרבות ברזל (Iron Swords) old WP URLs → grants article ─
+      { source: '/מענק-חרבות-ברזל', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      { source: '/חרבות-ברזל', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      { source: '/מענקים-חרבות-ברזל', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      { source: '/מענק-חרבות-ברזל-לעסקים', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+      { source: '/מלחמת-חרבות-ברזל', destination: '/knowledge/business-grants-operation-shaagat-haari-2026', permanent: true },
+
       // ── Team bios → about ─────────────────────────────────────
       { source: '/avi_bitan', destination: '/about', permanent: true },
       { source: '/ron_bitan', destination: '/about', permanent: true },
