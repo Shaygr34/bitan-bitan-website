@@ -39,7 +39,7 @@ function ArticlePreviewCard({ article }: { article: ArticleCard }) {
         )}
         <CardHeader className={imgUrl ? 'px-space-5 pt-space-4' : ''}>
           <span className="inline-block px-3 py-1 text-caption font-medium bg-primary/10 text-primary rounded-full">
-            {article.category?.title ?? 'כללי'}
+            {article.categories?.[0]?.title ?? 'כללי'}
           </span>
         </CardHeader>
         <CardBody className={imgUrl ? 'px-space-5' : ''}>

@@ -121,7 +121,12 @@ const CATEGORIES_QUERY = `*[_type == "category"] | order(order asc){
   description,
   order,
   "parent": parent->{_id, title, slug},
-  "articleCount": count(*[_type == "article" && (category._ref == ^._id || category->parent._ref == ^._id)])
+  "articleCount": count(*[_type == "article" && (
+    ^._id in categories[]._ref ||
+    category._ref == ^._id ||
+    ^._id in categories[]->parent._ref ||
+    category->parent._ref == ^._id
+  )])
 }`
 
 export async function getCategories(): Promise<Category[]> {
@@ -138,11 +143,11 @@ const ARTICLES_QUERY = `*[_type == "article"] | order(publishedAt desc){
   publishedAt,
   contentType,
   mainImage,
-  category->{
-    _id,
-    title,
-    slug
-  },
+  "categories": select(
+    defined(categories) && length(categories) > 0 => categories[]->{_id, title, slug},
+    defined(category) => [category->{_id, title, slug}],
+    []
+  ),
   "authors": select(
     defined(authors) && length(authors) > 0 => authors[]->{name},
     defined(author) => [author->{name}],
@@ -158,6 +163,8 @@ export async function getArticles(): Promise<ArticleCard[]> {
 
 const FILTERED_ARTICLES_QUERY = `*[_type == "article" && (
   $categorySlug == "" ||
+  $categorySlug in categories[]->slug.current ||
+  $categorySlug in categories[]->parent->slug.current ||
   category->slug.current == $categorySlug ||
   category->parent->slug.current == $categorySlug
 )] | order(publishedAt desc) [$start...$end] {
@@ -168,7 +175,11 @@ const FILTERED_ARTICLES_QUERY = `*[_type == "article" && (
   publishedAt,
   contentType,
   mainImage,
-  category->{ _id, title, slug },
+  "categories": select(
+    defined(categories) && length(categories) > 0 => categories[]->{_id, title, slug},
+    defined(category) => [category->{_id, title, slug}],
+    []
+  ),
   "authors": select(
     defined(authors) && length(authors) > 0 => authors[]->{name},
     defined(author) => [author->{name}],
@@ -177,9 +188,10 @@ const FILTERED_ARTICLES_QUERY = `*[_type == "article" && (
 }`
 
 /** Direct-only: articles assigned directly to this category (not via parent→child) */
-const FILTERED_ARTICLES_DIRECT_QUERY = `*[_type == "article" &&
+const FILTERED_ARTICLES_DIRECT_QUERY = `*[_type == "article" && (
+  $categorySlug in categories[]->slug.current ||
   category->slug.current == $categorySlug
-] | order(publishedAt desc) [$start...$end] {
+)] | order(publishedAt desc) [$start...$end] {
   _id,
   title,
   slug,
@@ -187,7 +199,11 @@ const FILTERED_ARTICLES_DIRECT_QUERY = `*[_type == "article" &&
   publishedAt,
   contentType,
   mainImage,
-  category->{ _id, title, slug },
+  "categories": select(
+    defined(categories) && length(categories) > 0 => categories[]->{_id, title, slug},
+    defined(category) => [category->{_id, title, slug}],
+    []
+  ),
   "authors": select(
     defined(authors) && length(authors) > 0 => authors[]->{name},
     defined(author) => [author->{name}],
@@ -213,13 +229,16 @@ export async function getFilteredArticles(
 
 const ARTICLE_COUNT_QUERY = `count(*[_type == "article" && (
   $categorySlug == "" ||
+  $categorySlug in categories[]->slug.current ||
+  $categorySlug in categories[]->parent->slug.current ||
   category->slug.current == $categorySlug ||
   category->parent->slug.current == $categorySlug
 )])`
 
-const ARTICLE_COUNT_DIRECT_QUERY = `count(*[_type == "article" &&
+const ARTICLE_COUNT_DIRECT_QUERY = `count(*[_type == "article" && (
+  $categorySlug in categories[]->slug.current ||
   category->slug.current == $categorySlug
-])`
+)])`
 
 export async function getArticleCount(categorySlug: string, directOnly = false): Promise<number> {
   const query = directOnly ? ARTICLE_COUNT_DIRECT_QUERY : ARTICLE_COUNT_QUERY
@@ -247,11 +266,11 @@ const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0]
     "size": asset->size,
     "originalFilename": asset->originalFilename
   },
-  category->{
-    _id,
-    title,
-    slug
-  },
+  "categories": select(
+    defined(categories) && length(categories) > 0 => categories[]->{_id, title, slug},
+    defined(category) => [category->{_id, title, slug}],
+    []
+  ),
   "authors": select(
     defined(authors) && length(authors) > 0 => authors[]->{name},
     defined(author) => [author->{name}],
@@ -270,18 +289,21 @@ export async function getArticleBySlug(slug: string): Promise<ArticleFull | null
 
 /* ─── Related Articles (same category, excluding current) ─── */
 
-const RELATED_ARTICLES_QUERY = `*[_type == "article" && category._ref == $categoryId && _id != $currentId] | order(publishedAt desc)[0...3]{
+const RELATED_ARTICLES_QUERY = `*[_type == "article" && (
+  $categoryId in categories[]._ref ||
+  category._ref == $categoryId
+) && _id != $currentId] | order(publishedAt desc)[0...3]{
   _id,
   title,
   slug,
   excerpt,
   publishedAt,
   mainImage,
-  category->{
-    _id,
-    title,
-    slug
-  },
+  "categories": select(
+    defined(categories) && length(categories) > 0 => categories[]->{_id, title, slug},
+    defined(category) => [category->{_id, title, slug}],
+    []
+  ),
   "authors": select(
     defined(authors) && length(authors) > 0 => authors[]->{name},
     defined(author) => [author->{name}],

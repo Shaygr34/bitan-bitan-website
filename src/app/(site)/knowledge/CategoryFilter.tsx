@@ -32,7 +32,7 @@ function formatDate(dateStr?: string): string {
 }
 
 export function ArticleCardComponent({ article }: { article: ArticleCard }) {
-  const catTitle = article.category?.title ?? 'כללי'
+  const catTitle = article.categories?.[0]?.title ?? 'כללי'
   const visual = CATEGORY_VISUALS[catTitle] ?? DEFAULT_VISUAL
   const Icon = visual.icon
   const imageUrl = urlFor(article.mainImage, 600)

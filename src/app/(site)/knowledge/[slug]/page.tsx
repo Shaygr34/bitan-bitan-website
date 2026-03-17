@@ -87,10 +87,12 @@ export default async function ArticlePage({ params }: Props) {
     notFound()
   }
 
+  const primaryCategory = article.categories?.[0]
+
   // Fetch related articles and parent categories in parallel
   const [relatedArticles, parentCategories] = await Promise.all([
-    article.category?._id
-      ? getRelatedArticles(article.category._id, article._id)
+    primaryCategory?._id
+      ? getRelatedArticles(primaryCategory._id, article._id)
       : Promise.resolve([]),
     getParentCategories(),
   ])
@@ -147,10 +149,10 @@ export default async function ArticlePage({ params }: Props) {
                 {authorNames.join(', ')}
               </span>
             )}
-            {article.category?.title && (
+            {article.categories && article.categories.length > 0 && (
               <span className="flex items-center gap-1.5">
                 <Tag className="h-4 w-4" />
-                {article.category.title}
+                {article.categories.map(c => c.title).join(', ')}
               </span>
             )}
             {difficultyInfo && (
@@ -209,6 +211,19 @@ export default async function ArticlePage({ params }: Props) {
                 value={article.body}
                 components={{
                   marks: {
+                    link: ({ children, value }) => {
+                      const href = value?.href || ''
+                      const isExternal = href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
+                      return (
+                        <a
+                          href={href}
+                          {...(isExternal || value?.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                          className="text-gold underline hover:text-gold-hover transition-colors"
+                        >
+                          {children}
+                        </a>
+                      )
+                    },
                     textColor: ({ children, value }) => {
                       const colorMap: Record<string, string> = {
                         red: 'text-red-600',
@@ -351,7 +366,7 @@ export default async function ArticlePage({ params }: Props) {
       <div className="max-w-narrow mx-auto px-6 mb-space-8">
         <NewsletterSignup
           categories={parentCategories}
-          preSelectedCategoryId={article.category?._id}
+          preSelectedCategoryId={primaryCategory?._id}
         />
       </div>
 

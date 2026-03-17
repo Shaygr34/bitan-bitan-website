@@ -43,10 +43,19 @@ export default defineType({
       hidden: true,
     }),
     defineField({
+      name: 'categories',
+      title: 'קטגוריות',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'category' }] }],
+      validation: (rule) => rule.min(1).error('נדרשת לפחות קטגוריה אחת'),
+    }),
+    /* Deprecated — kept for backward compatibility with old articles */
+    defineField({
       name: 'category',
-      title: 'קטגוריה',
+      title: 'קטגוריה (ישן)',
       type: 'reference',
       to: [{ type: 'category' }],
+      hidden: true,
     }),
     defineField({
       name: 'tags',
@@ -88,6 +97,30 @@ export default defineType({
           type: 'block',
           marks: {
             annotations: [
+              {
+                name: 'link',
+                title: 'קישור',
+                type: 'object',
+                fields: [
+                  defineField({
+                    name: 'href',
+                    title: 'כתובת URL',
+                    type: 'url',
+                    description: 'קישור חיצוני (https://...) או פנימי (/knowledge/...)',
+                    validation: (rule) =>
+                      rule.uri({
+                        allowRelative: true,
+                        scheme: ['http', 'https', 'mailto', 'tel'],
+                      }),
+                  }),
+                  defineField({
+                    name: 'openInNewTab',
+                    title: 'פתח בלשונית חדשה',
+                    type: 'boolean',
+                    initialValue: false,
+                  }),
+                ],
+              },
               {
                 name: 'textColor',
                 title: 'צבע טקסט',

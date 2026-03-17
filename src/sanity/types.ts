@@ -221,6 +221,12 @@ export type SanityFileAsset = {
 
 /* ─── Article (listing) ─── */
 
+export type ArticleCategory = {
+  _id: string
+  title: string
+  slug: SanitySlug
+}
+
 export type ArticleCard = {
   _id: string
   title: string
@@ -228,11 +234,7 @@ export type ArticleCard = {
   excerpt?: string
   publishedAt?: string
   contentType?: 'article' | 'guide' | 'circular'
-  category?: {
-    _id: string
-    title: string
-    slug: SanitySlug
-  }
+  categories?: ArticleCategory[]
   mainImage?: SanityImage
   authors?: { name: string }[]
 }

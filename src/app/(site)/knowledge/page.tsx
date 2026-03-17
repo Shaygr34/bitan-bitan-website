@@ -76,7 +76,7 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
     title: a.title,
     slug: a.slug?.current ?? '',
     excerpt: a.excerpt ?? '',
-    categoryTitle: a.category?.title ?? '',
+    categoryTitle: a.categories?.[0]?.title ?? '',
   }))
 
   return (
