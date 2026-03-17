@@ -143,9 +143,11 @@ const ARTICLES_QUERY = `*[_type == "article"] | order(publishedAt desc){
     title,
     slug
   },
-  author->{
-    name
-  }
+  "authors": select(
+    defined(authors) && length(authors) > 0 => authors[]->{name},
+    defined(author) => [author->{name}],
+    []
+  )
 }`
 
 export async function getArticles(): Promise<ArticleCard[]> {
@@ -167,7 +169,11 @@ const FILTERED_ARTICLES_QUERY = `*[_type == "article" && (
   contentType,
   mainImage,
   category->{ _id, title, slug },
-  author->{ name }
+  "authors": select(
+    defined(authors) && length(authors) > 0 => authors[]->{name},
+    defined(author) => [author->{name}],
+    []
+  )
 }`
 
 /** Direct-only: articles assigned directly to this category (not via parent→child) */
@@ -182,7 +188,11 @@ const FILTERED_ARTICLES_DIRECT_QUERY = `*[_type == "article" &&
   contentType,
   mainImage,
   category->{ _id, title, slug },
-  author->{ name }
+  "authors": select(
+    defined(authors) && length(authors) > 0 => authors[]->{name},
+    defined(author) => [author->{name}],
+    []
+  )
 }`
 
 export async function getFilteredArticles(
@@ -242,9 +252,11 @@ const ARTICLE_BY_SLUG_QUERY = `*[_type == "article" && slug.current == $slug][0]
     title,
     slug
   },
-  author->{
-    name
-  },
+  "authors": select(
+    defined(authors) && length(authors) > 0 => authors[]->{name},
+    defined(author) => [author->{name}],
+    []
+  ),
   tags[]->{
     _id,
     title,
@@ -270,9 +282,11 @@ const RELATED_ARTICLES_QUERY = `*[_type == "article" && category._ref == $catego
     title,
     slug
   },
-  author->{
-    name
-  }
+  "authors": select(
+    defined(authors) && length(authors) > 0 => authors[]->{name},
+    defined(author) => [author->{name}],
+    []
+  )
 }`
 
 export async function getRelatedArticles(categoryId: string, currentId: string): Promise<ArticleCard[]> {

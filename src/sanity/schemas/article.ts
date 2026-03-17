@@ -1,4 +1,17 @@
 import { defineField, defineType } from 'sanity'
+import { createElement, type ReactNode } from 'react'
+
+/* ─── Color decorator components for Studio preview ─── */
+function colorDecorator(color: string, displayName: string) {
+  const Component = ({ children }: { children: ReactNode }) =>
+    createElement('span', { style: { color } }, children)
+  Component.displayName = displayName
+  return Component
+}
+const RedText = colorDecorator('#DC2626', 'RedText')
+const GoldText = colorDecorator('#C5A572', 'GoldText')
+const BlueText = colorDecorator('#2563EB', 'BlueText')
+const GreenText = colorDecorator('#16A34A', 'GreenText')
 
 export default defineType({
   name: 'article',
@@ -28,10 +41,19 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'authors',
+      title: 'כותבים',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'author' }] }],
+      validation: (rule) => rule.min(1).error('נדרש לפחות כותב אחד'),
+    }),
+    /* Deprecated — kept for backward compatibility with old articles */
+    defineField({
       name: 'author',
-      title: 'כותב',
+      title: 'כותב (ישן)',
       type: 'reference',
       to: [{ type: 'author' }],
+      hidden: true,
     }),
     defineField({
       name: 'category',
@@ -75,7 +97,20 @@ export default defineType({
       title: 'תוכן',
       type: 'array',
       of: [
-        { type: 'block' },
+        {
+          type: 'block',
+          marks: {
+            decorators: [
+              { title: 'Bold', value: 'strong' },
+              { title: 'Italic', value: 'em' },
+              { title: 'Underline', value: 'underline' },
+              { title: 'אדום', value: 'redText', icon: () => 'א', component: RedText },
+              { title: 'זהב', value: 'goldText', icon: () => 'ז', component: GoldText },
+              { title: 'כחול', value: 'blueText', icon: () => 'כ', component: BlueText },
+              { title: 'ירוק', value: 'greenText', icon: () => 'י', component: GreenText },
+            ],
+          },
+        },
         {
           type: 'image',
           options: { hotspot: true },
@@ -168,12 +203,18 @@ export default defineType({
   preview: {
     select: {
       title: 'title',
-      author: 'author.name',
+      author0: 'authors.0.name',
+      author1: 'authors.1.name',
+      legacyAuthor: 'author.name',
       media: 'mainImage',
     },
     prepare(selection) {
-      const { author } = selection
-      return { ...selection, subtitle: author && `מאת ${author}` }
+      const { title, author0, author1, legacyAuthor, media } = selection
+      const authorName = author0 || legacyAuthor
+      const subtitle = authorName
+        ? `מאת ${authorName}${author1 ? ` ועוד` : ''}`
+        : undefined
+      return { title, subtitle, media }
     },
   },
 })

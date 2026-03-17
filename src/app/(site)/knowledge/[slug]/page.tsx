@@ -96,6 +96,7 @@ export default async function ArticlePage({ params }: Props) {
   ])
 
   const articleImageUrl = urlFor(article.mainImage, 1200)
+  const authorNames = article.authors?.filter(a => a?.name).map(a => a.name) ?? []
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -103,8 +104,8 @@ export default async function ArticlePage({ params }: Props) {
     ...(article.excerpt ? { description: article.excerpt } : {}),
     ...(articleImageUrl ? { image: articleImageUrl } : {}),
     ...(article.publishedAt ? { datePublished: article.publishedAt } : {}),
-    ...(article.author?.name
-      ? { author: { '@type': 'Person', name: article.author.name } }
+    ...(authorNames.length > 0
+      ? { author: authorNames.map(name => ({ '@type': 'Person', name })) }
       : {}),
     publisher: {
       '@type': 'Organization',
@@ -140,10 +141,10 @@ export default async function ArticlePage({ params }: Props) {
                 {formatDate(article.publishedAt)}
               </span>
             )}
-            {article.author?.name && (
+            {authorNames.length > 0 && (
               <span className="flex items-center gap-1.5">
                 <User className="h-4 w-4" />
-                {article.author.name}
+                {authorNames.join(', ')}
               </span>
             )}
             {article.category?.title && (
@@ -204,7 +205,17 @@ export default async function ArticlePage({ params }: Props) {
 
           {article.body && article.body.length > 0 ? (
             <div className="prose prose-lg max-w-none text-text-secondary leading-relaxed space-y-4 [&_h2]:text-h3 [&_h2]:font-bold [&_h2]:text-primary [&_h2]:mt-space-8 [&_h2]:mb-space-4 [&_h3]:text-h4 [&_h3]:font-semibold [&_h3]:text-primary [&_h3]:mt-space-6 [&_h3]:mb-space-3 [&_ul]:space-y-2 [&_ul]:ps-5 [&_li]:text-body [&_strong]:text-primary [&_a]:text-gold [&_a]:hover:text-gold-hover [&_blockquote]:border-s-4 [&_blockquote]:border-gold [&_blockquote]:ps-space-4 [&_blockquote]:italic [&_blockquote]:text-text-muted">
-              <PortableText value={article.body} />
+              <PortableText
+                value={article.body}
+                components={{
+                  marks: {
+                    redText: ({ children }) => <span className="text-red-600">{children}</span>,
+                    goldText: ({ children }) => <span style={{ color: '#C5A572' }}>{children}</span>,
+                    blueText: ({ children }) => <span className="text-blue-600">{children}</span>,
+                    greenText: ({ children }) => <span className="text-green-600">{children}</span>,
+                  },
+                }}
+              />
             </div>
           ) : (
             <p className="text-text-muted text-body text-center py-space-8">

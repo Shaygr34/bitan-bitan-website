@@ -9,7 +9,7 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V3.5 — March 11, 2026)
+## Current State (V3.6 — March 15, 2026)
 
 ### Content
 - 80 articles in Sanity — ALL with AI-generated images (100% coverage)
@@ -18,12 +18,12 @@ CMS: Sanity project ul4uwnp7, dataset production
   - 7 unmatched articles not found in WP (skipped — may be from different WP site)
 - 28+ FAQs with client-side search bar
 - 11 services — unique body content, all enriched with processSteps, targetAudience, faqs, ALL with AI-generated header images
-- 7 parent categories + 10 subcategories — two-row filter UI with mobile fade gradients
+- 7 parent categories + 10 subcategories — two-row filter UI with "כללי" pill for uncategorized parent articles, mobile fade gradients
 - 124 redirects in next.config.ts (old WP URLs → new articles + catch-alls)
 - Elfsight All-in-One Reviews widget on homepage (Google + Facebook reviews)
 - 14 testimonial docs in Sanity (backup, not rendered — Elfsight replaced them)
 - Client logo conveyor belt — hidden when no real logos exist (returns null), real logos pending
-- Newsletter signup collecting to Sanity (compact on /knowledge, full on /knowledge/[slug])
+- Newsletter signup collecting to Sanity (compact on /knowledge, full on /knowledge/[slug]), defaults to all categories selected
 
 ### Newsletter System
 - Summit CRM (app.sumit.co.il) handles email distribution
@@ -58,10 +58,12 @@ CMS: Sanity project ul4uwnp7, dataset production
 - All high-value articles already migrated
 
 ### Site Features
-- Knowledge Center: server-side filtering (URL params), subcategory drill-down, client-side search, pagination 12/page
+- Knowledge Center: server-side filtering (URL params), subcategory drill-down with "כללי" pill (?sub=direct), client-side search, pagination 12/page
 - PDF download system: downloadableFile + contentType fields, gold download button on article page, badges on cards
 - About page: fully CMS-editable (13 fields) — no hardcoded Hebrew
-- Trust bar: 30+ שנות ניסיון · דור שני · רו"ח + משפטנים · תל אביב
+- About page team: 3:4 portrait cards with rounded-2xl, partner/team hierarchy, hover zoom effect
+- Team photos: 10 members with AI-generated headshots (rembg → Gemini grey gradient backgrounds)
+- Trust bar: 30+ שנות ניסיון · דור שני · רו"ח + משפטנים · תל אביב (with animated counters)
 - Homepage scroll journey: Hero → TrustBar → Services → About → Process → Testimonials (Elfsight) → Knowledge Preview → TrustModule → FAQ → CTA → Footer
 - Branded OG image (1200x630) generated with sharp + real logo
 - All tel: links use +972 international format
@@ -71,6 +73,15 @@ CMS: Sanity project ul4uwnp7, dataset production
 - ISR 300s + Sanity webhook revalidation working
 - CMS fully editable in Sanity Studio at /studio
 - Logo hosted at: https://bitan-bitan-website-production.up.railway.app/logo-light.png (white+gold on transparent, for dark bg)
+
+### UX Polish (V3.6)
+- Floating WhatsApp button: fixed bottom-left, green pulse glow, respects mobile CTA bar
+- Navbar blur transition: glass morphism at 80px scroll, logo crossfade (dark→light), nav text color swap
+- Page transitions: CSS `key={pathname}` remount, 400ms fade+slide entrance
+- Hero stagger animations: CSS-only `nth-child` delays on all subpage heroes (8 pages)
+- Scroll reveal animations: RevealSection/RevealGroup/RevealItem (Framer Motion whileInView)
+- Gold diamond bullet points: CSS `::before` pseudo-elements on footer, services, prose content
+- Logo crossfade: both logos rendered absolutely, opacity swap (no size jump — canvases matched)
 
 ## Schemas (15)
 article (with downloadableFile/contentType) · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber
@@ -105,12 +116,19 @@ article (with downloadableFile/contentType) · author · category (with parent s
 - src/app/api/newsletter/route.ts — POST handler (email validation, dupe check, Sanity create)
 - src/lib/analytics.ts — GA4 event helpers including trackKnowledgeSearch, trackNewsletterSignup
 - src/lib/site-url.ts — Canonical URL resolution (auto-prefixes https://)
-- src/components/TeamSection.tsx — Team members grid on About page (accepts title/subtitle props)
+- src/components/TeamSection.tsx — Team members grid on About page (3:4 portrait cards, accepts title/subtitle props)
+- src/components/WhatsAppButton.tsx — Floating WhatsApp button with pulse glow
+- src/components/PageTransition.tsx — Global page entrance animation (key={pathname} remount)
+- src/components/AnimatedCounter.tsx — Number counter with ease-out curve, triggered by useInView
+- src/components/FadeIn.tsx — Lightweight scroll fade-in wrapper (useInView + CSS transition)
+- src/hooks/useInView.ts — IntersectionObserver hook (threshold, triggerOnce, rootMargin)
 - src/app/(site)/faq/FAQFilterable.tsx — Client-side FAQ search with debounce, PortableText text extraction
 - scripts/generate-article-images.mjs — Gemini image generation + Sanity upload
 - scripts/generate-service-images.mjs — Gemini service header image generation + Sanity upload
 - scripts/upload-pdf-articles.mjs — PDF upload + article creation script
 - scripts/migrate-batch2.mjs — WP REST API batch 2 migration (38 articles, 31 matched)
+- scripts/gemini-headshots-batch2.mjs — Gemini headshot generation (rembg → grey gradient portrait)
+- scripts/upload-team-photos.mjs — Upload team photos to Sanity + patch documents
 - scripts/generate-og-image.mjs — Branded OG image with sharp + real logo
 - assets/pdfs/ — 15 PDF guides/circulars (source files)
 - docs/wp-migration/batch2-raw-articles.json — Raw WP API data (195 posts)
@@ -141,9 +159,9 @@ Note: GOOGLE_AI_API_KEY set via env var when running image scripts, not stored i
 
 ## Known Issues
 - Contact form email doesn't send (Resend env vars missing)
-- Partner photos are placeholder silhouettes (pending from founders)
+- Partner photos are placeholder silhouettes (pending from founders to identify IMG numbers)
 - Client logos hidden (section returns null until real logos added)
-- Team member photos are placeholders (pending from firm)
+- Team member photos: 10/10 uploaded (AI-generated grey gradient headshots via Gemini)
 - Google Maps on /contact may show rejection if API key referrer not configured for domain
 - No tests, no CI/CD
 

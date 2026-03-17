@@ -234,9 +234,7 @@ export type ArticleCard = {
     slug: SanitySlug
   }
   mainImage?: SanityImage
-  author?: {
-    name: string
-  }
+  authors?: { name: string }[]
 }
 
 /* ─── Article (full) ─── */
