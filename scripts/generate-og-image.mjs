@@ -92,7 +92,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${
     font-size="26"
     fill="${GOLD}"
     direction="rtl"
-  >רואי חשבון ומשפטנים · ייעוץ מס · ליווי עסקי</text>
+  >רואי חשבון ומשפטנים · ייעוץ מיסוי · ליווי עסקי</text>
 </svg>`
 
 // Generate final image

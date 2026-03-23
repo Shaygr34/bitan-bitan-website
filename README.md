@@ -79,7 +79,7 @@ The script is idempotent — re-running it updates existing documents rather tha
 
 - **Authors:** אבי ביטן, רון ביטן
 - **Categories:** מס הכנסה, מע"מ, ביטוח לאומי, חברות, שכר
-- **Services:** ייעוץ מס, הנהלת חשבונות, דוחות כספיים, ביקורת חשבונות, ליווי עסקי, מיסוי בינלאומי, שכר ותנאים סוציאליים
+- **Services:** ייעוץ מיסוי, הנהלת חשבונות, דוחות כספיים, ביקורת חשבונות, ליווי עסקי, מיסוי בינלאומי, שכר ותנאים סוציאליים
 - **Site Settings:** site name, phone, WhatsApp (+972527221111), email, address, office hours
 
 ## Deployment (Railway)

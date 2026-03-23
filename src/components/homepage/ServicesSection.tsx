@@ -36,7 +36,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 }
 
 const FALLBACK_SERVICES = [
-  { icon: Calculator, title: 'ייעוץ מס', description: 'תכנון מס אסטרטגי ליחידים, חברות ועסקים — חיסכון מקסימלי במסגרת החוק.' },
+  { icon: Calculator, title: 'ייעוץ מיסוי', description: 'תכנון מס אסטרטגי ליחידים, חברות ועסקים — חיסכון מקסימלי במסגרת החוק.' },
   { icon: BookOpen, title: 'הנהלת חשבונות', description: 'ניהול ספרים מדויק ומקצועי, דיווחים תקופתיים ועמידה בדרישות רשויות המס.' },
   { icon: FileText, title: 'דוחות כספיים', description: 'הכנת דוחות כספיים שנתיים, דוחות מס הכנסה ודוחות מיוחדים בהתאם לתקנים.' },
   { icon: Shield, title: 'ביקורת חשבונות', description: 'שירותי ביקורת מקצועיים להבטחת דיוק ותקינות הדיווח הכספי של העסק.' },

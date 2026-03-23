@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: '%s | ביטן את ביטן',
     },
     description:
-      'משרד רואי חשבון ביטן את ביטן — ייעוץ מס, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי. תל אביב.',
+      'משרד רואי חשבון ביטן את ביטן — ייעוץ מיסוי, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי. תל אביב.',
     openGraph: {
       siteName: 'ביטן את ביטן — רואי חשבון',
       locale: 'he_IL',
@@ -48,7 +48,7 @@ function buildOrganizationJsonLd(s: {
   const name = s?.siteName ?? 'ביטן את ביטן — רואי חשבון'
   const description =
     s?.siteDescription ??
-    'משרד רואי חשבון המעניק שירותי ייעוץ מס, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי.'
+    'משרד רואי חשבון המעניק שירותי ייעוץ מיסוי, הנהלת חשבונות, דוחות כספיים וליווי עסקי מקצועי.'
   const phone = s?.phone ?? '03-5174295'
   const email = s?.email ?? 'office@bitancpa.com'
   const address = s?.address ?? 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב'

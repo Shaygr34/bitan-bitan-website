@@ -43,7 +43,7 @@ export function HeroSection({ headline, subtitle, footerNote }: HeroProps) {
           className="text-white/85 text-body-lg mt-space-5 max-w-narrow"
         >
           {subtitle ??
-            'משרד רואי חשבון ביטן את ביטן — רואי חשבון, יועצי מס ומשפטנים. ייעוץ מס, דוחות כספיים וליווי עסקי מקצועי.'}
+            'משרד רואי חשבון ביטן את ביטן — רואי חשבון, יועצי מיסוי ומשפטנים. ייעוץ מיסוי, דוחות כספיים וליווי עסקי מקצועי.'}
         </motion.p>
 
         <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mt-space-7">
@@ -60,7 +60,7 @@ export function HeroSection({ headline, subtitle, footerNote }: HeroProps) {
           variants={fadeIn}
           className="text-white/60 text-body-sm mt-space-5"
         >
-          {footerNote ?? 'רואי חשבון ומשפטנים · ייעוץ מס וליווי עסקי · תל אביב'}
+          {footerNote ?? 'רואי חשבון ומשפטנים · ייעוץ מיסוי וליווי עסקי · תל אביב'}
         </motion.p>
       </motion.div>
     </section>

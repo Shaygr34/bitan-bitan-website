@@ -23,7 +23,7 @@ export default defineType({
       name: 'heroFooterNote',
       title: 'שורת מידע (Hero)',
       type: 'string',
-      description: 'שורה קצרה בתחתית ההירו, למשל: "רואי חשבון ומשפטנים · ייעוץ מס וליווי עסקי · תל אביב"',
+      description: 'שורה קצרה בתחתית ההירו, למשל: "רואי חשבון ומשפטנים · ייעוץ מיסוי וליווי עסקי · תל אביב"',
     }),
 
     /* ─── Trust Bar ─── */
