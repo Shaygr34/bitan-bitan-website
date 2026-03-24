@@ -9,7 +9,7 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V3.7 — March 18, 2026)
+## Current State (V3.8 — March 24, 2026)
 
 ### Content
 - ~72 articles in Sanity — ALL with AI-generated images (100% coverage)
@@ -26,6 +26,26 @@ CMS: Sanity project ul4uwnp7, dataset production
 - 14 testimonial docs in Sanity (backup, not rendered — Elfsight replaced them)
 - Client logo conveyor belt — hidden when no real logos exist (returns null), real logos pending
 - Newsletter signup collecting to Sanity (compact on /knowledge, full on /knowledge/[slug]), defaults to all categories selected
+
+### Tools / Mini-Apps (V3.8 — NEW)
+- **`/tools` section**: New nav item "כלים", listing page, detail page with dynamic component mapping
+- **Leasing Simulator** (`/tools/leasing-simulator`): 5-step guided questionnaire → recommendation (ליסינג תפעולי / מימוני / רכישה)
+  - Scoring engine: 5-axis weighted model (businessType, period, priority, priceRange, downPayment)
+  - Cost estimates: monthly + total for all 3 options, tax notes per business type
+  - Price ranges calibrated to Israeli market 2026 (130K-400K+ segments, rates from market research)
+  - Pyramid layout for odd-numbered option sets, unified comparison table
+  - 100% client-side (`"use client"`) — no API calls, instant calculation
+  - CMS-editable via `configJson` field on tool document (rates, thresholds, interest rate)
+  - SEO content area below tool via `introBody` Portable Text
+- **Sanity schema**: `tool` type with toolType (maps to React component), configJson (JSON blob for rates), introBody, disclaimer, SEO
+- **Planned tools**: מענקי שאגת הארי simulator, מחשבון עלות מעסיק
+- **Architecture**: SSR page shell (metadata, SEO) + client component per tool type. Tool selection via `toolType` field → component map in `[slug]/page.tsx`
+
+### Schema Changes (V3.8)
+- **`tool` document type**: title, slug, toolType, configJson, introBody, disclaimer, SEO fields
+- **`contentType` on articles**: Added `form` (טופס + PDF) option — drives download button text + card badge
+- **`checklist` on articles**: Migrated from `array of [string]` to `array of [block]` with link annotations. Editors can now add hyperlinks in "מה לעשות עכשיו" items. Frontend backward-compatible with legacy strings via `typeof` check.
+- **Terminology**: All instances of ייעוץ מס / יועצי מס replaced with ייעוץ מיסוי / יועצי מיסוי across source code + Sanity CMS content
 
 ### Schema Changes (V3.7)
 - **Multi-category articles**: `categories` array field (was singular `category`). Old field hidden, GROQ uses `select()` fallback. Migration script: `scripts/migrate-categories.mjs`
@@ -87,8 +107,8 @@ CMS: Sanity project ul4uwnp7, dataset production
 - Gold diamond bullet points: CSS `::before` pseudo-elements on footer, services, prose content
 - Logo crossfade: both logos rendered absolutely, opacity swap (no size jump — canvases matched)
 
-## Schemas (15)
-article (with downloadableFile/contentType/categories[]/authors[]/body with link+textColor annotations) · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber
+## Schemas (16)
+article (with downloadableFile/contentType incl. form/categories[]/authors[]/body with link+textColor annotations/checklist with link annotations) · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber · **tool** (with toolType/configJson/introBody)
 
 ## Key Conventions
 - Server components default, 'use client' only for interactivity
@@ -146,6 +166,14 @@ article (with downloadableFile/contentType/categories[]/authors[]/body with link
 - outputs/newsletter-2-update.html — Professional update email template (multi-paragraph, editable)
 - outputs/newsletter-3-custom.html — Fully custom email template (free-form, bullet list, sign-off)
 - tailwind.config.ts — Full token integration + scroll-left/scroll-right keyframes
+- src/app/(site)/tools/page.tsx — Tools listing page (card grid)
+- src/app/(site)/tools/[slug]/page.tsx — Tool detail page (SSR shell + dynamic component)
+- src/components/tools/LeasingSimulator.tsx — Main wizard (5 steps + results)
+- src/components/tools/SimulatorStep.tsx — Reusable step card with pill buttons
+- src/components/tools/SimulatorResult.tsx — Recommendation card + comparison table + CTA
+- src/components/tools/leasing-logic.ts — Pure scoring engine + cost estimates (no React)
+- src/sanity/schemas/tool.ts — Tool document schema
+- scripts/migrate-checklist.mjs — Checklist string→block migration
 
 ## Env Vars (Railway)
 Set: NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET, SANITY_API_WRITE_TOKEN (note: Railway uses this name)
@@ -178,3 +206,89 @@ Note: GOOGLE_AI_API_KEY set via env var when running image scripts, not stored i
 ## Not In Scope
 No client login · No payments · No i18n
 Content Factory is a SEPARATE repo (apps/os-hub) — not this project
+
+## Session: March 22, 2026 — Economics + Analytics + Infrastructure Separation
+
+### Deliverables Produced
+
+1. **Economics Report (PDF)** — Hebrew branded report for Avi & Ron. Covers: monthly operating costs (~₪131/mo post-July excluding Summit), reimbursement to Shay (~₪148), and handoff plan for all services before July 2026. Delivered + printed.
+
+2. **Economics Master Spreadsheet (XLSX)** — 4 tabs: עלויות שוטפות, החזר הוצאות, תוכנית העברה, מעקב חודשי (blank tracker Apr 2026–Mar 2027). Formulas use 3.1 ₪/$ exchange rate.
+
+3. **Analytics Report (PDF)** — Hebrew branded report on first content campaign performance. V3 final with corrections from Claude Code data verification. Key findings:
+   - שאגת הארי article: 799 views, 581 users (main article alone)
+   - Combined with חל"ת article: 1,026 views
+   - Newsletter: 71% open rate (3x industry), 34% CTR (10x industry)
+   - 23 WhatsApp clicks (12 from grants article), 6 phone clicks
+   - Google organic: 71% of all traffic, position #1 for core queries
+   - Article got 116 views/day BEFORE newsletter was sent — organic flywheel works
+   - ~15,000 Google impressions/week for the site
+
+### GA4 API Access (NEW)
+
+- **Property ID**: 525595931
+- **Service Account**: bitan-analytics@bitan-ga4-reader.iam.gserviceaccount.com
+- **GCP Project**: bitan-ga4-reader (created under personal Gmail to bypass org policy)
+- **Credentials**: ~/ga4-credentials.json
+- **APIs enabled**: Analytics Data API, Search Console API
+- **Search Console**: Full access on sc-domain:bitancpa.com
+- **Note**: The bitancpa.com Google Workspace org enforces `iam.disableServiceAccountKeyCreation` — all service accounts must be created in projects outside that org.
+
+### Cost Structure (Locked)
+
+Monthly operating (post-July 2026, no Claude Max):
+- Railway Pro: $20/mo
+- Sanity Growth: $15/mo (1 seat)
+- GoDaddy: ₪80/yr (₪6.67/mo)
+- Anthropic API: ~$5/mo variable
+- Everything else: free tier (Cloudflare, GA4, GSC, GitHub, Resend)
+- Total: ~₪131/mo (~$42)
+- Summit CRM: ~₪9,000–9,500/mo (firm-owned, not in our scope)
+
+### July 2026 Handoff — Service Separation Plan
+
+All infrastructure must transfer to firm ownership before Shay leaves:
+- **Railway**: New workspace under ron@bitancpa.com — PENDING
+- **Sanity**: Bitan CPA org exists, Ron needs to become owner + add card for Growth — URGENT (trial ending)
+- **Cloudflare**: Transfer zone from shay@bitancpa.com to ron@bitancpa.com — MEDIUM
+- **Anthropic API**: New org under firm email — MEDIUM
+- **Google AI Studio**: New account under firm email — LOW
+- **GitHub**: Create BitanCPA org, transfer 4 repos — MEDIUM
+- **Claude Max** ($200/mo): Stays with Shay on shay@bitancpa.com — Ron stops paying July
+- **GoDaddy**: Already on ron@bitancpa.com ✓
+- **Google Workspace**: Already firm-owned ✓
+
+### Content Campaign Benchmarks (First Campaign Baseline)
+
+For future comparison:
+- Newsletter open rate: 71% (target: maintain >50%)
+- Newsletter CTR: 34% (target: maintain >20%)
+- Article organic daily views after stabilization: 105–129/day
+- Time from publish to Google indexing: <24 hours (sitemap auto-discovery)
+- WhatsApp conversion rate from article: ~2% of unique readers (12/581)
+- Contact form: BROKEN — 0 submissions, needs Resend fix
+
+### Key Learnings
+
+- GA4 "direct" traffic includes newsletter clicks — email apps don't send referrer headers. Must use UTM parameters on all future newsletter links.
+- Google org policies on Workspace domains block service account key creation. Workaround: create GCP projects under personal Gmail accounts.
+- Route all infrastructure/CLI tasks to Claude Code immediately — don't attempt UI guidance through claude.ai.
+
+## Session: March 24, 2026 — Sprint Fixes + Tools Section + Analytics
+
+### Sprint Fixes
+- **Terminology**: ייעוץ מס → ייעוץ מיסוי across 13 source files + 3 Sanity CMS documents
+- **contentType `form`**: New option for articles with downloadable forms (טופס). Drives button text + card badge. חל"ת article updated.
+- **Checklist hyperlinks**: Migrated `checklist` field from `array of [string]` to `array of [block]` with link annotations. 2 articles migrated (15 items). Schema deployed.
+
+### Tools Section (V1)
+- Built `/tools` infrastructure + first mini-app (leasing simulator)
+- Sent to Avi & Ron for feedback via WhatsApp
+- **Planned next tools**: מענקי שאגת הארי simulator, מחשבון עלות מעסיק
+
+### Analytics Snapshot (Feb 24 – Mar 24, 2026)
+- **Overall**: 512 clicks, 10,251 impressions, 5.0% CTR
+- **שאגת הארי grants article**: 1,082 sessions, 57% of all landing traffic, position #1
+- **Top organic gap**: "אישור ניכוי מס במקור וניהול ספרים" — 511 impressions, 1% CTR, position 8 → biggest untapped article opportunity
+- **Other gaps**: טופס 6111 (272 impressions, pos 7-10), החזר בלו על סולר (292 impressions, pos 6-9)
+- **Best engagement articles**: trapped-profits (16.7% bounce, 4:10 duration), credit-note-rules (14.3% bounce)
