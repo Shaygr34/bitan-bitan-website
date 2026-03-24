@@ -256,7 +256,34 @@ export default async function ArticlePage({ params }: Props) {
                     <span className="shrink-0 w-6 h-6 rounded-full bg-gold/15 flex items-center justify-center mt-0.5">
                       <CheckCircle2 className="h-3.5 w-3.5 text-gold" />
                     </span>
-                    {item}
+                    <div className="[&_a]:text-gold [&_a]:underline [&_a:hover]:text-gold-hover [&_a]:transition-colors">
+                      {typeof item === 'string' ? (
+                        item
+                      ) : (
+                        <PortableText
+                          value={Array.isArray(item) ? item : [item]}
+                          components={{
+                            marks: {
+                              link: ({ children, value }) => {
+                                const href = value?.href || ''
+                                const isExternal = href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
+                                return (
+                                  <a
+                                    href={href}
+                                    {...(isExternal || value?.openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                                  >
+                                    {children}
+                                  </a>
+                                )
+                              },
+                            },
+                            block: {
+                              normal: ({ children }) => <span>{children}</span>,
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -290,7 +317,9 @@ export default async function ArticlePage({ params }: Props) {
                 <Download className="h-6 w-6" />
                 {article.contentType === 'circular'
                   ? 'הורדת החוזר המקצועי (PDF)'
-                  : 'הורדת המדריך המלא (PDF)'}
+                  : article.contentType === 'form'
+                    ? 'הורדת הטופס (PDF)'
+                    : 'הורדת המדריך המלא (PDF)'}
                 {article.downloadableFile.size && (
                   <span className="text-white/70 text-body-sm font-normal">
                     ({(article.downloadableFile.size / 1024 / 1024).toFixed(1)} MB)

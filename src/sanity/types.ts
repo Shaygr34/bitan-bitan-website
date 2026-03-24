@@ -233,7 +233,7 @@ export type ArticleCard = {
   slug: SanitySlug
   excerpt?: string
   publishedAt?: string
-  contentType?: 'article' | 'guide' | 'circular'
+  contentType?: 'article' | 'guide' | 'form' | 'circular'
   categories?: ArticleCategory[]
   mainImage?: SanityImage
   authors?: { name: string }[]
@@ -246,7 +246,7 @@ export type ArticleFull = ArticleCard & {
   tags?: Tag[]
   tldr?: string
   difficulty?: 'basic' | 'intermediate' | 'advanced'
-  checklist?: string[]
+  checklist?: (string | PortableTextBlock)[]
   disclaimer?: string
   downloadableFile?: SanityFileAsset & {
     url?: string

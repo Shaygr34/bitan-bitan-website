@@ -71,6 +71,12 @@ export function ArticleCardComponent({ article }: { article: ArticleCard }) {
               חוזר מקצועי
             </span>
           )}
+          {article.contentType === 'form' && (
+            <span className="absolute top-3 end-3 px-2.5 py-1 text-caption font-bold bg-gold text-white rounded-full flex items-center gap-1 shadow-sm">
+              <Download className="h-3 w-3" />
+              טופס PDF
+            </span>
+          )}
         </div>
         <CardBody className="px-space-5 pt-space-4">
           <h2 className="text-h4 font-semibold text-primary">{article.title}</h2>

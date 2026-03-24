@@ -188,8 +188,46 @@ export default defineType({
       name: 'checklist',
       title: 'רשימת משימות',
       type: 'array',
-      of: [{ type: 'string' }],
-      description: 'צעדים מעשיים שהקורא יכול לבצע (מוצגים כרשימת ✓)',
+      of: [
+        {
+          type: 'block',
+          styles: [{ title: 'Normal', value: 'normal' }],
+          lists: [],
+          marks: {
+            decorators: [
+              { title: 'Bold', value: 'strong' },
+              { title: 'Italic', value: 'em' },
+            ],
+            annotations: [
+              {
+                name: 'link',
+                title: 'קישור',
+                type: 'object',
+                fields: [
+                  defineField({
+                    name: 'href',
+                    title: 'כתובת URL',
+                    type: 'url',
+                    description: 'קישור חיצוני (https://...) או פנימי (/knowledge/...)',
+                    validation: (rule) =>
+                      rule.uri({
+                        allowRelative: true,
+                        scheme: ['http', 'https', 'mailto', 'tel'],
+                      }),
+                  }),
+                  defineField({
+                    name: 'openInNewTab',
+                    title: 'פתח בלשונית חדשה',
+                    type: 'boolean',
+                    initialValue: false,
+                  }),
+                ],
+              },
+            ],
+          },
+        },
+      ],
+      description: 'צעדים מעשיים שהקורא יכול לבצע (מוצגים כרשימת ✓). ניתן להוסיף קישורים.',
     }),
     defineField({
       name: 'disclaimer',
@@ -215,6 +253,7 @@ export default defineType({
         list: [
           { title: 'מאמר', value: 'article' },
           { title: 'מדריך + PDF', value: 'guide' },
+          { title: 'טופס + PDF', value: 'form' },
           { title: 'חוזר מקצועי', value: 'circular' },
         ],
       },
