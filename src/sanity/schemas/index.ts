@@ -13,6 +13,7 @@ import siteSettings from './siteSettings'
 import tag from './tag'
 import teamMember from './teamMember'
 import testimonial from './testimonial'
+import tool from './tool'
 import newsletterSubscriber from './newsletterSubscriber'
 
 export const schemaTypes = [
@@ -30,6 +31,7 @@ export const schemaTypes = [
   testimonial,
   clientLogo,
   contactLead,
+  tool,
 
   // People
   author,

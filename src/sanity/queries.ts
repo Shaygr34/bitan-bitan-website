@@ -18,6 +18,7 @@ import type {
   AboutPage,
   Author,
   TeamMember,
+  Tool,
 } from './types'
 
 /* ─── Revalidation ─── */
@@ -489,4 +490,30 @@ const PARENT_CATEGORIES_QUERY = `*[_type == "category" && !defined(parent)] | or
 
 export async function getParentCategories(): Promise<Category[]> {
   return sanityFetch<Category[]>(PARENT_CATEGORIES_QUERY)
+}
+
+/* ─── Tools ─── */
+
+const TOOLS_QUERY = `*[_type == "tool"] | order(order asc) {
+  _id, title, slug, toolType, excerpt, mainImage, order
+}`
+
+export async function getTools(): Promise<Tool[]> {
+  return sanityFetch<Tool[]>(TOOLS_QUERY)
+}
+
+const TOOL_BY_SLUG_QUERY = `*[_type == "tool" && slug.current == $slug][0]{
+  _id, title, slug, toolType, excerpt, mainImage,
+  configJson, introBody, disclaimer,
+  seoTitle, seoDescription
+}`
+
+export async function getToolBySlug(slug: string): Promise<Tool | null> {
+  return sanityFetch<Tool | null>(TOOL_BY_SLUG_QUERY, { slug })
+}
+
+const TOOL_SLUGS_QUERY = `*[_type == "tool"]{ "slug": slug.current }`
+
+export async function getToolSlugs(): Promise<{ slug: string }[]> {
+  return sanityFetch<{ slug: string }[]>(TOOL_SLUGS_QUERY)
 }

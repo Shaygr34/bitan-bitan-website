@@ -319,3 +319,20 @@ export type Testimonial = {
   image?: SanityImage
   order: number
 }
+
+/* ─── Tool ─── */
+
+export type Tool = {
+  _id: string
+  title: string
+  slug: SanitySlug
+  toolType: string
+  excerpt?: string
+  mainImage?: SanityImage
+  order?: number
+  configJson?: string
+  introBody?: PortableTextBlock[]
+  disclaimer?: string
+  seoTitle?: string
+  seoDescription?: string
+}
