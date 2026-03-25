@@ -283,8 +283,13 @@ For future comparison:
 
 ### Tools Section (V1)
 - Built `/tools` infrastructure + first mini-app (leasing simulator)
-- Sent to Avi & Ron for feedback via WhatsApp
-- **Planned next tools**: מענקי שאגת הארי simulator, מחשבון עלות מעסיק
+- Sent to Avi & Ron for feedback via WhatsApp (2026-03-24)
+- **Status**: AWAITING Avi/Ron feedback on leasing simulator → iterate → then build next tool
+- **Planned next tools** (in order):
+  1. מחשבון עלות מעסיק (employer cost calculator) — simplest, evergreen SEO, well-known formulas
+  2. סימולטור מענקי שאגת הארי (grants simulator) — time-sensitive, complex logic, cross-links to #1 traffic article
+- **Adding a new tool**: Write logic file (`src/components/tools/<name>-logic.ts`) + React component + create Sanity `tool` document with `toolType` matching. No route/schema changes needed.
+- **Plan file**: `docs/superpowers/plans/2026-03-24-tools-leasing-simulator.md`
 
 ### Analytics Snapshot (Feb 24 – Mar 24, 2026)
 - **Overall**: 512 clicks, 10,251 impressions, 5.0% CTR
@@ -292,3 +297,7 @@ For future comparison:
 - **Top organic gap**: "אישור ניכוי מס במקור וניהול ספרים" — 511 impressions, 1% CTR, position 8 → biggest untapped article opportunity
 - **Other gaps**: טופס 6111 (272 impressions, pos 7-10), החזר בלו על סולר (292 impressions, pos 6-9)
 - **Best engagement articles**: trapped-profits (16.7% bounce, 4:10 duration), credit-note-rules (14.3% bounce)
+- **Top article candidates** (data-driven):
+  1. אישור ניכוי מס במקור וניהול ספרים (511 impr, pos 8, 1% CTR — biggest gap)
+  2. טופס 6111 מדריך (272 impr, pos 7-10 — page 1/2 border)
+  3. החזר בלו על סולר + טבלת 2026 (292 impr, pos 6-9 — niche high-intent)
