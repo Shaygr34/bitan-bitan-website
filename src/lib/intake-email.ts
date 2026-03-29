@@ -116,7 +116,7 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<boo
       <h2 style="color:#1B2A4A;margin:0 0 16px;font-size:20px;text-align:center">ברוכים הבאים למשפחת ביטן!</h2>
       <p style="margin:0 0 12px;line-height:1.7">שלום ${escapeHtml(name)},</p>
       <p style="margin:0 0 12px;line-height:1.7">תודה שהצטרפת למשפחת ביטן! קיבלנו את פרטיך ואת המסמכים שהעלית.</p>
-      <p style="margin:0 0 24px;line-height:1.7">ניצור איתך קשר בהקרוב לאישור ולהמשך תהליך הקליטה.</p>
+      <p style="margin:0 0 24px;line-height:1.7">ניצור איתך קשר בקרוב לאישור ולהמשך תהליך הקליטה.</p>
       <div style="text-align:center">
         <span style="display:inline-block;background:#C5A572;color:#FFFFFF;padding:10px 28px;border-radius:6px;font-weight:600;font-size:15px">משרד ביטן את ביטן</span>
       </div>

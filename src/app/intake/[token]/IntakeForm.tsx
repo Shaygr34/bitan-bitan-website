@@ -200,7 +200,7 @@ export default function IntakeForm({ token }: { token: string }) {
           <h1 className={styles.successTitle}>
             תודה שהצטרפת למשפחת ביטן!
           </h1>
-          <p className={styles.successMessage}>ניצור איתך קשר בהקרוב</p>
+          <p className={styles.successMessage}>ניצור איתך קשר בקרוב</p>
           <div className={styles.successDivider} />
           <p className={styles.successBrand}>
             ביטן את ביטן — רואי חשבון
