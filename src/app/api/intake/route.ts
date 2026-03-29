@@ -61,7 +61,7 @@ async function createSummitEntity(fields: {
   if (fields.address) properties.Customers_Address = fields.address
   if (fields.city) properties.Customers_City = fields.city
   if (fields.zipCode) properties.Customers_ZipCode = fields.zipCode
-  if (fields.birthdate) properties.Customers_Birthdate = fields.birthdate
+  if (fields.birthdate) properties.Customers_Birthdate = fields.birthdate.includes('T') ? fields.birthdate : `${fields.birthdate}T00:00:00`
   // תחום עיסוק is an Entity reference field — skipped for now (requires entity ID lookup)
   // if (fields.businessSector) properties['תחום עיסוק'] = fields.businessSector
   if (fields.shareholderDetails) properties['פרטי בעלי מניות'] = fields.shareholderDetails
