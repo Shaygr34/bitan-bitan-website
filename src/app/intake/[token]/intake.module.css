@@ -46,7 +46,7 @@
   width: 100%;
   max-width: 640px;
   margin-bottom: 2rem;
-  direction: ltr;
+  direction: rtl;
 }
 
 .progressTrack {
@@ -72,7 +72,7 @@
 .progressFill {
   position: absolute;
   top: 16px;
-  left: calc(0.5rem + 16px);
+  right: calc(0.5rem + 16px);
   height: 3px;
   background: #C5A572;
   z-index: 1;
@@ -706,7 +706,7 @@
 
   .progressFill {
     top: 14px;
-    left: calc(0.5rem + 14px);
+    right: calc(0.5rem + 14px);
   }
 
   .stepTitle {

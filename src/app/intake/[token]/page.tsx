@@ -26,8 +26,8 @@ export default async function IntakeTokenPage({ params }: Props) {
 
   // Note: "token" is a reserved key in Sanity QueryParams (it's a client option),
   // so we use "tokenValue" as the GROQ parameter name.
-  const doc = await client.fetch<{ status: string } | null>(
-    `*[_type == "intakeToken" && token == $tokenValue][0]{ status }`,
+  const doc = await client.fetch<{ status: string; prefillData?: string } | null>(
+    `*[_type == "intakeToken" && token == $tokenValue][0]{ status, prefillData }`,
     { tokenValue: token },
     { next: { revalidate: 0 } }
   )
@@ -88,6 +88,17 @@ export default async function IntakeTokenPage({ params }: Props) {
     )
   }
 
+  // Parse prefillData if present
+  let prefillClientType: string | undefined
+  if (doc.prefillData) {
+    try {
+      const prefill = JSON.parse(doc.prefillData)
+      prefillClientType = prefill.clientType
+    } catch {
+      // ignore malformed prefillData
+    }
+  }
+
   // status === 'pending'
-  return <IntakeForm token={token} />
+  return <IntakeForm token={token} prefillClientType={prefillClientType} />
 }

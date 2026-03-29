@@ -47,9 +47,9 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export default function IntakeForm({ token }: { token: string }) {
-  const [step, setStep] = useState(1)
-  const [clientType, setClientType] = useState('')
+export default function IntakeForm({ token, prefillClientType }: { token: string; prefillClientType?: string }) {
+  const [step, setStep] = useState(prefillClientType ? 2 : 1)
+  const [clientType, setClientType] = useState(prefillClientType || '')
   const [formData, setFormData] = useState<FormFields>(EMPTY_FORM)
   const [files, setFiles] = useState<Record<string, File>>({})
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({})
@@ -61,7 +61,7 @@ export default function IntakeForm({ token }: { token: string }) {
   const [fillWidth, setFillWidth] = useState('0%')
 
   // -------------------------------------------------------------------------
-  // Progress bar fill calculation
+  // Progress bar fill calculation (RTL: step 1 is rightmost, fill goes right→left)
   // -------------------------------------------------------------------------
   useEffect(() => {
     function calcFill() {
@@ -70,25 +70,27 @@ export default function IntakeForm({ token }: { token: string }) {
       const circles = track.querySelectorAll('[data-step]')
       if (circles.length < 2) return
 
-      const trackRect = track.getBoundingClientRect()
-      const firstCircle = circles[0].getBoundingClientRect()
-      const lastCircle = circles[circles.length - 1].getBoundingClientRect()
-      const totalWidth = lastCircle.left + lastCircle.width / 2 - (firstCircle.left + firstCircle.width / 2)
+      // In RTL layout, circles[0] is the rightmost (step 1) and circles[last] is leftmost (step 4)
+      // The fill starts from the right (step 1 circle center) and grows left
+      const firstCircle = circles[0].getBoundingClientRect() // rightmost in RTL
+      const effectiveStep = step - 1
 
-      if (step <= 1) {
+      if (effectiveStep <= 0) {
         setFillWidth('0px')
         return
       }
 
-      const targetCircle = circles[step - 1].getBoundingClientRect()
-      const width = targetCircle.left + targetCircle.width / 2 - (firstCircle.left + firstCircle.width / 2)
-      setFillWidth(`${width}px`)
+      const targetCircle = circles[effectiveStep].getBoundingClientRect()
+      // In RTL, firstCircle is to the right of targetCircle
+      // width = distance from targetCircle center to firstCircle center
+      const width = firstCircle.left + firstCircle.width / 2 - (targetCircle.left + targetCircle.width / 2)
+      setFillWidth(`${Math.max(0, width)}px`)
     }
 
     calcFill()
     window.addEventListener('resize', calcFill)
     return () => window.removeEventListener('resize', calcFill)
-  }, [step])
+  }, [step, prefillClientType])
 
   // -------------------------------------------------------------------------
   // Helpers
@@ -171,7 +173,8 @@ export default function IntakeForm({ token }: { token: string }) {
   }
 
   function goBack() {
-    setStep((s) => Math.max(s - 1, 1))
+    const minStep = prefillClientType ? 2 : 1
+    setStep((s) => Math.max(s - 1, minStep))
   }
 
   // -------------------------------------------------------------------------
@@ -264,7 +267,8 @@ export default function IntakeForm({ token }: { token: string }) {
         <div className={styles.progressFill} style={{ width: fillWidth }} />
         {STEP_LABELS.map((label, i) => {
           const n = i + 1
-          const isCompleted = n < step
+          // When client type is pre-filled, step 1 counts as completed even at step 2
+          const isCompleted = prefillClientType ? n <= step - 1 : n < step
           const isActive = n === step
           return (
             <div key={n} className={styles.progressStep} data-step={n}>
@@ -601,7 +605,7 @@ export default function IntakeForm({ token }: { token: string }) {
         <h1 className={styles.brandName}>ביטן את ביטן — רואי חשבון</h1>
         <div className={styles.brandUnderline} />
         <p className={styles.greeting}>
-          ברוכים הבאים! מלאו את הפרטים הבאים כדי שנוכל להתחיל לעבוד יחד.
+          ברוכים הבאים! מלאו את הפרטים הבאים כדי שנתחיל לעבוד יחד.
         </p>
       </div>
 
