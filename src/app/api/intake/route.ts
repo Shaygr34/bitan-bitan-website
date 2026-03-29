@@ -62,7 +62,8 @@ async function createSummitEntity(fields: {
   if (fields.city) properties.Customers_City = fields.city
   if (fields.zipCode) properties.Customers_ZipCode = fields.zipCode
   if (fields.birthdate) properties.Customers_Birthdate = fields.birthdate
-  if (fields.businessSector) properties['תחום עיסוק'] = fields.businessSector
+  // תחום עיסוק is an Entity reference field — skipped for now (requires entity ID lookup)
+  // if (fields.businessSector) properties['תחום עיסוק'] = fields.businessSector
   if (fields.shareholderDetails) properties['פרטי בעלי מניות'] = fields.shareholderDetails
 
   // Remove undefined values
