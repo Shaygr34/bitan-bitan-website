@@ -99,6 +99,6 @@ export default async function IntakeTokenPage({ params }: Props) {
     }
   }
 
-  // status === 'pending'
+  // status === 'pending' or 'opened' — show the form
   return <IntakeForm token={token} prefillClientType={prefillClientType} />
 }

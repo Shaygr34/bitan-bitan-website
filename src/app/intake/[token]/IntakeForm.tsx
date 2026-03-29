@@ -65,6 +65,17 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
   const [fillWidth, setFillWidth] = useState('0%')
 
   // -------------------------------------------------------------------------
+  // Track "opened" status on mount (fire-and-forget)
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    fetch('/api/intake/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    }).catch(() => {})
+  }, [token])
+
+  // -------------------------------------------------------------------------
   // Progress bar fill calculation (RTL: step 1 is rightmost, fill goes right→left)
   // -------------------------------------------------------------------------
   useEffect(() => {

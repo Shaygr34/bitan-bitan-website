@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'קישור ההצטרפות אינו תקף' }, { status: 404 })
     }
 
-    if (tokenDoc.status !== 'pending') {
+    if (tokenDoc.status !== 'pending' && tokenDoc.status !== 'opened') {
       return NextResponse.json(
         { error: 'קישור זה כבר שומש. לעזרה פנו למשרד.' },
         { status: 409 }
