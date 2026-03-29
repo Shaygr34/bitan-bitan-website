@@ -312,7 +312,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: 'אירעה שגיאה בעיבוד הבקשה. נסו שוב או פנו למשרד.',
-        ...(process.env.NODE_ENV === 'development' ? { debug: message } : {}),
+        debug: message,
       },
       { status: 500 }
     )

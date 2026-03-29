@@ -173,8 +173,9 @@ export default function IntakeForm({ token }: { token: string }) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => null)
+        const debugInfo = body?.debug ? ` [${body.debug}]` : ''
         throw new Error(
-          body?.error ?? 'אירעה שגיאה בשליחת הטופס. נסו שוב.',
+          (body?.error ?? 'אירעה שגיאה בשליחת הטופס. נסו שוב.') + debugInfo,
         )
       }
 
