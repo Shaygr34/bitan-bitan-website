@@ -16,6 +16,7 @@ import testimonial from './testimonial'
 import tool from './tool'
 import newsletterSubscriber from './newsletterSubscriber'
 import intakeToken from './intakeToken'
+import weeklyMetrics from './weeklyMetrics'
 
 export const schemaTypes = [
   // Content types
@@ -50,4 +51,7 @@ export const schemaTypes = [
 
   // Intake
   intakeToken,
+
+  // Analytics
+  weeklyMetrics,
 ]
