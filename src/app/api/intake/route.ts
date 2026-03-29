@@ -57,12 +57,12 @@ async function createSummitEntity(fields: {
     properties[key] = value
   }
 
-  // Optional fields
-  if (fields.address) properties['כתובת'] = fields.address
-  if (fields.city) properties['עיר'] = fields.city
-  if (fields.zipCode) properties['מיקוד'] = fields.zipCode
-  if (fields.birthdate) properties['תאריך לידה'] = fields.birthdate
-  if (fields.businessSector) properties['ענף עסקי'] = fields.businessSector
+  // Optional fields — use API names from Summit schema
+  if (fields.address) properties.Customers_Address = fields.address
+  if (fields.city) properties.Customers_City = fields.city
+  if (fields.zipCode) properties.Customers_ZipCode = fields.zipCode
+  if (fields.birthdate) properties.Customers_Birthdate = fields.birthdate
+  if (fields.businessSector) properties['תחום עיסוק'] = fields.businessSector
   if (fields.shareholderDetails) properties['פרטי בעלי מניות'] = fields.shareholderDetails
 
   // Remove undefined values
@@ -73,7 +73,7 @@ async function createSummitEntity(fields: {
   try {
     const res = await fetch('https://api.sumit.co.il/crm/data/createentity/', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Content-Language': 'he' },
       body: JSON.stringify({
         Credentials: credentials,
         Entity: {
@@ -89,7 +89,13 @@ async function createSummitEntity(fields: {
     }
 
     const json = await res.json()
-    // Summit returns the new entity ID in various shapes — try common ones
+
+    // Check Summit status (0 = success)
+    if (json?.Status !== 0) {
+      console.error('Summit createentity business error:', json?.UserErrorMessage, json?.TechnicalErrorDetails)
+      return null
+    }
+
     const entityId: unknown =
       json?.Data?.EntityID ??
       json?.EntityID ??
