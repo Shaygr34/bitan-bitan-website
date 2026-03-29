@@ -316,10 +316,7 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : String(err)
     console.error('Intake submission error:', message)
     return NextResponse.json(
-      {
-        error: 'אירעה שגיאה בעיבוד הבקשה. נסו שוב או פנו למשרד.',
-        debug: message,
-      },
+      { error: 'אירעה שגיאה בעיבוד הבקשה. נסו שוב או פנו למשרד.' },
       { status: 500 }
     )
   }
