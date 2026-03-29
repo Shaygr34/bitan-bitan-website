@@ -45,6 +45,21 @@ def scan():
             if not title or title == "default" or len(title) < 5:
                 continue
 
+            # Filter for CPA-relevant content only
+            CPA_KEYWORDS = [
+                "מענק", "קצבה", "קצבאות", "גמלה", "גמלאות",
+                "דמי ביטוח", "הפרשה", "הפרשות", "שיעור",
+                "מעסיק", "שכיר", "עצמאי", "פנסיה",
+                "תשלום", "דיווח", "הצהרה", "שומה",
+                "ניכוי", "זיכוי", "החזר",
+                "חוק", "תיקון", "תקנה",
+                "מדד", "עדכון סכומים", "שכר מינימום",
+                "פיצוי", "נפגע עבודה", "פגיעה בעבודה",
+                "שאגת הארי", "חרבות ברזל", "מלחמ",
+            ]
+            if not any(kw in title for kw in CPA_KEYWORDS):
+                continue
+
             items.append({
                 "source": SOURCE_NAME,
                 "sourceLabel": SOURCE_LABEL,

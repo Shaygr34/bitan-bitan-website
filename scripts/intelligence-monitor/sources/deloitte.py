@@ -92,7 +92,8 @@ def scan():
     """Scan Deloitte for tax alerts. Returns list of items."""
     items = []
     now = datetime.now()
-    years = [now.year, now.year - 1]
+    # Only current year — previous year alerts are historical, not actionable
+    years = [now.year]
 
     for year in years:
         url = get_alerts_url(year)

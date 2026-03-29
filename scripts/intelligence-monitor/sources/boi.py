@@ -80,21 +80,4 @@ def scan():
                 },
             })
 
-    # Always store the current state (for tracking changes over time)
-    # This item uses a fixed URL so it deduplicates daily
-    items.append({
-        "source": SOURCE_NAME,
-        "sourceLabel": SOURCE_LABEL,
-        "title": "ריבית בנק ישראל: {}% (עדכון יומי)".format(rate),
-        "url": "https://boi.org.il/interest/{}".format(now.strftime("%Y-%m-%d")),
-        "itemType": "official_update",
-        "detectedAt": now.isoformat(),
-        "metadata": {
-            "currentRate": rate,
-            "nextDecisionDate": next_date_str,
-            "lastPublishedDate": last_published_str,
-            "alertType": "daily_check",
-        },
-    })
-
     return items

@@ -50,21 +50,39 @@ def scan():
     sessions = fetch_sessions(days_back=14)
     print("  Found {} sessions in last 14 days".format(len(sessions)))
 
+    # Generic notes that tell us nothing — skip these
+    SKIP_NOTES = [
+        "דיון והצבעות",
+        "יתכנו הצבעות",
+        "בקשות לדיון מחדש",
+        "הצבעות",
+        "- בקשות לדיון מחדש",
+    ]
+
+    # Also skip if note is just a variation of generic voting language
+    SKIP_CONTAINS = [
+        "דיון והצבעות",
+        "יתכנו הצבעות",
+        "בקשות לדיון מחדש",
+    ]
+
     for session in sessions:
         session_id = session.get("CommitteeSessionID", "")
         start_date = session.get("StartDate", "")
-        note = session.get("Note", "") or ""
+        note = (session.get("Note") or "").strip()
         status = session.get("StatusDesc", "")
         session_url = session.get("SessionUrl", "")
+
+        # Skip sessions with no meaningful agenda
+        if not note or note in SKIP_NOTES:
+            continue
+        if any(skip in note for skip in SKIP_CONTAINS):
+            continue
 
         # Parse date for display
         date_display = start_date[:10] if start_date else "?"
 
-        # Build title
-        if note:
-            title = "ועדת הכספים {} — {}".format(date_display, note[:100])
-        else:
-            title = "ישיבת ועדת הכספים — {}".format(date_display)
+        title = "ועדת הכספים {} — {}".format(date_display, note[:100])
 
         # Use session URL or construct one
         url = session_url or "https://main.knesset.gov.il/Activity/committees/Pages/AllCommitteesAgenda.aspx?Tab=3&ItemID={}".format(

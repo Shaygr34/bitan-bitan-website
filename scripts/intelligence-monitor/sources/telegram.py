@@ -94,9 +94,24 @@ def scan():
     messages = extract_messages(html)
     print("  Found {} messages".format(len(messages)))
 
+    # Filter out noise
+    SKIP_PATTERNS = [
+        "pinned a",
+        "שינויים בזמני קבלת קהל",
+        "משרדי רשות המסים יהיו סגורים",
+        "משרדי רשות המסים יהיו פתוחים",
+        "שעות קבלת קהל",
+        "מוקד הטלפוני",
+        "שעות פעילות",
+    ]
+
     for msg in messages:
-        # Only include messages with meaningful content
         if len(msg["fullText"]) < 20:
+            continue
+
+        # Skip noise messages
+        text_lower = msg["fullText"]
+        if any(skip in text_lower for skip in SKIP_PATTERNS):
             continue
 
         items.append({
