@@ -1,0 +1,29 @@
+name: Content Intelligence Scanner
+
+on:
+  schedule:
+    # Every Sunday at 06:30 UTC (09:30 Israel time) — 30 min after performance report
+    - cron: '30 6 * * 0'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r scripts/content-intelligence/requirements.txt
+
+      - name: Run content intelligence scanner
+        working-directory: scripts/content-intelligence
+        env:
+          GA4_CREDENTIALS_B64: ${{ secrets.GA4_CREDENTIALS_B64 }}
+          SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          REPORT_RECIPIENTS: ${{ secrets.REPORT_RECIPIENTS }}
+        run: python main.py

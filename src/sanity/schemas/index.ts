@@ -17,6 +17,7 @@ import tool from './tool'
 import newsletterSubscriber from './newsletterSubscriber'
 import intakeToken from './intakeToken'
 import weeklyMetrics from './weeklyMetrics'
+import contentOpportunity from './contentOpportunity'
 
 export const schemaTypes = [
   // Content types
@@ -54,4 +55,5 @@ export const schemaTypes = [
 
   // Analytics
   weeklyMetrics,
+  contentOpportunity,
 ]
