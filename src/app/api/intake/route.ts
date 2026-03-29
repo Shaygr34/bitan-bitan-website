@@ -49,7 +49,7 @@ async function createSummitEntity(fields: {
     Customers_CompanyNumber: fields.companyNumber,
     Customers_Phone: fields.phone,
     Customers_EmailAddress: fields.email,
-    'סוג לקוח': clientTypeId ? { ID: clientTypeId } : undefined,
+    'סוג לקוח': clientTypeId ?? undefined,
   }
 
   // Newsletter flags
