@@ -4,9 +4,12 @@ Parses the official RSS feed for news/updates.
 """
 
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timedelta
+from email.utils import parsedate_to_datetime
 
 import requests
+
+MAX_AGE_DAYS = 30
 
 SOURCE_NAME = "btl"
 SOURCE_LABEL = "ביטוח לאומי"
@@ -44,6 +47,15 @@ def scan():
             # Skip empty/default items
             if not title or title == "default" or len(title) < 5:
                 continue
+
+            # Skip items older than MAX_AGE_DAYS
+            if pub_date:
+                try:
+                    pub_dt = parsedate_to_datetime(pub_date)
+                    if (datetime.now(pub_dt.tzinfo) - pub_dt).days > MAX_AGE_DAYS:
+                        continue
+                except (ValueError, TypeError):
+                    pass
 
             # Filter for CPA-relevant content only
             CPA_KEYWORDS = [

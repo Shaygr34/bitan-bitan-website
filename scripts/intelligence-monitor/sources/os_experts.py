@@ -21,7 +21,6 @@ def scan():
     items = []
     now = datetime.now()
     current_year = str(now.year)
-    prev_year = str(now.year - 1)
 
     print("  Checking: OS Experts circulars page")
     headers = {
@@ -52,8 +51,8 @@ def scan():
             title = cells[0].get_text(strip=True)
             year = cells[1].get_text(strip=True) if len(cells) >= 3 else ""
 
-            # Only include current and previous year
-            if year and year not in [current_year, prev_year]:
+            # Only include current year
+            if year and year != current_year:
                 continue
 
             # Get link

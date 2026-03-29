@@ -306,12 +306,13 @@ def main():
 
     print("\nTotal items scanned: {}".format(len(all_items)))
 
-    # 3. Filter to new items only
+    # 3. Filter to new items only (not previously seen + not older than 7 days)
     new_items = []
     for item in all_items:
         doc_id = item_to_doc_id(item)
-        if doc_id not in seen_ids:
-            new_items.append(item)
+        if doc_id in seen_ids:
+            continue
+        new_items.append(item)
 
     print("New items (not previously seen): {}".format(len(new_items)))
 

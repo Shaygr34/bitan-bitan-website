@@ -47,8 +47,8 @@ def scan():
     items = []
     now = datetime.now()
 
-    sessions = fetch_sessions(days_back=14)
-    print("  Found {} sessions in last 14 days".format(len(sessions)))
+    sessions = fetch_sessions(days_back=7)
+    print("  Found {} sessions in last 7 days".format(len(sessions)))
 
     # Generic notes that tell us nothing — skip these
     SKIP_NOTES = [

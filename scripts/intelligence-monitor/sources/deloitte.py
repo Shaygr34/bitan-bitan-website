@@ -107,11 +107,15 @@ def scan():
         print("  Found {} alerts for {}".format(len(alerts), year))
 
         for alert in alerts:
+            # Skip alerts without a working PDF link
+            if not alert["pdfUrl"]:
+                continue
+
             items.append({
                 "source": SOURCE_NAME,
                 "sourceLabel": SOURCE_LABEL,
                 "title": "{} — {}".format(alert["alertNumber"], alert["title"]),
-                "url": alert["pdfUrl"] or get_alerts_url(year),
+                "url": alert["pdfUrl"],
                 "itemType": "tax_alert",
                 "detectedAt": now.isoformat(),
                 "metadata": {
