@@ -15,6 +15,7 @@ import teamMember from './teamMember'
 import testimonial from './testimonial'
 import tool from './tool'
 import newsletterSubscriber from './newsletterSubscriber'
+import intakeToken from './intakeToken'
 
 export const schemaTypes = [
   // Content types
@@ -46,4 +47,7 @@ export const schemaTypes = [
 
   // Settings
   siteSettings,
+
+  // Intake
+  intakeToken,
 ]
