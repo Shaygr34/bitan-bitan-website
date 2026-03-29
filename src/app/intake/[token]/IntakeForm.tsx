@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import {
   CLIENT_TYPE_OPTIONS,
   DOC_FIELDS,
@@ -11,6 +11,9 @@ import styles from './intake.module.css'
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 MB
 const ACCEPTED_TYPES = '.pdf,.jpg,.jpeg,.png'
+
+const STEP_LABELS = ['סוג לקוח', 'פרטים אישיים', 'מסמכים', 'סיכום']
+const TOTAL_STEPS = 4
 
 interface FormFields {
   fullName: string
@@ -54,6 +57,38 @@ export default function IntakeForm({ token }: { token: string }) {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const progressTrackRef = useRef<HTMLDivElement>(null)
+  const [fillWidth, setFillWidth] = useState('0%')
+
+  // -------------------------------------------------------------------------
+  // Progress bar fill calculation
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    function calcFill() {
+      const track = progressTrackRef.current
+      if (!track) return
+      const circles = track.querySelectorAll('[data-step]')
+      if (circles.length < 2) return
+
+      const trackRect = track.getBoundingClientRect()
+      const firstCircle = circles[0].getBoundingClientRect()
+      const lastCircle = circles[circles.length - 1].getBoundingClientRect()
+      const totalWidth = lastCircle.left + lastCircle.width / 2 - (firstCircle.left + firstCircle.width / 2)
+
+      if (step <= 1) {
+        setFillWidth('0px')
+        return
+      }
+
+      const targetCircle = circles[step - 1].getBoundingClientRect()
+      const width = targetCircle.left + targetCircle.width / 2 - (firstCircle.left + firstCircle.width / 2)
+      setFillWidth(`${width}px`)
+    }
+
+    calcFill()
+    window.addEventListener('resize', calcFill)
+    return () => window.removeEventListener('resize', calcFill)
+  }, [step])
 
   // -------------------------------------------------------------------------
   // Helpers
@@ -200,6 +235,17 @@ export default function IntakeForm({ token }: { token: string }) {
             תודה שהצטרפת למשפחת ביטן!
           </h1>
           <p className={styles.successMessage}>ניצור איתך קשר בקרוב</p>
+
+          <div className={styles.successNextSection}>
+            <h2 className={styles.successNextTitle}>מה הלאה?</h2>
+            <p className={styles.successNextText}>
+              צוות המשרד יצור איתכם קשר בקרוב לאישור הפרטים והמשך תהליך הקליטה.
+            </p>
+            <a href="tel:+97235174295" className={styles.successPhone}>
+              03-5174295
+            </a>
+          </div>
+
           <div className={styles.successDivider} />
           <p className={styles.successBrand}>
             ביטן את ביטן — רואי חשבון
@@ -210,22 +256,50 @@ export default function IntakeForm({ token }: { token: string }) {
   }
 
   // -------------------------------------------------------------------------
-  // Progress dots
+  // Progress bar
   // -------------------------------------------------------------------------
-  const progressDots = (
-    <div className={styles.progress}>
-      {[1, 2, 3, 4].map((n) => (
-        <div
-          key={n}
-          className={
-            n < step
-              ? styles.dotCompleted
-              : n === step
-                ? styles.dotActive
-                : styles.dot
-          }
-        />
-      ))}
+  const progressBar = (
+    <div className={styles.progressBar}>
+      <div className={styles.progressTrack} ref={progressTrackRef}>
+        <div className={styles.progressFill} style={{ width: fillWidth }} />
+        {STEP_LABELS.map((label, i) => {
+          const n = i + 1
+          const isCompleted = n < step
+          const isActive = n === step
+          return (
+            <div key={n} className={styles.progressStep} data-step={n}>
+              <div
+                className={
+                  isCompleted
+                    ? styles.progressCircleCompleted
+                    : isActive
+                      ? styles.progressCircleActive
+                      : styles.progressCircle
+                }
+              >
+                {isCompleted ? (
+                  <svg className={styles.checkSvg} viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8.5L6.5 12L13 4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  n
+                )}
+              </div>
+              <span
+                className={
+                  isCompleted
+                    ? styles.progressLabelCompleted
+                    : isActive
+                      ? styles.progressLabelActive
+                      : styles.progressLabel
+                }
+              >
+                {label}
+              </span>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 
@@ -235,7 +309,8 @@ export default function IntakeForm({ token }: { token: string }) {
   function renderStep1() {
     return (
       <>
-        <h2 className={styles.stepTitle}>סוג הלקוח</h2>
+        <h2 className={styles.stepTitle}>איזה סוג עסק?</h2>
+        <p className={styles.stepSubtitle}>בחרו את הסוג שמתאים לכם</p>
         <div className={styles.cardGrid}>
           {CLIENT_TYPE_OPTIONS.map((opt) => (
             <button
@@ -267,7 +342,8 @@ export default function IntakeForm({ token }: { token: string }) {
 
     return (
       <>
-        <h2 className={styles.stepTitle}>פרטים אישיים</h2>
+        <h2 className={styles.stepTitle}>ספרו לנו על עצמכם</h2>
+        <p className={styles.stepSubtitle}>פרטים בסיסיים כדי שנכיר אתכם</p>
 
         {renderInput('fullName', 'שם מלא', true)}
         {renderInput('companyNumber', 'ת"ז / ח"פ', true)}
@@ -341,7 +417,8 @@ export default function IntakeForm({ token }: { token: string }) {
   function renderStep3() {
     return (
       <>
-        <h2 className={styles.stepTitle}>העלאת מסמכים</h2>
+        <h2 className={styles.stepTitle}>מסמכים</h2>
+        <p className={styles.stepSubtitle}>העלו את המסמכים הנדרשים (ניתן להשלים גם אחר כך)</p>
 
         {relevantDocs.map((doc) => (
           <div key={doc.key} className={styles.fieldGroup}>
@@ -371,11 +448,11 @@ export default function IntakeForm({ token }: { token: string }) {
               </div>
             ) : (
               <div className={styles.dropzone}>
-                <div className={styles.dropzoneIcon}>📄</div>
+                <div className={styles.dropzoneIcon}>📎</div>
                 <div className={styles.dropzoneLabel}>
                   לחצו לבחירת קובץ
                   <br />
-                  <span style={{ fontSize: '0.8rem', color: '#A0AEC0' }}>
+                  <span className={styles.dropzoneHint}>
                     PDF, JPG, PNG — עד 20MB
                   </span>
                 </div>
@@ -445,6 +522,7 @@ export default function IntakeForm({ token }: { token: string }) {
     return (
       <>
         <h2 className={styles.stepTitle}>סיכום ואישור</h2>
+        <p className={styles.stepSubtitle}>בדקו שהכל נכון לפני השליחה</p>
 
         <h3 className={styles.summarySection}>פרטים אישיים</h3>
         <table className={styles.summaryTable}>
@@ -520,11 +598,14 @@ export default function IntakeForm({ token }: { token: string }) {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.headerTitle}>קליטת לקוח חדש</h1>
-        <p className={styles.headerSub}>ביטן את ביטן — רואי חשבון</p>
+        <h1 className={styles.brandName}>ביטן את ביטן — רואי חשבון</h1>
+        <div className={styles.brandUnderline} />
+        <p className={styles.greeting}>
+          ברוכים הבאים! מלאו את הפרטים הבאים כדי שנוכל להתחיל לעבוד יחד.
+        </p>
       </div>
 
-      {progressDots}
+      {progressBar}
 
       <div className={styles.card}>
         {step === 1 && renderStep1()}

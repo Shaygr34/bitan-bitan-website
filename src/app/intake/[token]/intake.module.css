@@ -11,63 +11,144 @@
   padding: 2rem 1rem;
 }
 
+/* ─── Branded header ─── */
 .header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.headerTitle {
-  font-size: 1.5rem;
+.brandName {
+  font-size: 1.6rem;
   font-weight: 700;
   color: #1B2A4A;
   margin: 0 0 0.25rem;
+  letter-spacing: 0.01em;
 }
 
-.headerSub {
+.brandUnderline {
+  width: 60px;
+  height: 3px;
+  background: #C5A572;
+  border-radius: 2px;
+  margin: 0 auto 0.75rem;
+}
+
+.greeting {
   font-size: 0.95rem;
   color: #4A5568;
   margin: 0;
+  line-height: 1.6;
+  max-width: 420px;
 }
 
-/* Progress dots */
-.progress {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
+/* ─── Progress bar ─── */
+.progressBar {
+  width: 100%;
+  max-width: 640px;
   margin-bottom: 2rem;
   direction: ltr;
 }
 
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+.progressTrack {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0 0.5rem;
+}
+
+/* The connecting line behind the steps */
+.progressTrack::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: calc(0.5rem + 16px);
+  right: calc(0.5rem + 16px);
+  height: 3px;
   background: #E2E0DB;
-  transition: all 0.3s ease;
+  z-index: 0;
 }
 
-.dotActive {
-  composes: dot;
-  background: transparent;
-  border: 2px solid #C5A572;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.dotCompleted {
-  composes: dot;
+.progressFill {
+  position: absolute;
+  top: 16px;
+  left: calc(0.5rem + 16px);
+  height: 3px;
   background: #C5A572;
+  z-index: 1;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
 }
 
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(197, 165, 114, 0.4); }
-  50% { box-shadow: 0 0 0 6px rgba(197, 165, 114, 0); }
+.progressStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+  position: relative;
 }
 
-/* Card for content */
+.progressCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid #E2E0DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #A0AEC0;
+  transition: all 0.4s ease;
+}
+
+.progressCircleActive {
+  composes: progressCircle;
+  border-color: #C5A572;
+  background: #fff;
+  color: #C5A572;
+  box-shadow: 0 0 0 4px rgba(197, 165, 114, 0.15);
+}
+
+.progressCircleCompleted {
+  composes: progressCircle;
+  border-color: #C5A572;
+  background: #C5A572;
+  color: #fff;
+}
+
+.checkSvg {
+  width: 14px;
+  height: 14px;
+}
+
+.progressLabel {
+  font-size: 0.72rem;
+  color: #A0AEC0;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.progressLabelActive {
+  composes: progressLabel;
+  color: #C5A572;
+  font-weight: 700;
+}
+
+.progressLabelCompleted {
+  composes: progressLabel;
+  color: #1B2A4A;
+  font-weight: 600;
+}
+
+/* ─── Card ─── */
 .card {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 12px rgba(27, 42, 74, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
   padding: 2rem;
   width: 100%;
   max-width: 640px;
@@ -77,7 +158,14 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: #1B2A4A;
+  margin: 0 0 0.25rem;
+}
+
+.stepSubtitle {
+  font-size: 0.9rem;
+  color: #718096;
   margin: 0 0 1.5rem;
+  font-weight: 400;
 }
 
 /* Step 1: Client type grid */
@@ -99,7 +187,7 @@
   padding: 1.25rem 0.75rem;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s, box-shadow 0.2s;
   background: #fff;
   color: #1B2A4A;
   font-weight: 600;
@@ -111,6 +199,7 @@
   border-color: #C5A572;
   background: #FDFCFA;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(197, 165, 114, 0.15);
 }
 
 .typeCard:active {
@@ -159,7 +248,7 @@
 .input:focus {
   outline: none;
   border-color: #C5A572;
-  box-shadow: 0 0 0 3px rgba(197, 165, 114, 0.15);
+  box-shadow: 0 0 0 3px rgba(197, 165, 114, 0.2);
 }
 
 .input::placeholder {
@@ -176,7 +265,7 @@
 .dropzone {
   border: 2px dashed #E2E0DB;
   border-radius: 10px;
-  padding: 1.25rem;
+  padding: 1.5rem 1.25rem;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
@@ -195,10 +284,16 @@
   color: #4A5568;
 }
 
+.dropzoneHint {
+  font-size: 0.8rem;
+  color: #A0AEC0;
+}
+
 .dropzoneIcon {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   color: #C5A572;
   margin-bottom: 0.5rem;
+  opacity: 0.8;
 }
 
 .dropzoneInput {
@@ -276,11 +371,12 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  transition: background 0.25s, transform 0.15s, box-shadow 0.25s;
 }
 
 .btnPrimary:hover {
   background: #B8944D;
+  box-shadow: 0 4px 12px rgba(197, 165, 114, 0.3);
 }
 
 .btnPrimary:active {
@@ -302,7 +398,7 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.25s, background 0.25s;
 }
 
 .btnSecondary:hover {
@@ -320,7 +416,7 @@
   font-size: 1.15rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  transition: background 0.25s, transform 0.15s, box-shadow 0.25s;
   margin-top: 2rem;
   display: flex;
   align-items: center;
@@ -330,6 +426,7 @@
 
 .btnSubmit:hover {
   background: #B8944D;
+  box-shadow: 0 4px 16px rgba(197, 165, 114, 0.35);
 }
 
 .btnSubmit:active {
@@ -396,7 +493,7 @@
   color: #C5A572;
 }
 
-/* Success screen */
+/* ─── Success screen ─── */
 .successScreen {
   display: flex;
   flex-direction: column;
@@ -471,6 +568,52 @@
   font-size: 1.05rem;
   color: #4A5568;
   margin: 0 0 1.5rem;
+  line-height: 1.7;
+}
+
+.successNextSection {
+  background: #FDFCFA;
+  border: 1px solid #E2E0DB;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  max-width: 420px;
+  animation: fadeSlideUp 0.5s ease 0.4s both;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.successNextTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1B2A4A;
+  margin: 0 0 0.5rem;
+}
+
+.successNextText {
+  font-size: 0.9rem;
+  color: #4A5568;
+  margin: 0 0 0.75rem;
+  line-height: 1.6;
+}
+
+.successPhone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1B2A4A;
+  text-decoration: none;
+  direction: ltr;
+  transition: color 0.2s;
+}
+
+.successPhone:hover {
+  color: #C5A572;
 }
 
 .successDivider {
@@ -479,12 +622,14 @@
   background: #C5A572;
   border-radius: 2px;
   margin-bottom: 1.5rem;
+  animation: fadeSlideUp 0.5s ease 0.6s both;
 }
 
 .successBrand {
   font-size: 0.95rem;
   color: #1B2A4A;
   font-weight: 600;
+  animation: fadeSlideUp 0.5s ease 0.7s both;
 }
 
 /* Error */
@@ -519,4 +664,56 @@
   color: #E53E3E;
   font-size: 0.8rem;
   margin-top: 0.25rem;
+}
+
+/* ─── Mobile responsiveness ─── */
+@media (max-width: 480px) {
+  .container {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .brandName {
+    font-size: 1.35rem;
+  }
+
+  .greeting {
+    font-size: 0.875rem;
+  }
+
+  .progressLabel,
+  .progressLabelActive,
+  .progressLabelCompleted {
+    font-size: 0.65rem;
+  }
+
+  .progressCircle,
+  .progressCircleActive,
+  .progressCircleCompleted {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+
+  .progressTrack::before {
+    top: 14px;
+    left: calc(0.5rem + 14px);
+    right: calc(0.5rem + 14px);
+  }
+
+  .progressFill {
+    top: 14px;
+    left: calc(0.5rem + 14px);
+  }
+
+  .stepTitle {
+    font-size: 1.1rem;
+  }
+
+  .successNextSection {
+    padding: 1rem;
+  }
 }
