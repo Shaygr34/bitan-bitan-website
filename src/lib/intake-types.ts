@@ -11,16 +11,14 @@ export const CLIENT_TYPE_IDS: Record<string, number> = {
   'החזר מס': 1179325026,
 }
 
-/** Client types shown in form dropdown */
+/** Client types shown in form — simplified labels, default mapping to Summit "regular" types */
 export const CLIENT_TYPE_OPTIONS = [
-  { value: 'עצמאי', label: 'עצמאי (חודשי)' },
-  { value: 'עצמאי שנתי', label: 'עצמאי (שנתי)' },
-  { value: 'חברה', label: 'חברה בע"מ (חודשי)' },
-  { value: 'חברה שנתי', label: 'חברה בע"מ (שנתי)' },
-  { value: 'פטור', label: 'פטור ממע"מ' },
+  { value: 'עצמאי', label: 'עוסק מורשה' },
+  { value: 'פטור', label: 'עוסק פטור' },
+  { value: 'חברה', label: 'חברה בע"מ' },
   { value: 'שותפות', label: 'שותפות' },
-  { value: 'עמותה', label: 'עמותה' },
   { value: 'עסק זעיר', label: 'עסק זעיר' },
+  { value: 'עמותה', label: 'עמותה' },
   { value: 'החזר מס', label: 'החזר מס' },
 ] as const
 
