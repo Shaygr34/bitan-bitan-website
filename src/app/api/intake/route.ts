@@ -205,7 +205,24 @@ export async function POST(req: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // 4. Upload files to Sanity CDN
+    // 4. Create Summit CRM entity FIRST (fast, critical)
+    // -----------------------------------------------------------------------
+    const entityId = await createSummitEntity({
+      fullName,
+      companyNumber,
+      phone,
+      email,
+      clientType,
+      address,
+      city,
+      zipCode,
+      birthdate,
+      businessSector,
+      shareholderDetails,
+    })
+
+    // -----------------------------------------------------------------------
+    // 5. Upload files to Sanity CDN (slower, non-critical for entity)
     // -----------------------------------------------------------------------
     const fileUrls: { label: string; url: string; filename: string }[] = []
 
@@ -233,26 +250,8 @@ export async function POST(req: NextRequest) {
         }
       } catch (err) {
         console.error(`Failed to upload file ${filename}:`, err)
-        // Non-fatal — continue with remaining files
       }
     }
-
-    // -----------------------------------------------------------------------
-    // 5. Create Summit CRM entity
-    // -----------------------------------------------------------------------
-    const entityId = await createSummitEntity({
-      fullName,
-      companyNumber,
-      phone,
-      email,
-      clientType,
-      address,
-      city,
-      zipCode,
-      birthdate,
-      businessSector,
-      shareholderDetails,
-    })
 
     // -----------------------------------------------------------------------
     // 6. Store file URLs in Summit entity notes
