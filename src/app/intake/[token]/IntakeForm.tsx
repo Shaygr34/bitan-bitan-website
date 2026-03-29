@@ -12,8 +12,8 @@ import styles from './intake.module.css'
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 MB
 const ACCEPTED_TYPES = '.pdf,.jpg,.jpeg,.png'
 
-const STEP_LABELS = ['סוג לקוח', 'פרטים אישיים', 'מסמכים', 'סיכום']
-const TOTAL_STEPS = 4
+const STEP_LABELS_FULL = ['סוג לקוח', 'פרטים אישיים', 'מסמכים', 'סיכום']
+const STEP_LABELS_SHORT = ['פרטים אישיים', 'מסמכים', 'סיכום']
 
 interface FormFields {
   fullName: string
@@ -48,7 +48,11 @@ function formatFileSize(bytes: number): string {
 }
 
 export default function IntakeForm({ token, prefillClientType }: { token: string; prefillClientType?: string }) {
-  const [step, setStep] = useState(prefillClientType ? 2 : 1)
+  const skipTypeStep = !!prefillClientType
+  const stepLabels = skipTypeStep ? STEP_LABELS_SHORT : STEP_LABELS_FULL
+  const totalSteps = stepLabels.length
+  // Internal step: 1-based index into stepLabels
+  const [step, setStep] = useState(1)
   const [clientType, setClientType] = useState(prefillClientType || '')
   const [formData, setFormData] = useState<FormFields>(EMPTY_FORM)
   const [files, setFiles] = useState<Record<string, File>>({})
@@ -70,19 +74,12 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
       const circles = track.querySelectorAll('[data-step]')
       if (circles.length < 2) return
 
-      // In RTL layout, circles[0] is the rightmost (step 1) and circles[last] is leftmost (step 4)
-      // The fill starts from the right (step 1 circle center) and grows left
-      const firstCircle = circles[0].getBoundingClientRect() // rightmost in RTL
-      const effectiveStep = step - 1
-
-      if (effectiveStep <= 0) {
+      const firstCircle = circles[0].getBoundingClientRect()
+      if (step <= 1) {
         setFillWidth('0px')
         return
       }
-
-      const targetCircle = circles[effectiveStep].getBoundingClientRect()
-      // In RTL, firstCircle is to the right of targetCircle
-      // width = distance from targetCircle center to firstCircle center
+      const targetCircle = circles[step - 1].getBoundingClientRect()
       const width = firstCircle.left + firstCircle.width / 2 - (targetCircle.left + targetCircle.width / 2)
       setFillWidth(`${Math.max(0, width)}px`)
     }
@@ -165,16 +162,33 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
   }
 
   // -------------------------------------------------------------------------
+  // Step mapping: display step (1-based) → content type
+  // -------------------------------------------------------------------------
+  // When skipTypeStep: step 1=details, 2=docs, 3=review
+  // Otherwise:        step 1=type, 2=details, 3=docs, 4=review
+  function getContentStep(): 'type' | 'details' | 'docs' | 'review' {
+    if (skipTypeStep) {
+      if (step === 1) return 'details'
+      if (step === 2) return 'docs'
+      return 'review'
+    }
+    if (step === 1) return 'type'
+    if (step === 2) return 'details'
+    if (step === 3) return 'docs'
+    return 'review'
+  }
+  const contentStep = getContentStep()
+
+  // -------------------------------------------------------------------------
   // Navigation
   // -------------------------------------------------------------------------
   function goNext() {
-    if (step === 2 && !validateStep2()) return
-    setStep((s) => Math.min(s + 1, 4))
+    if (contentStep === 'details' && !validateStep2()) return
+    setStep((s) => Math.min(s + 1, totalSteps))
   }
 
   function goBack() {
-    const minStep = prefillClientType ? 2 : 1
-    setStep((s) => Math.max(s - 1, minStep))
+    setStep((s) => Math.max(s - 1, 1))
   }
 
   // -------------------------------------------------------------------------
@@ -265,7 +279,7 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
     <div className={styles.progressBar}>
       <div className={styles.progressTrack} ref={progressTrackRef}>
         <div className={styles.progressFill} style={{ width: fillWidth }} />
-        {STEP_LABELS.map((label, i) => {
+        {stepLabels.map((label, i) => {
           const n = i + 1
           // When client type is pre-filled, step 1 counts as completed even at step 2
           const isCompleted = prefillClientType ? n <= step - 1 : n < step
@@ -612,10 +626,10 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
       {progressBar}
 
       <div className={styles.card}>
-        {step === 1 && renderStep1()}
-        {step === 2 && renderStep2()}
-        {step === 3 && renderStep3()}
-        {step === 4 && renderStep4()}
+        {contentStep === 'type' && renderStep1()}
+        {contentStep === 'details' && renderStep2()}
+        {contentStep === 'docs' && renderStep3()}
+        {contentStep === 'review' && renderStep4()}
       </div>
     </div>
   )
