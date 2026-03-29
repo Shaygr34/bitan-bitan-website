@@ -2,8 +2,8 @@ name: Professional Intelligence Monitor
 
 on:
   schedule:
-    # Every day at 04:00 UTC (07:00 Israel time)
-    - cron: '0 4 * * *'
+    # Tuesday + Thursday at 04:00 UTC (07:00 Israel time)
+    - cron: '0 4 * * 2,4'
   workflow_dispatch: # Manual trigger
 
 jobs:
