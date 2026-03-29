@@ -1,7 +1,7 @@
 """
 Deloitte Israel Tax Alerts Monitor
-Scrapes the tax alerts listing page for new PDFs.
-URL pattern: /il/he/services/tax/perspectives/YYYY-tax-alerts-and-circulars.html
+Scrapes the tax alerts listing page — alerts are in a flat <ul> inside .cmp-text
+Each <li> has: <b> with alert number (optionally linked to PDF), then title text after <br>
 """
 
 import re
@@ -13,21 +13,14 @@ from bs4 import BeautifulSoup
 SOURCE_NAME = "deloitte"
 SOURCE_LABEL = "Deloitte Israel"
 
-# Try current year and previous year
 BASE_URL = "https://www.deloitte.com/il/he/services/tax/perspectives"
-EN_BASE_URL = "https://www.deloitte.com/il/en/services/tax/perspectives"
 
 
 def get_alerts_url(year):
     return "{}/{}-tax-alerts-and-circulars.html".format(BASE_URL, year)
 
 
-def get_en_alerts_url(year):
-    return "{}/{}-tax-alerts-and-circulars.html".format(EN_BASE_URL, year)
-
-
 def fetch_page(url):
-    """Fetch page with browser-like headers."""
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                        "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -44,90 +37,96 @@ def fetch_page(url):
     return None
 
 
-def extract_alerts(html, url):
-    """Extract alert items from the page HTML."""
+def extract_alerts(html, year):
+    """Extract alerts from the .cmp-text ul > li structure."""
     soup = BeautifulSoup(html, "html.parser")
     alerts = []
 
-    # Look for links to PDF files or alert detail pages
-    for link in soup.find_all("a", href=True):
-        href = link["href"]
-        text = link.get_text(strip=True)
+    # Find the content div with the alerts list
+    cmp_text = soup.find("div", class_="cmp-text")
+    if not cmp_text:
+        return alerts
 
-        if not text or len(text) < 5:
+    for li in cmp_text.find_all("li"):
+        # Get alert number from <b>
+        bold = li.find("b")
+        if not bold:
             continue
 
-        # Match PDF links or internal alert pages
-        is_pdf = href.lower().endswith(".pdf")
-        is_alert_page = "/perspectives/" in href and href != url
+        # Check for PDF link inside <b>
+        link_tag = bold.find("a", href=True)
+        alert_number = bold.get_text(strip=True)
+        pdf_url = ""
 
-        if is_pdf or is_alert_page:
-            # Try to extract alert number from text (e.g., "חוזר מס 1/2026")
-            full_url = href if href.startswith("http") else "https://www.deloitte.com" + href
+        if link_tag:
+            pdf_url = link_tag["href"]
+            if not pdf_url.startswith("http"):
+                pdf_url = "https://www.deloitte.com" + pdf_url
 
-            alerts.append({
-                "title": text[:200],
-                "url": full_url,
-                "is_pdf": is_pdf,
-            })
+        # Get the title — it's the text content of <li> minus the <b> content
+        # Remove the bold tag to get remaining text
+        li_text = li.get_text(separator=" ", strip=True)
+        # Remove the alert number from the beginning
+        title = li_text.replace(alert_number, "", 1).strip()
+        # Clean up leading/trailing pipes, spaces
+        title = re.sub(r'^[\s|]+', '', title).strip()
 
-    # Also look for list items or structured content
-    for li in soup.find_all("li"):
-        text = li.get_text(strip=True)
-        link_tag = li.find("a", href=True)
-        if link_tag and text and len(text) > 10:
-            href = link_tag["href"]
-            if href.lower().endswith(".pdf") or "/perspectives/" in href:
-                full_url = href if href.startswith("http") else "https://www.deloitte.com" + href
-                if not any(a["url"] == full_url for a in alerts):
-                    alerts.append({
-                        "title": text[:200],
-                        "url": full_url,
-                        "is_pdf": href.lower().endswith(".pdf"),
-                    })
+        if not title or len(title) < 5:
+            continue
+
+        # Skip if it's just "English" or navigation text
+        if title.lower() in ["english", "hebrew", "עברית"]:
+            continue
+
+        alerts.append({
+            "alertNumber": alert_number,
+            "title": title,
+            "pdfUrl": pdf_url,
+            "year": year,
+        })
 
     return alerts
 
 
 def scan():
-    """Scan Deloitte for new tax alerts. Returns list of items."""
+    """Scan Deloitte for tax alerts. Returns list of items."""
     items = []
     now = datetime.now()
     years = [now.year, now.year - 1]
 
     for year in years:
-        # Try Hebrew first, then English
-        for url_fn in [get_alerts_url, get_en_alerts_url]:
-            url = url_fn(year)
-            print("  Checking: {}".format(url))
-            html = fetch_page(url)
-            if html:
-                alerts = extract_alerts(html, url)
-                for alert in alerts:
-                    items.append({
-                        "source": SOURCE_NAME,
-                        "sourceLabel": SOURCE_LABEL,
-                        "title": alert["title"],
-                        "url": alert["url"],
-                        "itemType": "tax_alert",
-                        "detectedAt": now.isoformat(),
-                        "metadata": {
-                            "year": year,
-                            "isPdf": alert["is_pdf"],
-                        },
-                    })
-                if alerts:
-                    print("  Found {} alerts for {}".format(len(alerts), year))
-                    break  # Got results from one language, skip the other
-            else:
-                print("  Could not fetch page for {}".format(year))
+        url = get_alerts_url(year)
+        print("  Checking: {}".format(url))
+        html = fetch_page(url)
+        if not html:
+            print("  Could not fetch page for {}".format(year))
+            continue
 
-    # Deduplicate by URL
-    seen_urls = set()
+        alerts = extract_alerts(html, year)
+        print("  Found {} alerts for {}".format(len(alerts), year))
+
+        for alert in alerts:
+            items.append({
+                "source": SOURCE_NAME,
+                "sourceLabel": SOURCE_LABEL,
+                "title": "{} — {}".format(alert["alertNumber"], alert["title"]),
+                "url": alert["pdfUrl"] or get_alerts_url(year),
+                "itemType": "tax_alert",
+                "detectedAt": now.isoformat(),
+                "metadata": {
+                    "alertNumber": alert["alertNumber"],
+                    "year": alert["year"],
+                    "pdfUrl": alert["pdfUrl"],
+                },
+            })
+
+    # Deduplicate by alert number
+    seen = set()
     unique = []
     for item in items:
-        if item["url"] not in seen_urls:
-            seen_urls.add(item["url"])
+        key = item["metadata"]["alertNumber"]
+        if key not in seen:
+            seen.add(key)
             unique.append(item)
 
     return unique

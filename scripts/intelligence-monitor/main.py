@@ -23,7 +23,7 @@ from datetime import datetime
 
 import requests
 
-from sources import deloitte, telegram, globes
+from sources import deloitte, telegram, globes, btl, boi, knesset, os_experts
 
 # ── Config ──────────────────────────────────────────────────────────────
 
@@ -130,6 +130,10 @@ def generate_digest_email(new_items):
         "deloitte": "📋",
         "tax_authority_telegram": "📢",
         "globes": "📰",
+        "btl": "🏛️",
+        "boi": "🏦",
+        "knesset": "⚖️",
+        "os_experts": "📂",
     }
 
     sections_html = ""
@@ -217,7 +221,7 @@ def generate_digest_email(new_items):
 <!-- Footer -->
 <tr><td style="background:#f8f8f8;padding:16px 32px;text-align:center;border-top:1px solid #eee;margin-top:16px;">
     <p style="margin:0;font-size:11px;color:#999;">עדכון אוטומטי — מודיעין מקצועי bitancpa.com</p>
-    <p style="margin:4px 0 0;font-size:11px;color:#999;">מקורות: Deloitte Israel · רשות המיסים (טלגרם) · Globes</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#999;">מקורות: Deloitte · רשות המיסים · Globes · ביטוח לאומי · בנק ישראל · הכנסת · OS Experts</p>
 </td></tr>
 
 </table>
@@ -281,29 +285,24 @@ def main():
     # 2. Scan all sources
     all_items = []
 
-    print("\n[1/3] Scanning Deloitte Israel tax alerts...")
-    try:
-        deloitte_items = deloitte.scan()
-        all_items.extend(deloitte_items)
-        print("  → {} items".format(len(deloitte_items)))
-    except Exception as e:
-        print("  ERROR: {}".format(e))
+    sources = [
+        ("Deloitte Israel tax alerts", deloitte),
+        ("Tax Authority Telegram", telegram),
+        ("Globes RSS", globes),
+        ("ביטוח לאומי", btl),
+        ("בנק ישראל", boi),
+        ("ועדת הכספים — הכנסת", knesset),
+        ("OS Experts — חוזרים", os_experts),
+    ]
 
-    print("\n[2/3] Scanning Tax Authority Telegram...")
-    try:
-        telegram_items = telegram.scan()
-        all_items.extend(telegram_items)
-        print("  → {} items".format(len(telegram_items)))
-    except Exception as e:
-        print("  ERROR: {}".format(e))
-
-    print("\n[3/3] Scanning Globes RSS feeds...")
-    try:
-        globes_items = globes.scan()
-        all_items.extend(globes_items)
-        print("  → {} items".format(len(globes_items)))
-    except Exception as e:
-        print("  ERROR: {}".format(e))
+    for i, (name, module) in enumerate(sources, 1):
+        print("\n[{}/{}] Scanning {}...".format(i, len(sources), name))
+        try:
+            source_items = module.scan()
+            all_items.extend(source_items)
+            print("  → {} items".format(len(source_items)))
+        except Exception as e:
+            print("  ERROR: {}".format(e))
 
     print("\nTotal items scanned: {}".format(len(all_items)))
 
