@@ -433,6 +433,7 @@ def generate_report(current, previous):
     )
 
     # Top 5 pages — show title (friendly name), not path
+    # In RTL email: columns reversed — number first (left), then title (right)
     top_pages_html = ""
     for p in ga4.get("topPages", [])[:5]:
         title = p.get("title", p["path"])
@@ -441,22 +442,23 @@ def generate_report(current, previous):
             title = title.replace(suffix, "")
         if not title or title == "(not set)":
             title = p["path"]
-        if len(title) > 45:
-            title = title[:42] + "..."
+        if len(title) > 50:
+            title = "..." + title[:47]
         top_pages_html += """
         <tr>
-            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-size:13px;">{}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-size:13px;font-weight:600;">{}</td>
+            <td dir="rtl" style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-size:13px;direction:rtl;">{}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:left;font-size:13px;font-weight:600;width:70px;">{}</td>
         </tr>""".format(title, fmt_num(p["pageviews"]))
 
     # Top 5 search queries
+    # RTL: query on right, numbers on left
     top_queries_html = ""
     for q in gsc.get("topQueries", [])[:5]:
         top_queries_html += """
         <tr>
-            <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;font-size:13px;">{}</td>
-            <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:center;font-size:13px;">{}</td>
-            <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:center;font-size:13px;">{}</td>
+            <td dir="rtl" style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-size:13px;direction:rtl;">{}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-size:13px;width:70px;">{}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-size:13px;width:60px;">{}</td>
         </tr>""".format(q["query"], q["clicks"], round(q["position"], 1))
 
     # Traffic sources summary
@@ -486,10 +488,10 @@ def generate_report(current, previous):
     html = """<!DOCTYPE html>
 <html dir="rtl" lang="he">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:20px 0;">
+<body dir="rtl" style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif;direction:rtl;">
+<table dir="rtl" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:20px 0;direction:rtl;">
 <tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+<table dir="rtl" width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);direction:rtl;">
 
 <!-- Header -->
 <tr><td style="background:#102040;padding:28px 32px;text-align:center;">
@@ -531,7 +533,7 @@ def generate_report(current, previous):
 
 <!-- Secondary metrics -->
 <tr><td style="padding:0 32px 16px;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#444;border:1px solid #eee;border-radius:4px;">
+    <table dir="rtl" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#444;border:1px solid #eee;border-radius:4px;direction:rtl;border-collapse:collapse;">
     <tr>
         <td width="33%" style="padding:10px 12px;text-align:center;border-bottom:1px solid #eee;border-left:1px solid #eee;">
             <div style="font-size:11px;color:#888;margin-bottom:3px;">משך ביקור ממוצע</div>
@@ -568,8 +570,8 @@ def generate_report(current, previous):
 
 <!-- Traffic Sources -->
 <tr><td style="padding:0 32px 16px;">
-    <h3 style="margin:0 0 12px;color:#102040;font-size:15px;">מקורות תנועה</h3>
-    <table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;">
+    <h3 dir="rtl" style="margin:0 0 12px;color:#102040;font-size:15px;text-align:right;">מקורות תנועה</h3>
+    <table dir="rtl" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;direction:rtl;">
     <tr>
         <td style="padding:4px 0;">
             <span style="display:inline-block;width:12px;height:12px;background:#27ae60;border-radius:2px;vertical-align:middle;margin-left:6px;"></span>
@@ -593,11 +595,11 @@ def generate_report(current, previous):
 
 <!-- Top Content -->
 <tr><td style="padding:0 32px 16px;">
-    <h3 style="margin:0 0 8px;color:#102040;font-size:15px;">תוכן מוביל</h3>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:4px;">
+    <h3 dir="rtl" style="margin:0 0 8px;color:#102040;font-size:15px;text-align:right;">תוכן מוביל</h3>
+    <table dir="rtl" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:4px;direction:rtl;">
     <tr style="background:#f8f8f8;">
         <td style="padding:8px 12px;font-size:12px;font-weight:700;color:#666;text-align:right;">עמוד</td>
-        <td style="padding:8px 12px;font-size:12px;font-weight:700;color:#666;text-align:center;">צפיות</td>
+        <td style="padding:8px 12px;font-size:12px;font-weight:700;color:#666;text-align:left;width:70px;">צפיות</td>
     </tr>
     {top_pages}
     </table>
@@ -605,12 +607,12 @@ def generate_report(current, previous):
 
 <!-- Top Search Queries -->
 <tr><td style="padding:0 32px 16px;">
-    <h3 style="margin:0 0 8px;color:#102040;font-size:15px;">מילות חיפוש מובילות</h3>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:4px;">
+    <h3 dir="rtl" style="margin:0 0 8px;color:#102040;font-size:15px;text-align:right;">מילות חיפוש מובילות</h3>
+    <table dir="rtl" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:4px;direction:rtl;">
     <tr style="background:#f8f8f8;">
         <td style="padding:8px 12px;font-size:12px;font-weight:700;color:#666;text-align:right;">ביטוי</td>
-        <td style="padding:8px 12px;font-size:12px;font-weight:700;color:#666;text-align:center;">הקלקות</td>
-        <td style="padding:8px 12px;font-size:12px;font-weight:700;color:#666;text-align:center;">מיקום</td>
+        <td style="padding:8px 12px;font-size:12px;font-weight:700;color:#666;text-align:center;width:70px;">הקלקות</td>
+        <td style="padding:8px 12px;font-size:12px;font-weight:700;color:#666;text-align:center;width:60px;">מיקום</td>
     </tr>
     {top_queries}
     </table>
@@ -618,8 +620,8 @@ def generate_report(current, previous):
 
 <!-- Newsletter -->
 <tr><td style="padding:0 32px 16px;">
-    <h3 style="margin:0 0 8px;color:#102040;font-size:15px;">ניוזלטר ולידים</h3>
-    <table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#444;">
+    <h3 dir="rtl" style="margin:0 0 8px;color:#102040;font-size:15px;text-align:right;">ניוזלטר ולידים</h3>
+    <table dir="rtl" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#444;direction:rtl;">
     <tr>
         <td style="padding:4px 0;">מנויי ניוזלטר: <strong>{total_subs}</strong> (חדש השבוע: {new_subs})</td>
     </tr>
