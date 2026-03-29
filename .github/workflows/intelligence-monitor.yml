@@ -1,0 +1,28 @@
+name: Professional Intelligence Monitor
+
+on:
+  schedule:
+    # Every day at 04:00 UTC (07:00 Israel time)
+    - cron: '0 4 * * *'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r scripts/intelligence-monitor/requirements.txt
+
+      - name: Run intelligence monitor
+        working-directory: scripts/intelligence-monitor
+        env:
+          SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          REPORT_RECIPIENTS: ${{ secrets.REPORT_RECIPIENTS }}
+        run: python main.py
