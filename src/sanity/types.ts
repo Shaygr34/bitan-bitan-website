@@ -330,6 +330,8 @@ export type Tool = {
   excerpt?: string
   mainImage?: SanityImage
   order?: number
+  primeRate?: number
+  vatRate?: number
   configJson?: string
   introBody?: PortableTextBlock[]
   disclaimer?: string

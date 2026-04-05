@@ -504,7 +504,7 @@ export async function getTools(): Promise<Tool[]> {
 
 const TOOL_BY_SLUG_QUERY = `*[_type == "tool" && slug.current == $slug][0]{
   _id, title, slug, toolType, excerpt, mainImage,
-  configJson, introBody, disclaimer,
+  primeRate, vatRate, configJson, introBody, disclaimer,
   seoTitle, seoDescription
 }`
 

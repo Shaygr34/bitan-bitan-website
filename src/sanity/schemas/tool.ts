@@ -52,11 +52,26 @@ export default defineType({
       initialValue: 0,
     }),
     defineField({
+      name: 'primeRate',
+      title: 'ריבית פריים (%)',
+      type: 'number',
+      description: 'ריבית הפריים הנוכחית של בנק ישראל. עדכון ידני.',
+      initialValue: 4.75,
+    }),
+    defineField({
+      name: 'vatRate',
+      title: 'אחוז מע"מ',
+      type: 'number',
+      description: 'אחוז מע"מ נוכחי. למשל: 18 = 18%',
+      initialValue: 18,
+    }),
+    defineField({
       name: 'configJson',
-      title: 'הגדרות (JSON)',
+      title: 'הגדרות נוספות (JSON)',
       type: 'text',
       rows: 20,
-      description: 'JSON עם שיעורי מס, עלויות ממוצעות ופרמטרים — ניתן לעדכון ללא שינוי קוד.',
+      description: 'הגדרות נוספות ב-JSON — לשימוש מתקדם בלבד.',
+      hidden: true,
     }),
     defineField({
       name: 'introBody',
