@@ -210,6 +210,60 @@ export default async function ArticlePage({ params }: Props) {
               <PortableText
                 value={article.body}
                 components={{
+                  types: {
+                    image: ({ value }) => {
+                      const src = urlFor(value, 800)
+                      if (!src) return null
+                      return (
+                        <figure className="my-space-6">
+                          <Image
+                            src={src}
+                            alt={value.alt || ''}
+                            width={800}
+                            height={500}
+                            className="rounded-lg w-full h-auto border border-border"
+                            style={{ objectFit: 'contain' }}
+                          />
+                          {value.caption && (
+                            <figcaption className="text-center text-body-sm text-text-muted mt-space-2">
+                              {value.caption}
+                            </figcaption>
+                          )}
+                        </figure>
+                      )
+                    },
+                    table: ({ value }) => {
+                      if (!value?.rows?.length) return null
+                      const headerRow = value.rows[0]
+                      const bodyRows = value.rows.slice(1)
+                      return (
+                        <div className="my-space-6 overflow-x-auto rounded-lg border border-border">
+                          <table className="w-full text-body-sm border-collapse" dir="rtl">
+                            <thead>
+                              <tr className="bg-primary text-white">
+                                {headerRow.cells?.map((cell: string, i: number) => (
+                                  <th key={i} className="px-3 py-2.5 text-start font-bold border-e border-white/20 last:border-e-0">
+                                    {cell}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {bodyRows.map((row: { cells?: string[] }, ri: number) => (
+                                <tr key={ri} className={ri % 2 === 0 ? 'bg-white' : 'bg-surface/50'}>
+                                  {row.cells?.map((cell: string, ci: number) => (
+                                    <td key={ci} className="px-3 py-2 text-text-secondary border-e border-border last:border-e-0 border-b border-border-light">
+                                      {cell}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )
+                    },
+                  },
                   marks: {
                     link: ({ children, value }) => {
                       const href = value?.href || ''
