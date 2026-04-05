@@ -108,7 +108,7 @@ CMS: Sanity project ul4uwnp7, dataset production
 - Logo crossfade: both logos rendered absolutely, opacity swap (no size jump — canvases matched)
 
 ## Schemas (16)
-article (with downloadableFile/contentType incl. form/categories[]/authors[]/body with link+textColor annotations/checklist with link annotations) · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber · **tool** (with toolType/configJson/introBody)
+article (with downloadableFile/contentType incl. form/categories[]/authors[]/body with link+textColor annotations + **image** blocks + **table** blocks (@sanity/table)/checklist with link annotations) · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber · **tool** (with toolType/primeRate/vatRate/configJson/introBody)
 
 ## Key Conventions
 - Server components default, 'use client' only for interactivity
@@ -441,10 +441,79 @@ Continuation of the content intelligence session. Added CRM integration and digi
 - **Intelligence Phase 4**: Intelligence → Content Factory auto-drafting
 - **Top article opportunity**: "אישור ניכוי מס במקור" — 511 impressions, position 8, 1% CTR
 
-### Summit MCP for Avi/Ron (Claude Desktop)
+### Summit MCP for Avi/Ron (Claude Desktop + claude.ai)
 - Summit MCP server is remote on Railway — no local install needed
-- Avi/Ron connect via Claude Desktop → Settings → Connectors → **Add custom connector**
+- Avi/Ron connect via Claude Desktop or claude.ai → Settings → Connectors → **Add custom connector**
   - Name: `Summit CRM`
   - URL: `https://summit-mcp.up.railway.app/mcp`
   - OAuth: leave empty
-- Gives them 29 Summit tools in Hebrew directly in Claude conversations
+- **v2.3.0** (April 5, 2026): 30 tools, full financial data access, embedded Hebrew server instructions
+- Full billing/fees, invoice amounts, tax liabilities, company numbers, documents — all accessible
+- Only blocked: bank details, credit cards, ת.ז, passwords
+
+## Session: April 5, 2026 — Calculator V2 + Summit MCP Unlock + Tables
+
+### 1. Leasing Calculator V2 (SHIPPED — live on bitancpa.com)
+- **Complete rebuild** of the leasing simulator based on Ron's 21-page spec
+- Replaced 5-step recommendation quiz with professional financial calculator
+- Real loan amortization, Israeli tax rules (VAT 67%/100%, deductions 45%/100%, marginal tax brackets)
+- 3 option types × 4 vehicle types = 12 calculation paths (עצמאי only, שכיר בקרוב)
+- Slider-based UX with node points + manual input (not pill grids)
+- 2-step vehicle type reveal (פרטי/מסחרי → בנזין/חשמלי)
+- Side-by-side comparison with "מה עדיף?" verdict card
+- Results split into 4 sections: נתוני רכב/מימון, הוצאות שוטפות, ניתוח מס, סיכום
+- Dedicated Sanity fields: `primeRate` (5.5%), `vatRate` (18%)
+- Income-based tax savings calculation (Ron's email addition)
+- Code: `src/components/tools/calculator/` (9 files)
+- Plan: `docs/superpowers/plans/2026-04-05-leasing-calculator-v2.md`
+- **Avi feedback applied**: "רכישה יד 2" → "רכישת רכב", prime rate 5.5%, sectioned results, loan interest avg annual
+
+### 2. Summit MCP v2.3.0 (SHIPPED — live on Railway)
+- **Security unlock**: opened billing, fees, tax files, documents, reports. Keep bank/CC/passwords locked.
+- Removed YELLOW_REPORTS mode and monetary field stripping from document endpoints
+- Tool descriptions updated — no more "yellow zone" language
+- **Server instructions**: embedded Hebrew knowledge doc sent to Claude on every connection
+  - Covers: firm context, folder IDs, how to search/query, revenue patterns, rate limits
+  - Claude now speaks Hebrew by default and knows the Summit data model
+- Avi/Ron can now ask: "מי הלקוח שמשלם הכי הרבה?", "תן לי דוח גבייה", "סטטוס דוחות שנתיים" etc.
+- Default for unmapped folders changed from DENY ALL → WITH_PII_SCAN
+
+### 3. Table + Image Support in Articles (SHIPPED)
+- `@sanity/table` plugin installed — native table editor in Sanity Studio
+- Image blocks now render in article body (were silently dropped)
+- Table renderer: navy header, alternating rows, RTL, Bitan design language
+- 3 comparison tables populated into Avi's leasing article via API
+- Avi can now add tables to any article directly from Studio
+
+### 4. Meeting Transcript Parsed (March 29 meeting)
+- 45-minute recording transcribed via local mlx-whisper ($0 cost)
+- 6 action items extracted: onboarding fixes, Summit MCP gaps, IDOM sync, stages roadmap
+- Memory file: `bitan-meeting-2026-03-29.md`
+
+### 5. תחום עיסוק Taxonomy (Research Complete)
+- 469 raw Summit CRM entries → 25 canonical categories
+- 23 entries identified as statuses (not sectors) — should be separate field
+- Mapping file: `summit-mcp/taxonomy_cleanup_map_v2.json`
+- Category doc: `docs/taxonomy-business-sectors.md`
+- Ready for: onboarding form dropdown, Summit CRM cleanup script
+
+### 6. שאגת הארי Grant Research (Research Complete)
+- 400+ line research doc with full eligibility criteria, calculation formulas, special tracks
+- Two paths: small business lookup table (≤300K) + larger business formula (300K-400M)
+- Research file: `docs/superpowers/research/shaagat-haari-grant-research.md`
+- Parked for future session — lower priority per Shay
+
+### 7. Quick Wins
+- Old V1 simulator files deleted (4 files, -930 lines)
+- Contact form diagnosed: leads save to Sanity OK, email silently fails (missing RESEND_API_KEY + CONTACT_EMAIL_TO on Railway)
+- Dev backlog documented: 17 items prioritized in memory
+
+### New Key Files
+- `src/components/tools/calculator/` — 9 files (types, config, engine, wizard steps, results, slider, input group)
+- `docs/superpowers/plans/2026-04-05-leasing-calculator-v2.md`
+- `docs/superpowers/research/shaagat-haari-grant-research.md`
+- `docs/taxonomy-business-sectors.md`
+- `sanity.config.ts` — added `table()` plugin
+
+### Open Items (Full Backlog)
+See memory file: `bitan-dev-backlog-2026-04-05.md` for complete 17-item prioritized backlog.
