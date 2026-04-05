@@ -191,6 +191,7 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
           { value: 20000, label: '20K' },
           { value: 30000, label: '30K' },
           { value: 40000, label: '40K' },
+          { value: 50000, label: '50K' },
         ]}
         format={formatCurrency}
       />

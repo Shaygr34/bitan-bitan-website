@@ -509,6 +509,7 @@ function RunningCosts({
               { value: 5000, label: '5K' },
               { value: 7000, label: '7K' },
               { value: 10000, label: '10K' },
+              { value: 13000, label: '13K' },
             ]}
             format={formatCurrency}
             compact
@@ -525,6 +526,7 @@ function RunningCosts({
               { value: 7000, label: '7K' },
               { value: 9000, label: '9K' },
               { value: 11000, label: '11K' },
+              { value: 13000, label: '13K' },
             ]}
             format={formatCurrency}
             compact
