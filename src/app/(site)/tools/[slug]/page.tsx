@@ -3,8 +3,8 @@ import { getToolBySlug } from '@/sanity/queries'
 import { PortableText } from 'next-sanity'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import { AlertTriangle } from 'lucide-react'
-import { LeasingSimulator } from '@/components/tools/LeasingSimulator'
-import type { LeasingConfig } from '@/components/tools/leasing-logic'
+import { LeasingCalculator } from '@/components/tools/calculator/LeasingCalculator'
+import type { CalculatorConfig } from '@/components/tools/calculator/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,17 +26,11 @@ export default async function ToolPage({ params }: Props) {
   const tool = await getToolBySlug(slug)
   if (!tool) notFound()
 
-  // Parse CMS config, fallback to defaults
-  let parsedConfig: LeasingConfig | undefined
-  if (tool.configJson) {
-    try {
-      parsedConfig = JSON.parse(tool.configJson)
-    } catch {
-      /* use default */
-    }
-  }
+  // Build calculator config from dedicated Sanity fields
+  const calcConfig: Partial<CalculatorConfig> = {}
+  if (tool.primeRate) calcConfig.primeRate = tool.primeRate
+  if (tool.vatRate) calcConfig.vatRate = tool.vatRate / 100 // Sanity stores 18, engine needs 0.18
 
-  // Map toolType to component
   const isLeasing = tool.toolType === 'leasing-simulator'
 
   return (
@@ -58,7 +52,7 @@ export default async function ToolPage({ params }: Props) {
       {/* Tool */}
       <section className="py-space-9 px-6">
         <div className="max-w-narrow mx-auto">
-          {isLeasing && <LeasingSimulator config={parsedConfig} />}
+          {isLeasing && <LeasingCalculator config={calcConfig} />}
         </div>
       </section>
 
