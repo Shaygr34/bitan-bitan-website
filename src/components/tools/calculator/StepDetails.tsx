@@ -1,17 +1,8 @@
 'use client'
 
-import { InputGroup, YesNoToggle } from './InputGroup'
+import { SliderInput } from './SliderInput'
+import { YesNoToggle } from './InputGroup'
 import {
-  PURCHASE_EQUITY_PRESETS,
-  PURCHASE_RATE_PRESETS,
-  FINANCIAL_DOWN_PRESETS,
-  FINANCIAL_RESIDUAL_PRESETS,
-  FINANCIAL_RATE_PRESETS,
-  OPERATIONAL_DOWN_PRESETS,
-  PERIOD_PRESETS,
-  FUEL_PRESETS,
-  MAINTENANCE_PRESETS,
-  INSURANCE_PRESETS,
   ELECTRIC_KM_PRESETS,
   DEFAULT_FUEL_MONTHLY,
   DEFAULT_MAINTENANCE_YEARLY,
@@ -46,9 +37,8 @@ function formatCurrency(n: number): string {
   return n.toLocaleString('he-IL')
 }
 
-function formatRate(primeRate: number, spread: number): string {
-  const total = primeRate + spread
-  return `${total.toFixed(1)}%`
+function formatPercent(n: number): string {
+  return `${n}`
 }
 
 export function StepDetails({
@@ -67,11 +57,10 @@ export function StepDetails({
       <h2 className="text-h3 font-bold text-primary text-center mb-space-2">
         {OPTION_TITLES[optionType]}
       </h2>
-      <p className="text-body text-text-muted text-center mb-space-7">
-        התאם את הפרמטרים — ברירות המחדל מבוססות על נתוני שוק
+      <p className="text-body text-text-muted text-center mb-space-6">
+        כוונן את הפרמטרים — ברירות המחדל מבוססות על נתוני שוק
       </p>
 
-      {/* Option-specific fields */}
       {optionType === 'purchase' && (
         <PurchaseFields
           carPrice={carPrice}
@@ -101,8 +90,7 @@ export function StepDetails({
         />
       )}
 
-      {/* Next */}
-      <div className="mt-space-7 text-center">
+      <div className="mt-space-6 text-center">
         <button
           type="button"
           onClick={onNext}
@@ -136,62 +124,76 @@ function PurchaseFields({
   const equityAmount = Math.round(carPrice * (equity / 100))
   const loanAmount = carPrice - equityAmount
   const spread = inputs.interestSpread ?? 1
+  const effectiveRate = primeRate + spread
 
   return (
     <>
-      {/* Section: Financial Terms */}
-      <div className="bg-surface rounded-xl p-space-4 mb-space-5">
+      <div className="bg-surface rounded-xl p-space-4 mb-space-4">
         <h3 className="text-body font-bold text-primary mb-space-3">תנאי מימון</h3>
 
-        <InputGroup
+        <SliderInput
           label="הון עצמי"
-          presets={PURCHASE_EQUITY_PRESETS.map((p) => ({
-            value: p.value,
-            label: p.label,
-            sublabel: `${formatCurrency(Math.round(carPrice * (p.value / 100)))} ₪`,
-          }))}
+          min={0}
+          max={100}
+          step={5}
           value={equity}
           onChange={(v) => onChange({ equityPercent: v })}
-          allowManual
-          manualPlaceholder="אחוז"
+          nodes={[
+            { value: 25, label: '25%' },
+            { value: 50, label: '50%' },
+            { value: 75, label: '75%' },
+            { value: 100, label: '100%' },
+          ]}
+          format={formatPercent}
           suffix="%"
-          computedDisplay={equity < 100 ? `סכום הלוואה: ${formatCurrency(loanAmount)} ₪` : undefined}
+          computedDisplay={equity < 100 ? `הלוואה: ${formatCurrency(loanAmount)} ₪` : undefined}
           compact
         />
 
         {equity < 100 && (
           <>
-            <InputGroup
+            <SliderInput
               label="ריבית"
-              subtitle={`פריים נוכחי: ${primeRate}%`}
-              presets={PURCHASE_RATE_PRESETS.map((p) => ({
-                value: p.value,
-                label: p.label,
-                sublabel: formatRate(primeRate, p.value),
-              }))}
+              subtitle={`פריים: ${primeRate}% | ריבית אפקטיבית: ${effectiveRate.toFixed(1)}%`}
+              min={-1}
+              max={3}
+              step={0.5}
               value={spread}
               onChange={(v) => onChange({ interestSpread: v })}
+              nodes={[
+                { value: -1, label: 'P-1' },
+                { value: 0, label: 'P+0' },
+                { value: 1, label: 'P+1' },
+                { value: 2, label: 'P+2' },
+              ]}
+              format={(v) => `P${v >= 0 ? '+' : ''}${v}%`}
+              suffix=""
               allowManual={false}
-              columns={4}
               compact
             />
 
-            <InputGroup
+            <SliderInput
               label="תקופת הלוואה"
-              presets={PERIOD_PRESETS.map((p) => ({ value: p.value, label: p.label }))}
+              min={12}
+              max={72}
+              step={6}
               value={inputs.periodMonths ?? 60}
               onChange={(v) => onChange({ periodMonths: v })}
-              allowManual
-              manualPlaceholder="חודשים"
+              nodes={[
+                { value: 24, label: '24' },
+                { value: 36, label: '36' },
+                { value: 48, label: '48' },
+                { value: 60, label: '60' },
+              ]}
+              format={(v) => `${v}`}
               suffix="חודשים"
-              columns={4}
+              allowManual={false}
               compact
             />
           </>
         )}
       </div>
 
-      {/* Section: Running Costs */}
       <RunningCosts isElectric={isElectric} inputs={inputs} onChange={onChange} showAll />
     </>
   )
@@ -220,40 +222,48 @@ function FinancialFields({
   const residualAmount = Math.round(carPrice * (residualPct / 100))
   const loanAmount = Math.max(0, carPrice - downAmount - residualAmount)
   const spread = inputs.interestSpread ?? 2
+  const effectiveRate = primeRate + spread
 
   return (
     <>
-      <div className="bg-surface rounded-xl p-space-4 mb-space-5">
+      <div className="bg-surface rounded-xl p-space-4 mb-space-4">
         <h3 className="text-body font-bold text-primary mb-space-3">תנאי ליסינג מימוני</h3>
 
-        <InputGroup
+        <SliderInput
           label="מקדמה"
-          presets={FINANCIAL_DOWN_PRESETS.map((p) => ({
-            value: p.value,
-            label: p.label,
-            sublabel: `${formatCurrency(Math.round(carPrice * (p.value / 100)))} ₪`,
-          }))}
+          min={0}
+          max={50}
+          step={5}
           value={downPct}
           onChange={(v) => onChange({ downPaymentPercent: v })}
-          allowManual
-          manualPlaceholder="אחוז"
+          nodes={[
+            { value: 15, label: '15%' },
+            { value: 20, label: '20%' },
+            { value: 30, label: '30%' },
+            { value: 40, label: '40%' },
+          ]}
+          format={formatPercent}
           suffix="%"
+          computedDisplay={`${formatCurrency(downAmount)} ₪`}
           compact
         />
 
-        <InputGroup
+        <SliderInput
           label="יתרה בסוף תקופה (בלון)"
-          presets={FINANCIAL_RESIDUAL_PRESETS.map((p) => ({
-            value: p.value,
-            label: p.label,
-            sublabel: `${formatCurrency(Math.round(carPrice * (p.value / 100)))} ₪`,
-          }))}
+          min={10}
+          max={60}
+          step={5}
           value={residualPct}
           onChange={(v) => onChange({ residualPercent: v })}
-          allowManual
-          manualPlaceholder="אחוז"
+          nodes={[
+            { value: 30, label: '30%' },
+            { value: 35, label: '35%' },
+            { value: 40, label: '40%' },
+            { value: 50, label: '50%' },
+          ]}
+          format={formatPercent}
           suffix="%"
-          computedDisplay={`סכום הלוואה: ${formatCurrency(loanAmount)} ₪`}
+          computedDisplay={`הלוואה: ${formatCurrency(loanAmount)} ₪`}
           compact
         />
 
@@ -264,40 +274,53 @@ function FinancialFields({
         />
 
         {inputs.tradeIn && (
-          <InputGroup
+          <SliderInput
             label="סכום שהתקבל בגין הרכב הישן"
-            presets={[]}
-            value={inputs.tradeInAmount ?? null}
+            min={0}
+            max={200000}
+            step={5000}
+            value={inputs.tradeInAmount ?? 0}
             onChange={(v) => onChange({ tradeInAmount: v })}
-            manualPlaceholder="הזן סכום"
+            format={formatCurrency}
             compact
           />
         )}
 
-        <InputGroup
+        <SliderInput
           label="ריבית"
-          subtitle={`פריים נוכחי: ${primeRate}%`}
-          presets={FINANCIAL_RATE_PRESETS.map((p) => ({
-            value: p.value,
-            label: p.label,
-            sublabel: formatRate(primeRate, p.value),
-          }))}
+          subtitle={`פריים: ${primeRate}% | אפקטיבית: ${effectiveRate.toFixed(1)}%`}
+          min={0.5}
+          max={4}
+          step={0.5}
           value={spread}
           onChange={(v) => onChange({ interestSpread: v })}
+          nodes={[
+            { value: 1, label: 'P+1' },
+            { value: 2, label: 'P+2' },
+            { value: 3, label: 'P+3' },
+          ]}
+          format={(v) => `P+${v}%`}
+          suffix=""
           allowManual={false}
-          columns={3}
           compact
         />
 
-        <InputGroup
+        <SliderInput
           label="תקופה"
-          presets={PERIOD_PRESETS.map((p) => ({ value: p.value, label: p.label }))}
+          min={12}
+          max={72}
+          step={6}
           value={inputs.periodMonths ?? 60}
           onChange={(v) => onChange({ periodMonths: v })}
-          allowManual
-          manualPlaceholder="חודשים"
+          nodes={[
+            { value: 24, label: '24' },
+            { value: 36, label: '36' },
+            { value: 48, label: '48' },
+            { value: 60, label: '60' },
+          ]}
+          format={(v) => `${v}`}
           suffix="חודשים"
-          columns={4}
+          allowManual={false}
           compact
         />
       </div>
@@ -326,53 +349,54 @@ function OperationalFields({
 
   return (
     <>
-      <div className="bg-surface rounded-xl p-space-4 mb-space-5">
+      <div className="bg-surface rounded-xl p-space-4 mb-space-4">
         <h3 className="text-body font-bold text-primary mb-space-3">תנאי ליסינג תפעולי</h3>
 
-        <InputGroup
+        <SliderInput
           label="מקדמה"
-          presets={OPERATIONAL_DOWN_PRESETS.map((p) => ({
-            value: p.value,
-            label: p.label,
-            sublabel: `${formatCurrency(Math.round(carPrice * (p.value / 100)))} ₪`,
-          }))}
+          min={0}
+          max={30}
+          step={5}
           value={inputs.downPaymentPercent ?? 5}
           onChange={(v) => onChange({ downPaymentPercent: v })}
-          allowManual
-          manualPlaceholder="אחוז"
+          nodes={[
+            { value: 5, label: '5%' },
+            { value: 10, label: '10%' },
+            { value: 15, label: '15%' },
+            { value: 20, label: '20%' },
+          ]}
+          format={formatPercent}
           suffix="%"
+          computedDisplay={`${formatCurrency(Math.round(carPrice * ((inputs.downPaymentPercent ?? 5) / 100)))} ₪`}
           compact
         />
 
-        <InputGroup
+        <SliderInput
           label="תשלום ליסינג חודשי"
-          subtitle="כולל מע״מ — הסכומים מותאמים לטווח המחיר של הרכב"
-          presets={bracket.options.map((o) => ({
-            value: o,
-            label: `${formatCurrency(o)} ₪`,
-          }))}
+          subtitle="כולל מע״מ — מותאם לטווח המחיר"
+          min={bracket.options[0]}
+          max={bracket.options[bracket.options.length - 1]}
+          step={100}
           value={inputs.monthlyLeasingPayment ?? bracket.defaultRate}
           onChange={(v) => onChange({ monthlyLeasingPayment: v })}
-          manualPlaceholder="הזן סכום"
-          columns={4}
+          nodes={bracket.options.map((o) => ({ value: o, label: formatCurrency(o) }))}
+          format={formatCurrency}
           compact
         />
       </div>
 
-      {/* Fuel only — maintenance + insurance included in leasing */}
-      <div className="bg-surface rounded-xl p-space-4 mb-space-5">
-        <h3 className="text-body font-bold text-primary mb-space-3">דלק</h3>
+      <div className="bg-surface rounded-xl p-space-4 mb-space-4">
+        <h3 className="text-body font-bold text-primary mb-space-2">דלק</h3>
         <p className="text-caption text-text-muted mb-space-3">
           אחזקה וביטוח כלולים בליסינג תפעולי
         </p>
 
         {isElectric ? (
-          <InputGroup
-            label='כמה אתה נוסע ק"מ בממוצע בחודש?'
-            presets={ELECTRIC_KM_PRESETS.map((e) => ({
-              value: e.km,
-              label: e.label,
-            }))}
+          <SliderInput
+            label='נסיעה ק"מ ממוצע בחודש'
+            min={500}
+            max={3000}
+            step={100}
             value={inputs.kmPerMonth ?? 1500}
             onChange={(km) => {
               const match = ELECTRIC_KM_PRESETS.find((e) => e.km === km)
@@ -381,36 +405,42 @@ function OperationalFields({
                 fuelMonthly: match ? match.cost : Math.round(km * 0.13),
               })
             }}
-            manualPlaceholder='ק"מ'
+            nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.km, label: `${(e.km / 1000).toFixed(1)}K` }))}
+            format={(v) => v.toLocaleString('he-IL')}
             suffix='ק"מ'
             compact
           />
         ) : (
-          <InputGroup
+          <SliderInput
             label="דלק (לחודש)"
             subtitle="כולל מע״מ"
-            presets={FUEL_PRESETS.map((f) => ({
-              value: f,
-              label: `${formatCurrency(f)} ₪`,
-            }))}
-            value={inputs.fuelMonthly ?? DEFAULT_FUEL_MONTHLY}
+            min={300}
+            max={3000}
+            step={100}
+            value={(inputs.fuelMonthly as number) ?? DEFAULT_FUEL_MONTHLY}
             onChange={(v) => onChange({ fuelMonthly: v })}
-            manualPlaceholder="הזן סכום"
-            columns={3}
+            nodes={[
+              { value: 500, label: '500' },
+              { value: 1000, label: '1,000' },
+              { value: 1500, label: '1,500' },
+              { value: 2000, label: '2,000' },
+              { value: 2500, label: '2,500' },
+            ]}
+            format={formatCurrency}
             compact
           />
         )}
       </div>
 
       <p className="text-caption text-text-muted text-center">
-        * במידה ומעל 20,000 ק&quot;מ בשנה, לרוב יש תוספת של כ-0.2-0.3 ₪ לכל ק&quot;מ נסיעה עודף.
+        * מעל 20,000 ק&quot;מ בשנה — תוספת של כ-0.2-0.3 ₪/ק&quot;מ עודף
       </p>
     </>
   )
 }
 
 /* ═══════════════════════════════════════════════
-   Running Costs — Shared Section
+   Running Costs — Shared
    ═══════════════════════════════════════════════ */
 
 function RunningCosts({
@@ -425,16 +455,15 @@ function RunningCosts({
   showAll: boolean
 }) {
   return (
-    <div className="bg-surface rounded-xl p-space-4 mb-space-5">
+    <div className="bg-surface rounded-xl p-space-4 mb-space-4">
       <h3 className="text-body font-bold text-primary mb-space-3">הוצאות שוטפות</h3>
 
       {isElectric ? (
-        <InputGroup
-          label='כמה אתה נוסע ק"מ בממוצע בחודש?'
-          presets={ELECTRIC_KM_PRESETS.map((e) => ({
-            value: e.km,
-            label: e.label,
-          }))}
+        <SliderInput
+          label='נסיעה ק"מ ממוצע בחודש'
+          min={500}
+          max={3000}
+          step={100}
           value={(inputs.kmPerMonth as number) ?? 1500}
           onChange={(km) => {
             const match = ELECTRIC_KM_PRESETS.find((e) => e.km === km)
@@ -443,51 +472,63 @@ function RunningCosts({
               fuelMonthly: match ? match.cost : Math.round(km * 0.13),
             })
           }}
-          manualPlaceholder='ק"מ'
+          nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.km, label: `${(e.km / 1000).toFixed(1)}K` }))}
+          format={(v) => v.toLocaleString('he-IL')}
           suffix='ק"מ'
           compact
         />
       ) : (
-        <InputGroup
+        <SliderInput
           label="דלק (לחודש)"
           subtitle="כולל מע״מ"
-          presets={FUEL_PRESETS.map((f) => ({
-            value: f,
-            label: `${formatCurrency(f)} ₪`,
-          }))}
+          min={300}
+          max={3000}
+          step={100}
           value={(inputs.fuelMonthly as number) ?? DEFAULT_FUEL_MONTHLY}
           onChange={(v) => onChange({ fuelMonthly: v })}
-          manualPlaceholder="הזן סכום"
-          columns={3}
+          nodes={[
+            { value: 500, label: '500' },
+            { value: 1000, label: '1K' },
+            { value: 1500, label: '1.5K' },
+            { value: 2000, label: '2K' },
+            { value: 2500, label: '2.5K' },
+          ]}
+          format={formatCurrency}
           compact
         />
       )}
 
       {showAll && (
         <>
-          <InputGroup
+          <SliderInput
             label="אחזקת רכב (לשנה)"
-            presets={MAINTENANCE_PRESETS.map((m) => ({
-              value: m,
-              label: `${formatCurrency(m)} ₪`,
-            }))}
+            min={3000}
+            max={15000}
+            step={500}
             value={(inputs.maintenanceYearly as number) ?? DEFAULT_MAINTENANCE_YEARLY}
             onChange={(v) => onChange({ maintenanceYearly: v })}
-            manualPlaceholder="הזן סכום"
-            columns={3}
+            nodes={[
+              { value: 5000, label: '5K' },
+              { value: 7000, label: '7K' },
+              { value: 10000, label: '10K' },
+            ]}
+            format={formatCurrency}
             compact
           />
 
-          <InputGroup
-            label="ביטוחים כולל רישיון רכב (לשנה)"
-            presets={INSURANCE_PRESETS.map((i) => ({
-              value: i,
-              label: `${formatCurrency(i)} ₪`,
-            }))}
+          <SliderInput
+            label="ביטוחים + רישיון (לשנה)"
+            min={4000}
+            max={15000}
+            step={500}
             value={(inputs.insuranceYearly as number) ?? DEFAULT_INSURANCE_YEARLY}
             onChange={(v) => onChange({ insuranceYearly: v })}
-            manualPlaceholder="הזן סכום"
-            columns={3}
+            nodes={[
+              { value: 7000, label: '7K' },
+              { value: 9000, label: '9K' },
+              { value: 11000, label: '11K' },
+            ]}
+            format={formatCurrency}
             compact
           />
         </>

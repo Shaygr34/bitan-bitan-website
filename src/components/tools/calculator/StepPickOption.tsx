@@ -42,12 +42,12 @@ export function StepPickOption({ onSelect, excludeOption }: StepPickOptionProps)
   return (
     <div>
       <h2 className="text-h3 font-bold text-primary text-center mb-space-2">
-        {excludeOption ? 'בחר אפשרות להשוואה' : 'מה לחשב?'}
+        {excludeOption ? 'מול מה להשוות?' : 'איזו אפשרות תרצה לבדוק?'}
       </h2>
       <p className="text-body text-text-muted text-center mb-space-7">
         {excludeOption
           ? 'בחר אפשרות נוספת להשוואה מול התוצאה הקודמת'
-          : 'בחר את האפשרות שתרצה לבדוק ראשונה'}
+          : 'נבדוק את המספרים ונראה מה עדיף עבורך'}
       </p>
 
       <div className="space-y-3 max-w-[480px] mx-auto">

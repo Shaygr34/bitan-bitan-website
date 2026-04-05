@@ -42,7 +42,10 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
 
       {/* Result Cards / Comparison */}
       {hasComparison ? (
-        <ComparisonTable results={results} />
+        <>
+          <Verdict primary={primary} comparison={comparison!} />
+          <ComparisonTable results={results} />
+        </>
       ) : (
         <SingleResult result={primary} />
       )}
@@ -331,6 +334,96 @@ function MetricCard({
 /* ═══════════════════════════════════════════════
    Comparison Row Definitions
    ═══════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════
+   Verdict — "What's better?"
+   ═══════════════════════════════════════════════ */
+
+function Verdict({ primary, comparison }: { primary: CalculationResult; comparison: CalculationResult }) {
+  // Compare on key metrics
+  const metrics: { label: string; aWins: boolean; bWins: boolean; detail: string }[] = []
+
+  // Monthly cashflow (lower is better)
+  const cashA = primary.monthlyCashflow
+  const cashB = comparison.monthlyCashflow
+  if (cashA !== cashB) {
+    const winner = cashA < cashB ? primary : comparison
+    const diff = Math.abs(cashA - cashB)
+    metrics.push({
+      label: 'תשלום חודשי',
+      aWins: cashA < cashB,
+      bWins: cashB < cashA,
+      detail: `${OPTION_NAMES[winner.optionType]} זול ב-${fmt(diff)} ₪ לחודש`,
+    })
+  }
+
+  // Total annual expenses (lower is better)
+  const annA = primary.totalAnnualExpenses
+  const annB = comparison.totalAnnualExpenses
+  if (annA !== annB) {
+    const winner = annA < annB ? primary : comparison
+    const diff = Math.abs(annA - annB)
+    metrics.push({
+      label: 'הוצאות שנתיות',
+      aWins: annA < annB,
+      bWins: annB < annA,
+      detail: `${OPTION_NAMES[winner.optionType]} חוסך ${fmt(diff)} ₪ בשנה`,
+    })
+  }
+
+  // Tax savings (higher is better)
+  const taxA = primary.annualTaxSavings
+  const taxB = comparison.annualTaxSavings
+  if (taxA !== taxB) {
+    const winner = taxA > taxB ? primary : comparison
+    const diff = Math.abs(taxA - taxB)
+    metrics.push({
+      label: 'חיסכון מס',
+      aWins: taxA > taxB,
+      bWins: taxB > taxA,
+      detail: `${OPTION_NAMES[winner.optionType]} חוסך ${fmt(diff)} ₪ נוספים במס`,
+    })
+  }
+
+  // Overall verdict
+  const aWinCount = metrics.filter((m) => m.aWins).length
+  const bWinCount = metrics.filter((m) => m.bWins).length
+  const overallWinner = aWinCount > bWinCount ? primary : aWinCount < bWinCount ? comparison : null
+
+  return (
+    <div className="bg-white rounded-2xl border-2 border-gold shadow-md overflow-hidden mb-space-6">
+      <div className="bg-primary px-space-5 py-space-3">
+        <h3 className="text-body-lg font-bold text-white text-center">מה עדיף?</h3>
+      </div>
+      <div className="p-space-5">
+        {overallWinner ? (
+          <p className="text-center text-body-lg font-bold text-primary mb-space-4">
+            <span className="text-gold">{OPTION_NAMES[overallWinner.optionType]}</span> יוצא
+            משתלם יותר ברוב הפרמטרים
+          </p>
+        ) : (
+          <p className="text-center text-body-lg font-bold text-primary mb-space-4">
+            שתי האפשרויות דומות — הבחירה תלויה בהעדפה שלך
+          </p>
+        )}
+
+        <div className="space-y-2">
+          {metrics.map((m) => (
+            <div key={m.label} className="flex items-start gap-2 text-body-sm">
+              <span className={m.aWins ? 'text-green-600' : m.bWins ? 'text-amber-600' : 'text-text-muted'}>
+                {m.aWins ? '✓' : m.bWins ? '✗' : '—'}
+              </span>
+              <div>
+                <span className="font-medium text-primary">{m.label}: </span>
+                <span className="text-text-secondary">{m.detail}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function getComparisonRows(): { key: string; label: string; getValue: (r: CalculationResult) => string }[] {
   return [
