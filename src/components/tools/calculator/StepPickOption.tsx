@@ -16,8 +16,8 @@ const OPTIONS: {
 }[] = [
   {
     value: 'purchase',
-    label: 'רכישה יד 2',
-    description: 'רכישת רכב עם הון עצמי והלוואה',
+    label: 'רכישת רכב',
+    description: 'רכישת רכב חדש או יד שנייה עם הון עצמי והלוואה',
     icon: Car,
   },
   {

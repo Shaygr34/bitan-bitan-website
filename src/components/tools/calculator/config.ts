@@ -9,9 +9,9 @@ import type { CalculatorConfig, VehicleType } from './types'
 /* ─── Default Config (overridden by Sanity) ─── */
 
 export const DEFAULT_CONFIG: CalculatorConfig = {
-  primeRate: 4.75,
+  primeRate: 5.5,
   vatRate: 0.18,
-  updatedAt: '2026-04-01',
+  updatedAt: '2026-04-05',
 }
 
 /* ─── Car Price Presets ─── */
