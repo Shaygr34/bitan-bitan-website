@@ -12,7 +12,7 @@ type ResultsViewProps = {
 }
 
 const OPTION_NAMES: Record<OptionType, string> = {
-  purchase: 'רכישה יד 2',
+  purchase: 'רכישת רכב',
   financialLeasing: 'ליסינג מימוני',
   operationalLeasing: 'ליסינג תפעולי',
 }
@@ -207,83 +207,111 @@ function ComparisonTable({ results }: { results: CalculationResult[] }) {
 
 function ResultBreakdown({ result }: { result: CalculationResult }) {
   const r = result
-  const rows: { label: string; value: string; muted?: boolean }[] = [
-    { label: 'עלות רכב', value: fmtCurrency(r.carPrice) },
+  const years = r.loan ? Math.ceil(r.loan.periodMonths / 12) : 0
+  const avgAnnualInterest = years > 0 ? Math.round(r.loanInterestTotal / years) : 0
+
+  type Row = { label: string; value: string; muted?: boolean; bold?: boolean }
+  type Section = { title: string; rows: Row[] }
+
+  const sections: Section[] = [
     {
-      label: 'מע"מ רכישת רכב',
-      value: r.vatOnPurchase !== null ? `מוכר — ${fmtCurrency(r.vatOnPurchase)}` : 'לא מוכר',
-      muted: r.vatOnPurchase === null,
-    },
-    { label: 'הון עצמי / מקדמה', value: fmtCurrency(r.equity) },
-    {
-      label: 'תשלום ליסינג חודשי',
-      value: r.monthlyLeasingPayment !== null ? fmtCurrency(r.monthlyLeasingPayment) : 'לא רלוונטי',
-      muted: r.monthlyLeasingPayment === null,
-    },
-    {
-      label: 'הלוואה',
-      value: r.loan
-        ? `${fmtCurrency(r.loan.amount)} ב-${r.loan.annualRate.toFixed(1)}% ל-${r.loan.periodMonths} חודשים`
-        : 'לא רלוונטי',
-      muted: !r.loan,
-    },
-    {
-      label: 'ירידת ערך (פחת) שנתי',
-      value: r.depreciation > 0 ? fmtCurrency(r.depreciation) : 'לא רלוונטי',
-      muted: r.depreciation === 0,
-    },
-    { label: 'דלק / חשמל (חודשי)', value: fmtCurrency(r.fuelMonthly) },
-    {
-      label: 'אחזקת רכב (שנתי)',
-      value: r.maintenanceYearly !== null ? fmtCurrency(r.maintenanceYearly) : 'כלול בליסינג',
-      muted: r.maintenanceYearly === null,
-    },
-    {
-      label: 'ביטוחים ורישוי (שנתי)',
-      value: r.insuranceYearly !== null ? fmtCurrency(r.insuranceYearly) : 'כלול בליסינג',
-      muted: r.insuranceYearly === null,
-    },
-    { label: 'ריבית הלוואה (סה"כ)', value: r.loanInterestTotal > 0 ? fmtCurrency(r.loanInterestTotal) : 'לא רלוונטי', muted: r.loanInterestTotal === 0 },
-    { label: 'סה"כ הוצאות שנתי', value: fmtCurrency(r.totalAnnualExpenses) },
-    {
-      label: 'יתרת הלוואה (סוף תקופה)',
-      value: r.loanYearlyBreakdown.length > 0
-        ? fmtCurrency(r.loanYearlyBreakdown[r.loanYearlyBreakdown.length - 1].endBalance)
-        : 'לא רלוונטי',
-      muted: r.loanYearlyBreakdown.length === 0,
+      title: 'נתוני הרכב והמימון',
+      rows: [
+        { label: 'עלות רכב', value: fmtCurrency(r.carPrice) },
+        { label: 'הון עצמי / מקדמה', value: fmtCurrency(r.equity) },
+        {
+          label: 'מע"מ רכישת רכב',
+          value: r.vatOnPurchase !== null ? `מוכר — ${fmtCurrency(r.vatOnPurchase)}` : 'לא מוכר',
+          muted: r.vatOnPurchase === null,
+        },
+        ...(r.monthlyLeasingPayment !== null ? [{
+          label: 'תשלום ליסינג חודשי',
+          value: fmtCurrency(r.monthlyLeasingPayment),
+        }] : []),
+        ...(r.loan ? [{
+          label: 'הלוואה',
+          value: `${fmtCurrency(r.loan.amount)} ב-${r.loan.annualRate.toFixed(1)}% ל-${r.loan.periodMonths} חודשים`,
+        }] : []),
+        ...(r.residualPayment !== null ? [{
+          label: 'יתרת תשלום סוף תקופה (בלון)',
+          value: fmtCurrency(r.residualPayment),
+        }] : []),
+        ...(r.residualCarValue !== null ? [{
+          label: 'שווי רכב משוער בשוק לאחר 5 שנים',
+          value: fmtCurrency(r.residualCarValue),
+        }] : []),
+      ],
     },
     {
-      label: 'יתרת תשלום סוף תקופה',
-      value: r.residualPayment !== null ? fmtCurrency(r.residualPayment) : 'לא רלוונטי',
-      muted: r.residualPayment === null,
+      title: 'הוצאות שוטפות',
+      rows: [
+        { label: 'דלק / חשמל (חודשי)', value: fmtCurrency(r.fuelMonthly) },
+        ...(r.maintenanceYearly !== null ? [{
+          label: 'אחזקת רכב (שנתי)',
+          value: fmtCurrency(r.maintenanceYearly),
+        }] : [{ label: 'אחזקת רכב', value: 'כלול בליסינג', muted: true }]),
+        ...(r.insuranceYearly !== null ? [{
+          label: 'ביטוחים ורישוי (שנתי)',
+          value: fmtCurrency(r.insuranceYearly),
+        }] : [{ label: 'ביטוחים ורישוי', value: 'כלול בליסינג', muted: true }]),
+        ...(r.depreciation > 0 ? [{
+          label: 'ירידת ערך — פחת (שנתי)',
+          value: fmtCurrency(r.depreciation),
+        }] : []),
+        ...(r.loanInterestTotal > 0 ? [
+          { label: 'ריבית הלוואה — ממוצע שנתי', value: fmtCurrency(avgAnnualInterest) },
+          { label: 'ריבית הלוואה — סה"כ לכל התקופה', value: fmtCurrency(r.loanInterestTotal), muted: true },
+        ] : []),
+      ],
     },
-    { label: 'מע"מ מוכר (שנתי)', value: fmtCurrency(r.vatRecoverable) },
-    { label: 'הוצאות מוכרות לצרכי מס (שנתי)', value: fmtCurrency(r.deductibleExpenses) },
-    { label: 'חיסכון מס שנתי', value: fmtCurrency(r.annualTaxSavings) },
-    { label: 'תשלום חודשי ממוצע (תזרים)', value: fmtCurrency(r.monthlyCashflow) },
     {
-      label: 'שווי רכב לאחר 5 שנים',
-      value: r.residualCarValue !== null ? fmtCurrency(r.residualCarValue) : 'לא רלוונטי',
-      muted: r.residualCarValue === null,
+      title: 'ניתוח מס',
+      rows: [
+        { label: 'מע"מ מוכר (שנתי)', value: fmtCurrency(r.vatRecoverable) },
+        { label: 'הוצאות מוכרות לצרכי מס (שנתי)', value: fmtCurrency(r.deductibleExpenses) },
+        { label: 'חיסכון מס שנתי', value: fmtCurrency(r.annualTaxSavings), bold: true },
+      ],
+    },
+    {
+      title: 'סיכום',
+      rows: [
+        { label: 'תשלום חודשי ממוצע (תזרים)', value: fmtCurrency(r.monthlyCashflow), bold: true },
+        { label: 'סה"כ הוצאות שנתי', value: fmtCurrency(r.totalAnnualExpenses), bold: true },
+        ...(r.loanYearlyBreakdown.length > 0 ? [{
+          label: 'יתרת הלוואה בסוף התקופה',
+          value: fmtCurrency(r.loanYearlyBreakdown[r.loanYearlyBreakdown.length - 1].endBalance),
+          muted: true,
+        }] : []),
+      ],
     },
   ]
 
   return (
     <div className="border-t border-border pt-space-4">
-      <h4 className="text-body-sm font-bold text-primary mb-space-3">פירוט מלא</h4>
-      <div className="space-y-0">
-        {rows.map((row, i) => (
-          <div
-            key={row.label}
-            className={[
-              'flex justify-between py-2 px-1 text-body-sm border-b border-border-light last:border-b-0',
-              i % 2 === 0 ? '' : 'bg-surface/30',
-            ].join(' ')}
-          >
-            <span className="text-text-muted">{row.label}</span>
-            <span className={row.muted ? 'text-text-muted' : 'text-text-secondary font-medium'}>
-              {row.value}
-            </span>
+      <div>
+        {sections.map((section) => (
+          <div key={section.title} className="mb-space-3">
+            <h4 className="text-body-sm font-bold text-primary bg-surface/60 px-2 py-1.5 rounded mb-0">
+              {section.title}
+            </h4>
+            {section.rows.map((row, i) => (
+              <div
+                key={row.label}
+                className={[
+                  'flex justify-between py-2 px-2 text-body-sm border-b border-border-light last:border-b-0',
+                  i % 2 === 0 ? '' : 'bg-surface/30',
+                ].join(' ')}
+              >
+                <span className="text-text-muted">{row.label}</span>
+                <span className={
+                  row.bold ? 'text-primary font-bold' :
+                  row.muted ? 'text-text-muted' :
+                  'text-text-secondary font-medium'
+                }>
+                  {row.value}
+                </span>
+              </div>
+            ))}
           </div>
         ))}
       </div>

@@ -301,3 +301,150 @@ For future comparison:
   1. אישור ניכוי מס במקור וניהול ספרים (511 impr, pos 8, 1% CTR — biggest gap)
   2. טופס 6111 מדריך (272 impr, pos 7-10 — page 1/2 border)
   3. החזר בלו על סולר + טבלת 2026 (292 impr, pos 6-9 — niche high-intent)
+
+## Session: March 29, 2026 — Content Intelligence Infrastructure
+
+Started with "I want a weekly performance brief for the website" → ended with a full content intelligence pipeline.
+
+### 1. Weekly Performance Report (SHIPPED — autonomous)
+- **Workflow**: `.github/workflows/weekly-report.yml` — Sunday 09:00 Israel
+- **Script**: `scripts/weekly-report/main.py` — pulls GA4 + GSC → branded Hebrew email → Sanity storage
+- **Sends to**: avi@, ron@, shay@bitancpa.com via Resend (`reports@bitancpa.com`)
+- **Sanity schema**: `weeklyMetrics` (doc ID: `weeklyMetrics-YYYY-MM-DD`)
+- **Metrics**: KPI cards (users, pageviews, clicks, impressions with WoW), traffic sources, top content, top queries, newsletter/lead counts
+- **Manual trigger**: `gh workflow run weekly-report.yml`
+
+### 2. Resend Domain Setup
+- Account: `bitancpa` at resend.com (shay@bitancpa.com)
+- Domain: `bitancpa.com` — DKIM + SPF configured in Cloudflare DNS
+- Sender: `reports@bitancpa.com`
+- API key: `bitan-reports` (stored as `RESEND_API_KEY` GitHub secret)
+
+### 3. SEO Content Opportunity Scanner (SHIPPED — autonomous)
+- **Workflow**: `.github/workflows/content-intelligence.yml` — Sunday 09:30 Israel
+- Scans GSC for high-impression/low-CTR queries, matches against existing articles
+- Sends opportunity digest email with gap analysis
+
+### 4. Professional Intelligence Monitor (SHIPPED — autonomous, Phase 1+2)
+- **Workflow**: `.github/workflows/intelligence-monitor.yml` — Tue + Thu 07:00 Israel
+- **Script**: `scripts/intelligence-monitor/main.py` + `sources/` (7 scrapers)
+- **7 sources**:
+  1. Deloitte Israel tax alerts (PDF scrape)
+  2. Tax Authority Telegram (`t.me/taxes_il`)
+  3. Globes RSS (keyword-filtered for tax)
+  4. Knesset Finance Committee (OData API)
+  5. ביטוח לאומי RSS
+  6. Bank of Israel interest rate API
+  7. OS Experts + EY Israel circulars
+- **Sanity schema**: `intelligenceItem` (stores seen items for dedup)
+- Sends digest email only when there's something new
+- **Phase 3** (open): Email inbox parsing for כל מס / רונן / לשכה newsletters
+- **Phase 4** (open): Wire intelligence into Content Factory for auto-drafting
+
+### 5. Bitan Website Strategy
+- Documented: site is referral-confirmation, not lead-gen
+- Metrics focus on brand signals (organic traffic, query positions, content engagement), not conversion funnels
+
+### 6. Source Research (Israeli CPA Professional Ecosystem)
+- gov.il Tax Authority: React SPA + 403 blocking, NOT directly scrapable
+- Hashavim/כל מס + רונן: Paywalled, but email newsletters monitorable (Phase 3)
+- לשכת יועצי המס: No public website, not viable for automation
+- Deloitte Israel: Best structured source (34 free PDF alerts/year)
+- Globes: Only Israeli news site with working RSS
+
+### New GitHub Secrets (repo: Shaygr34/bitan-bitan-website)
+- `GA4_CREDENTIALS_B64` — base64-encoded service account JSON
+- `RESEND_API_KEY` — `bitan-reports` key
+- `SANITY_API_WRITE_TOKEN` — `os-write` Editor token
+- `REPORT_RECIPIENTS` — email list
+
+### New Schemas
+- `weeklyMetrics` — `src/sanity/schemas/weeklyMetrics.ts`
+- `intelligenceItem` — `src/sanity/schemas/intelligenceItem.ts`
+
+### New Key Files
+- `.github/workflows/weekly-report.yml`
+- `.github/workflows/content-intelligence.yml`
+- `.github/workflows/intelligence-monitor.yml`
+- `scripts/weekly-report/main.py` + `requirements.txt`
+- `scripts/intelligence-monitor/main.py` + `sources/` (7 source files)
+
+### What's Running Autonomously
+| Schedule | System | Recipients |
+|---|---|---|
+| Sunday 09:00 | Weekly performance report | Avi, Ron, Shay |
+| Sunday 09:30 | Content opportunity scanner | Avi, Ron, Shay |
+| Tue 07:00 | Intelligence digest | Avi, Ron, Shay |
+| Thu 07:00 | Intelligence digest | Avi, Ron, Shay |
+
+### Open Items
+- **Deloitte scraper**: Could be smarter about new vs. existing alerts
+- **Globes RSS**: Returned 0 all session — may need keyword tuning when tax news breaks
+- **Phase 3**: `alerts@bitancpa.com` inbox → parse forwarded newsletters
+- **Phase 4**: Intelligence → Content Factory auto-drafting
+
+## Session: March 29, 2026 — Summit CRM Integration + Client Intake System
+
+Continuation of the content intelligence session. Added CRM integration and digital client onboarding.
+
+### 1. Summit CRM Integration (via MCP — 30 tools)
+- **Summit MCP server** already existed at `/Users/shay/summit-mcp` (Railway: `summit-mcp.up.railway.app`)
+- Connected to claude.ai Cowork via MCP — Avi/Ron can query Summit in natural Hebrew
+- **960 active clients** accessible in real-time
+- Capabilities: client search (name/phone/email), client card + report status + debts, SMS/email send, שע"מ VAT check, exchange rates, webhook management, חשבשבת backup import
+- See `summit-mcp` memory file for full tool list and security zones
+
+### 2. Client Intake System (SHIPPED — end-to-end)
+- **Flow**: Bitan OS creates unique token → WhatsApp link to client → client fills form → Summit entity created automatically
+- **Intake form**: branded, 3-step progress bar, file uploads (ת.ז., certificates), mobile-optimized
+- **Auto-creates**: Summit client entity + attaches uploaded documents + sends welcome email to client + notification to office
+- **Status tracking**: tracks whether client opened the form (`opened` status on token)
+- **Smart UX**: when client type is pre-filled in URL, hides סוג לקוח step (3 steps instead of 4)
+
+### Key Files (Intake — on bitan-bitan-website)
+- `src/app/intake/[token]/page.tsx` — SSR token validation page
+- `src/app/intake/[token]/IntakeForm.tsx` — Client-side multi-step form (`"use client"`)
+- `src/app/api/intake/route.ts` — POST handler: creates Summit entity + uploads files + sends emails
+- `src/app/api/intake/track/route.ts` — Tracks form open status
+
+### Key Files (Intake — on bitan-bitan-os)
+- `apps/os-hub/src/app/onboarding/page.tsx` — Token generation UI for office staff
+- `apps/os-hub/src/app/api/intake/generate/route.ts` — Token creation API
+- `apps/os-hub/src/app/api/intake/tokens/route.ts` — Token listing API
+
+### New Sanity Schema
+- `intakeToken` — stores generated intake links with status, client type, expiry
+
+### Summit Integration Fixes (during session)
+- Fixed: Summit expects plain entity ID for סוג לקוח (not `{ID: ...}` wrapper)
+- Fixed: תחום עיסוק is entity reference, not text — skip during creation
+- Fixed: birthdate format needs `T00:00:00` suffix for Summit Date type
+- Fixed: Summit property names corrected + Content-Language header added
+- Fixed: flow reordered — create Summit entity before file uploads
+- Fixed: RTL progress bar direction
+- Hebrew copy fix: בהקרוב → בקרוב
+
+### What's Running Autonomously (Updated)
+| Schedule | System | Recipients |
+|---|---|---|
+| Sunday 09:00 | Weekly performance report | Avi, Ron, Shay |
+| Sunday 09:30 | Content opportunity scanner | Avi, Ron, Shay |
+| Tue 07:00 | Intelligence digest | Avi, Ron |
+| Thu 07:00 | Intelligence digest | Avi, Ron |
+| On demand | Client intake (Bitan OS → form → Summit) | Office staff |
+
+### Next Steps (Pipeline)
+- **Pre-intake**: Connect website contact form → lead pipeline → intake link
+- **Pre-intake**: Digital retainer agreement + signature
+- **Post-intake**: Auto-create bookkeeping file + assign manager
+- **Intelligence Phase 3**: `alerts@bitancpa.com` email parsing
+- **Intelligence Phase 4**: Intelligence → Content Factory auto-drafting
+- **Top article opportunity**: "אישור ניכוי מס במקור" — 511 impressions, position 8, 1% CTR
+
+### Summit MCP for Avi/Ron (Claude Desktop)
+- Summit MCP server is remote on Railway — no local install needed
+- Avi/Ron connect via Claude Desktop → Settings → Connectors → **Add custom connector**
+  - Name: `Summit CRM`
+  - URL: `https://summit-mcp.up.railway.app/mcp`
+  - OAuth: leave empty
+- Gives them 29 Summit tools in Hebrew directly in Claude conversations

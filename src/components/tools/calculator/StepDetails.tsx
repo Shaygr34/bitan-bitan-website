@@ -28,7 +28,7 @@ type StepDetailsProps = {
 }
 
 const OPTION_TITLES: Record<OptionType, string> = {
-  purchase: 'רכישה יד 2',
+  purchase: 'רכישת רכב',
   financialLeasing: 'ליסינג מימוני',
   operationalLeasing: 'ליסינג תפעולי',
 }
