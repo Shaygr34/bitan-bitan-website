@@ -168,7 +168,6 @@ function PurchaseFields({
               ]}
               format={(v) => `P${v >= 0 ? '+' : ''}${v}%`}
               suffix=""
-              allowManual={false}
               compact
             />
 
@@ -187,7 +186,6 @@ function PurchaseFields({
               ]}
               format={(v) => `${v}`}
               suffix="חודשים"
-              allowManual={false}
               compact
             />
           </>

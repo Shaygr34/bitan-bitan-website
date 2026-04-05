@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 type NodePoint = {
   value: number
@@ -15,17 +15,11 @@ type SliderInputProps = {
   step?: number
   value: number
   onChange: (value: number) => void
-  /** Key points marked on the slider */
   nodes?: NodePoint[]
-  /** Format display value */
   format?: (value: number) => string
-  /** Suffix for manual input */
   suffix?: string
-  /** Show manual input */
   allowManual?: boolean
-  /** Computed display below slider */
   computedDisplay?: string
-  /** Compact mode */
   compact?: boolean
 }
 
@@ -50,15 +44,14 @@ export function SliderInput({
 }: SliderInputProps) {
   const [manualValue, setManualValue] = useState('')
   const [isManualFocused, setIsManualFocused] = useState(false)
-  const sliderRef = useRef<HTMLInputElement>(null)
 
-  // Calculate fill percentage for styling
+  // RTL: range input flips, min on right, max on left
+  // Fill percentage from the RIGHT (start) side
   const fillPercent = Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100))
 
   const handleSliderChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const v = parseFloat(e.target.value)
-      onChange(v)
+      onChange(parseFloat(e.target.value))
     },
     [onChange]
   )
@@ -70,57 +63,62 @@ export function SliderInput({
     [onChange]
   )
 
-  const handleManualChange = useCallback(
+  const handleManualSubmit = useCallback(
     (raw: string) => {
-      setManualValue(raw)
       const num = parseFloat(raw.replace(/,/g, ''))
-      if (!isNaN(num) && num >= 0) {
+      if (!isNaN(num)) {
         onChange(Math.min(max, Math.max(min, num)))
       }
     },
     [onChange, min, max]
   )
 
-  // Sync manual value when slider changes
+  // Keep manual input synced when not focused
   useEffect(() => {
     if (!isManualFocused) {
       setManualValue('')
     }
   }, [value, isManualFocused])
 
+  // Displayed value text
+  const displayValue = `${format(value)} ${suffix}`.trim()
+
   return (
-    <div className={compact ? 'mb-space-4' : 'mb-space-6'}>
+    <div className={compact ? 'mb-space-5' : 'mb-space-6'}>
+      {/* Header: label + large value display */}
       <div className="flex items-baseline justify-between mb-space-1">
         <label className="text-body font-semibold text-primary">{label}</label>
-        <span className="text-body font-bold text-gold">
-          {format(value)} {suffix}
-        </span>
       </div>
       {subtitle && (
-        <p className="text-caption text-text-muted mb-space-2">{subtitle}</p>
+        <p className="text-caption text-text-muted mb-space-1">{subtitle}</p>
       )}
 
+      {/* Large centered value */}
+      <div className="text-center mb-space-2">
+        <span className="text-h3 font-bold text-gold">{displayValue}</span>
+      </div>
+
       {/* Slider track */}
-      <div className="relative mt-space-2 mb-space-1">
+      <div className="relative mt-space-1">
         <input
-          ref={sliderRef}
           type="range"
           min={min}
           max={max}
           step={step}
           value={value}
           onChange={handleSliderChange}
-          className="slider-input w-full h-2 rounded-full appearance-none cursor-pointer"
+          className="slider-input w-full h-2.5 rounded-full appearance-none cursor-pointer"
           style={{
             background: `linear-gradient(to left, #C5A572 ${fillPercent}%, #E2E0DB ${fillPercent}%)`,
           }}
         />
       </div>
 
-      {/* Node points */}
+      {/* Node points — positioned absolutely at correct % */}
       {nodes && nodes.length > 0 && (
-        <div className="flex justify-between mt-space-1 px-0.5">
+        <div className="relative h-6 mt-space-1">
           {nodes.map((node) => {
+            const pct = ((node.value - min) / (max - min)) * 100
             const isActive = value === node.value
             const isClose = Math.abs(value - node.value) < (max - min) * 0.03
             return (
@@ -129,11 +127,15 @@ export function SliderInput({
                 type="button"
                 onClick={() => handleNodeClick(node.value)}
                 className={[
-                  'text-caption px-1 py-0.5 rounded transition-all cursor-pointer',
+                  'absolute text-caption px-0.5 py-0 rounded transition-all cursor-pointer -translate-x-1/2 whitespace-nowrap',
                   isActive || isClose
                     ? 'text-gold font-bold'
                     : 'text-text-muted hover:text-primary',
                 ].join(' ')}
+                style={{
+                  // RTL: right percentage = distance from min
+                  right: `${pct}%`,
+                }}
               >
                 {node.label}
               </button>
@@ -142,24 +144,30 @@ export function SliderInput({
         </div>
       )}
 
-      {/* Manual input */}
+      {/* Manual input — shows current value as placeholder */}
       {allowManual && (
-        <div className="mt-space-2 flex items-center gap-2">
+        <div className="mt-space-1 flex items-center gap-2">
           <input
             type="text"
             inputMode="numeric"
             value={isManualFocused ? manualValue : ''}
-            onChange={(e) => handleManualChange(e.target.value)}
+            onChange={(e) => setManualValue(e.target.value)}
             onFocus={() => {
               setIsManualFocused(true)
               setManualValue(value.toString())
             }}
-            onBlur={() => setIsManualFocused(false)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+            onBlur={() => {
+              handleManualSubmit(manualValue)
+              setIsManualFocused(false)
             }}
-            placeholder="הזנה ידנית"
-            className="rounded-lg border border-border px-3 py-1.5 text-body-sm w-full text-center focus:border-gold focus:outline-none transition-colors"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleManualSubmit(manualValue);
+                (e.target as HTMLInputElement).blur()
+              }
+            }}
+            placeholder={format(value)}
+            className="rounded-lg border border-border px-3 py-1.5 text-body-sm w-full text-center focus:border-gold focus:outline-none transition-colors text-text-muted placeholder:text-text-muted/60"
           />
           <span className="text-body-sm text-text-muted shrink-0">{suffix}</span>
         </div>
@@ -176,12 +184,12 @@ export function SliderInput({
         .slider-input::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
-          width: 22px;
-          height: 22px;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           background: #C5A572;
           border: 3px solid white;
-          box-shadow: 0 2px 6px rgba(27, 42, 74, 0.2);
+          box-shadow: 0 2px 8px rgba(27, 42, 74, 0.25);
           cursor: pointer;
           transition: transform 0.15s;
         }
@@ -190,14 +198,15 @@ export function SliderInput({
         }
         .slider-input::-webkit-slider-thumb:active {
           transform: scale(1.25);
+          box-shadow: 0 2px 12px rgba(197, 165, 114, 0.5);
         }
         .slider-input::-moz-range-thumb {
-          width: 22px;
-          height: 22px;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           background: #C5A572;
           border: 3px solid white;
-          box-shadow: 0 2px 6px rgba(27, 42, 74, 0.2);
+          box-shadow: 0 2px 8px rgba(27, 42, 74, 0.25);
           cursor: pointer;
         }
       `}</style>
