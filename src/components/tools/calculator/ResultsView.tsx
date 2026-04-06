@@ -151,13 +151,27 @@ function SingleResult({ result }: { result: CalculationResult }) {
           <MetricCard
             icon={<TrendingDown className="h-4 w-4 text-gold" />}
             label="חיסכון מס שנתי"
-            value={fmtCurrency(result.annualTaxSavings)}
+            value={fmtCurrency(result.totalTaxSavings)}
           />
           {result.residualCarValue !== null && (
             <MetricCard
               icon={<Info className="h-4 w-4 text-gold" />}
               label="שווי רכב לאחר 5 שנים"
               value={fmtCurrency(result.residualCarValue)}
+            />
+          )}
+          {result.vehicleTaxBenefit > 0 && (
+            <MetricCard
+              icon={<Calculator className="h-4 w-4 text-gold" />}
+              label="שווי מס רכב (חודשי)"
+              value={fmtCurrency(result.vehicleTaxBenefit)}
+            />
+          )}
+          {result.grossIncludingVehicle > 0 && result.vehicleTaxBenefit > 0 && (
+            <MetricCard
+              icon={<Receipt className="h-4 w-4 text-gold" />}
+              label="שכר ברוטו כולל שווי רכב"
+              value={fmtCurrency(result.grossIncludingVehicle)}
             />
           )}
         </div>
@@ -174,52 +188,12 @@ function SingleResult({ result }: { result: CalculationResult }) {
    ═══════════════════════════════════════════════ */
 
 function ComparisonTable({ results }: { results: CalculationResult[] }) {
-  const rows = getComparisonRows()
-
   return (
-    <>
-      {/* Desktop table */}
-      <div className="hidden md:block bg-white rounded-2xl border border-border shadow-md overflow-hidden">
-        <table className="w-full text-center">
-          <thead>
-            <tr>
-              <th className="p-space-4 text-body-sm text-text-muted font-medium text-start bg-surface border-b border-border w-1/3" />
-              {results.map((r) => (
-                <th key={r.optionType} className="p-space-4 bg-surface border-b border-border">
-                  <span className="text-body font-bold text-primary block">
-                    {OPTION_NAMES[r.optionType]}
-                  </span>
-                  <span className="text-body-lg font-bold text-gold block mt-1">
-                    {fmtCurrency(r.monthlyCashflow)}/חודש
-                  </span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
-              <tr key={row.key} className={i % 2 === 0 ? 'bg-white' : 'bg-surface/50'}>
-                <td className="p-space-3 text-body-sm text-text-muted font-medium text-start border-e border-border-light">
-                  {row.label}
-                </td>
-                {results.map((r) => (
-                  <td key={r.optionType} className="p-space-3 text-body-sm text-text-secondary">
-                    {row.getValue(r)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mobile: stacked cards */}
-      <div className="md:hidden space-y-space-4">
-        {results.map((r) => (
-          <SingleResult key={r.optionType} result={r} />
-        ))}
-      </div>
-    </>
+    <div className="space-y-space-5">
+      {results.map((r) => (
+        <SingleResult key={r.optionType} result={r} />
+      ))}
+    </div>
   )
 }
 
@@ -290,6 +264,12 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
         ...(r.loanInterestTotal > 0 ? [
           { label: 'ריבית הלוואה — ממוצע שנתי', value: fmtCurrency(avgAnnualInterest) },
           { label: 'ריבית הלוואה — סה"כ לכל התקופה', value: fmtCurrency(r.loanInterestTotal), muted: true },
+        ] : []),
+        ...(r.vehicleTaxBenefit > 0 ? [
+          { label: 'שווי מס רכב', value: `${fmtCurrency(r.vehicleTaxBenefit)} / חודש | ${fmtCurrency(r.vehicleTaxBenefit * 12)} / שנה` },
+        ] : []),
+        ...(r.employerNii > 0 ? [
+          { label: 'ביטוח לאומי מעביד (על שווי מס)', value: fmtCurrency(r.employerNii) },
         ] : []),
       ],
     },
