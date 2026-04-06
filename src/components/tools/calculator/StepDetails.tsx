@@ -38,7 +38,7 @@ function formatCurrency(n: number): string {
 }
 
 function formatPercent(n: number): string {
-  return `${n}`
+  return `${n}%`
 }
 
 export function StepDetails({
@@ -145,7 +145,7 @@ function PurchaseFields({
             { value: 100, label: '100%' },
           ]}
           format={formatPercent}
-          suffix="%"
+          suffix=""
           computedDisplay={equity < 100 ? `הלוואה: ${formatCurrency(loanAmount)} ₪` : undefined}
           compact
         />
@@ -241,7 +241,7 @@ function FinancialFields({
             { value: 40, label: '40%' },
           ]}
           format={formatPercent}
-          suffix="%"
+          suffix=""
           computedDisplay={`${formatCurrency(downAmount)} ₪`}
           compact
         />
@@ -260,7 +260,7 @@ function FinancialFields({
             { value: 50, label: '50%' },
           ]}
           format={formatPercent}
-          suffix="%"
+          suffix=""
           computedDisplay={`הלוואה: ${formatCurrency(loanAmount)} ₪`}
           compact
         />
@@ -364,7 +364,7 @@ function OperationalFields({
             { value: 20, label: '20%' },
           ]}
           format={formatPercent}
-          suffix="%"
+          suffix=""
           computedDisplay={`${formatCurrency(Math.round(carPrice * ((inputs.downPaymentPercent ?? 5) / 100)))} ₪`}
           compact
         />

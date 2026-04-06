@@ -85,9 +85,9 @@ export function SliderInput({
 
   return (
     <div className={compact ? 'mb-space-5' : 'mb-space-6'}>
-      {/* Header: label + large value display */}
+      {/* Header: label — gold when value set, muted when default */}
       <div className="flex items-baseline justify-between mb-space-1">
-        <label className="text-body font-semibold text-primary">{label}</label>
+        <label className={`text-body font-semibold ${value !== min ? 'text-primary' : 'text-text-muted'}`}>{label}</label>
       </div>
       {subtitle && (
         <p className="text-caption text-text-muted mb-space-1">{subtitle}</p>
