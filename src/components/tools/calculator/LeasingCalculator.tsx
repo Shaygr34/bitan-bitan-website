@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { StepBase } from './StepBase'
 import { StepPickOption } from './StepPickOption'
 import { StepDetails } from './StepDetails'
@@ -49,6 +49,11 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
 
   const phaseIndex = PHASE_ORDER.indexOf(phase)
   const progressPercent = phase === 'results' ? 100 : ((phaseIndex + 1) / PHASE_ORDER.length) * 100
+
+  // F9: scroll to top on phase change (mobile fix)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [phase])
 
   // ─── Handlers ───
 

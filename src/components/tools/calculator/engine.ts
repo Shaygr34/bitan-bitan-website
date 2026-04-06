@@ -198,16 +198,12 @@ export function calculatePurchase(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Total annual expenses (ז)
-  const totalAnnualExpenses = Math.round(
-    annualLoanInterest + annualFuel + insuranceYearly + maintenanceYearly + depreciation - vatRecoverable
-    + (isCompany ? companyFields.employerNii : 0)
-  )
-
-  // Monthly cashflow (ה)
+  // Total annual expenses — CASHFLOW based (loan payment, not depreciation)
+  // Ron's formula: fuel + maintenance + insurance + loan payment (principal+interest)
   const monthlyCashflow = Math.round(
     amort.monthlyPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
   )
+  const totalAnnualExpenses = monthlyCashflow * 12
 
   // Net-of-VAT display amounts (R18)
   const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * vatRecoveryRate))
@@ -329,16 +325,11 @@ export function calculateFinancialLeasing(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Total annual expenses
-  const totalAnnualExpenses = Math.round(
-    annualLoanInterest + annualFuel + insuranceYearly + maintenanceYearly + depreciation - vatRecoverable
-    + (isCompanyMode ? companyFields.employerNii : 0)
-  )
-
-  // Monthly cashflow
+  // Cashflow-based expenses (loan payment, not depreciation)
   const monthlyCashflow = Math.round(
     amort.monthlyPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
   )
+  const totalAnnualExpenses = monthlyCashflow * 12
 
   // Net-of-VAT display amounts (R18)
   const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * getVatRecoveryRate(vehicleType)))

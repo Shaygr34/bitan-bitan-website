@@ -135,7 +135,7 @@ export function SliderInput({
                 style={{
                   // RTL: right percentage = distance from min
                   // Clamp edges so labels don't overflow
-                  right: `clamp(0%, ${pct}%, 97%)`,
+                  right: `clamp(2%, ${pct}%, 95%)`,
                 }}
               >
                 {node.label}
