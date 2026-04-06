@@ -226,13 +226,13 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
           disabled={!isComplete}
           onClick={onNext}
           className={[
-            'rounded-xl px-8 py-3 text-body font-bold transition-all duration-base',
+            'rounded-xl px-10 py-3.5 text-body-lg font-bold transition-all duration-base',
             isComplete
-              ? 'bg-gold text-white hover:bg-gold-hover cursor-pointer shadow-md'
+              ? 'bg-gold text-white hover:bg-gold-hover cursor-pointer shadow-lg animate-pulse'
               : 'bg-border text-text-muted cursor-not-allowed',
           ].join(' ')}
         >
-          המשך ←
+          {isComplete ? '✓ המשך לשלב הבא' : 'מלאו את כל השדות כדי להמשיך'}
         </button>
       </div>
     </div>

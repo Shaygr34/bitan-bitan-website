@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Calculator, TrendingDown, Receipt, Wallet, Info } from 'lucide-react'
+import { ArrowRight, Calculator, TrendingDown, Receipt, Wallet, Info } from 'lucide-react'
 import { WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import type { CalculationResult, OptionType } from './types'
 
@@ -39,19 +39,6 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
       <p className="text-body text-text-muted text-center mb-space-7">
         כל הסכומים שנתיים אלא אם צוין אחרת
       </p>
-
-      {/* Compare button — TOP */}
-      {!hasComparison && (
-        <div className="text-center mb-space-5">
-          <button
-            type="button"
-            onClick={onCompare}
-            className="rounded-xl border-2 border-gold px-6 py-3 text-body font-bold text-gold hover:bg-gold/5 cursor-pointer transition-all duration-base"
-          >
-            השווה מול אפשרות נוספת
-          </button>
-        </div>
-      )}
 
       {/* Result Cards / Comparison */}
       {hasComparison ? (
@@ -110,7 +97,7 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
             onClick={onRestart}
             className="rounded-xl border-2 border-border px-5 py-2.5 text-body font-medium text-primary hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" />
             התחל מחדש
           </button>
         </div>
@@ -241,6 +228,16 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
           label: 'שווי רכב משוער בשוק לאחר 5 שנים',
           value: fmtCurrency(r.residualCarValue),
         }] : []),
+        ...(r.loanInterestTotal > 0 ? [{
+          label: 'ריבית הלוואה — סה"כ לכל התקופה',
+          value: fmtCurrency(r.loanInterestTotal),
+          muted: true,
+        }] : []),
+        ...(r.loanYearlyBreakdown.length > 0 ? [{
+          label: `יתרת הלוואה בסוף תקופה נבדקת (${r.loan?.periodMonths || 60} חודשים)`,
+          value: fmtCurrency(r.loanYearlyBreakdown[r.loanYearlyBreakdown.length - 1].endBalance),
+          muted: true,
+        }] : []),
       ],
     },
     {
@@ -248,11 +245,11 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
       rows: [
         // R16+R18: show monthly+yearly, note net-of-VAT
         { label: 'דלק / חשמל', value: `${dual(r.fuelMonthly)}` },
-        { label: '  ↳ בניכוי מע"מ מוכר', value: `${dual(r.fuelMonthlyNetVat)}`, muted: true },
+        { label: 'בניכוי מע"מ מוכר', value: `${dual(r.fuelMonthlyNetVat)}`, muted: true },
         ...(r.maintenanceYearly !== null ? [
           { label: 'אחזקת רכב', value: `${fmtCurrency(Math.round(r.maintenanceYearly / 12))} / חודש | ${fmtCurrency(r.maintenanceYearly)} / שנה` },
           ...(r.maintenanceYearlyNetVat !== null ? [
-            { label: '  ↳ בניכוי מע"מ מוכר', value: `${fmtCurrency(Math.round(r.maintenanceYearlyNetVat / 12))} / חודש | ${fmtCurrency(r.maintenanceYearlyNetVat)} / שנה`, muted: true },
+            { label: 'בניכוי מע"מ מוכר', value: `${fmtCurrency(Math.round(r.maintenanceYearlyNetVat / 12))} / חודש | ${fmtCurrency(r.maintenanceYearlyNetVat)} / שנה`, muted: true },
           ] : []),
         ] : [{ label: 'אחזקת רכב', value: 'כלול בליסינג', muted: true }]),
         ...(r.insuranceYearly !== null ? [{
@@ -262,8 +259,7 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
           label: 'ירידת ערך — פחת', value: `${fmtCurrency(Math.round(r.depreciation / 12))} / חודש | ${fmtCurrency(r.depreciation)} / שנה`,
         }] : []),
         ...(r.loanInterestTotal > 0 ? [
-          { label: 'ריבית הלוואה — ממוצע שנתי', value: fmtCurrency(avgAnnualInterest) },
-          { label: 'ריבית הלוואה — סה"כ לכל התקופה', value: fmtCurrency(r.loanInterestTotal), muted: true },
+          { label: 'ריבית הלוואה', value: `${fmtCurrency(Math.round(avgAnnualInterest / 12))} / חודש | ${fmtCurrency(avgAnnualInterest)} / שנה` },
         ] : []),
         ...(r.vehicleTaxBenefit > 0 ? [
           { label: 'שווי מס רכב', value: `${fmtCurrency(r.vehicleTaxBenefit)} / חודש | ${fmtCurrency(r.vehicleTaxBenefit * 12)} / שנה` },
@@ -293,11 +289,6 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
       rows: [
         { label: 'תשלום חודשי ממוצע', value: fmtCurrency(r.monthlyCashflow), bold: true },
         { label: 'סה"כ הוצאות שנתי', value: fmtCurrency(r.totalAnnualExpenses), bold: true },
-        ...(r.loanYearlyBreakdown.length > 0 ? [{
-          label: 'יתרת הלוואה בסוף התקופה',
-          value: fmtCurrency(r.loanYearlyBreakdown[r.loanYearlyBreakdown.length - 1].endBalance),
-          muted: true,
-        }] : []),
       ],
     },
   ]
