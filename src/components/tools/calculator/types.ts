@@ -84,7 +84,14 @@ export type CalculationResult = {
   deductibleExpenses: number // annual (c)
   monthlyCashflow: number // average monthly out-of-pocket (e)
   residualCarValue: number | null // market value after 5 years (f)
-  annualTaxSavings: number // based on income bracket
+  annualTaxSavings: number // income tax savings
+  niiSavings: number // national insurance savings (ביטוח לאומי)
+  totalTaxSavings: number // annualTaxSavings + niiSavings
+  // Net-of-VAT amounts for display
+  fuelMonthlyNetVat: number // fuel minus recoverable VAT portion
+  maintenanceYearlyNetVat: number | null // maintenance minus recoverable VAT
+  // Pre-tax total for commercial display
+  totalExpensesBeforeTax: number // before deduction multiplier
   // Excess km note for operational leasing
   excessKmNote: boolean
 }

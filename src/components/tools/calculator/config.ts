@@ -66,6 +66,13 @@ export function getMarginalTaxRate(monthlyIncome: number): number {
   return 0.50
 }
 
+/* ─── National Insurance (ביטוח לאומי) Savings Rate ─── */
+
+// Ron's formula: above 7,700/mo → 18%, below → 7.7%
+export function getNiiSavingsRate(monthlyIncome: number): number {
+  return monthlyIncome > 7700 ? 0.18 : 0.077
+}
+
 /* ─── Default Interest Spreads ─── */
 
 export const DEFAULT_PURCHASE_SPREAD = 1.0 // P+1%

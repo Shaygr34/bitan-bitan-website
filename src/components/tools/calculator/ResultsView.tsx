@@ -235,6 +235,10 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
   type Row = { label: string; value: string; muted?: boolean; bold?: boolean }
   type Section = { title: string; rows: Row[] }
 
+  // Helper: show both monthly and yearly (R16)
+  const dual = (monthly: number) => `${fmtCurrency(monthly)} / חודש | ${fmtCurrency(monthly * 12)} / שנה`
+  const isCommercial = r.vehicleType.startsWith('commercial')
+
   const sections: Section[] = [
     {
       title: 'נתוני הרכב והמימון',
@@ -257,6 +261,7 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
         ...(r.residualPayment !== null ? [{
           label: 'יתרת תשלום סוף תקופה (בלון)',
           value: fmtCurrency(r.residualPayment),
+          bold: true,
         }] : []),
         ...(r.residualCarValue !== null ? [{
           label: 'שווי רכב משוער בשוק לאחר 5 שנים',
@@ -267,18 +272,20 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
     {
       title: 'הוצאות שוטפות',
       rows: [
-        { label: 'דלק / חשמל (חודשי)', value: fmtCurrency(r.fuelMonthly) },
-        ...(r.maintenanceYearly !== null ? [{
-          label: 'אחזקת רכב (שנתי)',
-          value: fmtCurrency(r.maintenanceYearly),
-        }] : [{ label: 'אחזקת רכב', value: 'כלול בליסינג', muted: true }]),
+        // R16+R18: show monthly+yearly, note net-of-VAT
+        { label: 'דלק / חשמל', value: `${dual(r.fuelMonthly)}` },
+        { label: '  ↳ בניכוי מע"מ מוכר', value: `${dual(r.fuelMonthlyNetVat)}`, muted: true },
+        ...(r.maintenanceYearly !== null ? [
+          { label: 'אחזקת רכב', value: `${fmtCurrency(Math.round(r.maintenanceYearly / 12))} / חודש | ${fmtCurrency(r.maintenanceYearly)} / שנה` },
+          ...(r.maintenanceYearlyNetVat !== null ? [
+            { label: '  ↳ בניכוי מע"מ מוכר', value: `${fmtCurrency(Math.round(r.maintenanceYearlyNetVat / 12))} / חודש | ${fmtCurrency(r.maintenanceYearlyNetVat)} / שנה`, muted: true },
+          ] : []),
+        ] : [{ label: 'אחזקת רכב', value: 'כלול בליסינג', muted: true }]),
         ...(r.insuranceYearly !== null ? [{
-          label: 'ביטוחים ורישוי (שנתי)',
-          value: fmtCurrency(r.insuranceYearly),
+          label: 'ביטוחים ורישוי', value: `${fmtCurrency(Math.round(r.insuranceYearly / 12))} / חודש | ${fmtCurrency(r.insuranceYearly)} / שנה`,
         }] : [{ label: 'ביטוחים ורישוי', value: 'כלול בליסינג', muted: true }]),
         ...(r.depreciation > 0 ? [{
-          label: 'ירידת ערך — פחת (שנתי)',
-          value: fmtCurrency(r.depreciation),
+          label: 'ירידת ערך — פחת', value: `${fmtCurrency(Math.round(r.depreciation / 12))} / חודש | ${fmtCurrency(r.depreciation)} / שנה`,
         }] : []),
         ...(r.loanInterestTotal > 0 ? [
           { label: 'ריבית הלוואה — ממוצע שנתי', value: fmtCurrency(avgAnnualInterest) },
@@ -287,17 +294,24 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
       ],
     },
     {
+      // R19: show total before tax adjustment for commercial context
       title: 'ניתוח מס',
       rows: [
+        ...(isCommercial ? [] : [
+          { label: 'סה"כ הוצאות לפני התאמה למס', value: fmtCurrency(r.totalExpensesBeforeTax), muted: true },
+        ]),
         { label: 'מע"מ מוכר (שנתי)', value: fmtCurrency(r.vatRecoverable) },
         { label: 'הוצאות מוכרות לצרכי מס (שנתי)', value: fmtCurrency(r.deductibleExpenses) },
-        { label: 'חיסכון מס שנתי', value: fmtCurrency(r.annualTaxSavings), bold: true },
+        { label: 'חיסכון מס הכנסה (שנתי)', value: fmtCurrency(r.annualTaxSavings) },
+        { label: 'חיסכון ביטוח לאומי (שנתי)', value: fmtCurrency(r.niiSavings) },
+        { label: 'סה"כ חיסכון מס (שנתי)', value: fmtCurrency(r.totalTaxSavings), bold: true },
       ],
     },
     {
-      title: 'סיכום',
+      // R17: add תזרים label + monthly AND yearly
+      title: 'סיכום — תזרים',
       rows: [
-        { label: 'תשלום חודשי ממוצע (תזרים)', value: fmtCurrency(r.monthlyCashflow), bold: true },
+        { label: 'תשלום חודשי ממוצע', value: fmtCurrency(r.monthlyCashflow), bold: true },
         { label: 'סה"כ הוצאות שנתי', value: fmtCurrency(r.totalAnnualExpenses), bold: true },
         ...(r.loanYearlyBreakdown.length > 0 ? [{
           label: 'יתרת הלוואה בסוף התקופה',
