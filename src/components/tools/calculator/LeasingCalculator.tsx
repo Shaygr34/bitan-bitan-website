@@ -146,30 +146,43 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
 
   return (
     <div>
-      {/* Progress bar */}
+      {/* Progress steps */}
       {phase !== 'results' && (
         <div className="mb-space-7">
-          <div className="h-1.5 bg-border rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gold rounded-full transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
-            />
+          <div className="flex items-center justify-center gap-2 mb-space-2">
+            {PHASE_ORDER.filter(p => p !== 'results').map((p, i) => {
+              const isCompleted = PHASE_ORDER.indexOf(p) < phaseIndex
+              const isCurrent = p === phase
+              return (
+                <div key={p} className="flex items-center gap-2">
+                  <div className={[
+                    'w-8 h-8 rounded-full flex items-center justify-center text-caption font-bold transition-all',
+                    isCompleted ? 'bg-gold text-white' :
+                    isCurrent ? 'bg-gold/20 text-gold border-2 border-gold' :
+                    'bg-border text-text-muted',
+                  ].join(' ')}>
+                    {isCompleted ? '✓' : i + 1}
+                  </div>
+                  {i < 2 && <div className={['w-8 h-0.5 transition-all', isCompleted ? 'bg-gold' : 'bg-border'].join(' ')} />}
+                </div>
+              )
+            })}
           </div>
-          <p className="text-caption text-text-muted text-center mt-space-2">
+          <p className="text-caption text-text-muted text-center">
             {PHASE_LABELS[phase]}
           </p>
         </div>
       )}
 
-      {/* Back button */}
-      {phase !== 'base' && phase !== 'results' && (
+      {/* Back button — on all steps except base */}
+      {phase !== 'base' && (
         <div className="mb-space-4">
           <button
             type="button"
             onClick={handleBack}
-            className="text-text-muted hover:text-primary text-body-sm transition-colors cursor-pointer"
+            className="text-gold hover:text-gold-hover text-body-sm font-medium transition-colors cursor-pointer"
           >
-            &#8592; חזרה
+            &#8592; חזרה לשלב הקודם
           </button>
         </div>
       )}

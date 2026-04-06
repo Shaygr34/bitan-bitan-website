@@ -40,6 +40,19 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
         כל הסכומים שנתיים אלא אם צוין אחרת
       </p>
 
+      {/* Compare button — TOP */}
+      {!hasComparison && (
+        <div className="text-center mb-space-5">
+          <button
+            type="button"
+            onClick={onCompare}
+            className="rounded-xl border-2 border-gold px-6 py-3 text-body font-bold text-gold hover:bg-gold/5 cursor-pointer transition-all duration-base"
+          >
+            השווה מול אפשרות נוספת
+          </button>
+        </div>
+      )}
+
       {/* Result Cards / Comparison */}
       {hasComparison ? (
         <>
@@ -73,12 +86,21 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
           <PhoneCTA label="חייגו אלינו" variant="secondary" location="leasing-calculator" />
         </div>
 
-        <div className="flex justify-center gap-4 mt-space-4">
+        <div className="flex flex-wrap justify-center gap-3 mt-space-5">
+          {!hasComparison && (
+            <button
+              type="button"
+              onClick={onCompare}
+              className="rounded-xl border-2 border-gold px-5 py-2.5 text-body font-bold text-gold hover:bg-gold/5 cursor-pointer transition-all"
+            >
+              השווה מול אפשרות נוספת
+            </button>
+          )}
           {hasComparison && (
             <button
               type="button"
               onClick={onCompare}
-              className="inline-flex items-center gap-1 text-gold underline cursor-pointer text-body hover:text-gold-hover transition-colors"
+              className="rounded-xl border-2 border-gold px-5 py-2.5 text-body font-bold text-gold hover:bg-gold/5 cursor-pointer transition-all"
             >
               השווה אפשרות אחרת
             </button>
@@ -86,7 +108,7 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
           <button
             type="button"
             onClick={onRestart}
-            className="inline-flex items-center gap-1 text-gold underline cursor-pointer text-body hover:text-gold-hover transition-colors"
+            className="rounded-xl border-2 border-border px-5 py-2.5 text-body font-medium text-primary hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1"
           >
             <ArrowLeft className="h-4 w-4" />
             התחל מחדש

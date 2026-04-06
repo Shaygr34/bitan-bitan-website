@@ -151,7 +151,7 @@ export function SliderInput({
           <input
             type="text"
             inputMode="numeric"
-            value={isManualFocused ? manualValue : ''}
+            value={isManualFocused ? manualValue : format(value)}
             onChange={(e) => setManualValue(e.target.value)}
             onFocus={() => {
               setIsManualFocused(true)
@@ -167,7 +167,7 @@ export function SliderInput({
                 (e.target as HTMLInputElement).blur()
               }
             }}
-            placeholder={format(value)}
+            placeholder="הזנה ידנית"
             className="rounded-lg border border-border px-3 py-1.5 text-body-sm w-full text-center focus:border-gold focus:outline-none transition-colors text-text-muted placeholder:text-text-muted/60"
           />
           <span className="text-body-sm text-text-muted shrink-0">{suffix}</span>

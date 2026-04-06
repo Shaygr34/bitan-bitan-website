@@ -58,7 +58,7 @@ export function StepDetails({
         {OPTION_TITLES[optionType]}
       </h2>
       <p className="text-body text-text-muted text-center mb-space-6">
-        כוונן את הפרמטרים — ברירות המחדל מבוססות על נתוני שוק
+        פרמטרים — ברירת מחדל לפי נתוני שוק ממוצעים
       </p>
 
       {optionType === 'purchase' && (
@@ -499,7 +499,7 @@ function RunningCosts({
       {showAll && (
         <>
           <SliderInput
-            label="אחזקת רכב (לשנה)"
+            label="אחזקת רכב (לשנה, כולל מע״מ)"
             min={3000}
             max={15000}
             step={500}
@@ -516,7 +516,7 @@ function RunningCosts({
           />
 
           <SliderInput
-            label="ביטוחים + רישיון (לשנה)"
+            label="ביטוחים + רישיון (לשנה, כולל מע״מ)"
             min={4000}
             max={15000}
             step={500}
