@@ -517,3 +517,33 @@ Continuation of the content intelligence session. Added CRM integration and digi
 
 ### Open Items (Full Backlog)
 See memory file: `bitan-dev-backlog-2026-04-05.md` for complete 17-item prioritized backlog.
+
+## Session: April 6, 2026 — Calculator Polish Sprint + Company Mode + Employer Cost
+
+### 1. Calculator Polish — 3 Feedback Rounds from Ron/Avi (PRs #40-#45)
+**Batch 1 (quick fixes):** Step indicators, labels, number formatting, back button, compare buttons, restart button visibility
+**Batch 2 (medium):** ביטוח לאומי savings in tax calc, dual monthly+yearly display, net-of-VAT in results, pre-tax total for private vehicles, balloon shown in ליסינג מימוני
+**Batch 3 (round 3):** CRITICAL BUG — totalAnnualExpenses was using depreciation instead of loan payment (fixed to cashflow-based). Scroll-to-top on mobile. Arrow direction RTL fix. Loan interest/balance moved to financing section. Compare below CTA. Pulse button when ready.
+
+### 2. Company Mode (R20 — SHIPPED)
+- חברה בע"מ option added to calculator
+- שווי רכב חדש מהיצרן field (capped at 596,860 for 2026)
+- שווי מס רכב = min(mfr price, cap) × 2.48%
+- ביטוח לאומי מעביד on שווי מס (7.6%)
+- Company tax at 23%
+- Metric cards: שווי מס רכב + שכר ברוטו כולל שווי רכב
+
+### 3. Other Fixes
+- R9: Unrestricted comparison (all 3 options available)
+- R15: Comparison view → stacked cards instead of flat table
+- A3: "ייעוץ מס" → "ייעוץ מיסוי" fixed in 2 Sanity service documents (FAQs)
+- R4: Field labels gold when filled
+- R10: Percentage format fixed for RTL (25% not % 25)
+
+### 4. Employer Cost Calculator — Spec Complete
+- Ron confirmed all 2026 values (tax brackets, NII rates, pension caps, credit points)
+- Full spec in Google Doc pages 22-27 + Ron's WhatsApp confirmations
+- Memory file: `bitan-employer-calc-spec.md`
+- Separate tool at `/tools/employer-cost`
+- Includes: שכיר payroll engine, pension/severance/education fund, זקופות, credit points, with/without vehicle comparison
+- **Building now**
