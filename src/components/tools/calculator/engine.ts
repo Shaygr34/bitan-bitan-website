@@ -23,6 +23,7 @@ import {
   getVatRecoveryRate,
   getTaxDeductionMultiplier,
   getMarginalTaxRate,
+  getNiiSavingsRate,
   getResidualCarValue,
   getOperationalRateBracket,
 } from './config'
@@ -146,21 +147,27 @@ export function calculatePurchase(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Tax savings
+  // Tax savings (R12: income tax + NII)
   const marginalRate = getMarginalTaxRate(monthlyIncome)
   const annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+  const niiRate = getNiiSavingsRate(monthlyIncome)
+  const niiSavings = Math.round(deductibleExpenses * niiRate)
+  const totalTaxSavings = annualTaxSavings + niiSavings
 
-  // Total annual expenses (ז) — loan interest + fuel + insurance + maintenance + depreciation - VAT recovered
+  // Total annual expenses (ז)
   const totalAnnualExpenses = Math.round(
     annualLoanInterest + annualFuel + insuranceYearly + maintenanceYearly + depreciation - vatRecoverable
   )
 
-  // Monthly cashflow (ה) — loan payment + fuel + maintenance/12 + insurance/12
+  // Monthly cashflow (ה)
   const monthlyCashflow = Math.round(
     amort.monthlyPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
   )
 
-  // Residual car value after 5 years
+  // Net-of-VAT display amounts (R18)
+  const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * vatRecoveryRate))
+  const maintenanceYearlyNetVat = Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * vatRecoveryRate))
+
   const residualCarValue = getResidualCarValue(carPrice)
 
   return {
@@ -186,6 +193,11 @@ export function calculatePurchase(
     monthlyCashflow,
     residualCarValue,
     annualTaxSavings,
+    niiSavings,
+    totalTaxSavings,
+    fuelMonthlyNetVat,
+    maintenanceYearlyNetVat,
+    totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
     excessKmNote: false,
   }
 }
@@ -247,9 +259,12 @@ export function calculateFinancialLeasing(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Tax savings
+  // Tax savings (R12)
   const marginalRate = getMarginalTaxRate(monthlyIncome)
   const annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+  const niiRate = getNiiSavingsRate(monthlyIncome)
+  const niiSavings = Math.round(deductibleExpenses * niiRate)
+  const totalTaxSavings = annualTaxSavings + niiSavings
 
   // Total annual expenses
   const totalAnnualExpenses = Math.round(
@@ -260,6 +275,10 @@ export function calculateFinancialLeasing(
   const monthlyCashflow = Math.round(
     amort.monthlyPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
   )
+
+  // Net-of-VAT display amounts (R18) — reuse vatRecoveryRate from above
+  const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * getVatRecoveryRate(vehicleType)))
+  const maintenanceYearlyNetVat = Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * getVatRecoveryRate(vehicleType)))
 
   const residualCarValue = getResidualCarValue(carPrice)
 
@@ -286,6 +305,11 @@ export function calculateFinancialLeasing(
     monthlyCashflow,
     residualCarValue,
     annualTaxSavings,
+    niiSavings,
+    totalTaxSavings,
+    fuelMonthlyNetVat,
+    maintenanceYearlyNetVat,
+    totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
     excessKmNote: false,
   }
 }
@@ -328,15 +352,21 @@ export function calculateOperationalLeasing(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Tax savings
+  // Tax savings (R12)
   const marginalRate = getMarginalTaxRate(monthlyIncome)
   const annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+  const niiRate = getNiiSavingsRate(monthlyIncome)
+  const niiSavings = Math.round(deductibleExpenses * niiRate)
+  const totalTaxSavings = annualTaxSavings + niiSavings
 
   // Total annual expenses
   const totalAnnualExpenses = Math.round(annualLeasing + annualFuel - vatRecoverable)
 
-  // Monthly cashflow — leasing + fuel
+  // Monthly cashflow
   const monthlyCashflow = Math.round(monthlyLeasingPayment + fuelMonthly)
+
+  // Net-of-VAT (R18)
+  const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * vatRecoveryRate))
 
   return {
     optionType: 'operationalLeasing',
@@ -359,7 +389,11 @@ export function calculateOperationalLeasing(
     monthlyCashflow,
     residualCarValue: null,
     annualTaxSavings,
-    // Note about excess km charges above 20,000 km/year
+    niiSavings,
+    totalTaxSavings,
+    fuelMonthlyNetVat,
+    maintenanceYearlyNetVat: null,
+    totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
     excessKmNote: true,
   }
 }
