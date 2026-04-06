@@ -3,7 +3,7 @@
  * Based on Ron's spec (21-page PDF, March 2026)
  */
 
-export type UserType = 'selfEmployed' | 'employee'
+export type UserType = 'selfEmployed' | 'company' | 'employee'
 
 export type VehicleType =
   | 'privatePetrol'
@@ -19,7 +19,8 @@ export type BaseInputs = {
   userType: UserType
   vehicleType: VehicleType
   carPrice: number // ₪ including VAT
-  monthlyIncome: number // gross monthly ₪
+  monthlyIncome: number // gross monthly ₪ (for selfEmployed: income, for company: employee salary)
+  manufacturerPrice?: number // ₪ — car's new price from manufacturer (for שווי שימוש calc, company only)
 }
 
 export type PurchaseInputs = {
@@ -92,6 +93,10 @@ export type CalculationResult = {
   maintenanceYearlyNetVat: number | null // maintenance minus recoverable VAT
   // Pre-tax total for commercial display
   totalExpensesBeforeTax: number // before deduction multiplier
+  // Company-specific (שווי שימוש)
+  vehicleTaxBenefit: number // שווי מס רכב monthly (2.48% of min(mfr price, cap))
+  grossIncludingVehicle: number // salary + vehicleTaxBenefit
+  employerNii: number // ביטוח לאומי מעביד on שווי מס (annual)
   // Excess km note for operational leasing
   excessKmNote: boolean
 }

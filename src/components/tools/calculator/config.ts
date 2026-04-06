@@ -73,6 +73,33 @@ export function getNiiSavingsRate(monthlyIncome: number): number {
   return monthlyIncome > 7700 ? 0.18 : 0.077
 }
 
+/* ─── Company: שווי שימוש Constants ─── */
+
+export const VEHICLE_TAX_BENEFIT_RATE = 0.0248 // 2.48% of manufacturer price
+export const MANUFACTURER_PRICE_CAP_2026 = 596_860 // תקרת שווי רכב יצרן 2026
+export const COMPANY_TAX_RATE = 0.23 // מס חברות 23%
+export const NII_EMPLOYER_RATE_HIGH = 0.076 // ביטוח לאומי מעביד above threshold
+export const NII_SALARY_THRESHOLD = 7703 // מדרגה נמוכה ביטוח לאומי
+
+// Electric/hybrid שווי מס reductions (monthly)
+export const VEHICLE_TAX_REDUCTIONS: Record<string, number> = {
+  privatePetrol: 0,
+  privateElectric: 1350,
+  commercialPetrol: 0,
+  commercialElectric: 0,
+}
+
+export function calculateVehicleTaxBenefit(
+  manufacturerPrice: number,
+  vehicleType: VehicleType
+): number {
+  if (vehicleType.startsWith('commercial')) return 0
+  const cappedPrice = Math.min(manufacturerPrice, MANUFACTURER_PRICE_CAP_2026)
+  const baseBenefit = Math.round(cappedPrice * VEHICLE_TAX_BENEFIT_RATE)
+  const reduction = VEHICLE_TAX_REDUCTIONS[vehicleType] || 0
+  return Math.max(0, baseBenefit - reduction)
+}
+
 /* ─── Default Interest Spreads ─── */
 
 export const DEFAULT_PURCHASE_SPREAD = 1.0 // P+1%

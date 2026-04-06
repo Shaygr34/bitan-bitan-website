@@ -68,6 +68,7 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         label="סוג משתמש"
         options={[
           { value: 'selfEmployed', label: 'עצמאי' },
+          { value: 'company', label: 'חברה בע"מ' },
           { value: 'employee', label: 'שכיר', disabled: true, badge: 'בקרוב' },
         ]}
         value={values.userType || null}
@@ -177,10 +178,12 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         format={formatCurrency}
       />
 
-      {/* Monthly Income — Slider */}
+      {/* Monthly Income — label changes for company */}
       <SliderInput
-        label="הכנסה חודשית ברוטו"
-        subtitle="הכנסות בניכוי הוצאות, כולל שכ״ע — לצורך חישוב חיסכון מס"
+        label={values.userType === 'company' ? 'שכר ברוטו של העובד שמשתמש ברכב' : 'הכנסה חודשית ברוטו'}
+        subtitle={values.userType === 'company'
+          ? 'שכר העובד שעבורו מיועד הרכב'
+          : 'הכנסות בניכוי הוצאות, כולל שכ״ע — לצורך חישוב חיסכון מס'}
         min={5000}
         max={60000}
         step={1000}
@@ -195,6 +198,26 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         ]}
         format={formatCurrency}
       />
+
+      {/* Manufacturer Price — company only */}
+      {values.userType === 'company' && (
+        <SliderInput
+          label="שווי רכב חדש מהיצרן"
+          subtitle="לצורך חישוב שווי מס רכב — מחירון היצרן, לא מחיר הרכישה"
+          min={50000}
+          max={600000}
+          step={5000}
+          value={values.manufacturerPrice || 200000}
+          onChange={(v) => onChange({ manufacturerPrice: v })}
+          nodes={[
+            { value: 100000, label: '100K' },
+            { value: 200000, label: '200K' },
+            { value: 300000, label: '300K' },
+            { value: 500000, label: '500K' },
+          ]}
+          format={formatCurrency}
+        />
+      )}
 
       {/* Next */}
       <div className="mt-space-7 text-center">

@@ -26,6 +26,10 @@ import {
   getNiiSavingsRate,
   getResidualCarValue,
   getOperationalRateBracket,
+  calculateVehicleTaxBenefit,
+  COMPANY_TAX_RATE,
+  NII_EMPLOYER_RATE_HIGH,
+  NII_SALARY_THRESHOLD,
 } from './config'
 
 /* ═══════════════════════════════════════════════
@@ -103,6 +107,30 @@ function extractVat(amountInclVat: number, vatRate: number): number {
 }
 
 /* ═══════════════════════════════════════════════
+   Company Fields Helper
+   ═══════════════════════════════════════════════ */
+
+function computeCompanyFields(base: BaseInputs) {
+  const { userType, vehicleType, monthlyIncome, manufacturerPrice } = base
+  const isCompany = userType === 'company'
+
+  if (!isCompany || !manufacturerPrice) {
+    return { vehicleTaxBenefit: 0, grossIncludingVehicle: monthlyIncome, employerNii: 0 }
+  }
+
+  const vehicleTaxBenefit = calculateVehicleTaxBenefit(manufacturerPrice, vehicleType)
+  const grossIncludingVehicle = monthlyIncome + vehicleTaxBenefit
+
+  // ביטוח לאומי מעביד on שווי מס — only if salary > threshold
+  let employerNii = 0
+  if (monthlyIncome > NII_SALARY_THRESHOLD) {
+    employerNii = Math.round(vehicleTaxBenefit * NII_EMPLOYER_RATE_HIGH * 12)
+  }
+
+  return { vehicleTaxBenefit, grossIncludingVehicle, employerNii }
+}
+
+/* ═══════════════════════════════════════════════
    Purchase (יד 2) Calculation
    ═══════════════════════════════════════════════ */
 
@@ -147,16 +175,33 @@ export function calculatePurchase(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Tax savings (R12: income tax + NII)
-  const marginalRate = getMarginalTaxRate(monthlyIncome)
-  const annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
-  const niiRate = getNiiSavingsRate(monthlyIncome)
-  const niiSavings = Math.round(deductibleExpenses * niiRate)
-  const totalTaxSavings = annualTaxSavings + niiSavings
+  // Company fields
+  const companyFields = computeCompanyFields(base)
+  const isCompany = base.userType === 'company'
+
+  // Tax savings — company uses 23% flat rate, self-employed uses marginal + NII
+  let annualTaxSavings: number
+  let niiSavings: number
+  let totalTaxSavings: number
+
+  if (isCompany) {
+    // Company: deductible = total expenses (100%), tax = 23% minus שווי מס impact
+    const companyDeductible = totalAnnualBeforeVat - vatRecoverable - (companyFields.vehicleTaxBenefit * 12)
+    annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
+    niiSavings = companyFields.employerNii
+    totalTaxSavings = annualTaxSavings // NII is a COST for company, not savings
+  } else {
+    const marginalRate = getMarginalTaxRate(monthlyIncome)
+    annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+    const niiRate = getNiiSavingsRate(monthlyIncome)
+    niiSavings = Math.round(deductibleExpenses * niiRate)
+    totalTaxSavings = annualTaxSavings + niiSavings
+  }
 
   // Total annual expenses (ז)
   const totalAnnualExpenses = Math.round(
     annualLoanInterest + annualFuel + insuranceYearly + maintenanceYearly + depreciation - vatRecoverable
+    + (isCompany ? companyFields.employerNii : 0)
   )
 
   // Monthly cashflow (ה)
@@ -198,8 +243,11 @@ export function calculatePurchase(
     fuelMonthlyNetVat,
     maintenanceYearlyNetVat,
     totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
+    vehicleTaxBenefit: companyFields.vehicleTaxBenefit,
+    grossIncludingVehicle: companyFields.grossIncludingVehicle,
+    employerNii: companyFields.employerNii,
     excessKmNote: false,
-  }
+  } as CalculationResult
 }
 
 /* ═══════════════════════════════════════════════
@@ -259,16 +307,32 @@ export function calculateFinancialLeasing(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Tax savings (R12)
-  const marginalRate = getMarginalTaxRate(monthlyIncome)
-  const annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
-  const niiRate = getNiiSavingsRate(monthlyIncome)
-  const niiSavings = Math.round(deductibleExpenses * niiRate)
-  const totalTaxSavings = annualTaxSavings + niiSavings
+  // Company fields
+  const companyFields = computeCompanyFields(base)
+  const isCompanyMode = base.userType === 'company'
+
+  // Tax savings
+  let annualTaxSavings: number
+  let niiSavings: number
+  let totalTaxSavings: number
+
+  if (isCompanyMode) {
+    const companyDeductible = totalAnnualBeforeVat - vatRecoverable - (companyFields.vehicleTaxBenefit * 12)
+    annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
+    niiSavings = companyFields.employerNii
+    totalTaxSavings = annualTaxSavings
+  } else {
+    const marginalRate = getMarginalTaxRate(monthlyIncome)
+    annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+    const niiRate = getNiiSavingsRate(monthlyIncome)
+    niiSavings = Math.round(deductibleExpenses * niiRate)
+    totalTaxSavings = annualTaxSavings + niiSavings
+  }
 
   // Total annual expenses
   const totalAnnualExpenses = Math.round(
     annualLoanInterest + annualFuel + insuranceYearly + maintenanceYearly + depreciation - vatRecoverable
+    + (isCompanyMode ? companyFields.employerNii : 0)
   )
 
   // Monthly cashflow
@@ -276,7 +340,7 @@ export function calculateFinancialLeasing(
     amort.monthlyPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
   )
 
-  // Net-of-VAT display amounts (R18) — reuse vatRecoveryRate from above
+  // Net-of-VAT display amounts (R18)
   const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * getVatRecoveryRate(vehicleType)))
   const maintenanceYearlyNetVat = Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * getVatRecoveryRate(vehicleType)))
 
@@ -310,8 +374,11 @@ export function calculateFinancialLeasing(
     fuelMonthlyNetVat,
     maintenanceYearlyNetVat,
     totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
+    vehicleTaxBenefit: companyFields.vehicleTaxBenefit,
+    grossIncludingVehicle: companyFields.grossIncludingVehicle,
+    employerNii: companyFields.employerNii,
     excessKmNote: false,
-  }
+  } as CalculationResult
 }
 
 /* ═══════════════════════════════════════════════
@@ -352,15 +419,31 @@ export function calculateOperationalLeasing(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Tax savings (R12)
-  const marginalRate = getMarginalTaxRate(monthlyIncome)
-  const annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
-  const niiRate = getNiiSavingsRate(monthlyIncome)
-  const niiSavings = Math.round(deductibleExpenses * niiRate)
-  const totalTaxSavings = annualTaxSavings + niiSavings
+  // Company fields
+  const companyFields = computeCompanyFields(base)
+  const isCompanyMode = base.userType === 'company'
+
+  // Tax savings
+  let annualTaxSavings: number
+  let niiSavings: number
+  let totalTaxSavings: number
+
+  if (isCompanyMode) {
+    const companyDeductible = totalAnnualBeforeVat - vatRecoverable - (companyFields.vehicleTaxBenefit * 12)
+    annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
+    niiSavings = companyFields.employerNii
+    totalTaxSavings = annualTaxSavings
+  } else {
+    const marginalRate = getMarginalTaxRate(monthlyIncome)
+    annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+    const niiRate = getNiiSavingsRate(monthlyIncome)
+    niiSavings = Math.round(deductibleExpenses * niiRate)
+    totalTaxSavings = annualTaxSavings + niiSavings
+  }
 
   // Total annual expenses
-  const totalAnnualExpenses = Math.round(annualLeasing + annualFuel - vatRecoverable)
+  const totalAnnualExpenses = Math.round(annualLeasing + annualFuel - vatRecoverable
+    + (isCompanyMode ? companyFields.employerNii : 0))
 
   // Monthly cashflow
   const monthlyCashflow = Math.round(monthlyLeasingPayment + fuelMonthly)
@@ -394,8 +477,11 @@ export function calculateOperationalLeasing(
     fuelMonthlyNetVat,
     maintenanceYearlyNetVat: null,
     totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
+    vehicleTaxBenefit: companyFields.vehicleTaxBenefit,
+    grossIncludingVehicle: companyFields.grossIncludingVehicle,
+    employerNii: companyFields.employerNii,
     excessKmNote: true,
-  }
+  } as CalculationResult
 }
 
 /* ═══════════════════════════════════════════════
