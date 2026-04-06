@@ -4,6 +4,7 @@ import { PortableText } from 'next-sanity'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import { AlertTriangle } from 'lucide-react'
 import { LeasingCalculator } from '@/components/tools/calculator/LeasingCalculator'
+import { EmployerCalculator } from '@/components/tools/employer/EmployerCalculator'
 import type { CalculatorConfig } from '@/components/tools/calculator/types'
 
 export const dynamic = 'force-dynamic'
@@ -32,6 +33,7 @@ export default async function ToolPage({ params }: Props) {
   if (tool.vatRate) calcConfig.vatRate = tool.vatRate / 100 // Sanity stores 18, engine needs 0.18
 
   const isLeasing = tool.toolType === 'leasing-simulator'
+  const isEmployer = tool.toolType === 'employer-cost-calculator'
 
   return (
     <div>
@@ -53,6 +55,7 @@ export default async function ToolPage({ params }: Props) {
       <section className="py-space-9 px-6">
         <div className="max-w-narrow mx-auto">
           {isLeasing && <LeasingCalculator config={calcConfig} />}
+          {isEmployer && <EmployerCalculator />}
         </div>
       </section>
 
