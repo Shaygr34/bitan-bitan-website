@@ -99,20 +99,34 @@ export function EmployerResults({ result, inputs, onRestart }: Props) {
           <h3 className="text-body-lg font-bold text-white">מעסיק</h3>
         </div>
         <div className="p-space-4">
-          <Section title="תוספת עלות מעסיק" rows={[
+          <Section title="פירוט עלות מעסיק" rows={[
             { label: 'שכר ברוטו', value: `${fmt(empr.grossSalary)} ₪` },
             { label: 'תגמולים פנסיה מעסיק', value: `${fmt(empr.pensionEmployer)} ₪` },
             { label: 'פיצויים מעסיק', value: `${fmt(empr.severanceEmployer)} ₪` },
             { label: 'קרן השתלמות מעסיק', value: `${fmt(empr.educationFundEmployer)} ₪` },
             { label: 'ביטוח לאומי מעסיק', value: `${fmt(empr.niiEmployer)} ₪` },
-            { label: 'סה"כ תוספת עלות מעסיק', value: `${fmt(empr.totalAdditionalCost)} ₪`, bold: true },
           ]} />
 
-          <Section title="סיכום עלות מעסיק" rows={[
-            { label: 'סה"כ עלות מעסיק כולל שווי רכב', value: `${fmt(empr.totalWithVehicle)} ₪`, bold: true },
-            { label: 'סה"כ עלות מעסיק ללא שווי רכב', value: `${fmt(empr.totalWithoutVehicle)} ₪` },
-            ...(hasVehicle ? [{ label: 'הפרש עלות מעסיק', value: `${fmt(empr.costDifference)} ₪`, bold: true }] : []),
-          ]} />
+          {/* Side by side: with vs without vehicle */}
+          <div className="mb-space-3">
+            <h4 className="text-body-sm font-bold text-primary bg-surface/60 px-2 py-1.5 rounded mb-0">סיכום עלות מעסיק</h4>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <div className="rounded-lg border border-gold bg-gold/5 p-space-3 text-center">
+                <span className="text-caption text-text-muted block mb-1">כולל שווי רכב</span>
+                <span className="text-body-lg font-bold text-gold block">{fmt(empr.totalWithVehicle)} ₪</span>
+              </div>
+              <div className="rounded-lg border border-border p-space-3 text-center">
+                <span className="text-caption text-text-muted block mb-1">ללא שווי רכב</span>
+                <span className="text-body-lg font-bold text-primary block">{fmt(empr.totalWithoutVehicle)} ₪</span>
+              </div>
+            </div>
+            {hasVehicle && (
+              <div className="text-center mt-2 py-2 bg-surface rounded-lg">
+                <span className="text-body-sm text-text-muted">הפרש עלות מעסיק (השפעת רכב): </span>
+                <span className="text-body font-bold text-primary">{fmt(empr.costDifference)} ₪</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

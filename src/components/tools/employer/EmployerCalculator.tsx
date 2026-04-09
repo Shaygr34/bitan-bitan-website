@@ -8,12 +8,11 @@ import { DEFAULT_EMPLOYER_CONFIG, SALARY_PRESETS, PENSION_EMPLOYEE_RATES, PENSIO
 import { EmployerResults } from './EmployerResults'
 import type { EmployerInputs, EmployerCalcResult, VehicleFuelType, Gender, MaritalStatus } from './types'
 
-type Phase = 'salary' | 'vehicle' | 'pension' | 'personal' | 'results'
+type Phase = 'salary' | 'pension' | 'personal' | 'results'
 
-const PHASE_ORDER: Phase[] = ['salary', 'vehicle', 'pension', 'personal', 'results']
+const PHASE_ORDER: Phase[] = ['salary', 'pension', 'personal', 'results']
 const PHASE_LABELS: Record<Phase, string> = {
-  salary: 'שכר',
-  vehicle: 'רכב',
+  salary: 'שכר ורכב',
   pension: 'פנסיה והפרשות',
   personal: 'נתונים אישיים',
   results: 'תוצאות',
@@ -79,7 +78,7 @@ export function EmployerCalculator() {
                   ].join(' ')}>
                     {isCompleted ? '✓' : i + 1}
                   </div>
-                  {i < 3 && <div className={['w-6 h-0.5 transition-all', isCompleted ? 'bg-gold' : 'bg-border'].join(' ')} />}
+                  {i < 2 && <div className={['w-6 h-0.5 transition-all', isCompleted ? 'bg-gold' : 'bg-border'].join(' ')} />}
                 </div>
               )
             })}
@@ -98,11 +97,11 @@ export function EmployerCalculator() {
       )}
 
       <div key={phase} style={{ animation: 'fadeIn 300ms ease-out' }}>
-        {/* Phase 1: Salary */}
+        {/* Phase 1: Salary + Vehicle (merged per Avi's feedback) */}
         {phase === 'salary' && (
           <div>
-            <h2 className="text-h3 font-bold text-primary text-center mb-space-2">שכר עובד</h2>
-            <p className="text-body text-text-muted text-center mb-space-6">הזינו את נתוני השכר הבסיסיים</p>
+            <h2 className="text-h3 font-bold text-primary text-center mb-space-2">נתוני שכר ורכב</h2>
+            <p className="text-body text-text-muted text-center mb-space-6">שכר ברוטו של העובד ופרטי רכב צמוד (אם קיים)</p>
 
             <SliderInput
               label="שכר ברוטו חודשי"
@@ -113,50 +112,44 @@ export function EmployerCalculator() {
               format={fmt}
             />
 
-            <NextButton onClick={next} />
-          </div>
-        )}
+            {/* Vehicle as part of same step */}
+            <div className="bg-surface rounded-xl p-space-4 mb-space-5">
+              <h3 className="text-body font-bold text-primary mb-space-3">רכב צמוד</h3>
+              <ToggleGroup
+                label="סוג רכב"
+                options={VEHICLE_FUEL_OPTIONS.map(o => ({ value: o.value, label: o.label, sublabel: o.sublabel }))}
+                value={inputs.vehicleFuelType}
+                onChange={v => update({ vehicleFuelType: v as VehicleFuelType })}
+              />
 
-        {/* Phase 2: Vehicle */}
-        {phase === 'vehicle' && (
-          <div>
-            <h2 className="text-h3 font-bold text-primary text-center mb-space-2">רכב צמוד</h2>
-            <p className="text-body text-text-muted text-center mb-space-6">האם העובד מקבל רכב מהחברה?</p>
-
-            <ToggleGroup
-              label="סוג רכב"
-              options={VEHICLE_FUEL_OPTIONS.map(o => ({ value: o.value, label: o.label, sublabel: o.sublabel }))}
-              value={inputs.vehicleFuelType}
-              onChange={v => update({ vehicleFuelType: v as VehicleFuelType })}
-            />
-
-            {inputs.vehicleFuelType !== 'commercial' && (
-              <SliderInput
-                label="מחיר יצרן רכב"
-                subtitle="לצורך חישוב שווי מס רכב"
-                min={50000} max={600000} step={5000}
-                value={inputs.manufacturerPrice}
-                onChange={v => update({ manufacturerPrice: v })}
-                nodes={[
-                  { value: 100000, label: '100K' },
-                  { value: 200000, label: '200K' },
-                  { value: 400000, label: '400K' },
-                ]}
+              {inputs.vehicleFuelType !== 'commercial' && (
+                <SliderInput
+                  label="מחיר יצרן רכב"
+                  subtitle="לצורך חישוב שווי מס רכב"
+                  min={50000} max={600000} step={5000}
+                  value={inputs.manufacturerPrice}
+                  onChange={v => update({ manufacturerPrice: v })}
+                  nodes={[
+                    { value: 100000, label: '100K' },
+                    { value: 200000, label: '200K' },
+                    { value: 400000, label: '400K' },
+                  ]}
                 format={fmt}
               />
             )}
 
             {inputs.vehicleFuelType === 'commercial' && (
-              <div className="bg-surface rounded-xl p-space-4 text-center text-body-sm text-text-muted">
+              <p className="text-caption text-text-muted text-center mt-space-2">
                 רכב מסחרי מעל 3.5 טון — אין שווי מס רכב
-              </div>
+              </p>
             )}
+            </div>
 
             <NextButton onClick={next} />
           </div>
         )}
 
-        {/* Phase 3: Pension & Benefits */}
+        {/* Phase 2: Pension & Benefits (was phase 3) */}
         {phase === 'pension' && (
           <div>
             <h2 className="text-h3 font-bold text-primary text-center mb-space-2">פנסיה והפרשות</h2>
@@ -283,7 +276,7 @@ export function EmployerCalculator() {
                 onChange={v => {
                   const current = inputs.childrenAges
                   if (v > current.length) {
-                    update({ childrenAges: [...current, ...Array(v - current.length).fill(5)] })
+                    update({ childrenAges: [...current, ...Array(v - current.length).fill(0)] })
                   } else {
                     update({ childrenAges: current.slice(0, v) })
                   }
@@ -315,6 +308,21 @@ export function EmployerCalculator() {
                       />
                     </div>
                   ))}
+                </div>
+
+                {/* מקרא — age guide */}
+                <div className="mt-space-3 bg-white/60 rounded-lg p-space-3">
+                  <p className="text-caption font-medium text-primary mb-1">מקרא — רישום גיל ילדים:</p>
+                  <div className="text-caption text-text-muted space-y-0.5">
+                    <p>0 = שנת לידה</p>
+                    <p>1-2 = מלאו לילד שנה — שנתיים</p>
+                    <p>3 = מלאו לילד 3 שנים</p>
+                    <p>4-5 = מלאו לילד 4 — 5 שנים</p>
+                    <p>6-12 = מלאו לילד 6 — 12 שנים</p>
+                    <p>13-17 = מלאו לילד 13 — 17 שנים</p>
+                    <p>18 = מלאו לילד 18 שנים</p>
+                  </div>
+                  <p className="text-caption text-text-muted mt-1 italic">*מנוסח בלשון זכר לצורך הנוחות, מתייחס לזכר/נקבה כאחד.</p>
                 </div>
 
                 <div className="mt-space-3">
