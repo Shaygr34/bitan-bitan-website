@@ -235,6 +235,16 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
   // Submit
   // -------------------------------------------------------------------------
   async function handleSubmit() {
+    // Validate required documents
+    const missingDocs = relevantDocs
+      .filter((d) => d.required && !files[d.key])
+      .map((d) => d.label)
+
+    if (missingDocs.length > 0) {
+      setError(`חסרים מסמכי חובה: ${missingDocs.join(', ')}. חזרו לשלב המסמכים להשלמה.`)
+      return
+    }
+
     setSubmitting(true)
     setError(null)
 
@@ -452,7 +462,54 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
         {renderInput('address', 'כתובת', false)}
         {renderInput('city', 'יישוב', false)}
         {renderInput('zipCode', 'מיקוד', false)}
-        {renderInput('birthdate', 'תאריך לידה', false, 'date')}
+        {/* Birthdate — 3 dropdowns instead of native date picker */}
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>תאריך לידה</label>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <select
+              className={styles.input}
+              style={{ flex: 1 }}
+              value={formData.birthdate ? formData.birthdate.split('-')[2] || '' : ''}
+              onChange={(e) => {
+                const [y, m] = (formData.birthdate || '--').split('-')
+                updateField('birthdate', `${y || '1990'}-${m || '01'}-${e.target.value.padStart(2, '0')}`)
+              }}
+            >
+              <option value="">יום</option>
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                <option key={d} value={String(d).padStart(2, '0')}>{d}</option>
+              ))}
+            </select>
+            <select
+              className={styles.input}
+              style={{ flex: 1.2 }}
+              value={formData.birthdate ? formData.birthdate.split('-')[1] || '' : ''}
+              onChange={(e) => {
+                const [y, , d] = (formData.birthdate || '--').split('-')
+                updateField('birthdate', `${y || '1990'}-${e.target.value}-${d || '01'}`)
+              }}
+            >
+              <option value="">חודש</option>
+              {['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'].map((name, i) => (
+                <option key={i} value={String(i + 1).padStart(2, '0')}>{name}</option>
+              ))}
+            </select>
+            <select
+              className={styles.input}
+              style={{ flex: 1 }}
+              value={formData.birthdate ? formData.birthdate.split('-')[0] || '' : ''}
+              onChange={(e) => {
+                const [, m, d] = (formData.birthdate || '--').split('-')
+                updateField('birthdate', `${e.target.value}-${m || '01'}-${d || '01'}`)
+              }}
+            >
+              <option value="">שנה</option>
+              {Array.from({ length: 80 }, (_, i) => 2008 - i).map((y) => (
+                <option key={y} value={String(y)}>{y}</option>
+              ))}
+            </select>
+          </div>
+        </div>
         {/* businessSector + shareholders moved to business step */}
 
         <div className={styles.buttonRow}>
@@ -505,19 +562,37 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
           </select>
         </div>
 
-        {/* Estimated turnover */}
+        {/* Estimated turnover — dropdown + free text */}
         <div className={styles.fieldGroup}>
           <label className={styles.label}>מחזור שנתי משוער (₪)</label>
           <select
             className={styles.input}
-            value={formData.estimatedTurnover}
-            onChange={(e) => updateField('estimatedTurnover', e.target.value)}
+            value={TURNOVER_PRESETS.some(t => String(t.value) === formData.estimatedTurnover) ? formData.estimatedTurnover : (formData.estimatedTurnover ? 'other' : '')}
+            onChange={(e) => {
+              if (e.target.value === 'other') {
+                updateField('estimatedTurnover', '')
+              } else {
+                updateField('estimatedTurnover', e.target.value)
+              }
+            }}
           >
             <option value="">בחרו טווח...</option>
             {TURNOVER_PRESETS.map((t) => (
               <option key={t.value} value={String(t.value)}>{t.label}</option>
             ))}
+            <option value="other">אחר — הזנה ידנית</option>
           </select>
+          {(!TURNOVER_PRESETS.some(t => String(t.value) === formData.estimatedTurnover) && formData.estimatedTurnover !== '') && (
+            <input
+              className={styles.input}
+              type="number"
+              inputMode="numeric"
+              style={{ marginTop: '0.5rem' }}
+              value={formData.estimatedTurnover}
+              onChange={(e) => updateField('estimatedTurnover', e.target.value)}
+              placeholder="הזינו סכום בש״ח"
+            />
+          )}
         </div>
 
         {renderInput('businessAddress', 'כתובת העסק', false)}
