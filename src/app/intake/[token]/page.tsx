@@ -26,8 +26,8 @@ export default async function IntakeTokenPage({ params }: Props) {
 
   // Note: "token" is a reserved key in Sanity QueryParams (it's a client option),
   // so we use "tokenValue" as the GROQ parameter name.
-  const doc = await client.fetch<{ status: string; prefillData?: string } | null>(
-    `*[_type == "intakeToken" && token == $tokenValue][0]{ status, prefillData }`,
+  const doc = await client.fetch<{ status: string; prefillData?: string; submittedData?: string; _createdAt: string; summitEntityId?: string } | null>(
+    `*[_type == "intakeToken" && token == $tokenValue][0]{ status, prefillData, submittedData, _createdAt, summitEntityId }`,
     { tokenValue: token },
     { next: { revalidate: 0 } }
   )
@@ -36,7 +36,12 @@ export default async function IntakeTokenPage({ params }: Props) {
     notFound()
   }
 
-  if (doc.status === 'completed') {
+  // Allow re-entry within 4 days of creation even if completed
+  const ageMs = Date.now() - new Date(doc._createdAt).getTime()
+  const ageDays = ageMs / (1000 * 60 * 60 * 24)
+  const isEditable = ageDays <= 4
+
+  if (doc.status === 'completed' && !isEditable) {
     return (
       <div
         dir="rtl"
@@ -56,7 +61,7 @@ export default async function IntakeTokenPage({ params }: Props) {
           הטופס כבר הוגש
         </h1>
         <p style={{ color: '#4A5568', fontSize: '1rem', margin: 0 }}>
-          תודה! הטופס כבר מולא ונשלח בהצלחה.
+          תודה! הטופס כבר מולא ונשלח בהצלחה. לעדכון פרטים — פנו למשרד.
         </p>
       </div>
     )
@@ -90,6 +95,7 @@ export default async function IntakeTokenPage({ params }: Props) {
 
   // Parse prefillData if present
   let prefillClientType: string | undefined
+  let previousData: Record<string, string> | undefined
   if (doc.prefillData) {
     try {
       const prefill = JSON.parse(doc.prefillData)
@@ -99,6 +105,23 @@ export default async function IntakeTokenPage({ params }: Props) {
     }
   }
 
-  // status === 'pending' or 'opened' — show the form
-  return <IntakeForm token={token} prefillClientType={prefillClientType} />
+  // If completed but still editable, pass previous data for pre-fill
+  if (doc.status === 'completed' && isEditable && doc.submittedData) {
+    try {
+      previousData = JSON.parse(doc.submittedData)
+    } catch {
+      // ignore
+    }
+  }
+
+  // status === 'pending', 'opened', or 'completed' (within 4 days) — show the form
+  return (
+    <IntakeForm
+      token={token}
+      prefillClientType={prefillClientType}
+      previousData={previousData}
+      summitEntityId={doc.summitEntityId}
+      isUpdate={doc.status === 'completed' && isEditable}
+    />
+  )
 }
