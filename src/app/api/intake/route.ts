@@ -35,8 +35,16 @@ async function createSummitEntity(fields: {
   city?: string
   zipCode?: string
   birthdate?: string
+  businessName?: string
   businessSector?: string
+  estimatedTurnover?: string
+  businessAddress?: string
   shareholderDetails?: string
+  // Transfer fields
+  previousCpaName?: string
+  previousCpaEmail?: string
+  previousCpaSoftware?: string
+  onboardingPath?: string
 }): Promise<string | null> {
   const credentials = getSummitCredentials()
   if (!credentials.APIKey || !credentials.CompanyID) return null
@@ -57,14 +65,29 @@ async function createSummitEntity(fields: {
     properties[key] = value
   }
 
-  // Optional fields — use API names from Summit schema
+  // Optional fields
   if (fields.address) properties.Customers_Address = fields.address
   if (fields.city) properties.Customers_City = fields.city
   if (fields.zipCode) properties.Customers_ZipCode = fields.zipCode
   if (fields.birthdate) properties.Customers_Birthdate = fields.birthdate.includes('T') ? fields.birthdate : `${fields.birthdate}T00:00:00`
-  // תחום עיסוק is an Entity reference field — skipped for now (requires entity ID lookup)
-  // if (fields.businessSector) properties['תחום עיסוק'] = fields.businessSector
   if (fields.shareholderDetails) properties['פרטי בעלי מניות'] = fields.shareholderDetails
+
+  // New V2 fields
+  if (fields.estimatedTurnover) properties['מחזור שנתי משוער'] = parseInt(fields.estimatedTurnover, 10)
+  if (fields.businessAddress) properties.Customers_Address = fields.businessAddress // override with business address if provided
+
+  // Auto-set fields
+  properties['מועד תחילת ייצוג'] = new Date().toISOString().split('T')[0] + 'T00:00:00'
+
+  // Transfer + business details → store in Customers_Text (structured notes)
+  const textParts: string[] = []
+  if (fields.onboardingPath) textParts.push(`מסלול קליטה: ${fields.onboardingPath}`)
+  if (fields.businessName) textParts.push(`שם העסק: ${fields.businessName}`)
+  if (fields.businessSector) textParts.push(`תחום עיסוק: ${fields.businessSector}`)
+  if (fields.previousCpaName) textParts.push(`רו"ח קודם: ${fields.previousCpaName}`)
+  if (fields.previousCpaEmail) textParts.push(`מייל רו"ח קודם: ${fields.previousCpaEmail}`)
+  if (fields.previousCpaSoftware) textParts.push(`תוכנות רו"ח קודם: ${fields.previousCpaSoftware}`)
+  if (textParts.length > 0) properties.Customers_Text = textParts.join('\n')
 
   // Remove undefined values
   for (const key of Object.keys(properties)) {
@@ -152,6 +175,7 @@ export async function POST(req: NextRequest) {
 
     const token = get('token')
     const clientType = get('clientType')
+    const onboardingPath = get('onboardingPath') || undefined
     const fullName = get('fullName')
     const companyNumber = get('companyNumber')
     const phone = get('phone')
@@ -160,8 +184,16 @@ export async function POST(req: NextRequest) {
     const city = get('city') || undefined
     const zipCode = get('zipCode') || undefined
     const birthdate = get('birthdate') || undefined
+    // V2 fields
+    const businessName = get('businessName') || undefined
     const businessSector = get('businessSector') || undefined
+    const estimatedTurnover = get('estimatedTurnover') || undefined
+    const businessAddress = get('businessAddress') || undefined
     const shareholderDetails = get('shareholderDetails') || undefined
+    // Transfer fields
+    const previousCpaName = get('previousCpaName') || undefined
+    const previousCpaEmail = get('previousCpaEmail') || undefined
+    const previousCpaSoftware = get('previousCpaSoftware') || undefined
 
     // -----------------------------------------------------------------------
     // 2. Validate required fields
@@ -217,8 +249,15 @@ export async function POST(req: NextRequest) {
       city,
       zipCode,
       birthdate,
+      businessName,
       businessSector,
+      estimatedTurnover,
+      businessAddress,
       shareholderDetails,
+      previousCpaName,
+      previousCpaEmail,
+      previousCpaSoftware,
+      onboardingPath,
     })
 
     // -----------------------------------------------------------------------
