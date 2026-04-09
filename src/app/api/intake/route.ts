@@ -156,6 +156,51 @@ async function updateSummitEntityNotes(entityId: string, notes: string): Promise
   }
 }
 
+async function updateSummitEntityFields(entityId: string, fields: Record<string, string | undefined>): Promise<void> {
+  const credentials = getSummitCredentials()
+  if (!credentials.APIKey || !credentials.CompanyID || !entityId) return
+
+  const clientTypeId = fields.clientType ? CLIENT_TYPE_IDS[fields.clientType] : undefined
+  const newsletterFlags = fields.clientType ? getNewsletterFlags(fields.clientType) : {}
+
+  const properties: Record<string, unknown> = {}
+  if (fields.fullName) properties.Customers_FullName = fields.fullName
+  if (fields.companyNumber) properties.Customers_CompanyNumber = fields.companyNumber
+  if (fields.phone) properties.Customers_Phone = fields.phone
+  if (fields.email) properties.Customers_EmailAddress = fields.email
+  if (clientTypeId) properties['סוג לקוח'] = clientTypeId
+  for (const [key, value] of Object.entries(newsletterFlags)) properties[key] = value
+  if (fields.address) properties.Customers_Address = fields.address
+  if (fields.city) properties.Customers_City = fields.city
+  if (fields.zipCode) properties.Customers_ZipCode = fields.zipCode
+  if (fields.birthdate) properties.Customers_Birthdate = fields.birthdate.includes('T') ? fields.birthdate : `${fields.birthdate}T00:00:00`
+  if (fields.shareholderDetails) properties['פרטי בעלי מניות'] = fields.shareholderDetails
+  if (fields.estimatedTurnover) properties['מחזור שנתי משוער'] = parseInt(fields.estimatedTurnover, 10)
+  if (fields.businessAddress) properties.Customers_Address = fields.businessAddress
+
+  const textParts: string[] = []
+  if (fields.onboardingPath) textParts.push(`מסלול קליטה: ${fields.onboardingPath}`)
+  if (fields.businessName) textParts.push(`שם העסק: ${fields.businessName}`)
+  if (fields.businessSector) textParts.push(`תחום עיסוק: ${fields.businessSector}`)
+  if (fields.previousCpaName) textParts.push(`רו"ח קודם: ${fields.previousCpaName}`)
+  if (fields.previousCpaEmail) textParts.push(`מייל רו"ח קודם: ${fields.previousCpaEmail}`)
+  if (fields.previousCpaSoftware) textParts.push(`תוכנות רו"ח קודם: ${fields.previousCpaSoftware}`)
+  if (textParts.length > 0) properties.Customers_Text = textParts.join('\n')
+
+  try {
+    await fetch('https://api.sumit.co.il/crm/data/updateentity/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Language': 'he' },
+      body: JSON.stringify({
+        Credentials: credentials,
+        Entity: { ID: entityId, Folder: '557688522', Properties: properties },
+      }),
+    })
+  } catch (err) {
+    console.error('Sumit updateentity error:', err)
+  }
+}
+
 // ---------------------------------------------------------------------------
 // POST /api/intake
 // ---------------------------------------------------------------------------
@@ -229,7 +274,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'קישור ההצטרפות אינו תקף' }, { status: 404 })
     }
 
-    if (tokenDoc.status !== 'pending' && tokenDoc.status !== 'opened') {
+    const isUpdateMode = get('isUpdate') === 'true'
+    const existingSummitId = get('summitEntityId') || undefined
+
+    // Allow re-submission if isUpdate mode, otherwise block completed tokens
+    if (!isUpdateMode && tokenDoc.status !== 'pending' && tokenDoc.status !== 'opened') {
       return NextResponse.json(
         { error: 'קישור זה כבר שומש. לעזרה פנו למשרד.' },
         { status: 409 }
@@ -237,9 +286,22 @@ export async function POST(req: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // 4. Create Summit CRM entity FIRST (fast, critical)
+    // 4. Create or Update Summit CRM entity
     // -----------------------------------------------------------------------
-    const entityId = await createSummitEntity({
+    let entityId: string | null = existingSummitId || null
+
+    if (isUpdateMode && existingSummitId) {
+      // Update existing entity
+      await updateSummitEntityFields(existingSummitId, {
+        fullName, companyNumber, phone, email, clientType,
+        address, city, zipCode, birthdate, businessName,
+        businessSector, estimatedTurnover, businessAddress,
+        shareholderDetails, previousCpaName, previousCpaEmail,
+        previousCpaSoftware, onboardingPath,
+      })
+    } else {
+      // Create new entity
+      entityId = await createSummitEntity({
       fullName,
       companyNumber,
       phone,
@@ -259,6 +321,7 @@ export async function POST(req: NextRequest) {
       previousCpaSoftware,
       onboardingPath,
     })
+    }
 
     // -----------------------------------------------------------------------
     // 5. Upload files to Sanity CDN (slower, non-critical for entity)

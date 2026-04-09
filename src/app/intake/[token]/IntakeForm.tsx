@@ -74,14 +74,45 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export default function IntakeForm({ token, prefillClientType }: { token: string; prefillClientType?: string }) {
+export default function IntakeForm({ token, prefillClientType, previousData, summitEntityId, isUpdate }: {
+  token: string
+  prefillClientType?: string
+  previousData?: Record<string, string>
+  summitEntityId?: string
+  isUpdate?: boolean
+}) {
   const skipTypeStep = !!prefillClientType
   const stepLabels = skipTypeStep ? STEP_LABELS_SHORT : STEP_LABELS_FULL
   const totalSteps = stepLabels.length
   // Internal step: 1-based index into stepLabels
   const [step, setStep] = useState(1)
-  const [clientType, setClientType] = useState(prefillClientType || '')
-  const [formData, setFormData] = useState<FormFields>(EMPTY_FORM)
+  const [clientType, setClientType] = useState(prefillClientType || previousData?.clientType || '')
+  const [formData, setFormData] = useState<FormFields>(() => {
+    if (!previousData) return EMPTY_FORM
+    // Pre-fill from previous submission
+    return {
+      ...EMPTY_FORM,
+      fullName: previousData.fullName || '',
+      companyNumber: previousData.companyNumber || '',
+      phone: previousData.phone || '',
+      email: previousData.email || '',
+      address: previousData.address || '',
+      city: previousData.city || '',
+      zipCode: previousData.zipCode || '',
+      birthdate: previousData.birthdate || '',
+      businessName: previousData.businessName || '',
+      businessSector: previousData.businessSector || '',
+      estimatedTurnover: previousData.estimatedTurnover || '',
+      businessAddress: previousData.businessAddress || '',
+      hasEmployees: previousData.hasEmployees || '',
+      employeeCount: previousData.employeeCount || '',
+      shareholderDetails: previousData.shareholderDetails || '',
+      previousCpaName: previousData.previousCpaName || '',
+      previousCpaEmail: previousData.previousCpaEmail || '',
+      previousCpaSoftware: previousData.previousCpaSoftware || '',
+      onboardingPath: previousData.onboardingPath || '',
+    }
+  })
   const [files, setFiles] = useState<Record<string, File>>({})
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
@@ -253,6 +284,8 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
       fd.append('token', token)
       fd.append('clientType', clientType)
       fd.append('onboardingPath', formData.onboardingPath)
+      if (isUpdate && summitEntityId) fd.append('summitEntityId', summitEntityId)
+      if (isUpdate) fd.append('isUpdate', 'true')
       fd.append('fullName', formData.fullName.trim())
       fd.append('companyNumber', formData.companyNumber.trim())
       fd.append('phone', formData.phone.trim())
