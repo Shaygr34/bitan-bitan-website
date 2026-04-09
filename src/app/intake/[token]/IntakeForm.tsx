@@ -5,15 +5,21 @@ import {
   CLIENT_TYPE_OPTIONS,
   DOC_FIELDS,
   getDocCategory,
+  ONBOARDING_PATHS,
+  BUSINESS_SECTORS,
+  TURNOVER_PRESETS,
+  isTransferPath,
+  isCompanyPath,
   type DocField,
+  type OnboardingPath,
 } from '@/lib/intake-types'
 import styles from './intake.module.css'
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 MB
 const ACCEPTED_TYPES = '.pdf,.jpg,.jpeg,.png'
 
-const STEP_LABELS_FULL = ['סוג לקוח', 'פרטים אישיים', 'מסמכים', 'סיכום']
-const STEP_LABELS_SHORT = ['פרטים אישיים', 'מסמכים', 'סיכום']
+const STEP_LABELS_FULL = ['סוג לקוח', 'פרטים אישיים', 'פרטי עסק', 'מסמכים', 'סיכום']
+const STEP_LABELS_SHORT = ['פרטים אישיים', 'פרטי עסק', 'מסמכים', 'סיכום']
 
 interface FormFields {
   fullName: string
@@ -24,8 +30,20 @@ interface FormFields {
   city: string
   zipCode: string
   birthdate: string
+  // Business fields (new)
+  businessName: string
   businessSector: string
+  estimatedTurnover: string
+  businessAddress: string
+  hasEmployees: string // 'yes' | 'no' | ''
+  employeeCount: string
   shareholderDetails: string
+  // Transfer fields (new)
+  previousCpaName: string
+  previousCpaEmail: string
+  previousCpaSoftware: string
+  // Path
+  onboardingPath: string
 }
 
 const EMPTY_FORM: FormFields = {
@@ -37,8 +55,17 @@ const EMPTY_FORM: FormFields = {
   city: '',
   zipCode: '',
   birthdate: '',
+  businessName: '',
   businessSector: '',
+  estimatedTurnover: '',
+  businessAddress: '',
+  hasEmployees: '',
+  employeeCount: '',
   shareholderDetails: '',
+  previousCpaName: '',
+  previousCpaEmail: '',
+  previousCpaSoftware: '',
+  onboardingPath: '',
 }
 
 function formatFileSize(bytes: number): string {
@@ -177,15 +204,17 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
   // -------------------------------------------------------------------------
   // When skipTypeStep: step 1=details, 2=docs, 3=review
   // Otherwise:        step 1=type, 2=details, 3=docs, 4=review
-  function getContentStep(): 'type' | 'details' | 'docs' | 'review' {
+  function getContentStep(): 'type' | 'details' | 'business' | 'docs' | 'review' {
     if (skipTypeStep) {
       if (step === 1) return 'details'
-      if (step === 2) return 'docs'
+      if (step === 2) return 'business'
+      if (step === 3) return 'docs'
       return 'review'
     }
     if (step === 1) return 'type'
     if (step === 2) return 'details'
-    if (step === 3) return 'docs'
+    if (step === 3) return 'business'
+    if (step === 4) return 'docs'
     return 'review'
   }
   const contentStep = getContentStep()
@@ -213,6 +242,7 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
       const fd = new FormData()
       fd.append('token', token)
       fd.append('clientType', clientType)
+      fd.append('onboardingPath', formData.onboardingPath)
       fd.append('fullName', formData.fullName.trim())
       fd.append('companyNumber', formData.companyNumber.trim())
       fd.append('phone', formData.phone.trim())
@@ -221,10 +251,18 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
       if (formData.city.trim()) fd.append('city', formData.city.trim())
       if (formData.zipCode.trim()) fd.append('zipCode', formData.zipCode.trim())
       if (formData.birthdate) fd.append('birthdate', formData.birthdate)
-      if (formData.businessSector.trim())
-        fd.append('businessSector', formData.businessSector.trim())
-      if (formData.shareholderDetails.trim())
-        fd.append('shareholderDetails', formData.shareholderDetails.trim())
+      // Business fields
+      if (formData.businessName.trim()) fd.append('businessName', formData.businessName.trim())
+      if (formData.businessSector.trim()) fd.append('businessSector', formData.businessSector.trim())
+      if (formData.estimatedTurnover) fd.append('estimatedTurnover', formData.estimatedTurnover)
+      if (formData.businessAddress.trim()) fd.append('businessAddress', formData.businessAddress.trim())
+      if (formData.hasEmployees) fd.append('hasEmployees', formData.hasEmployees)
+      if (formData.employeeCount) fd.append('employeeCount', formData.employeeCount)
+      if (formData.shareholderDetails.trim()) fd.append('shareholderDetails', formData.shareholderDetails.trim())
+      // Transfer fields
+      if (formData.previousCpaName.trim()) fd.append('previousCpaName', formData.previousCpaName.trim())
+      if (formData.previousCpaEmail.trim()) fd.append('previousCpaEmail', formData.previousCpaEmail.trim())
+      if (formData.previousCpaSoftware.trim()) fd.append('previousCpaSoftware', formData.previousCpaSoftware.trim())
 
       for (const [key, file] of Object.entries(files)) {
         fd.append(`file_${key}`, file)
@@ -336,29 +374,62 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
   // Step 1 — Client Type
   // -------------------------------------------------------------------------
   function renderStep1() {
+    const selectedPath = formData.onboardingPath as OnboardingPath | ''
+
     return (
       <>
-        <h2 className={styles.stepTitle}>איזה סוג עסק?</h2>
-        <p className={styles.stepSubtitle}>בחרו את הסוג שמתאים לכם</p>
-        <div className={styles.cardGrid}>
-          {CLIENT_TYPE_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              className={
-                clientType === opt.value
-                  ? styles.typeCardSelected
-                  : styles.typeCard
-              }
-              onClick={() => {
-                setClientType(opt.value)
-                setStep(2)
-              }}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        {/* Step 1a: Onboarding path */}
+        {!selectedPath && (
+          <>
+            <h2 className={styles.stepTitle}>ברוכים הבאים!</h2>
+            <p className={styles.stepSubtitle}>מה מתאר את המצב שלכם?</p>
+            <div className={styles.cardGrid}>
+              {ONBOARDING_PATHS.map((path) => (
+                <button
+                  key={path.value}
+                  type="button"
+                  className={styles.typeCard}
+                  onClick={() => updateField('onboardingPath', path.value)}
+                >
+                  <strong>{path.label}</strong>
+                  <br />
+                  <span style={{ fontSize: '0.85em', opacity: 0.7 }}>{path.description}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Step 1b: Client type (after path selected) */}
+        {selectedPath && !clientType && (
+          <>
+            <h2 className={styles.stepTitle}>איזה סוג עסק?</h2>
+            <p className={styles.stepSubtitle}>בחרו את הסוג שמתאים לכם</p>
+            <div className={styles.cardGrid}>
+              {CLIENT_TYPE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={styles.typeCard}
+                  onClick={() => {
+                    setClientType(opt.value)
+                    setStep(2)
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div className={styles.buttonRow}>
+              <button type="button" className={styles.btnSecondary} onClick={() => updateField('onboardingPath', '')}>
+                חזרה
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* If both selected, auto-advance */}
+        {selectedPath && clientType && null}
       </>
     )
   }
@@ -382,21 +453,7 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
         {renderInput('city', 'יישוב', false)}
         {renderInput('zipCode', 'מיקוד', false)}
         {renderInput('birthdate', 'תאריך לידה', false, 'date')}
-        {renderInput('businessSector', 'תחום עיסוק', false)}
-
-        {showShareholders && (
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>פרטי בעלי מניות</label>
-            <textarea
-              className={styles.textarea}
-              value={formData.shareholderDetails}
-              onChange={(e) =>
-                updateField('shareholderDetails', e.target.value)
-              }
-              placeholder="שם, ת.ז, אחוז אחזקה..."
-            />
-          </div>
-        )}
+        {/* businessSector + shareholders moved to business step */}
 
         <div className={styles.buttonRow}>
           <button
@@ -409,6 +466,116 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
           <button type="button" className={styles.btnPrimary} onClick={goNext}>
             הבא
           </button>
+        </div>
+      </>
+    )
+  }
+
+  // -------------------------------------------------------------------------
+  // Step Business — Business details + transfer-specific fields
+  // -------------------------------------------------------------------------
+  function renderStepBusiness() {
+    const path = formData.onboardingPath as OnboardingPath
+    const isTransfer = path ? isTransferPath(path) : false
+    const isCompany = path ? isCompanyPath(path) : getDocCategory(clientType) === 'company'
+
+    return (
+      <>
+        <h2 className={styles.stepTitle}>פרטי העסק</h2>
+        <p className={styles.stepSubtitle}>
+          {isTransfer ? 'פרטים לצורך העברת התיק למשרדנו' : 'פרטים על העסק שלכם'}
+        </p>
+
+        {renderInput('businessName', 'שם העסק', true)}
+
+        {/* Business sector — searchable dropdown */}
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>
+            תחום עיסוק <span className={styles.required}>*</span>
+          </label>
+          <select
+            className={styles.input}
+            value={formData.businessSector}
+            onChange={(e) => updateField('businessSector', e.target.value)}
+          >
+            <option value="">בחרו תחום...</option>
+            {BUSINESS_SECTORS.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Estimated turnover */}
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>מחזור שנתי משוער (₪)</label>
+          <select
+            className={styles.input}
+            value={formData.estimatedTurnover}
+            onChange={(e) => updateField('estimatedTurnover', e.target.value)}
+          >
+            <option value="">בחרו טווח...</option>
+            {TURNOVER_PRESETS.map((t) => (
+              <option key={t.value} value={String(t.value)}>{t.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {renderInput('businessAddress', 'כתובת העסק', false)}
+
+        {/* Employees */}
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>האם מעסיק עובדים?</label>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button type="button"
+              className={formData.hasEmployees === 'yes' ? styles.typeCardSelected : styles.typeCard}
+              style={{ flex: 1, padding: '0.5rem' }}
+              onClick={() => updateField('hasEmployees', 'yes')}>
+              כן
+            </button>
+            <button type="button"
+              className={formData.hasEmployees === 'no' ? styles.typeCardSelected : styles.typeCard}
+              style={{ flex: 1, padding: '0.5rem' }}
+              onClick={() => updateField('hasEmployees', 'no')}>
+              לא
+            </button>
+          </div>
+        </div>
+
+        {formData.hasEmployees === 'yes' && (
+          renderInput('employeeCount', 'כמה עובדים?', false, 'number')
+        )}
+
+        {/* Transfer-specific fields */}
+        {isTransfer && (
+          <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f8f7f4', borderRadius: '0.75rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1B2A4A', marginBottom: '0.75rem' }}>
+              פרטי רו&quot;ח קודם
+            </h3>
+            {renderInput('previousCpaName', 'שם רו"ח / משרד קודם', true)}
+            {renderInput('previousCpaEmail', 'מייל רו"ח קודם', false, 'email')}
+            {renderInput('previousCpaSoftware', 'באיזה תוכנות עבד הרו"ח?', false)}
+            <p style={{ fontSize: '0.75rem', color: '#718096', marginTop: '0.5rem' }}>
+              * נשלח מייל לרו&quot;ח הקודם לשחרור תיק והעברת מסמכים
+            </p>
+          </div>
+        )}
+
+        {/* Company shareholders */}
+        {isCompany && (
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>פרטי בעלי מניות</label>
+            <textarea
+              className={styles.textarea}
+              value={formData.shareholderDetails}
+              onChange={(e) => updateField('shareholderDetails', e.target.value)}
+              placeholder="שם, ת.ז, אחוז אחזקה..."
+            />
+          </div>
+        )}
+
+        <div className={styles.buttonRow}>
+          <button type="button" className={styles.btnSecondary} onClick={goBack}>חזרה</button>
+          <button type="button" className={styles.btnPrimary} onClick={goNext}>הבא</button>
         </div>
       </>
     )
@@ -639,6 +806,7 @@ export default function IntakeForm({ token, prefillClientType }: { token: string
       <div className={styles.card}>
         {contentStep === 'type' && renderStep1()}
         {contentStep === 'details' && renderStep2()}
+        {contentStep === 'business' && renderStepBusiness()}
         {contentStep === 'docs' && renderStep3()}
         {contentStep === 'review' && renderStep4()}
       </div>
