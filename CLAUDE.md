@@ -540,10 +540,50 @@ See memory file: `bitan-dev-backlog-2026-04-05.md` for complete 17-item prioriti
 - R4: Field labels gold when filled
 - R10: Percentage format fixed for RTL (25% not % 25)
 
-### 4. Employer Cost Calculator — Spec Complete
-- Ron confirmed all 2026 values (tax brackets, NII rates, pension caps, credit points)
-- Full spec in Google Doc pages 22-27 + Ron's WhatsApp confirmations
-- Memory file: `bitan-employer-calc-spec.md`
-- Separate tool at `/tools/employer-cost`
-- Includes: שכיר payroll engine, pension/severance/education fund, זקופות, credit points, with/without vehicle comparison
-- **Building now**
+### 4. Employer Cost Calculator (SHIPPED — live)
+- Full Israeli payroll engine at `/tools/employer-cost` (1,071 lines)
+- 3-phase wizard: שכר+רכב → פנסיה/הפרשות → נתונים אישיים → תוצאות
+- Tax brackets (7), NII tiers, pension/severance/education fund, זקופות, credit points
+- Vehicle שווי שימוש: petrol/electric/plug-in/hybrid/commercial with reductions
+- Employee net with/without vehicle + employer cost breakdown side-by-side
+- Child age legend (מקרא) per Ron's feedback
+- Code: `src/components/tools/employer/` (5 files)
+- Sanity tool doc published at `/tools/employer-cost`
+- Ron: "זה טיל המחשבון 🚀"
+
+### 5. Client Onboarding V2 (SHIPPED — all 3 phases)
+**Phase A — Form Enhancement (bitan-website PRs #48-49-50):**
+- 4 onboarding paths: עצמאי חדש / חברה חדשה / עצמאי שעובר / חברה שעוברת
+- New "פרטי עסק" step: שם עסק, תחום עיסוק (25-category dropdown), מחזור שנתי (presets + free text), כתובת, עובדים
+- Transfer fields: שם/מייל/תוכנות רו"ח קודם
+- Birthdate: 3 Hebrew dropdowns (day/month/year)
+- Document validation: blocks submit without required docs
+- Client can return within 4 days: pre-fills previous data, updates existing Sumit entity
+- Sumit field audit: every field has confirmed home (custom field מחזור שנתי, Customers_Text for structured data, auto-set מועד תחילת ייצוג + status "חדש")
+
+**Phase B — Office Workflow (bitan-os PRs #103-104-105):**
+- Dynamic onboarding checklist per path (new/transfer × individual/company)
+- קודי מוסד letter template: copy or WhatsApp, pre-filled with client name
+- Internal fields as real Sumit dropdowns (19 מנה"ח + 9 ביקורת + 5 שכר + 2 מנהל תיק)
+- All staff names fetched from actual Sumit taxonomy entities
+- "Summit" → "Sumit" spelling fix throughout
+
+**Phase C — Re-editability:**
+- Completed tokens editable for 4 days
+- Form pre-fills from previous submission
+- Re-submission updates Sumit entity (not creates duplicate)
+- After 4 days: locked
+
+### 6. Other Fixes This Session
+- OG image regenerated: "ייעוץ מס" → "ייעוץ מיסוי"
+- Calculator round 3: critical bug (totalAnnualExpenses used depreciation instead of loan payment), scroll-to-top mobile, arrow RTL, loan balance restructure
+- Employer calc polish: child defaults empty, age legend, side-by-side employer results, vehicle merged into salary step
+
+### Open Items — Next Session
+See memory: `bitan-dev-backlog-2026-04-05.md` + `bitan-employer-calc-spec.md`
+- **שכיר path for car calculator** — Ron's spec pages 22-27 read, values confirmed. Full payroll engine needed (השפעה על שכר עובד section). Dedicated session.
+- **Employer cost calculator feedback** — awaiting Ron/Avi testing
+- **Onboarding feedback** — sent WhatsApp to Avi/Ron for testing
+- **IDOM-Summit sync P0** — mid-development, spec exists
+- **Contact form email** — needs RESEND_API_KEY + CONTACT_EMAIL_TO on Railway
+- **July 2026 handoff** — service ownership transfer planning
