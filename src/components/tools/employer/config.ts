@@ -120,7 +120,7 @@ export function getServiceThresholds(
   gender: 'male' | 'female',
   serviceType: 'military' | 'national'
 ): { full: string; partial: string } {
-  if (serviceType === 'national') return { full: '24 ומעלה', partial: '12-24' }
-  if (gender === 'female') return { full: '22 ומעלה', partial: '12-22' }
-  return { full: '23 ומעלה', partial: '12-23' }
+  if (serviceType === 'national') return { full: '24 חודשים ומעלה', partial: '12-24 חודשים' }
+  if (gender === 'female') return { full: '22 חודשים ומעלה', partial: '12-22 חודשים' }
+  return { full: '23 חודשים ומעלה', partial: '12-23 חודשים' }
 }

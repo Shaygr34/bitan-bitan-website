@@ -54,7 +54,12 @@ export function EmployerCalculator() {
     if (idx < PHASE_ORDER.length - 2) {
       setPhase(PHASE_ORDER[idx + 1])
     } else if (phase === 'personal') {
-      const res = calculateEmployerCost(inputs, DEFAULT_EMPLOYER_CONFIG)
+      // Validate: filter out unfilled children ages (-1 sentinel)
+      const cleanedInputs = {
+        ...inputs,
+        childrenAges: inputs.childrenAges.map(a => a < 0 ? 0 : a),
+      }
+      const res = calculateEmployerCost(cleanedInputs, DEFAULT_EMPLOYER_CONFIG)
       if (isCompareMode) {
         setComparisonResult(res)
         setComparisonInputs(inputs)
@@ -94,11 +99,20 @@ export function EmployerCalculator() {
   }, [result, inputs])
 
   const handleRemoveComparison = useCallback(() => {
+    // Recalculate primary result to ensure inputs and result stay in sync
+    if (primaryInputs) {
+      const cleanedInputs = {
+        ...primaryInputs,
+        childrenAges: primaryInputs.childrenAges.map(a => a < 0 ? 0 : a),
+      }
+      setResult(calculateEmployerCost(cleanedInputs, DEFAULT_EMPLOYER_CONFIG))
+      setInputs(primaryInputs)
+    }
     setComparisonResult(null)
     setComparisonInputs(null)
     setPrimaryResult(null)
     setPrimaryInputs(null)
-  }, [])
+  }, [primaryInputs])
 
   // Service thresholds for display
   const serviceThresholds = inputs.serviceType !== 'none'
@@ -141,7 +155,7 @@ export function EmployerCalculator() {
       )}
 
       {/* Back */}
-      {phase !== 'salary' && phase !== 'results' && (
+      {phase !== 'salary' && (
         <div className="mb-space-4">
           <button type="button" onClick={back} className="text-gold hover:text-gold-hover text-body font-medium transition-colors cursor-pointer px-2 py-1">
             ← חזרה לשלב הקודם
@@ -358,7 +372,7 @@ export function EmployerCalculator() {
                   value={inputs.pensionCreditSalary}
                   onChange={e => {
                     const v = parseInt(e.target.value) || 0
-                    update({ pensionCreditSalary: Math.max(0, Math.min(v, 20000)) })
+                    update({ pensionCreditSalary: Math.max(0, Math.min(v, DEFAULT_EMPLOYER_CONFIG.pensionCreditSalaryCap)) })
                   }}
                   className="rounded-lg border border-border px-3 py-2 text-body-sm w-32 text-center focus:border-gold focus:outline-none"
                 />
@@ -464,8 +478,7 @@ export function EmployerCalculator() {
                     <p>1-2 = מלאו לילד שנה — שנתיים.</p>
                     <p>3 = מלאו לילד 3 שנים.</p>
                     <p>4-5 = מלאו לילד 4 — 5 שנים.</p>
-                    <p>6-12 = מלאו לילד 6 — 12 שנים.</p>
-                    <p>13-17 = מלאו לילד 13 — 17 שנים.</p>
+                    <p>6-17 = מלאו לילד 6 — 17 שנים.</p>
                     <p>18 = מלאו לילד 18 שנים.</p>
                   </div>
                   <p className="text-caption text-text-muted mt-1 italic">*מנוסח בלשון זכר לצורך הנוחות, מתייחס לזכר/נקבה כאחד.</p>
@@ -521,7 +534,7 @@ export function EmployerCalculator() {
                   const serviceType = v as 'military' | 'national' | 'none'
                   update({
                     serviceType,
-                    serviceLevel: serviceType === 'none' ? 'none' : inputs.serviceLevel === 'none' ? 'none' : inputs.serviceLevel,
+                    serviceLevel: serviceType === 'none' ? 'none' : inputs.serviceLevel === 'none' ? 'full' : inputs.serviceLevel,
                   })
                 }}
               />
