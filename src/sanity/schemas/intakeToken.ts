@@ -20,6 +20,7 @@ export default defineType({
         list: [
           { title: 'ממתין', value: 'pending' },
           { title: 'הושלם', value: 'completed' },
+          { title: 'נכשל בסאמיט', value: 'summit_failed' },
           { title: 'פג תוקף', value: 'expired' },
         ],
         layout: 'radio',
@@ -69,11 +70,18 @@ export default defineType({
       readOnly: true,
       description: 'JSON של הנתונים שהלקוח מילא',
     }),
+    defineField({
+      name: 'summitError',
+      title: 'שגיאת סאמיט',
+      type: 'text',
+      readOnly: true,
+      description: 'פירוט השגיאה במידה ויצירת הלקוח בסאמיט נכשלה',
+    }),
   ],
   preview: {
     select: { title: 'clientName', status: 'status', date: '_createdAt' },
     prepare({ title, status, date }) {
-      const statusMap: Record<string, string> = { pending: 'ממתין', completed: 'הושלם', expired: 'פג תוקף' }
+      const statusMap: Record<string, string> = { pending: 'ממתין', completed: 'הושלם', summit_failed: 'נכשל בסאמיט', expired: 'פג תוקף' }
       const d = date ? new Date(date).toLocaleDateString('he-IL') : ''
       return {
         title: title || 'ללא שם',

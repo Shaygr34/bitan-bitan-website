@@ -44,9 +44,9 @@ async function createSummitEntity(fields: {
   previousCpaEmail?: string
   previousCpaSoftware?: string
   onboardingPath?: string
-}): Promise<string | null> {
+}): Promise<{ entityId: string | null; error: string | null }> {
   const credentials = getSummitCredentials()
-  if (!credentials.APIKey || !credentials.CompanyID) return null
+  if (!credentials.APIKey || !credentials.CompanyID) return { entityId: null, error: 'Summit API credentials not configured' }
 
   const clientTypeId = CLIENT_TYPE_IDS[fields.clientType]
   const newsletterFlags = getNewsletterFlags(fields.clientType)
@@ -106,16 +106,18 @@ async function createSummitEntity(fields: {
     })
 
     if (!res.ok) {
-      console.error('Summit createentity failed:', res.status, await res.text())
-      return null
+      const errText = await res.text()
+      console.error('Summit createentity failed:', res.status, errText)
+      return { entityId: null, error: `Summit HTTP ${res.status}: ${errText.slice(0, 200)}` }
     }
 
     const json = await res.json()
 
     // Check Summit status (0 = success)
     if (json?.Status !== 0) {
-      console.error('Summit createentity business error:', json?.UserErrorMessage, json?.TechnicalErrorDetails)
-      return null
+      const errMsg = json?.UserErrorMessage || json?.TechnicalErrorDetails || 'Unknown error'
+      console.error('Summit createentity business error:', errMsg)
+      return { entityId: null, error: `Summit: ${errMsg}` }
     }
 
     const entityId: unknown =
@@ -125,10 +127,10 @@ async function createSummitEntity(fields: {
       json?.ID ??
       null
 
-    return entityId ? String(entityId) : null
+    return { entityId: entityId ? String(entityId) : null, error: null }
   } catch (err) {
     console.error('Summit createentity error:', err)
-    return null
+    return { entityId: null, error: `Exception: ${err instanceof Error ? err.message : String(err)}` }
   }
 }
 
@@ -285,6 +287,7 @@ export async function POST(req: NextRequest) {
     // 4. Create or Update Summit CRM entity
     // -----------------------------------------------------------------------
     let entityId: string | null = existingSummitId || null
+    let summitError: string | null = null
 
     if (isUpdateMode && existingSummitId) {
       // Update existing entity
@@ -297,25 +300,27 @@ export async function POST(req: NextRequest) {
       })
     } else {
       // Create new entity
-      entityId = await createSummitEntity({
-      fullName,
-      companyNumber,
-      phone,
-      email,
-      clientType,
-      address,
-      city,
-      zipCode,
-      birthdate,
-      businessName,
-      businessSector,
-      businessAddress,
-      shareholderDetails,
-      previousCpaName,
-      previousCpaEmail,
-      previousCpaSoftware,
-      onboardingPath,
-    })
+      const result = await createSummitEntity({
+        fullName,
+        companyNumber,
+        phone,
+        email,
+        clientType,
+        address,
+        city,
+        zipCode,
+        birthdate,
+        businessName,
+        businessSector,
+        businessAddress,
+        shareholderDetails,
+        previousCpaName,
+        previousCpaEmail,
+        previousCpaSoftware,
+        onboardingPath,
+      })
+      entityId = result.entityId
+      summitError = result.error
     }
 
     // -----------------------------------------------------------------------
@@ -380,13 +385,16 @@ export async function POST(req: NextRequest) {
       fileNames: fileUrls.map((f) => f.filename),
     })
 
+    const tokenStatus = summitError ? 'summit_failed' : 'completed'
+
     await writeClient
       .patch(tokenDoc._id)
       .set({
-        status: 'completed',
+        status: tokenStatus,
         completedAt: new Date().toISOString(),
         submittedData,
         ...(entityId ? { summitEntityId: entityId } : {}),
+        ...(summitError ? { summitError } : {}),
       })
       .commit()
 
