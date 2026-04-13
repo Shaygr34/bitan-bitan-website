@@ -52,37 +52,109 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
         נתוני שכר להמחשה בלבד
       </div>
 
-      {/* Key Metrics — Employer Summary */}
+      {/* Comparison Table — CENTER STAGE when comparing */}
+      {comparisonResult && comparisonInputs && (
+        <div className="mb-space-6">
+          <div className="flex items-center justify-between mb-space-3">
+            <h3 className="text-h4 font-bold text-primary">השוואת תרחישים</h3>
+            <button type="button" onClick={onRemoveComparison}
+              className="text-body-sm text-red-500 hover:text-red-700 cursor-pointer transition-colors no-print">
+              הסר השוואה
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-border shadow-md overflow-hidden">
+            <table className="w-full text-body-sm" dir="rtl">
+              <thead>
+                <tr className="bg-primary text-white">
+                  <th className="py-2.5 px-4 text-start font-semibold"></th>
+                  <th className="py-2.5 px-4 text-center font-bold border-x border-white/20">תרחיש א׳</th>
+                  <th className="py-2.5 px-4 text-center font-bold">תרחיש ב׳</th>
+                  <th className="py-2.5 px-4 text-center font-bold border-r border-white/20">הפרש</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border-light">
+                  <td className="py-2 px-4 text-text-muted font-medium">ברוטו</td>
+                  <td className="py-2 px-4 text-center font-medium">{fmt(inputs.grossSalary)} ₪</td>
+                  <td className="py-2 px-4 text-center font-medium">{fmt(comparisonInputs.grossSalary)} ₪</td>
+                  <td className="py-2 px-4 text-center text-text-muted">{fmt(Math.abs(inputs.grossSalary - comparisonInputs.grossSalary))} ₪</td>
+                </tr>
+                <tr className="border-b border-border-light bg-surface/30">
+                  <td className="py-2 px-4 text-text-muted font-medium">עלות מעסיק</td>
+                  <td className="py-2 px-4 text-center font-bold text-gold">{fmt(result.employer.totalWithShvui)} ₪</td>
+                  <td className="py-2 px-4 text-center font-bold text-primary">{fmt(comparisonResult.employer.totalWithShvui)} ₪</td>
+                  <td className="py-2 px-4 text-center font-bold text-primary">{fmt(Math.abs(result.employer.totalWithShvui - comparisonResult.employer.totalWithShvui))} ₪</td>
+                </tr>
+                <tr className="border-b border-border-light">
+                  <td className="py-2 px-4 text-text-muted font-medium">נטו עובד</td>
+                  <td className="py-2 px-4 text-center font-bold text-gold">{fmt(result.employee.netWithShvui)} ₪</td>
+                  <td className="py-2 px-4 text-center font-bold text-primary">{fmt(comparisonResult.employee.netWithShvui)} ₪</td>
+                  <td className="py-2 px-4 text-center font-bold text-primary">{fmt(Math.abs(result.employee.netWithShvui - comparisonResult.employee.netWithShvui))} ₪</td>
+                </tr>
+                {(result.hasShvuiMas || comparisonResult.hasShvuiMas) && (
+                  <tr className="bg-surface/30">
+                    <td className="py-2 px-4 text-text-muted font-medium">שווי מס</td>
+                    <td className="py-2 px-4 text-center">{fmt(result.totalShvuiMas)} ₪</td>
+                    <td className="py-2 px-4 text-center">{fmt(comparisonResult.totalShvuiMas)} ₪</td>
+                    <td className="py-2 px-4 text-center">{fmt(Math.abs(result.totalShvuiMas - comparisonResult.totalShvuiMas))} ₪</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Verdict */}
+          <div className="mt-space-3 bg-gold/5 border border-gold rounded-xl p-space-3 text-center">
+            <p className="text-body font-bold text-primary">
+              {result.employer.totalWithShvui < comparisonResult.employer.totalWithShvui
+                ? `תרחיש א׳ זול יותר למעסיק ב-${fmt(comparisonResult.employer.totalWithShvui - result.employer.totalWithShvui)} ₪`
+                : result.employer.totalWithShvui > comparisonResult.employer.totalWithShvui
+                  ? `תרחיש ב׳ זול יותר למעסיק ב-${fmt(result.employer.totalWithShvui - comparisonResult.employer.totalWithShvui)} ₪`
+                  : 'עלות מעסיק שווה בשני התרחישים'}
+            </p>
+            <p className="text-body-sm text-text-muted mt-1">
+              {result.employee.netWithShvui > comparisonResult.employee.netWithShvui
+                ? `נטו עובד גבוה יותר בתרחיש א׳ ב-${fmt(result.employee.netWithShvui - comparisonResult.employee.netWithShvui)} ₪`
+                : result.employee.netWithShvui < comparisonResult.employee.netWithShvui
+                  ? `נטו עובד גבוה יותר בתרחיש ב׳ ב-${fmt(comparisonResult.employee.netWithShvui - result.employee.netWithShvui)} ₪`
+                  : 'נטו עובד שווה בשני התרחישים'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Key Metrics — Top Summary */}
       <div className="grid grid-cols-2 gap-3 mb-space-6">
         <div className="rounded-lg p-space-3 border border-gold bg-gold/5">
           <div className="flex items-center gap-1.5 mb-1">
             <Wallet className="h-4 w-4 text-gold" />
-            <span className="text-caption text-text-muted">עלות מעסיק כולל שווי מס</span>
+            <span className="text-caption text-text-muted">עלות מעסיק כולל</span>
           </div>
           <span className="text-body-lg font-bold text-gold block">{fmt(empr.totalWithShvui)} ₪</span>
         </div>
-        <div className="rounded-lg p-space-3 border border-border-light bg-surface/50">
+        <div className="rounded-lg p-space-3 border border-gold bg-gold/5">
           <div className="flex items-center gap-1.5 mb-1">
-            <Receipt className="h-4 w-4 text-gold" />
-            <span className="text-caption text-text-muted">עלות מעסיק ללא שווי מס</span>
+            <Users className="h-4 w-4 text-gold" />
+            <span className="text-caption text-text-muted">נטו עובד</span>
           </div>
-          <span className="text-body font-bold text-primary block">{fmt(empr.totalWithoutShvui)} ₪</span>
+          <span className="text-body-lg font-bold text-gold block">{fmt(emp.netWithShvui)} ₪</span>
         </div>
         {hasShvuiMas && (
           <>
             <div className="rounded-lg p-space-3 border border-border-light bg-surface/50">
               <div className="flex items-center gap-1.5 mb-1">
-                <TrendingDown className="h-4 w-4 text-gold" />
-                <span className="text-caption text-text-muted">הפרש עלות מעסיק (השפעה שווי מס)</span>
+                <Receipt className="h-4 w-4 text-gold" />
+                <span className="text-caption text-text-muted">עלות מעסיק ללא שווי מס</span>
               </div>
-              <span className="text-body font-bold text-primary block">{fmt(empr.costDifference)} ₪</span>
+              <span className="text-body font-bold text-primary block">{fmt(empr.totalWithoutShvui)} ₪</span>
             </div>
             <div className="rounded-lg p-space-3 border border-border-light bg-surface/50">
               <div className="flex items-center gap-1.5 mb-1">
-                <Users className="h-4 w-4 text-gold" />
-                <span className="text-caption text-text-muted">פער נטו עובד (שווי מס)</span>
+                <TrendingDown className="h-4 w-4 text-gold" />
+                <span className="text-caption text-text-muted">נטו עובד ללא שווי מס</span>
               </div>
-              <span className="text-body font-bold text-primary block">{fmt(emp.netDifference)} ₪</span>
+              <span className="text-body font-bold text-primary block">{fmt(emp.netWithoutShvui)} ₪</span>
             </div>
           </>
         )}
@@ -259,68 +331,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
         </button>
       </div>
 
-      {/* Comparison */}
-      {comparisonResult && comparisonInputs && (
-        <div className="mb-space-5">
-          <div className="flex items-center justify-between mb-space-3">
-            <h3 className="text-h4 font-bold text-primary">השוואת תרחישים</h3>
-            <button type="button" onClick={onRemoveComparison}
-              className="text-body-sm text-red-500 hover:text-red-700 cursor-pointer transition-colors no-print">
-              הסר השוואה
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {/* Scenario A */}
-            <div className="rounded-xl border border-gold bg-gold/5 p-space-3">
-              <h4 className="text-body-sm font-bold text-gold text-center mb-space-2">תרחיש א׳</h4>
-              <div className="space-y-1.5 text-body-sm">
-                <div className="flex justify-between"><span className="text-text-muted">ברוטו</span><span className="font-medium">{fmt(inputs.grossSalary)} ₪</span></div>
-                <div className="flex justify-between"><span className="text-text-muted">עלות מעסיק</span><span className="font-bold text-gold">{fmt(result.employer.totalWithShvui)} ₪</span></div>
-                <div className="flex justify-between"><span className="text-text-muted">נטו עובד</span><span className="font-bold">{fmt(result.employee.netWithShvui)} ₪</span></div>
-                {result.hasShvuiMas && (
-                  <div className="flex justify-between"><span className="text-text-muted">שווי מס</span><span className="font-medium">{fmt(result.totalShvuiMas)} ₪</span></div>
-                )}
-              </div>
-            </div>
-
-            {/* Scenario B */}
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-space-3">
-              <h4 className="text-body-sm font-bold text-primary text-center mb-space-2">תרחיש ב׳</h4>
-              <div className="space-y-1.5 text-body-sm">
-                <div className="flex justify-between"><span className="text-text-muted">ברוטו</span><span className="font-medium">{fmt(comparisonInputs.grossSalary)} ₪</span></div>
-                <div className="flex justify-between"><span className="text-text-muted">עלות מעסיק</span><span className="font-bold text-primary">{fmt(comparisonResult.employer.totalWithShvui)} ₪</span></div>
-                <div className="flex justify-between"><span className="text-text-muted">נטו עובד</span><span className="font-bold">{fmt(comparisonResult.employee.netWithShvui)} ₪</span></div>
-                {comparisonResult.hasShvuiMas && (
-                  <div className="flex justify-between"><span className="text-text-muted">שווי מס</span><span className="font-medium">{fmt(comparisonResult.totalShvuiMas)} ₪</span></div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Verdict */}
-          <div className="mt-space-3 bg-surface rounded-xl p-space-3 text-center">
-            <p className="text-body-sm text-text-muted mb-1">הפרש עלות מעסיק:</p>
-            <p className="text-body font-bold text-primary">
-              {fmt(Math.abs(result.employer.totalWithShvui - comparisonResult.employer.totalWithShvui))} ₪
-              {result.employer.totalWithShvui < comparisonResult.employer.totalWithShvui
-                ? ' (תרחיש א׳ זול יותר למעסיק)'
-                : result.employer.totalWithShvui > comparisonResult.employer.totalWithShvui
-                  ? ' (תרחיש ב׳ זול יותר למעסיק)'
-                  : ' (שווים)'}
-            </p>
-            <p className="text-body-sm text-text-muted mt-1">הפרש נטו עובד:</p>
-            <p className="text-body font-bold text-primary">
-              {fmt(Math.abs(result.employee.netWithShvui - comparisonResult.employee.netWithShvui))} ₪
-              {result.employee.netWithShvui > comparisonResult.employee.netWithShvui
-                ? ' (תרחיש א׳ גבוה יותר לעובד)'
-                : result.employee.netWithShvui < comparisonResult.employee.netWithShvui
-                  ? ' (תרחיש ב׳ גבוה יותר לעובד)'
-                  : ' (שווים)'}
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Comparison — intentionally empty here, moved to top */}
 
       {/* CTA */}
       <div className="mt-space-8 text-center no-print">
@@ -340,13 +351,32 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
         <p className="text-caption text-text-muted">ביטן את ביטן — רואי חשבון | bitancpa.com</p>
       </div>
 
-      {/* Print CSS */}
+      {/* Print CSS — compact one-pager */}
       <style jsx global>{`
         @media print {
           nav, footer, .no-print { display: none !important; }
           .print-only { display: block !important; }
-          .print-area { max-width: 100% !important; }
-          body { font-size: 12px !important; }
+          .print-area {
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          body { font-size: 10px !important; line-height: 1.3 !important; }
+          * { break-inside: avoid; }
+          h2, h3, h4 { font-size: 13px !important; margin-bottom: 4px !important; }
+          .text-h3 { font-size: 16px !important; }
+          .text-body-lg { font-size: 12px !important; }
+          .text-body, .text-body-sm { font-size: 10px !important; }
+          .text-caption { font-size: 8px !important; }
+          .mb-space-5, .mb-space-6 { margin-bottom: 8px !important; }
+          .mb-space-3, .mb-space-2 { margin-bottom: 4px !important; }
+          .p-space-4, .p-space-3 { padding: 6px !important; }
+          .p-space-5 { padding: 8px !important; }
+          .py-2 { padding-top: 2px !important; padding-bottom: 2px !important; }
+          .gap-3 { gap: 4px !important; }
+          .rounded-2xl, .rounded-xl { border-radius: 6px !important; }
+          .shadow-md { box-shadow: none !important; }
+          .grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
         }
       `}</style>
     </div>

@@ -361,26 +361,6 @@ export function EmployerCalculator() {
               </div>
             </div>
 
-            {/* Pension credit salary */}
-            <div className="bg-surface rounded-xl p-space-4 mb-space-5">
-              <h3 className="text-body font-bold text-primary mb-space-3">שכר מבוטח קצבה מזכה</h3>
-              <p className="text-caption text-text-muted mb-space-2">לצורך חישוב זיכוי מס על הפקדה לפנסיה</p>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  value={inputs.pensionCreditSalary}
-                  onChange={e => {
-                    const v = parseInt(e.target.value) || 0
-                    update({ pensionCreditSalary: Math.max(0, Math.min(v, DEFAULT_EMPLOYER_CONFIG.pensionCreditSalaryCap)) })
-                  }}
-                  className="rounded-lg border border-border px-3 py-2 text-body-sm w-32 text-center focus:border-gold focus:outline-none"
-                />
-                <span className="text-body-sm text-text-muted">₪</span>
-              </div>
-              <p className="text-caption text-text-muted mt-1">ברירת מחדל: 9,700 ₪ (תקרה 2026)</p>
-            </div>
-
             <NextButton onClick={next} />
           </div>
         )}
@@ -484,36 +464,37 @@ export function EmployerCalculator() {
                   <p className="text-caption text-text-muted mt-1 italic">*מנוסח בלשון זכר לצורך הנוחות, מתייחס לזכר/נקבה כאחד.</p>
                 </div>
 
-                <div className="mt-space-3">
-                  <ToggleGroup
-                    label="מי מקבל קצבת ילדים?"
-                    subtitle="בני זוג נשואים — זכר ממלא ׳בן/בת זוג׳"
-                    options={[
-                      { value: 'spouse', label: 'בן/בת זוג' },
-                      { value: 'employee', label: 'העובד/ת' },
-                    ]}
-                    value={inputs.childAllowanceRecipient}
-                    onChange={v => update({ childAllowanceRecipient: v as 'employee' | 'spouse' })}
-                  />
-                </div>
-
-                {/* נטול יכולת — disabled children */}
-                <div className="mt-space-3 bg-white/60 rounded-lg p-space-3">
-                  <label className="block text-body-sm font-semibold text-primary mb-space-1">ילדים נטולי יכולת</label>
-                  <p className="text-caption text-text-muted mb-space-2">כל ילד נטול יכולת = 2 נקודות זיכוי שנתיות.</p>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      max={inputs.childrenAges.length}
-                      value={inputs.disabledChildrenCount}
-                      onChange={e => {
-                        const v = parseInt(e.target.value) || 0
-                        update({ disabledChildrenCount: Math.min(Math.max(0, v), inputs.childrenAges.length) })
-                      }}
-                      className="w-20 rounded-lg border border-border px-2 py-1.5 text-body-sm text-center focus:border-gold focus:outline-none"
+                {/* Compact row: קצבת ילדים + נטול יכולת side by side */}
+                <div className="mt-space-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <ToggleGroup
+                      label="מי מקבל קצבת ילדים?"
+                      subtitle="בני זוג נשואים — זכר ממלא ׳בן/בת זוג׳"
+                      options={[
+                        { value: 'spouse', label: 'בן/בת זוג' },
+                        { value: 'employee', label: 'העובד/ת' },
+                      ]}
+                      value={inputs.childAllowanceRecipient}
+                      onChange={v => update({ childAllowanceRecipient: v as 'employee' | 'spouse' })}
                     />
-                    <span className="text-caption text-text-muted">מתוך {inputs.childrenAges.length} ילדים</span>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-space-3">
+                    <label className="block text-body-sm font-semibold text-primary mb-space-1">ילדים נטולי יכולת</label>
+                    <p className="text-caption text-text-muted mb-space-2">כל ילד = 2 נ.ז שנתיות</p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={inputs.childrenAges.length}
+                        value={inputs.disabledChildrenCount}
+                        onChange={e => {
+                          const v = parseInt(e.target.value) || 0
+                          update({ disabledChildrenCount: Math.min(Math.max(0, v), inputs.childrenAges.length) })
+                        }}
+                        className="w-20 rounded-lg border border-border px-2 py-1.5 text-body-sm text-center focus:border-gold focus:outline-none"
+                      />
+                      <span className="text-caption text-text-muted">מתוך {inputs.childrenAges.length}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -525,9 +506,9 @@ export function EmployerCalculator() {
               <ToggleGroup
                 label="סוג שירות"
                 options={[
+                  { value: 'none', label: 'ללא שירות' },
                   { value: 'military', label: 'שירות צבאי' },
                   { value: 'national', label: 'שירות לאומי' },
-                  { value: 'none', label: 'ללא שירות' },
                 ]}
                 value={inputs.serviceType}
                 onChange={v => {
@@ -545,10 +526,9 @@ export function EmployerCalculator() {
                   options={[
                     { value: 'full', label: `שירות מלא (${serviceThresholds.full})` },
                     { value: 'partial', label: `שירות חלקי (${serviceThresholds.partial})` },
-                    { value: 'none', label: 'ללא' },
                   ]}
                   value={inputs.serviceLevel}
-                  onChange={v => update({ serviceLevel: v as 'full' | 'partial' | 'none' })}
+                  onChange={v => update({ serviceLevel: v as 'full' | 'partial' })}
                 />
               )}
             </div>

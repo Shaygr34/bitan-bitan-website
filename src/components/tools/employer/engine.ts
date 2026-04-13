@@ -379,7 +379,7 @@ export function getDefaultEmployerInputs(): EmployerInputs {
     childAllowanceRecipient: 'spouse',
     childrenAges: [],
     disabledChildrenCount: 0,
-    serviceType: 'military',
+    serviceType: 'none',
     serviceLevel: 'none',
     pensionCreditSalary: 9_700,
   }
