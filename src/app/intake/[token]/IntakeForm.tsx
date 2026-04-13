@@ -117,6 +117,8 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const progressTrackRef = useRef<HTMLDivElement>(null)
   const [fillWidth, setFillWidth] = useState('0%')
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [showConfirmSubmit, setShowConfirmSubmit] = useState(false)
 
   // -------------------------------------------------------------------------
   // Track "opened" status on mount (fire-and-forget)
@@ -128,6 +130,56 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       body: JSON.stringify({ token }),
     }).catch(() => {})
   }, [token])
+
+  // -------------------------------------------------------------------------
+  // localStorage: restore draft on mount
+  // -------------------------------------------------------------------------
+  const storageKey = `intake_draft_${token}`
+  const draftRestored = useRef(false)
+
+  useEffect(() => {
+    if (previousData || draftRestored.current) return
+    try {
+      const raw = localStorage.getItem(storageKey)
+      if (!raw) return
+      const draft = JSON.parse(raw)
+      // Guard: discard draft if step layout changed (skipTypeStep mismatch)
+      if (draft.skipTypeStep !== skipTypeStep) {
+        localStorage.removeItem(storageKey)
+        return
+      }
+      if (draft.formData) setFormData(draft.formData)
+      if (draft.clientType) setClientType(draft.clientType)
+      if (draft.step) setStep(draft.step)
+      setShowWelcome(true)
+      draftRestored.current = true
+    } catch {
+      // localStorage unavailable or corrupted — ignore
+    }
+  }, []) // eslint-disable-line
+
+  // -------------------------------------------------------------------------
+  // localStorage: auto-save on every change (debounced 300ms)
+  // -------------------------------------------------------------------------
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (submitted) return
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({
+          formData,
+          clientType,
+          step,
+          skipTypeStep,
+        }))
+      } catch {
+        // localStorage full or unavailable — silent fail
+      }
+    }, 300)
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  }, [formData, clientType, step, submitted, storageKey, skipTypeStep])
 
   // -------------------------------------------------------------------------
   // Progress bar fill calculation (RTL: step 1 is rightmost, fill goes right→left)
@@ -253,10 +305,12 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
   // -------------------------------------------------------------------------
   function goNext() {
     if (contentStep === 'details' && !validateStep2()) return
+    setShowConfirmSubmit(false)
     setStep((s) => Math.min(s + 1, totalSteps))
   }
 
   function goBack() {
+    setShowConfirmSubmit(false)
     setStep((s) => Math.max(s - 1, 1))
   }
 
@@ -264,16 +318,6 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
   // Submit
   // -------------------------------------------------------------------------
   async function handleSubmit() {
-    // Validate required documents
-    const missingDocs = relevantDocs
-      .filter((d) => d.required && !files[d.key])
-      .map((d) => d.label)
-
-    if (missingDocs.length > 0) {
-      setError(`חסרים מסמכי חובה: ${missingDocs.join(', ')}. חזרו לשלב המסמכים להשלמה.`)
-      return
-    }
-
     setSubmitting(true)
     setError(null)
 
@@ -319,6 +363,8 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
         )
       }
 
+      // Clear localStorage draft on successful submit
+      try { localStorage.removeItem(storageKey) } catch { /* ignore */ }
       setSubmitted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'שגיאה לא צפויה')
@@ -392,6 +438,10 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
                   n
                 )}
               </div>
+              {/* Amber badge for missing docs on the מסמכים step */}
+              {label === 'מסמכים' && hasMissingDocs && contentStep !== 'docs' && (
+                <span className={styles.stepBadge} />
+              )}
               <span
                 className={
                   isCompleted
@@ -759,15 +809,9 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
           >
             חזרה
           </button>
-          {hasMissingDocs ? (
-            <button type="button" className={styles.btnDisabled} disabled>
-              יש להעלות את כל מסמכי החובה
-            </button>
-          ) : (
-            <button type="button" className={styles.btnPrimary} onClick={goNext}>
-              הבא
-            </button>
-          )}
+          <button type="button" className={styles.btnPrimary} onClick={goNext}>
+            הבא
+          </button>
         </div>
       </>
     )
@@ -843,7 +887,7 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
 
         {error && <div className={styles.error}>{error}</div>}
 
-        {hasMissingDocs && (
+        {hasMissingDocs && !showConfirmSubmit && (
           <div className={styles.warningBanner}>
             <strong>חסרים מסמכי חובה:</strong>
             {missingRequiredDocs.map(d => d.label).join(', ')}
@@ -867,23 +911,58 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
           </button>
         </div>
 
-        <button
-          type="button"
-          className={hasMissingDocs ? styles.btnDisabled : styles.btnSubmit}
-          onClick={handleSubmit}
-          disabled={submitting || hasMissingDocs}
-        >
-          {submitting ? (
-            <>
-              <span className={styles.spinner} />
-              שולח...
-            </>
-          ) : hasMissingDocs ? (
-            'חסרים מסמכים — לא ניתן לשלוח'
-          ) : (
-            'שלח'
-          )}
-        </button>
+        {showConfirmSubmit ? (
+          <div className={styles.confirmPanel}>
+            <p className={styles.confirmText}>
+              לא העליתם את כל מסמכי החובה. ניתן להשלים גם מאוחר יותר. לשלוח בכל זאת?
+            </p>
+            <div className={styles.confirmButtons}>
+              <button
+                type="button"
+                className={styles.btnSubmit}
+                onClick={handleSubmit}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <>
+                    <span className={styles.spinner} />
+                    שולח...
+                  </>
+                ) : (
+                  'שלח בכל זאת'
+                )}
+              </button>
+              <button type="button" className={styles.backToDocsBtn} onClick={() => {
+                setShowConfirmSubmit(false)
+                setStep(skipTypeStep ? 3 : 4)
+              }}>
+                חזרה למסמכים
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className={styles.btnSubmit}
+            onClick={() => {
+              if (hasMissingDocs) {
+                setShowConfirmSubmit(true)
+              } else {
+                handleSubmit()
+              }
+            }}
+            disabled={submitting}
+          >
+            {submitting ? (
+              <>
+                <span className={styles.spinner} />
+                שולח...
+              </>
+            ) : (
+              'שלח'
+            )}
+          </button>
+        )}
       </>
     )
   }
@@ -904,6 +983,19 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       {progressBar}
 
       <div className={styles.card}>
+        {showWelcome && (
+          <div className={styles.welcomeBanner}>
+            <button
+              type="button"
+              className={styles.welcomeDismiss}
+              onClick={() => setShowWelcome(false)}
+              aria-label="סגור"
+            >
+              ✕
+            </button>
+            ברוכים השבים! שמרנו את הפרטים שמילאתם. קבצים שהועלו בעבר לא נשמרים — יש להעלות שוב.
+          </div>
+        )}
         {contentStep === 'type' && renderStep1()}
         {contentStep === 'details' && renderStep2()}
         {contentStep === 'business' && renderStepBusiness()}
