@@ -1,7 +1,8 @@
 /**
- * Employer Cost Calculator — Calculation Engine
+ * Employer Cost Calculator — Calculation Engine V2
  * Full Israeli payroll math: tax brackets, NII, pension, severance,
- * education fund, זקופות, credit points, vehicle שווי שימוש.
+ * education fund, זקופות, credit points, vehicle שווי שימוש,
+ * meals, other benefits, service credits, disabled children, pension credit.
  */
 
 import type {
@@ -10,12 +11,13 @@ import type {
   EmployerCalcConfig,
   EmployeeBreakdown,
   EmployerBreakdown,
+  CreditPointsBreakdown,
   VehicleFuelType,
   Gender,
   MaritalStatus,
   ChildAge,
 } from './types'
-import { DEFAULT_EMPLOYER_CONFIG, CHILD_AGE_CREDITS, CHILD_ALLOWANCE_BONUS_AGES } from './config'
+import { DEFAULT_EMPLOYER_CONFIG, CHILD_AGE_CREDITS, CHILD_ALLOWANCE_BONUS_AGES, getServiceCreditPoints } from './config'
 
 /* ═══════════════════════════════════════════════
    Vehicle Tax Benefit (שווי מס רכב)
@@ -42,7 +44,7 @@ export function calculateVehicleBenefit(
 }
 
 /* ═══════════════════════════════════════════════
-   Credit Points (נקודות זיכוי)
+   Credit Points (נקודות זיכוי) — returns breakdown
    ═══════════════════════════════════════════════ */
 
 export function calculateCreditPoints(
@@ -50,16 +52,18 @@ export function calculateCreditPoints(
   maritalStatus: MaritalStatus,
   childrenAges: ChildAge[],
   employeeGetsChildAllowance: boolean,
-): number {
+  disabledChildrenCount: number,
+  serviceType: 'military' | 'national' | 'none',
+  serviceLevel: 'full' | 'partial' | 'none',
+): { base: number; marital: number; children: number; disabledChildren: number; service: number; total: number } {
   // Base: male 2.25, female 2.75
-  let points = gender === 'female' ? 2.75 : 2.25
+  const base = gender === 'female' ? 2.75 : 2.25
 
   // Marital: divorced = 1, single parent = 1, others = 0
-  if (maritalStatus === 'divorced' || maritalStatus === 'singleParent') {
-    points += 1
-  }
+  const marital = (maritalStatus === 'divorced' || maritalStatus === 'singleParent') ? 1 : 0
 
   // Children
+  let children = 0
   for (const age of childrenAges) {
     const bracket = CHILD_AGE_CREDITS.find(b => age >= b.minAge && age <= b.maxAge)
     if (bracket) {
@@ -70,11 +74,19 @@ export function calculateCreditPoints(
           age <= CHILD_ALLOWANCE_BONUS_AGES.maxAge) {
         childPoints *= CHILD_ALLOWANCE_BONUS_AGES.multiplier
       }
-      points += childPoints
+      children += childPoints
     }
   }
 
-  return points
+  // Disabled children: 2 points each (annual)
+  const disabledChildren = disabledChildrenCount * 2
+
+  // Service
+  const service = getServiceCreditPoints(gender, serviceType, serviceLevel)
+
+  const total = base + marital + children + disabledChildren + service
+
+  return { base, marital, children, disabledChildren, service, total }
 }
 
 /* ═══════════════════════════════════════════════
@@ -176,24 +188,26 @@ function calculateImputedBenefits(
 }
 
 /* ═══════════════════════════════════════════════
-   Pension Deduction & Credit for Tax
+   Pension Deduction & Credit for Tax (Employee-specific)
    ═══════════════════════════════════════════════ */
 
 function calculatePensionTaxBenefits(
   pensionSalary: number,
+  pensionCreditSalary: number,
   config: EmployerCalcConfig,
 ) {
   // Deduction: avg salary × 2% = monthly deduction cap
   const deductionCap = Math.round(config.avgSalary * 0.02)
   const pensionDeduction = Math.min(pensionSalary * 0.02, deductionCap)
 
-  // Credit: avg salary × 5% × 35% = monthly credit cap
-  const creditCap = Math.round(config.avgSalary * 0.05 * 0.35)
-  const pensionCredit = Math.min(pensionSalary * 0.05 * 0.35, creditCap)
+  // Employee credit: min(pensionCreditSalary, pensionCreditSalaryCap) × 7% × 35%
+  const insuredSalary = Math.min(pensionCreditSalary, config.pensionCreditSalaryCap)
+  const maxDeposit = insuredSalary * config.pensionCreditRate
+  const pensionCredit = Math.round(maxDeposit * config.pensionCreditTaxRate)
 
   return {
     pensionDeduction: Math.round(pensionDeduction),
-    pensionCredit: Math.round(pensionCredit),
+    pensionCredit,
   }
 }
 
@@ -206,15 +220,27 @@ export function calculateEmployerCost(
   config: EmployerCalcConfig = DEFAULT_EMPLOYER_CONFIG,
 ): EmployerCalcResult {
   const {
-    grossSalary, pensionSalary, vehicleFuelType, manufacturerPrice,
+    grossSalary, pensionSalary, travelAllowance,
+    hasVehicle, vehicleFuelType, manufacturerPrice,
+    hasMealBenefit, mealBenefitAmount,
+    hasOtherBenefit, otherBenefitAmount,
     employeePensionRate, employerPensionRate, severanceRate,
     educationFundSalary, employeeEducationRate, employerEducationRate,
     gender, maritalStatus, childAllowanceRecipient, childrenAges,
+    disabledChildrenCount, serviceType, serviceLevel,
+    pensionCreditSalary,
   } = inputs
 
   // ─── Vehicle ───
-  const vehicleTaxBenefit = calculateVehicleBenefit(manufacturerPrice, vehicleFuelType, config)
-  const hasVehicle = vehicleTaxBenefit > 0
+  const vehicleTaxBenefit = hasVehicle
+    ? calculateVehicleBenefit(manufacturerPrice, vehicleFuelType, config)
+    : 0
+
+  // ─── Total שווי מס ───
+  const mealBenefit = hasMealBenefit ? mealBenefitAmount : 0
+  const otherBenefit = hasOtherBenefit ? otherBenefitAmount : 0
+  const totalShvuiMas = vehicleTaxBenefit + mealBenefit + otherBenefit
+  const hasShvuiMas = totalShvuiMas > 0
 
   // ─── Imputed Benefits ───
   const imputed = calculateImputedBenefits(
@@ -223,38 +249,53 @@ export function calculateEmployerCost(
   )
 
   // ─── Total Taxable Income ───
-  const totalTaxableWithVehicle = grossSalary + vehicleTaxBenefit +
+  const totalTaxableWithShvui = grossSalary + totalShvuiMas +
     imputed.imputedEducation + imputed.imputedPension + imputed.imputedSeverance
-  const totalTaxableWithoutVehicle = grossSalary +
+  const totalTaxableWithoutShvui = grossSalary +
     imputed.imputedEducation + imputed.imputedPension + imputed.imputedSeverance
 
-  // ─── Credit Points ───
+  // ─── Credit Points (with breakdown) ───
   const employeeGetsAllowance = childAllowanceRecipient === 'employee'
-  const totalCreditPoints = calculateCreditPoints(gender, maritalStatus, childrenAges, employeeGetsAllowance)
-  const creditPointsMonthly = Math.round((totalCreditPoints * config.creditPointValue) / 12)
+  const creditBreakdown = calculateCreditPoints(
+    gender, maritalStatus, childrenAges, employeeGetsAllowance,
+    disabledChildrenCount, serviceType, serviceLevel,
+  )
+  const creditPointsMonthly = Math.round((creditBreakdown.total * config.creditPointValue) / 12)
 
-  // ─── Pension Tax Benefits ───
-  const pensionTax = calculatePensionTaxBenefits(pensionSalary, config)
+  // ─── Pension Tax Benefits (employee-specific) ───
+  const pensionTax = calculatePensionTaxBenefits(pensionSalary, pensionCreditSalary, config)
 
-  // ─── Employee Deductions WITH Vehicle ───
-  const niiEmployeeWith = calculateNII(totalTaxableWithVehicle, true, config)
+  // Build full credit points breakdown with pension credit
+  const creditPointsBreakdownFull: CreditPointsBreakdown = {
+    base: creditBreakdown.base,
+    marital: creditBreakdown.marital,
+    children: creditBreakdown.children,
+    disabledChildren: creditBreakdown.disabledChildren,
+    service: creditBreakdown.service,
+    pensionCredit: pensionTax.pensionCredit,
+    total: creditBreakdown.total,
+    monthlyValue: creditPointsMonthly,
+  }
+
+  // ─── Employee Deductions WITH שווי מס ───
+  const niiEmployeeWith = calculateNII(totalTaxableWithShvui, true, config)
   const incomeTaxWith = calculateIncomeTax(
-    totalTaxableWithVehicle, creditPointsMonthly,
+    totalTaxableWithShvui, creditPointsMonthly,
     pensionTax.pensionDeduction, pensionTax.pensionCredit, config
   )
   const pensionEmployeeAmount = Math.round(pensionSalary * (employeePensionRate / 100))
   const educationEmployeeAmount = Math.round(educationFundSalary * (employeeEducationRate / 100))
   const totalDeductionsWith = niiEmployeeWith + incomeTaxWith + pensionEmployeeAmount + educationEmployeeAmount
-  const netWithVehicle = grossSalary - totalDeductionsWith
+  const netWithShvui = grossSalary - totalDeductionsWith
 
-  // ─── Employee Deductions WITHOUT Vehicle ───
-  const niiEmployeeWithout = calculateNII(totalTaxableWithoutVehicle, true, config)
+  // ─── Employee Deductions WITHOUT שווי מס ───
+  const niiEmployeeWithout = calculateNII(totalTaxableWithoutShvui, true, config)
   const incomeTaxWithout = calculateIncomeTax(
-    totalTaxableWithoutVehicle, creditPointsMonthly,
+    totalTaxableWithoutShvui, creditPointsMonthly,
     pensionTax.pensionDeduction, pensionTax.pensionCredit, config
   )
   const totalDeductionsWithout = niiEmployeeWithout + incomeTaxWithout + pensionEmployeeAmount + educationEmployeeAmount
-  const netWithoutVehicle = grossSalary - totalDeductionsWithout
+  const netWithoutShvui = grossSalary - totalDeductionsWithout
 
   // ─── Employer Costs ───
   const pensionEmployer = Math.round(pensionSalary * (employerPensionRate / 100))
@@ -262,47 +303,54 @@ export function calculateEmployerCost(
   const educationEmployer = Math.round(educationFundSalary * (employerEducationRate / 100))
 
   // NII employer — on taxable income (WITHOUT pension deduction per Ron's spec)
-  const niiEmployerWith = calculateNII(totalTaxableWithVehicle, false, config)
-  const niiEmployerWithout = calculateNII(totalTaxableWithoutVehicle, false, config)
+  const niiEmployerWith = calculateNII(totalTaxableWithShvui, false, config)
+  const niiEmployerWithout = calculateNII(totalTaxableWithoutShvui, false, config)
 
+  // Employer total includes travel allowance
   const totalAdditionalCost = pensionEmployer + severanceEmployer + educationEmployer + niiEmployerWith
-  const totalWithVehicle = grossSalary + totalAdditionalCost
-  const totalAdditionalCostNoVehicle = pensionEmployer + severanceEmployer + educationEmployer + niiEmployerWithout
-  const totalWithoutVehicle = grossSalary + totalAdditionalCostNoVehicle
+  const totalWithShvui = grossSalary + travelAllowance + totalAdditionalCost
+  const totalAdditionalCostNoShvui = pensionEmployer + severanceEmployer + educationEmployer + niiEmployerWithout
+  const totalWithoutShvui = grossSalary + travelAllowance + totalAdditionalCostNoShvui
 
   // ─── Build Result ───
   const employee: EmployeeBreakdown = {
     grossSalary,
+    travelAllowance,
     vehicleTaxBenefit,
+    mealBenefit,
+    otherBenefit,
+    totalShvuiMas,
     imputedEducationFund: imputed.imputedEducation,
     imputedPension: imputed.imputedPension,
     imputedSeverance: imputed.imputedSeverance,
-    totalTaxableIncome: totalTaxableWithVehicle,
+    totalTaxableIncome: totalTaxableWithShvui,
     niiEmployee: niiEmployeeWith,
     incomeTax: incomeTaxWith,
     pensionEmployee: pensionEmployeeAmount,
     educationFundEmployee: educationEmployeeAmount,
     totalDeductions: totalDeductionsWith,
-    netWithVehicle,
-    netWithoutVehicle,
-    netDifference: netWithoutVehicle - netWithVehicle,
-    totalCreditPoints,
+    netWithShvui,
+    netWithoutShvui,
+    netDifference: netWithoutShvui - netWithShvui,
+    totalCreditPoints: creditBreakdown.total,
     creditPointsValue: creditPointsMonthly,
+    creditPointsBreakdown: creditPointsBreakdownFull,
   }
 
   const employer: EmployerBreakdown = {
     grossSalary,
+    travelAllowance,
     pensionEmployer,
     severanceEmployer,
     educationFundEmployer: educationEmployer,
     niiEmployer: niiEmployerWith,
     totalAdditionalCost,
-    totalWithVehicle,
-    totalWithoutVehicle,
-    costDifference: totalWithVehicle - totalWithoutVehicle,
+    totalWithShvui,
+    totalWithoutShvui,
+    costDifference: totalWithShvui - totalWithoutShvui,
   }
 
-  return { employee, employer, vehicleTaxBenefit, hasVehicle }
+  return { employee, employer, vehicleTaxBenefit, hasShvuiMas, totalShvuiMas }
 }
 
 /* ─── Default Inputs ─── */
@@ -311,8 +359,14 @@ export function getDefaultEmployerInputs(): EmployerInputs {
   return {
     grossSalary: 15_000,
     pensionSalary: 15_000,
+    travelAllowance: 315,
+    hasVehicle: false,
     vehicleFuelType: 'petrol',
     manufacturerPrice: 200_000,
+    hasMealBenefit: false,
+    mealBenefitAmount: 1_000,
+    hasOtherBenefit: false,
+    otherBenefitAmount: 1_000,
     employeePensionRate: 6,
     employerPensionRate: 6.5,
     severanceRate: 6,
@@ -324,5 +378,9 @@ export function getDefaultEmployerInputs(): EmployerInputs {
     maritalStatus: 'married',
     childAllowanceRecipient: 'spouse',
     childrenAges: [],
+    disabledChildrenCount: 0,
+    serviceType: 'military',
+    serviceLevel: 'none',
+    pensionCreditSalary: 9_700,
   }
 }

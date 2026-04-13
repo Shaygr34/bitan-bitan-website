@@ -1,6 +1,7 @@
 /**
  * Employer Cost Calculator — Configuration (2026 values)
  * All values confirmed by Ron Bitan, April 6, 2026
+ * V2: Added pension credit config, service credit rules, travel allowance
  */
 
 import type { EmployerCalcConfig } from './types'
@@ -42,6 +43,14 @@ export const DEFAULT_EMPLOYER_CONFIG: EmployerCalcConfig = {
 
   // מס יסף threshold (monthly)
   surchargeThreshold: 60_130,
+
+  // Pension credit (employee-specific)
+  pensionCreditSalaryCap: 9_700,
+  pensionCreditRate: 0.07,
+  pensionCreditTaxRate: 0.35,
+
+  // Travel allowance default
+  defaultTravelAllowance: 315,
 }
 
 /* ─── Presets for UI ─── */
@@ -89,7 +98,29 @@ export const CHILD_AGE_CREDITS: { minAge: number; maxAge: number; points: number
   { minAge: 3, maxAge: 3, points: 3.5 },
   { minAge: 4, maxAge: 5, points: 2.5 },
   { minAge: 6, maxAge: 17, points: 1 },
+  { minAge: 18, maxAge: 18, points: 0 },
 ]
 
 // When employee receives child allowance, ages 6-17 get doubled points
 export const CHILD_ALLOWANCE_BONUS_AGES = { minAge: 6, maxAge: 17, multiplier: 2 }
+
+/* ─── Service Credit Point Rules ─── */
+
+export function getServiceCreditPoints(
+  gender: 'male' | 'female',
+  serviceType: 'military' | 'national' | 'none',
+  serviceLevel: 'full' | 'partial' | 'none'
+): number {
+  void gender // gender doesn't affect point count, only thresholds
+  if (serviceType === 'none' || serviceLevel === 'none') return 0
+  return serviceLevel === 'full' ? 2 : 1
+}
+
+export function getServiceThresholds(
+  gender: 'male' | 'female',
+  serviceType: 'military' | 'national'
+): { full: string; partial: string } {
+  if (serviceType === 'national') return { full: '24 ומעלה', partial: '12-24' }
+  if (gender === 'female') return { full: '22 ומעלה', partial: '12-22' }
+  return { full: '23 ומעלה', partial: '12-23' }
+}

@@ -1,6 +1,7 @@
 /**
  * Employer Cost Calculator — Type Definitions
- * Based on Ron's spec (Google Doc pages 22-27, April 2026)
+ * V2: Generalized שווי מס (vehicle + meals + other), service credits,
+ * disabled children, pension credit fix, travel allowance.
  */
 
 export type VehicleFuelType = 'petrol' | 'electric' | 'plugIn' | 'hybrid' | 'commercial'
@@ -9,7 +10,7 @@ export type Gender = 'male' | 'female'
 export type MaritalStatus = 'married' | 'divorced' | 'single' | 'widowed' | 'singleParent'
 export type ChildAllowanceRecipient = 'employee' | 'spouse'
 
-export type ChildAge = number // 0-17
+export type ChildAge = number // 0-18
 
 /* ─── Inputs ─── */
 
@@ -17,10 +18,20 @@ export type EmployerInputs = {
   // Salary
   grossSalary: number // שכר ברוטו
   pensionSalary: number // שכר לצרכי פנסיה (default = grossSalary)
+  travelAllowance: number // נסיעות — default 315, range 0-1500
 
   // Vehicle
+  hasVehicle: boolean // toggle: כן/לא for vehicle (default false)
   vehicleFuelType: VehicleFuelType
-  manufacturerPrice: number // מחיר יצרן רכב (0 = no vehicle)
+  manufacturerPrice: number // מחיר יצרן רכב
+
+  // Meal benefit (שווי ארוחות)
+  hasMealBenefit: boolean
+  mealBenefitAmount: number // 500-2000, default 1000
+
+  // Other benefit (שווי מס נוסף)
+  hasOtherBenefit: boolean
+  otherBenefitAmount: number // 500-3000, default 1000
 
   // Pension rates
   employeePensionRate: number // 6% or 7%
@@ -33,18 +44,41 @@ export type EmployerInputs = {
   employeeEducationRate: number // 2.5%
   employerEducationRate: number // 5% or 7.5%
 
+  // Pension credit salary (שכר מבוטח קצבה מזכה)
+  pensionCreditSalary: number // default 9700, editable
+
   // Personal details (for tax credits)
   gender: Gender
   maritalStatus: MaritalStatus
   childAllowanceRecipient: ChildAllowanceRecipient
-  childrenAges: ChildAge[] // array of ages (0-17)
+  childrenAges: ChildAge[] // array of ages (0-18)
+  disabledChildrenCount: number // נטול יכולת — 0 to childrenCount
+
+  // Service (שירות צבאי/לאומי)
+  serviceType: 'military' | 'national' | 'none'
+  serviceLevel: 'full' | 'partial' | 'none'
 }
 
 /* ─── Results ─── */
 
+export type CreditPointsBreakdown = {
+  base: number
+  marital: number
+  children: number
+  disabledChildren: number
+  service: number
+  pensionCredit: number // pension tax credit (₪/month)
+  total: number // total credit points (not including pension credit)
+  monthlyValue: number // total credit points × creditPointValue / 12
+}
+
 export type EmployeeBreakdown = {
   grossSalary: number
-  vehicleTaxBenefit: number // שווי מס רכב
+  travelAllowance: number
+  vehicleTaxBenefit: number // שווי מס רכב component
+  mealBenefit: number // שווי ארוחות component
+  otherBenefit: number // שווי מס נוסף component
+  totalShvuiMas: number // total שווי מס (vehicle + meals + other)
   imputedEducationFund: number // שווי זקופות השתלמות
   imputedPension: number // שווי זקופות תגמולים
   imputedSeverance: number // שווי זקופות פיצויים
@@ -58,25 +92,27 @@ export type EmployeeBreakdown = {
   totalDeductions: number
 
   // Net
-  netWithVehicle: number
-  netWithoutVehicle: number
+  netWithShvui: number
+  netWithoutShvui: number
   netDifference: number // פער נטו
 
   // Credit points detail
   totalCreditPoints: number
   creditPointsValue: number // monthly ₪
+  creditPointsBreakdown: CreditPointsBreakdown
 }
 
 export type EmployerBreakdown = {
   grossSalary: number
+  travelAllowance: number
   pensionEmployer: number // תגמולים מעסיק
   severanceEmployer: number // פיצויים מעסיק
   educationFundEmployer: number // השתלמות מעסיק
   niiEmployer: number // ביטוח לאומי מעסיק
 
   totalAdditionalCost: number // סה"כ תוספת עלות מעסיק
-  totalWithVehicle: number // סה"כ עלות מעסיק כולל שווי רכב
-  totalWithoutVehicle: number // סה"כ עלות מעסיק ללא שווי רכב
+  totalWithShvui: number // סה"כ עלות מעסיק כולל שווי מס
+  totalWithoutShvui: number // סה"כ עלות מעסיק ללא שווי מס
   costDifference: number // הפרש עלות מעסיק
 }
 
@@ -84,7 +120,8 @@ export type EmployerCalcResult = {
   employee: EmployeeBreakdown
   employer: EmployerBreakdown
   vehicleTaxBenefit: number // shared reference
-  hasVehicle: boolean
+  hasShvuiMas: boolean
+  totalShvuiMas: number
 }
 
 /* ─── Config ─── */
@@ -113,4 +150,10 @@ export type EmployerCalcConfig = {
   hybridReduction: number // 560
   // Tax thresholds
   surchargeThreshold: number // 60,130 מס יסף חודשי
+  // Pension credit (employee)
+  pensionCreditSalaryCap: number // 9,700
+  pensionCreditRate: number // 0.07
+  pensionCreditTaxRate: number // 0.35
+  // Travel
+  defaultTravelAllowance: number // 315
 }
