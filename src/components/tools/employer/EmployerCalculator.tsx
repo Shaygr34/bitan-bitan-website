@@ -62,8 +62,9 @@ export function EmployerCalculator() {
       const res = calculateEmployerCost(cleanedInputs, DEFAULT_EMPLOYER_CONFIG)
       if (isCompareMode) {
         setComparisonResult(res)
-        setComparisonInputs(inputs)
+        setComparisonInputs(cleanedInputs)
         setResult(primaryResult)
+        setInputs(primaryInputs || cleanedInputs)
         setIsCompareMode(false)
       } else {
         setResult(res)

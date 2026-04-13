@@ -288,8 +288,8 @@ export function calculateFinancialLeasing(
   const residualPayment = Math.round(carPrice * (residualPercent / 100))
   const tradeInValue = tradeIn ? tradeInAmount : 0
 
-  // Loan = car price - down payment - residual (balloon at end)
-  const loanPrincipal = Math.max(0, carPrice - downPayment - residualPayment)
+  // Loan = car price - down payment - residual (balloon) - trade-in
+  const loanPrincipal = Math.max(0, carPrice - downPayment - residualPayment - tradeInValue)
   const annualRate = config.primeRate + interestSpread
 
   const amort = calculateAmortization(loanPrincipal, annualRate, periodMonths)

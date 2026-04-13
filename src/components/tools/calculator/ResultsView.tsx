@@ -190,8 +190,8 @@ function SingleResult({ result }: { result: CalculationResult }) {
 function ComparisonTable({ results }: { results: CalculationResult[] }) {
   return (
     <div className="space-y-space-5">
-      {results.map((r) => (
-        <SingleResult key={r.optionType} result={r} />
+      {results.map((r, i) => (
+        <SingleResult key={`${r.optionType}-${i}`} result={r} />
       ))}
     </div>
   )

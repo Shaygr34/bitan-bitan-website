@@ -213,7 +213,7 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
         {phase === 'pickOption' && (
           <StepPickOption
             onSelect={handlePickOption}
-            excludeOption={null}
+            excludeOption={isComparing ? primaryOption : null}
           />
         )}
 
