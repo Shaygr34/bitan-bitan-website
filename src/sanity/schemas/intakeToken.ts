@@ -27,6 +27,19 @@ export default defineType({
       initialValue: 'pending',
     }),
     defineField({
+      name: 'mode',
+      title: 'מצב',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'לקוח חדש', value: 'new' },
+          { title: 'השלמת נתונים', value: 'update' },
+        ],
+      },
+      initialValue: 'new',
+      description: 'חדש = קליטה ראשונה, השלמת נתונים = לקוח קיים שמשלים מידע חסר',
+    }),
+    defineField({
       name: 'createdBy',
       title: 'נוצר על ידי',
       type: 'string',
