@@ -55,7 +55,7 @@ export const DEFAULT_EMPLOYER_CONFIG: EmployerCalcConfig = {
 
 /* ─── Presets for UI ─── */
 
-export const SALARY_PRESETS = [8_000, 12_000, 15_000, 20_000, 25_000, 30_000]
+export const SALARY_PRESETS = [8_000, 15_000, 25_000, 40_000, 55_000]
 
 export const PENSION_EMPLOYEE_RATES = [
   { value: 6, label: '6%' },

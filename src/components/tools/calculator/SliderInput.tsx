@@ -114,29 +114,23 @@ export function SliderInput({
         />
       </div>
 
-      {/* Node points — positioned absolutely at correct % */}
+      {/* Node points — evenly distributed labels */}
       {nodes && nodes.length > 0 && (
-        <div className="relative h-6 mt-space-1">
+        <div className="flex justify-between mt-space-1 px-1">
           {nodes.map((node) => {
-            const pct = ((node.value - min) / (max - min)) * 100
             const isActive = value === node.value
-            const isClose = Math.abs(value - node.value) < (max - min) * 0.03
+            const isClose = Math.abs(value - node.value) < (max - min) * 0.05
             return (
               <button
                 key={node.value}
                 type="button"
                 onClick={() => handleNodeClick(node.value)}
                 className={[
-                  'absolute text-caption px-0.5 py-0 rounded transition-all cursor-pointer -translate-x-1/2 whitespace-nowrap',
+                  'text-caption px-1 py-0.5 rounded transition-all cursor-pointer whitespace-nowrap',
                   isActive || isClose
                     ? 'text-gold font-bold'
                     : 'text-text-muted hover:text-primary',
                 ].join(' ')}
-                style={{
-                  // RTL: right percentage = distance from min
-                  // Clamp edges so labels don't overflow
-                  right: `clamp(2%, ${pct}%, 95%)`,
-                }}
               >
                 {node.label}
               </button>
