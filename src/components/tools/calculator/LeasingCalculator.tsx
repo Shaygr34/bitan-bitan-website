@@ -38,7 +38,12 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
   }
 
   const [phase, setPhase] = useState<WizardPhase>('base')
-  const [base, setBase] = useState<Partial<BaseInputs>>({ userType: 'selfEmployed' })
+  const [base, setBase] = useState<Partial<BaseInputs>>({
+    userType: 'selfEmployed',
+    vehicleType: 'privatePetrol',
+    carPrice: 150000,
+    monthlyIncome: 20000,
+  })
   const [primaryOption, setPrimaryOption] = useState<OptionType | null>(null)
   const [primaryInputs, setPrimaryInputs] = useState<Record<string, unknown>>({})
   const [primaryResult, setPrimaryResult] = useState<CalculationResult | null>(null)
@@ -115,12 +120,12 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
     setComparisonResult(null)
     setComparisonInputs({})
     setComparisonOption(null)
-    setPhase('pickOption')
+    setPhase('base')
   }, [])
 
   const handleRestart = useCallback(() => {
     setPhase('base')
-    setBase({ userType: 'selfEmployed' })
+    setBase({ userType: 'selfEmployed', vehicleType: 'privatePetrol', carPrice: 150000, monthlyIncome: 20000 })
     setPrimaryOption(null)
     setPrimaryInputs({})
     setPrimaryResult(null)

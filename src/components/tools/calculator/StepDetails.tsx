@@ -154,19 +154,19 @@ function PurchaseFields({
           <>
             <SliderInput
               label="ריבית"
-              subtitle={`פריים: ${primeRate}% | ריבית אפקטיבית: ${effectiveRate.toFixed(1)}%`}
+              subtitle={`פריים: ${primeRate}%`}
               min={-1}
               max={3}
               step={0.5}
               value={spread}
               onChange={(v) => onChange({ interestSpread: v })}
               nodes={[
-                { value: -1, label: 'P-1' },
-                { value: 0, label: 'P+0' },
-                { value: 1, label: 'P+1' },
-                { value: 2, label: 'P+2' },
+                { value: -1, label: `${(primeRate - 1).toFixed(1)}%` },
+                { value: 0, label: `${primeRate.toFixed(1)}%` },
+                { value: 1, label: `${(primeRate + 1).toFixed(1)}%` },
+                { value: 2, label: `${(primeRate + 2).toFixed(1)}%` },
               ]}
-              format={(v) => `P${v >= 0 ? '+' : ''}${v}%`}
+              format={(v) => `${(primeRate + v).toFixed(1)}%`}
               suffix=""
               compact
             />
@@ -286,18 +286,18 @@ function FinancialFields({
 
         <SliderInput
           label="ריבית"
-          subtitle={`פריים: ${primeRate}% | אפקטיבית: ${effectiveRate.toFixed(1)}%`}
+          subtitle={`פריים: ${primeRate}%`}
           min={0.5}
           max={4}
           step={0.5}
           value={spread}
           onChange={(v) => onChange({ interestSpread: v })}
           nodes={[
-            { value: 1, label: 'P+1' },
-            { value: 2, label: 'P+2' },
-            { value: 3, label: 'P+3' },
+            { value: 1, label: `${(primeRate + 1).toFixed(1)}%` },
+            { value: 2, label: `${(primeRate + 2).toFixed(1)}%` },
+            { value: 3, label: `${(primeRate + 3).toFixed(1)}%` },
           ]}
-          format={(v) => `P+${v}%`}
+          format={(v) => `${(primeRate + v).toFixed(1)}%`}
           suffix=""
           allowManual={false}
           compact

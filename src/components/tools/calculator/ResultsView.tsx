@@ -1,6 +1,7 @@
 'use client'
 
-import { ArrowRight, Calculator, TrendingDown, Receipt, Wallet, Info } from 'lucide-react'
+import { useCallback } from 'react'
+import { ArrowRight, Calculator, TrendingDown, Receipt, Wallet, Info, Printer, Share2 } from 'lucide-react'
 import { WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import type { CalculationResult, OptionType } from './types'
 
@@ -30,6 +31,17 @@ function fmtCurrency(n: number | null | undefined): string {
 export function ResultsView({ primary, comparison, onCompare, onRestart }: ResultsViewProps) {
   const results = comparison ? [primary, comparison] : [primary]
   const hasComparison = !!comparison
+
+  const handlePrint = useCallback(() => { window.print() }, [])
+  const handleShare = useCallback(async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      try { await navigator.share({ title: 'מחשבון ליסינג/רכב — ביטן את ביטן', url }) } catch { /* cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url)
+      alert('הקישור הועתק!')
+    }
+  }, [])
 
   return (
     <div>
@@ -100,8 +112,28 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
             <ArrowRight className="h-4 w-4" />
             התחל מחדש
           </button>
+          <button type="button" onClick={handlePrint}
+            className="rounded-xl border-2 border-border px-4 py-2.5 text-body-sm font-medium text-text-muted hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1">
+            <Printer className="h-4 w-4" />
+            הדפסה / PDF
+          </button>
+          <button type="button" onClick={handleShare}
+            className="rounded-xl border-2 border-border px-4 py-2.5 text-body-sm font-medium text-text-muted hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1">
+            <Share2 className="h-4 w-4" />
+            שיתוף
+          </button>
         </div>
       </div>
+
+      {/* Print CSS */}
+      <style jsx global>{`
+        @media print {
+          nav, footer, .no-print { display: none !important; }
+          body { font-size: 11px !important; line-height: 1.3 !important; }
+          * { break-inside: avoid; }
+          .shadow-md { box-shadow: none !important; }
+        }
+      `}</style>
     </div>
   )
 }
