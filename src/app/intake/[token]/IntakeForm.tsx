@@ -7,7 +7,6 @@ import {
   getDocCategory,
   ONBOARDING_PATHS,
   BUSINESS_SECTORS,
-  TURNOVER_PRESETS,
   isTransferPath,
   isCompanyPath,
   type DocField,
@@ -33,7 +32,6 @@ interface FormFields {
   // Business fields (new)
   businessName: string
   businessSector: string
-  estimatedTurnover: string
   businessAddress: string
   hasEmployees: string // 'yes' | 'no' | ''
   employeeCount: string
@@ -57,7 +55,6 @@ const EMPTY_FORM: FormFields = {
   birthdate: '',
   businessName: '',
   businessSector: '',
-  estimatedTurnover: '',
   businessAddress: '',
   hasEmployees: '',
   employeeCount: '',
@@ -102,7 +99,6 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       birthdate: previousData.birthdate || '',
       businessName: previousData.businessName || '',
       businessSector: previousData.businessSector || '',
-      estimatedTurnover: previousData.estimatedTurnover || '',
       businessAddress: previousData.businessAddress || '',
       hasEmployees: previousData.hasEmployees || '',
       employeeCount: previousData.employeeCount || '',
@@ -165,6 +161,8 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
   const relevantDocs: DocField[] = DOC_FIELDS.filter((d) =>
     d.categories.includes(docCategory),
   )
+  const missingRequiredDocs = relevantDocs.filter(d => d.required && !files[d.key])
+  const hasMissingDocs = missingRequiredDocs.length > 0
 
   const updateField = useCallback(
     (key: keyof FormFields, value: string) => {
@@ -297,7 +295,6 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       // Business fields
       if (formData.businessName.trim()) fd.append('businessName', formData.businessName.trim())
       if (formData.businessSector.trim()) fd.append('businessSector', formData.businessSector.trim())
-      if (formData.estimatedTurnover) fd.append('estimatedTurnover', formData.estimatedTurnover)
       if (formData.businessAddress.trim()) fd.append('businessAddress', formData.businessAddress.trim())
       if (formData.hasEmployees) fd.append('hasEmployees', formData.hasEmployees)
       if (formData.employeeCount) fd.append('employeeCount', formData.employeeCount)
@@ -595,39 +592,6 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
           </select>
         </div>
 
-        {/* Estimated turnover — dropdown + free text */}
-        <div className={styles.fieldGroup}>
-          <label className={styles.label}>מחזור שנתי משוער (₪)</label>
-          <select
-            className={styles.input}
-            value={TURNOVER_PRESETS.some(t => String(t.value) === formData.estimatedTurnover) ? formData.estimatedTurnover : (formData.estimatedTurnover ? 'other' : '')}
-            onChange={(e) => {
-              if (e.target.value === 'other') {
-                updateField('estimatedTurnover', '')
-              } else {
-                updateField('estimatedTurnover', e.target.value)
-              }
-            }}
-          >
-            <option value="">בחרו טווח...</option>
-            {TURNOVER_PRESETS.map((t) => (
-              <option key={t.value} value={String(t.value)}>{t.label}</option>
-            ))}
-            <option value="other">אחר — הזנה ידנית</option>
-          </select>
-          {(!TURNOVER_PRESETS.some(t => String(t.value) === formData.estimatedTurnover) && formData.estimatedTurnover !== '') && (
-            <input
-              className={styles.input}
-              type="number"
-              inputMode="numeric"
-              style={{ marginTop: '0.5rem' }}
-              value={formData.estimatedTurnover}
-              onChange={(e) => updateField('estimatedTurnover', e.target.value)}
-              placeholder="הזינו סכום בש״ח"
-            />
-          )}
-        </div>
-
         {renderInput('businessAddress', 'כתובת העסק', false)}
 
         {/* Employees */}
@@ -722,7 +686,14 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
     return (
       <>
         <h2 className={styles.stepTitle}>מסמכים</h2>
-        <p className={styles.stepSubtitle}>העלו את המסמכים הנדרשים (ניתן להשלים גם אחר כך)</p>
+        <p className={styles.stepSubtitle}>העלו את המסמכים הנדרשים</p>
+
+        {hasMissingDocs && (
+          <div className={styles.warningBanner}>
+            <strong>חסרים מסמכים נדרשים:</strong>
+            {missingRequiredDocs.map(d => d.label).join(', ')}
+          </div>
+        )}
 
         {relevantDocs.map((doc) => (
           <div key={doc.key} className={styles.fieldGroup}>
@@ -751,7 +722,7 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
                 </button>
               </div>
             ) : (
-              <div className={styles.dropzone}>
+              <div className={`${styles.dropzone} ${doc.required && !files[doc.key] ? styles.dropzoneRequired : ''}`}>
                 <div className={styles.dropzoneIcon}>📎</div>
                 <div className={styles.dropzoneLabel}>
                   לחצו לבחירת קובץ
@@ -788,9 +759,15 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
           >
             חזרה
           </button>
-          <button type="button" className={styles.btnPrimary} onClick={goNext}>
-            הבא
-          </button>
+          {hasMissingDocs ? (
+            <button type="button" className={styles.btnDisabled} disabled>
+              יש להעלות את כל מסמכי החובה
+            </button>
+          ) : (
+            <button type="button" className={styles.btnPrimary} onClick={goNext}>
+              הבא
+            </button>
+          )}
         </div>
       </>
     )
@@ -866,6 +843,19 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
 
         {error && <div className={styles.error}>{error}</div>}
 
+        {hasMissingDocs && (
+          <div className={styles.warningBanner}>
+            <strong>חסרים מסמכי חובה:</strong>
+            {missingRequiredDocs.map(d => d.label).join(', ')}
+            <br />
+            <button type="button" className={styles.backToDocsBtn} onClick={() => {
+              setStep(skipTypeStep ? 3 : 4)
+            }}>
+              חזרה למסמכים
+            </button>
+          </div>
+        )}
+
         <div className={styles.buttonRow}>
           <button
             type="button"
@@ -879,15 +869,17 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
 
         <button
           type="button"
-          className={styles.btnSubmit}
+          className={hasMissingDocs ? styles.btnDisabled : styles.btnSubmit}
           onClick={handleSubmit}
-          disabled={submitting}
+          disabled={submitting || hasMissingDocs}
         >
           {submitting ? (
             <>
               <span className={styles.spinner} />
               שולח...
             </>
+          ) : hasMissingDocs ? (
+            'חסרים מסמכים — לא ניתן לשלוח'
           ) : (
             'שלח'
           )}

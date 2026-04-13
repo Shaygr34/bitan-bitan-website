@@ -666,6 +666,59 @@
   margin-top: 0.25rem;
 }
 
+/* ─── Warning banner (amber) ─── */
+.warningBanner {
+  background: #FFFBEB;
+  border: 1px solid #F6C547;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #92400E;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  text-align: right;
+  line-height: 1.6;
+}
+
+.warningBanner strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.dropzoneRequired {
+  border-color: #F6C547 !important;
+  background: #FFFBEB !important;
+}
+
+.btnDisabled {
+  background: #CBD5E0;
+  color: #718096;
+  cursor: not-allowed;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+}
+
+.backToDocsBtn {
+  background: transparent;
+  border: 2px solid #C5A572;
+  color: #C5A572;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.backToDocsBtn:hover {
+  background: rgba(197, 165, 114, 0.1);
+}
+
 /* ─── Mobile responsiveness ─── */
 @media (max-width: 480px) {
   .container {

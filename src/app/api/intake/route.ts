@@ -37,7 +37,6 @@ async function createSummitEntity(fields: {
   birthdate?: string
   businessName?: string
   businessSector?: string
-  estimatedTurnover?: string
   businessAddress?: string
   shareholderDetails?: string
   // Transfer fields
@@ -73,7 +72,6 @@ async function createSummitEntity(fields: {
   if (fields.shareholderDetails) properties['פרטי בעלי מניות'] = fields.shareholderDetails
 
   // New V2 fields
-  if (fields.estimatedTurnover) properties['מחזור שנתי משוער'] = parseInt(fields.estimatedTurnover, 10)
   if (fields.businessAddress) properties.Customers_Address = fields.businessAddress // override with business address if provided
 
   // Auto-set fields
@@ -175,7 +173,6 @@ async function updateSummitEntityFields(entityId: string, fields: Record<string,
   if (fields.zipCode) properties.Customers_ZipCode = fields.zipCode
   if (fields.birthdate) properties.Customers_Birthdate = fields.birthdate.includes('T') ? fields.birthdate : `${fields.birthdate}T00:00:00`
   if (fields.shareholderDetails) properties['פרטי בעלי מניות'] = fields.shareholderDetails
-  if (fields.estimatedTurnover) properties['מחזור שנתי משוער'] = parseInt(fields.estimatedTurnover, 10)
   if (fields.businessAddress) properties.Customers_Address = fields.businessAddress
 
   const textParts: string[] = []
@@ -232,7 +229,6 @@ export async function POST(req: NextRequest) {
     // V2 fields
     const businessName = get('businessName') || undefined
     const businessSector = get('businessSector') || undefined
-    const estimatedTurnover = get('estimatedTurnover') || undefined
     const businessAddress = get('businessAddress') || undefined
     const shareholderDetails = get('shareholderDetails') || undefined
     // Transfer fields
@@ -295,7 +291,7 @@ export async function POST(req: NextRequest) {
       await updateSummitEntityFields(existingSummitId, {
         fullName, companyNumber, phone, email, clientType,
         address, city, zipCode, birthdate, businessName,
-        businessSector, estimatedTurnover, businessAddress,
+        businessSector, businessAddress,
         shareholderDetails, previousCpaName, previousCpaEmail,
         previousCpaSoftware, onboardingPath,
       })
@@ -313,7 +309,6 @@ export async function POST(req: NextRequest) {
       birthdate,
       businessName,
       businessSector,
-      estimatedTurnover,
       businessAddress,
       shareholderDetails,
       previousCpaName,

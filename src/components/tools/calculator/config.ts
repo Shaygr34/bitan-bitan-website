@@ -80,6 +80,8 @@ export const MANUFACTURER_PRICE_CAP_2026 = 596_860 // תקרת שווי רכב �
 export const COMPANY_TAX_RATE = 0.23 // מס חברות 23%
 export const NII_EMPLOYER_RATE_HIGH = 0.076 // ביטוח לאומי מעביד above threshold
 export const NII_SALARY_THRESHOLD = 7703 // מדרגה נמוכה ביטוח לאומי
+export const NII_EMPLOYEE_RATE_LOW = 0.0427  // ביטוח לאומי עובד — מדרגה נמוכה
+export const NII_EMPLOYEE_RATE_HIGH = 0.1217  // ביטוח לאומי עובד — מדרגה גבוהה
 
 // Electric/hybrid שווי מס reductions (monthly)
 export const VEHICLE_TAX_REDUCTIONS: Record<string, number> = {

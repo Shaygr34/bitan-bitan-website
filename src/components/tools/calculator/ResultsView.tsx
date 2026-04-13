@@ -137,8 +137,8 @@ function SingleResult({ result }: { result: CalculationResult }) {
           />
           <MetricCard
             icon={<TrendingDown className="h-4 w-4 text-gold" />}
-            label="חיסכון מס שנתי"
-            value={fmtCurrency(result.totalTaxSavings)}
+            label={result.totalTaxSavings < 0 ? 'עלות מס נוספת (שווי שימוש)' : 'חיסכון מס שנתי'}
+            value={fmtCurrency(Math.abs(result.totalTaxSavings))}
           />
           {result.residualCarValue !== null && (
             <MetricCard
@@ -276,11 +276,24 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
         ...(isCommercial ? [] : [
           { label: 'סה"כ הוצאות לפני התאמה למס', value: fmtCurrency(r.totalExpensesBeforeTax), muted: true },
         ]),
-        { label: 'מע"מ מוכר (שנתי)', value: fmtCurrency(r.vatRecoverable) },
-        { label: 'הוצאות מוכרות לצרכי מס (שנתי)', value: fmtCurrency(r.deductibleExpenses) },
-        { label: 'חיסכון מס הכנסה (שנתי)', value: fmtCurrency(r.annualTaxSavings) },
-        { label: 'חיסכון ביטוח לאומי (שנתי)', value: fmtCurrency(r.niiSavings) },
-        { label: 'סה"כ חיסכון מס (שנתי)', value: fmtCurrency(r.totalTaxSavings), bold: true },
+        // Hide VAT and deductible rows when they're 0 (employee mode)
+        ...(r.vatRecoverable === 0 && r.deductibleExpenses === 0 && r.totalTaxSavings < 0 ? [] : [
+          { label: 'מע"מ מוכר (שנתי)', value: fmtCurrency(r.vatRecoverable) },
+          { label: 'הוצאות מוכרות לצרכי מס (שנתי)', value: fmtCurrency(r.deductibleExpenses) },
+        ]),
+        {
+          label: r.annualTaxSavings < 0 ? 'מס הכנסה נוסף (שווי שימוש)' : 'חיסכון מס הכנסה (שנתי)',
+          value: fmtCurrency(Math.abs(r.annualTaxSavings)),
+        },
+        {
+          label: r.niiSavings < 0 ? 'ביטוח לאומי נוסף (שווי שימוש)' : 'חיסכון ביטוח לאומי (שנתי)',
+          value: fmtCurrency(Math.abs(r.niiSavings)),
+        },
+        {
+          label: r.totalTaxSavings < 0 ? 'סה"כ עלות מס נוספת' : 'סה"כ חיסכון מס (שנתי)',
+          value: fmtCurrency(Math.abs(r.totalTaxSavings)),
+          bold: true,
+        },
       ],
     },
     {

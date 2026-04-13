@@ -104,17 +104,6 @@ export const BUSINESS_SECTORS = [
   'אחר',
 ]
 
-/* ─── Annual Turnover Presets ─── */
-
-export const TURNOVER_PRESETS = [
-  { value: 100_000, label: 'עד 100K' },
-  { value: 300_000, label: '300K' },
-  { value: 500_000, label: '500K' },
-  { value: 1_000_000, label: '1M' },
-  { value: 3_000_000, label: '3M' },
-  { value: 5_000_000, label: '5M+' },
-]
-
 /** Newsletter flags auto-set based on client type */
 export function getNewsletterFlags(clientType: string): Record<string, boolean> {
   const flags: Record<string, boolean> = { 'ניוזלטר כלל משרדי': true }
@@ -143,7 +132,6 @@ export interface IntakeSubmission {
   zipCode?: string
   birthdate?: string
   businessSector?: string
-  estimatedTurnover?: number
   hasEmployees?: boolean
   employeeCount?: number
   shareholderDetails?: string
@@ -170,7 +158,6 @@ export const SUMMIT_FIELD_MAP: Record<string, string> = {
   birthdate: 'Customers_Birthdate',
   businessSector: 'תחום עיסוק', // Entity ref — needs ID lookup
   shareholderDetails: 'פרטי בעלי מניות',
-  estimatedTurnover: 'מחזור שנתי משוער', // Custom field — created by Avi/Ron in Summit
   // Transfer data → stored in Customers_Text (structured text)
   // previousCpaName, previousCpaEmail, previousCpaSoftware → Customers_Text
   // businessName → Customers_FullName for companies, Customers_Text for individuals

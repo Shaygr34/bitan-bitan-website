@@ -30,6 +30,8 @@ import {
   COMPANY_TAX_RATE,
   NII_EMPLOYER_RATE_HIGH,
   NII_SALARY_THRESHOLD,
+  NII_EMPLOYEE_RATE_LOW,
+  NII_EMPLOYEE_RATE_HIGH,
 } from './config'
 
 /* ═══════════════════════════════════════════════
@@ -112,9 +114,9 @@ function extractVat(amountInclVat: number, vatRate: number): number {
 
 function computeCompanyFields(base: BaseInputs) {
   const { userType, vehicleType, monthlyIncome, manufacturerPrice } = base
-  const isCompany = userType === 'company'
+  const isCompanyOrEmployee = userType === 'company' || userType === 'employee'
 
-  if (!isCompany || !manufacturerPrice) {
+  if (!isCompanyOrEmployee || !manufacturerPrice) {
     return { vehicleTaxBenefit: 0, grossIncludingVehicle: monthlyIncome, employerNii: 0 }
   }
 
@@ -175,11 +177,20 @@ export function calculatePurchase(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Company fields
+  // Company/Employee fields
   const companyFields = computeCompanyFields(base)
   const isCompany = base.userType === 'company'
+  const isEmployee = base.userType === 'employee'
 
-  // Tax savings — company uses 23% flat rate, self-employed uses marginal + NII
+  // Override for employee: no VAT recovery, no deductible expenses
+  let finalVatRecoverable = vatRecoverable
+  let finalDeductibleExpenses = deductibleExpenses
+  if (isEmployee) {
+    finalVatRecoverable = 0
+    finalDeductibleExpenses = 0
+  }
+
+  // Tax savings — company uses 23% flat rate, self-employed uses marginal + NII, employee gets negative (cost)
   let annualTaxSavings: number
   let niiSavings: number
   let totalTaxSavings: number
@@ -190,11 +201,19 @@ export function calculatePurchase(
     annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings // NII is a COST for company, not savings
+  } else if (isEmployee) {
+    // Employee: no deductions. שווי מס INCREASES tax burden
+    const marginalRate = getMarginalTaxRate(monthlyIncome)
+    const vehicleTaxAnnual = companyFields.vehicleTaxBenefit * 12
+    annualTaxSavings = -Math.round(vehicleTaxAnnual * marginalRate)
+    const employeeNiiRate = monthlyIncome > NII_SALARY_THRESHOLD ? NII_EMPLOYEE_RATE_HIGH : NII_EMPLOYEE_RATE_LOW
+    niiSavings = -Math.round(vehicleTaxAnnual * employeeNiiRate)
+    totalTaxSavings = annualTaxSavings + niiSavings
   } else {
     const marginalRate = getMarginalTaxRate(monthlyIncome)
-    annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+    annualTaxSavings = Math.round(finalDeductibleExpenses * marginalRate)
     const niiRate = getNiiSavingsRate(monthlyIncome)
-    niiSavings = Math.round(deductibleExpenses * niiRate)
+    niiSavings = Math.round(finalDeductibleExpenses * niiRate)
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
@@ -205,9 +224,13 @@ export function calculatePurchase(
   )
   const totalAnnualExpenses = monthlyCashflow * 12
 
-  // Net-of-VAT display amounts (R18)
-  const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * vatRecoveryRate))
-  const maintenanceYearlyNetVat = Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * vatRecoveryRate))
+  // Net-of-VAT display amounts (R18) — employee sees full price (no VAT recovery)
+  const fuelMonthlyNetVat = isEmployee
+    ? fuelMonthly
+    : Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * vatRecoveryRate))
+  const maintenanceYearlyNetVat = isEmployee
+    ? maintenanceYearly
+    : Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * vatRecoveryRate))
 
   const residualCarValue = getResidualCarValue(carPrice)
 
@@ -229,8 +252,8 @@ export function calculatePurchase(
     totalAnnualExpenses,
     loanYearlyBreakdown: amort.yearlyBreakdown,
     residualPayment: null,
-    vatRecoverable,
-    deductibleExpenses,
+    vatRecoverable: finalVatRecoverable,
+    deductibleExpenses: finalDeductibleExpenses,
     monthlyCashflow,
     residualCarValue,
     annualTaxSavings,
@@ -303,9 +326,18 @@ export function calculateFinancialLeasing(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Company fields
+  // Company/Employee fields
   const companyFields = computeCompanyFields(base)
   const isCompanyMode = base.userType === 'company'
+  const isEmployee = base.userType === 'employee'
+
+  // Override for employee: no VAT recovery, no deductible expenses
+  let finalVatRecoverable = vatRecoverable
+  let finalDeductibleExpenses = deductibleExpenses
+  if (isEmployee) {
+    finalVatRecoverable = 0
+    finalDeductibleExpenses = 0
+  }
 
   // Tax savings
   let annualTaxSavings: number
@@ -317,11 +349,18 @@ export function calculateFinancialLeasing(
     annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings
+  } else if (isEmployee) {
+    const marginalRate = getMarginalTaxRate(monthlyIncome)
+    const vehicleTaxAnnual = companyFields.vehicleTaxBenefit * 12
+    annualTaxSavings = -Math.round(vehicleTaxAnnual * marginalRate)
+    const employeeNiiRate = monthlyIncome > NII_SALARY_THRESHOLD ? NII_EMPLOYEE_RATE_HIGH : NII_EMPLOYEE_RATE_LOW
+    niiSavings = -Math.round(vehicleTaxAnnual * employeeNiiRate)
+    totalTaxSavings = annualTaxSavings + niiSavings
   } else {
     const marginalRate = getMarginalTaxRate(monthlyIncome)
-    annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+    annualTaxSavings = Math.round(finalDeductibleExpenses * marginalRate)
     const niiRate = getNiiSavingsRate(monthlyIncome)
-    niiSavings = Math.round(deductibleExpenses * niiRate)
+    niiSavings = Math.round(finalDeductibleExpenses * niiRate)
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
@@ -331,9 +370,13 @@ export function calculateFinancialLeasing(
   )
   const totalAnnualExpenses = monthlyCashflow * 12
 
-  // Net-of-VAT display amounts (R18)
-  const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * getVatRecoveryRate(vehicleType)))
-  const maintenanceYearlyNetVat = Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * getVatRecoveryRate(vehicleType)))
+  // Net-of-VAT display amounts (R18) — employee sees full price (no VAT recovery)
+  const fuelMonthlyNetVat = isEmployee
+    ? fuelMonthly
+    : Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * getVatRecoveryRate(vehicleType)))
+  const maintenanceYearlyNetVat = isEmployee
+    ? maintenanceYearly
+    : Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * getVatRecoveryRate(vehicleType)))
 
   const residualCarValue = getResidualCarValue(carPrice)
 
@@ -355,8 +398,8 @@ export function calculateFinancialLeasing(
     totalAnnualExpenses,
     loanYearlyBreakdown: amort.yearlyBreakdown,
     residualPayment,
-    vatRecoverable,
-    deductibleExpenses,
+    vatRecoverable: finalVatRecoverable,
+    deductibleExpenses: finalDeductibleExpenses,
     monthlyCashflow,
     residualCarValue,
     annualTaxSavings,
@@ -410,9 +453,18 @@ export function calculateOperationalLeasing(
   const taxMultiplier = getTaxDeductionMultiplier(vehicleType)
   const deductibleExpenses = Math.round(deductibleBase * taxMultiplier)
 
-  // Company fields
+  // Company/Employee fields
   const companyFields = computeCompanyFields(base)
   const isCompanyMode = base.userType === 'company'
+  const isEmployee = base.userType === 'employee'
+
+  // Override for employee: no VAT recovery, no deductible expenses
+  let finalVatRecoverable = vatRecoverable
+  let finalDeductibleExpenses = deductibleExpenses
+  if (isEmployee) {
+    finalVatRecoverable = 0
+    finalDeductibleExpenses = 0
+  }
 
   // Tax savings
   let annualTaxSavings: number
@@ -424,23 +476,32 @@ export function calculateOperationalLeasing(
     annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings
+  } else if (isEmployee) {
+    const marginalRate = getMarginalTaxRate(monthlyIncome)
+    const vehicleTaxAnnual = companyFields.vehicleTaxBenefit * 12
+    annualTaxSavings = -Math.round(vehicleTaxAnnual * marginalRate)
+    const employeeNiiRate = monthlyIncome > NII_SALARY_THRESHOLD ? NII_EMPLOYEE_RATE_HIGH : NII_EMPLOYEE_RATE_LOW
+    niiSavings = -Math.round(vehicleTaxAnnual * employeeNiiRate)
+    totalTaxSavings = annualTaxSavings + niiSavings
   } else {
     const marginalRate = getMarginalTaxRate(monthlyIncome)
-    annualTaxSavings = Math.round(deductibleExpenses * marginalRate)
+    annualTaxSavings = Math.round(finalDeductibleExpenses * marginalRate)
     const niiRate = getNiiSavingsRate(monthlyIncome)
-    niiSavings = Math.round(deductibleExpenses * niiRate)
+    niiSavings = Math.round(finalDeductibleExpenses * niiRate)
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
   // Total annual expenses
-  const totalAnnualExpenses = Math.round(annualLeasing + annualFuel - vatRecoverable
+  const totalAnnualExpenses = Math.round(annualLeasing + annualFuel - finalVatRecoverable
     + (isCompanyMode ? companyFields.employerNii : 0))
 
   // Monthly cashflow
   const monthlyCashflow = Math.round(monthlyLeasingPayment + fuelMonthly)
 
-  // Net-of-VAT (R18)
-  const fuelMonthlyNetVat = Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * vatRecoveryRate))
+  // Net-of-VAT (R18) — employee sees full price (no VAT recovery)
+  const fuelMonthlyNetVat = isEmployee
+    ? fuelMonthly
+    : Math.round(fuelMonthly - (extractVat(fuelMonthly, config.vatRate) * vatRecoveryRate))
 
   return {
     optionType: 'operationalLeasing',
@@ -458,8 +519,8 @@ export function calculateOperationalLeasing(
     totalAnnualExpenses,
     loanYearlyBreakdown: [],
     residualPayment: null,
-    vatRecoverable,
-    deductibleExpenses,
+    vatRecoverable: finalVatRecoverable,
+    deductibleExpenses: finalDeductibleExpenses,
     monthlyCashflow,
     residualCarValue: null,
     annualTaxSavings,

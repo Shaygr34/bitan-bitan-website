@@ -69,7 +69,7 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         options={[
           { value: 'selfEmployed', label: 'עצמאי' },
           { value: 'company', label: 'חברה בע"מ' },
-          { value: 'employee', label: 'שכיר', disabled: true, badge: 'בקרוב' },
+          { value: 'employee', label: 'שכיר' },
         ]}
         value={values.userType || null}
         onChange={(v) => onChange({ userType: v as UserType })}
@@ -180,9 +180,11 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
 
       {/* Monthly Income — label changes for company */}
       <SliderInput
-        label={values.userType === 'company' ? 'שכר ברוטו של העובד שמשתמש ברכב' : 'הכנסה חודשית ברוטו'}
+        label={values.userType === 'company' ? 'שכר ברוטו של העובד שמשתמש ברכב' : values.userType === 'employee' ? 'שכר ברוטו חודשי' : 'הכנסה חודשית ברוטו'}
         subtitle={values.userType === 'company'
           ? 'שכר העובד שעבורו מיועד הרכב'
+          : values.userType === 'employee'
+          ? 'השכר ברוטו שלכם — לצורך חישוב השפעת שווי מס רכב'
           : 'הכנסות בניכוי הוצאות, כולל שכ״ע — לצורך חישוב חיסכון מס'}
         min={5000}
         max={60000}
@@ -200,7 +202,7 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
       />
 
       {/* Manufacturer Price — company only */}
-      {values.userType === 'company' && (
+      {(values.userType === 'company' || values.userType === 'employee') && (
         <SliderInput
           label="שווי רכב חדש מהיצרן"
           subtitle="לצורך חישוב שווי מס רכב — מחירון היצרן, לא מחיר הרכישה"
