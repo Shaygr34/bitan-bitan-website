@@ -38,7 +38,7 @@ export default async function ToolPage({ params }: Props) {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-primary py-space-9 px-6">
+      <section className="bg-primary py-space-9 px-6 print:hidden">
         <div className="max-w-content mx-auto hero-animate">
           <div className="mb-space-4 [&_a]:text-white/60 [&_a:hover]:text-white [&_span]:text-white/80 [&_svg]:text-white/40">
             <Breadcrumb items={[{ label: 'כלים', href: '/tools' }, { label: tool.title }]} />
@@ -61,7 +61,7 @@ export default async function ToolPage({ params }: Props) {
 
       {/* SEO Content */}
       {tool.introBody && tool.introBody.length > 0 && (
-        <section className="bg-surface py-space-9 px-6">
+        <section className="bg-surface py-space-9 px-6 print:hidden">
           <div className="max-w-narrow mx-auto prose prose-lg max-w-none text-text-secondary leading-relaxed space-y-4 [&_h2]:text-h3 [&_h2]:font-bold [&_h2]:text-primary [&_h2]:mt-space-8 [&_h2]:mb-space-4 [&_h3]:text-h4 [&_h3]:font-semibold [&_h3]:text-primary [&_h3]:mt-space-6 [&_h3]:mb-space-3 [&_ul]:space-y-2 [&_ul]:ps-5 [&_li]:text-body [&_strong]:text-primary [&_a]:text-gold [&_a]:hover:text-gold-hover [&_blockquote]:border-s-4 [&_blockquote]:border-gold [&_blockquote]:ps-space-4 [&_blockquote]:italic [&_blockquote]:text-text-muted">
             <PortableText
               value={tool.introBody}
@@ -101,7 +101,7 @@ export default async function ToolPage({ params }: Props) {
 
       {/* Disclaimer */}
       {tool.disclaimer && (
-        <section className="px-6 pb-space-9">
+        <section className="px-6 pb-space-9 print:hidden">
           <div className="max-w-narrow mx-auto">
             <div className="flex items-start gap-3 bg-surface rounded-lg p-space-4">
               <AlertTriangle className="h-5 w-5 text-text-muted shrink-0 mt-0.5" />

@@ -62,18 +62,37 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
         <SingleResult result={primary} />
       )}
 
-      {/* CTA Section */}
-      <div className="mt-space-8 text-center">
-        {!hasComparison && (
-          <button
-            type="button"
-            onClick={onCompare}
-            className="mb-space-4 rounded-xl border-2 border-gold px-6 py-3 text-body font-bold text-gold hover:bg-gold/5 cursor-pointer transition-all duration-base block mx-auto"
-          >
-            השווה מול אפשרות נוספת
-          </button>
-        )}
+      {/* Action buttons — compare + restart + print + share */}
+      <div className="flex flex-wrap justify-center gap-3 mt-space-6 mb-space-6 no-print">
+        <button
+          type="button"
+          onClick={onCompare}
+          className="rounded-xl border-2 border-gold px-5 py-2.5 text-body font-bold text-gold hover:bg-gold/5 cursor-pointer transition-all"
+        >
+          {hasComparison ? 'השווה אפשרות אחרת' : 'השווה מול אפשרות נוספת'}
+        </button>
+        <button
+          type="button"
+          onClick={onRestart}
+          className="rounded-xl border-2 border-border px-5 py-2.5 text-body font-medium text-primary hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1"
+        >
+          <ArrowRight className="h-4 w-4" />
+          התחל מחדש
+        </button>
+        <button type="button" onClick={handlePrint}
+          className="rounded-xl border-2 border-border px-4 py-2.5 text-body-sm font-medium text-text-muted hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1">
+          <Printer className="h-4 w-4" />
+          הדפסה / PDF
+        </button>
+        <button type="button" onClick={handleShare}
+          className="rounded-xl border-2 border-border px-4 py-2.5 text-body-sm font-medium text-text-muted hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1">
+          <Share2 className="h-4 w-4" />
+          שיתוף
+        </button>
+      </div>
 
+      {/* CTA Section */}
+      <div className="mt-space-5 text-center no-print">
         <h3 className="text-h3 font-bold text-primary mb-space-3">
           רוצים חישוב מדויק?
         </h3>
@@ -85,44 +104,6 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
           <PhoneCTA label="חייגו אלינו" variant="secondary" location="leasing-calculator" />
         </div>
 
-        <div className="flex flex-wrap justify-center gap-3 mt-space-5">
-          {!hasComparison && (
-            <button
-              type="button"
-              onClick={onCompare}
-              className="rounded-xl border-2 border-gold px-5 py-2.5 text-body font-bold text-gold hover:bg-gold/5 cursor-pointer transition-all"
-            >
-              השווה מול אפשרות נוספת
-            </button>
-          )}
-          {hasComparison && (
-            <button
-              type="button"
-              onClick={onCompare}
-              className="rounded-xl border-2 border-gold px-5 py-2.5 text-body font-bold text-gold hover:bg-gold/5 cursor-pointer transition-all"
-            >
-              השווה אפשרות אחרת
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={onRestart}
-            className="rounded-xl border-2 border-border px-5 py-2.5 text-body font-medium text-primary hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1"
-          >
-            <ArrowRight className="h-4 w-4" />
-            התחל מחדש
-          </button>
-          <button type="button" onClick={handlePrint}
-            className="rounded-xl border-2 border-border px-4 py-2.5 text-body-sm font-medium text-text-muted hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1">
-            <Printer className="h-4 w-4" />
-            הדפסה / PDF
-          </button>
-          <button type="button" onClick={handleShare}
-            className="rounded-xl border-2 border-border px-4 py-2.5 text-body-sm font-medium text-text-muted hover:bg-surface cursor-pointer transition-all inline-flex items-center gap-1">
-            <Share2 className="h-4 w-4" />
-            שיתוף
-          </button>
-        </div>
       </div>
 
       {/* Print CSS */}

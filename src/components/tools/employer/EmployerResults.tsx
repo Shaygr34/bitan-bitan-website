@@ -160,49 +160,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
         )}
       </div>
 
-      {/* שווי מס Breakdown — only if has שווי מס */}
-      {hasShvuiMas && (
-        <div className="bg-white rounded-2xl border border-border shadow-md overflow-hidden mb-space-5">
-          <div className="bg-gold/10 px-space-5 py-space-3">
-            <h3 className="text-body-lg font-bold text-primary">פירוט שווי מס</h3>
-          </div>
-          <div className="p-space-4">
-            {emp.vehicleTaxBenefit > 0 && (
-              <div className="flex justify-between py-2 px-2 text-body-sm border-b border-border-light">
-                <span className="text-text-muted">שווי רכב</span>
-                <span className="text-text-secondary font-medium">{fmt(emp.vehicleTaxBenefit)} ₪</span>
-              </div>
-            )}
-            {emp.mealBenefit > 0 && (
-              <div className="flex justify-between py-2 px-2 text-body-sm border-b border-border-light bg-surface/30">
-                <span className="text-text-muted">שווי ארוחות</span>
-                <span className="text-text-secondary font-medium">{fmt(emp.mealBenefit)} ₪</span>
-              </div>
-            )}
-            {emp.otherBenefit > 0 && (
-              <div className="flex justify-between py-2 px-2 text-body-sm border-b border-border-light">
-                <span className="text-text-muted">שווי מס נוסף</span>
-                <span className="text-text-secondary font-medium">{fmt(emp.otherBenefit)} ₪</span>
-              </div>
-            )}
-            <div className="flex justify-between py-2 px-2 text-body-sm font-bold">
-              <span className="text-primary">סה&quot;כ שווי מס</span>
-              <span className="text-primary">{fmt(emp.totalShvuiMas)} ₪</span>
-            </div>
-
-            <div className="mt-space-3 grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-gold bg-gold/5 p-space-3 text-center">
-                <span className="text-caption text-text-muted block mb-1">שכר נטו <strong>כולל</strong> שווי מס</span>
-                <span className="text-body-lg font-bold text-gold block">{fmt(emp.netWithShvui)} ₪</span>
-              </div>
-              <div className="rounded-lg border border-border p-space-3 text-center">
-                <span className="text-caption text-text-muted block mb-1">שכר נטו <strong>ללא</strong> שווי מס</span>
-                <span className="text-body-lg font-bold text-primary block">{fmt(emp.netWithoutShvui)} ₪</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* שווי מס section removed per Ron — net cards already in top metrics */}
 
       {/* Employee Breakdown */}
       <div className="bg-white rounded-2xl border border-border shadow-md overflow-hidden mb-space-5">
@@ -354,29 +312,46 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
       {/* Print CSS — compact one-pager */}
       <style jsx global>{`
         @media print {
-          nav, footer, .no-print { display: none !important; }
+          /* Hide everything except results */
+          nav, footer, header, .no-print,
+          [class*="introBody"], [class*="disclaimer"],
+          [class*="WhatsApp"], [class*="whatsapp"] { display: none !important; }
           .print-only { display: block !important; }
+
+          /* The tool page wrapper often has large padding/margins — kill them */
+          main, article, section { padding: 0 !important; }
           .print-area {
             max-width: 100% !important;
             padding: 0 !important;
             margin: 0 !important;
           }
-          body { font-size: 10px !important; line-height: 1.3 !important; }
-          * { break-inside: avoid; }
-          h2, h3, h4 { font-size: 13px !important; margin-bottom: 4px !important; }
-          .text-h3 { font-size: 16px !important; }
-          .text-body-lg { font-size: 12px !important; }
-          .text-body, .text-body-sm { font-size: 10px !important; }
-          .text-caption { font-size: 8px !important; }
-          .mb-space-5, .mb-space-6 { margin-bottom: 8px !important; }
-          .mb-space-3, .mb-space-2 { margin-bottom: 4px !important; }
-          .p-space-4, .p-space-3 { padding: 6px !important; }
-          .p-space-5 { padding: 8px !important; }
-          .py-2 { padding-top: 2px !important; padding-bottom: 2px !important; }
-          .gap-3 { gap: 4px !important; }
-          .rounded-2xl, .rounded-xl { border-radius: 6px !important; }
+
+          /* Hide the Sanity tool page header (title + intro above results) */
+          .print-area ~ *, .print-area + * { display: none !important; }
+
+          /* Compact typography */
+          body { font-size: 10px !important; line-height: 1.3 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          h2, h3, h4 { font-size: 12px !important; margin-bottom: 2px !important; }
+          .text-h3 { font-size: 14px !important; }
+          .text-body-lg { font-size: 11px !important; }
+          .text-body, .text-body-sm { font-size: 9px !important; }
+          .text-caption { font-size: 7.5px !important; }
+
+          /* Tight spacing */
+          .mb-space-5, .mb-space-6, .mb-space-7, .mb-space-8 { margin-bottom: 6px !important; }
+          .mb-space-3, .mb-space-2 { margin-bottom: 3px !important; }
+          .p-space-4, .p-space-3, .p-space-5 { padding: 4px 6px !important; }
+          .py-2 { padding-top: 1px !important; padding-bottom: 1px !important; }
+          .gap-3 { gap: 3px !important; }
+          .mt-space-8, .mt-space-7, .mt-space-5 { margin-top: 6px !important; }
+
+          /* Visual cleanup */
+          .rounded-2xl, .rounded-xl { border-radius: 4px !important; }
           .shadow-md { box-shadow: none !important; }
           .grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
+
+          /* Force page to start immediately */
+          @page { margin: 10mm; }
         }
       `}</style>
     </div>
