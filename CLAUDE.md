@@ -9,7 +9,7 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V3.8 — March 24, 2026)
+## Current State (V5.0 — April 13, 2026)
 
 ### Content
 - ~72 articles in Sanity — ALL with AI-generated images (100% coverage)
@@ -27,19 +27,40 @@ CMS: Sanity project ul4uwnp7, dataset production
 - Client logo conveyor belt — hidden when no real logos exist (returns null), real logos pending
 - Newsletter signup collecting to Sanity (compact on /knowledge, full on /knowledge/[slug]), defaults to all categories selected
 
-### Tools / Mini-Apps (V3.8 — NEW)
-- **`/tools` section**: New nav item "כלים", listing page, detail page with dynamic component mapping
-- **Leasing Simulator** (`/tools/leasing-simulator`): 5-step guided questionnaire → recommendation (ליסינג תפעולי / מימוני / רכישה)
-  - Scoring engine: 5-axis weighted model (businessType, period, priority, priceRange, downPayment)
-  - Cost estimates: monthly + total for all 3 options, tax notes per business type
-  - Price ranges calibrated to Israeli market 2026 (130K-400K+ segments, rates from market research)
-  - Pyramid layout for odd-numbered option sets, unified comparison table
-  - 100% client-side (`"use client"`) — no API calls, instant calculation
-  - CMS-editable via `configJson` field on tool document (rates, thresholds, interest rate)
-  - SEO content area below tool via `introBody` Portable Text
-- **Sanity schema**: `tool` type with toolType (maps to React component), configJson (JSON blob for rates), introBody, disclaimer, SEO
-- **Planned tools**: מענקי שאגת הארי simulator, מחשבון עלות מעסיק
-- **Architecture**: SSR page shell (metadata, SEO) + client component per tool type. Tool selection via `toolType` field → component map in `[slug]/page.tsx`
+### Tools / Mini-Apps (V5.0)
+- **Architecture**: SSR page shell (metadata, SEO) + `"use client"` component per toolType. Adding new tool = logic file + React component + Sanity doc. No route/schema changes needed.
+- **Sanity schema**: `tool` type with toolType (maps to React component), configJson (JSON blob for rates), primeRate, vatRate, introBody, disclaimer, SEO
+- **Leasing Calculator V2** (`/tools/leasing-calculator`): Real loan amortization, Israeli tax rules (VAT 67%/100%, deductions 45%/100%, marginal tax brackets). Slider-based UX. 3 options × 4 vehicle types. Comparison with "מה עדיף?" verdict. Code: `src/components/tools/calculator/`.
+  - **שכיר path** (April 13): Employee mode enabled. Zero VAT/deductions, negative tax savings showing שווי שימוש cost. Employee NII rates (4.27%/12.17%) in config.
+  - **חברה בע"מ mode**: Company tax 23%, שווי מס רכב, NII employer on שווי מס.
+- **Employer Cost Calculator V2** (`/tools/employer-cost`): Full Israeli payroll engine (April 13). Code: `src/components/tools/employer/`.
+  - Ron's 11-item feedback implemented: `docs/ron-employer-calc-feedback-2026-04-12.md`
+  - שווי מס generalized: vehicle + ארוחות + שווי מס נוסף (3 conditional toggles)
+  - נסיעות field (default 315), pension credit salary (editable 9700)
+  - Employee pension credit: min(salary, 9700) × 7% × 35% = max 237.58/mo
+  - נטול יכולת (disabled children): 2 credit points/child
+  - Military/national service credits with gender-aware thresholds
+  - Dual calculation: with/without all שווי מס, dual net + dual employer cost
+  - Comparison feature (two salary scenarios side-by-side)
+  - Print/PDF with watermark disclaimer "נתוני שכר להמחשה בלבד"
+  - QA audit done: 7 issues fixed (age sentinel, comparison state, service defaults, etc.)
+- **Planned tools**: סימולטור מענקי שאגת הארי (research done: `docs/superpowers/research/`)
+
+### Client Onboarding (V3 — April 13, 2026)
+- **Phase A** (website intake form): 4 paths (new/transfer × individual/company), business step, transfer CPA fields, doc validation, birthdate dropdowns
+- **localStorage persistence**: Auto-saves form state keyed by `intake_draft_{token}`. Debounced 300ms. `isFirstSaveRender` ref skips mount to prevent race condition. Welcome-back banner on restore. Files cannot persist (browser security).
+- **Soft docs validation**: Amber warnings on docs step (not hard block). Inline confirmation on submit when docs missing. Progress bar amber badge. Client can submit without all docs.
+- **Summit error surfacing**: `createSummitEntity` returns `{ entityId, error }`. Token status `summit_failed` with `summitError` field stored when entity creation fails. OS dashboard shows red error box.
+- **Sanity schemas**: `clientDocument` (structured file index per client — replaces הערות URL dump), `intakeToken` with `mode` field (new/update) and `summitError` field.
+
+### Data Completion System (V3 — April 13, 2026)
+- **Purpose**: Mass CRM data completion for ~960 existing clients (0% document uploads, 4% birthdate)
+- **OS dashboard**: "השלמת נתונים" tab on /onboarding page (bitan-bitan-os)
+- **Summit bulk parser**: Fetches all clients, computes completion % per field
+- **Background scan**: `?scan=start` triggers async fetch, dashboard polls every 15s
+- **Rate limiting**: 500ms/call, 50-batch with 10s pause, 65s backoff on 403, in-memory cache 1h TTL
+- **Generate update links**: Pre-fills form with Summit data, creates `mode: 'update'` intakeToken
+- **Summit API limitation**: Cannot upload files to File-type fields (JSON-only). Files stored in Sanity CDN with structured `clientDocument` index. Feature request sent to Summit April 2026.
 
 ### Schema Changes (V3.8)
 - **`tool` document type**: title, slug, toolType, configJson, introBody, disclaimer, SEO fields
@@ -173,6 +194,14 @@ article (with downloadableFile/contentType incl. form/categories[]/authors[]/bod
 - src/components/tools/SimulatorResult.tsx — Recommendation card + comparison table + CTA
 - src/components/tools/leasing-logic.ts — Pure scoring engine + cost estimates (no React)
 - src/sanity/schemas/tool.ts — Tool document schema
+- src/sanity/schemas/clientDocument.ts — Structured file index per Summit client
+- src/sanity/schemas/intakeToken.ts — Intake token with mode (new/update) + summitError
+- src/components/tools/calculator/ — Leasing calculator (engine, types, config, StepBase, ResultsView, SliderInput, InputGroup)
+- src/components/tools/employer/ — Employer cost calculator (engine, types, config, EmployerCalculator, EmployerResults)
+- src/app/intake/[token]/IntakeForm.tsx — Client intake form (localStorage persistence, soft docs validation)
+- src/app/intake/[token]/intake.module.css — Intake form styles (welcomeBanner, warningBanner, confirmPanel, stepBadge)
+- src/app/api/intake/route.ts — Intake submission (Summit entity create/update, file upload to Sanity CDN, error surfacing)
+- docs/ron-employer-calc-feedback-2026-04-12.md — Ron's 11-item employer calc feedback (with screenshots)
 - scripts/migrate-checklist.mjs — Checklist string→block migration
 
 ## Env Vars (Railway)
@@ -181,8 +210,8 @@ Set: NEXT_PUBLIC_SITE_URL = https://bitancpa.com (must include protocol)
 Set: NEXT_PUBLIC_GOOGLE_MAPS_KEY
 Set: SANITY_REVALIDATE_SECRET (must match Sanity webhook)
 Set: NEXT_PUBLIC_GA4_ID
-NOT SET: RESEND_API_KEY (contact form email doesn't send)
-NOT SET: CONTACT_EMAIL_TO
+Set: RESEND_API_KEY (contact form email — set April 13, 2026)
+Set: CONTACT_EMAIL_TO = office@bitancpa.com (set April 13, 2026)
 Note: API routes use `process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_API_TOKEN` for local/prod compat
 Note: GOOGLE_AI_API_KEY set via env var when running image scripts, not stored in .env.local
 
@@ -196,7 +225,6 @@ Note: GOOGLE_AI_API_KEY set via env var when running image scripts, not stored i
 - [ ] First newsletter send
 
 ## Known Issues
-- Contact form email doesn't send (Resend env vars missing)
 - Partner photos are placeholder silhouettes (pending from founders to identify IMG numbers)
 - Client logos hidden (section returns null until real logos added)
 - Team member photos: 10/10 uploaded (AI-generated grey gradient headshots via Gemini)
@@ -206,6 +234,21 @@ Note: GOOGLE_AI_API_KEY set via env var when running image scripts, not stored i
 ## Not In Scope
 No client login · No payments · No i18n
 Content Factory is a SEPARATE repo (apps/os-hub) — not this project
+
+## Key Gotchas (discovered in production)
+- **React useEffect race condition** (IntakeForm): Auto-save effect on mount captures EMPTY_FORM in closure before restore populates state. Fix: `isFirstSaveRender` ref skips first save invocation.
+- **SliderInput node positioning**: Absolute positioning clusters nodes at low values when presets are unevenly distributed. Fix: flexbox `justify-between`.
+- **Summit API cannot upload files**: JSON-only, no multipart/form-data. Files → Sanity CDN, structured index in `clientDocument` schema.
+- **Summit entity references**: Fields like סוג לקוח and מנהל תיק return entity IDs, not labels. Must map via lookup constants.
+- **Employee vs self-employed pension credit**: Employee = min(salary, 9700) × 7% × 35%. Self-employed = avgSalary × 5% × 35%. DIFFERENT formulas — reason the employer calc is a separate tool.
+- **Children age sentinel (-1)**: Using -1 as "empty" in childrenAges array causes silent credit point miscalculation. Clean to 0 at calculation boundary.
+- **Zsh glob escaping**: File paths with `[brackets]` must be quoted in git/shell commands.
+
+## Session History (archived — see git log for details)
+- March 22, 2026: Economics report, analytics report, GA4/GSC API access, cost structure
+- March 24, 2026: Sprint fixes, tools section V1, leasing simulator
+- April 5-11, 2026: Calculator V2 + company mode, employer calc V1, onboarding V2 (3 phases), Summit MCP v2.3.0
+- April 13, 2026: שכיר calc path, employer calc V2 (Ron's 11 items + QA), onboarding persistence + soft docs, Summit error surfacing, data completion dashboard, contact form email fix
 
 ## Session: March 22, 2026 — Economics + Analytics + Infrastructure Separation
 
