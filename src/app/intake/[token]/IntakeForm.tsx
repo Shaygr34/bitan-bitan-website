@@ -135,10 +135,9 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
   // localStorage: restore draft on mount
   // -------------------------------------------------------------------------
   const storageKey = `intake_draft_${token}`
-  const draftRestored = useRef(false)
 
   useEffect(() => {
-    if (previousData || draftRestored.current) return
+    if (previousData) return
     try {
       const raw = localStorage.getItem(storageKey)
       if (!raw) return
@@ -152,7 +151,6 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       if (draft.clientType) setClientType(draft.clientType)
       if (draft.step) setStep(draft.step)
       setShowWelcome(true)
-      draftRestored.current = true
     } catch {
       // localStorage unavailable or corrupted — ignore
     }
@@ -160,10 +158,18 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
 
   // -------------------------------------------------------------------------
   // localStorage: auto-save on every change (debounced 300ms)
+  // Skips mount render to avoid overwriting localStorage with EMPTY_FORM
+  // before the restore effect's setFormData has triggered a re-render.
   // -------------------------------------------------------------------------
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isFirstSaveRender = useRef(true)
 
   useEffect(() => {
+    // Skip the first invocation (mount) — restore effect needs to populate state first
+    if (isFirstSaveRender.current) {
+      isFirstSaveRender.current = false
+      return
+    }
     if (submitted) return
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => {
