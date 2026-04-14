@@ -6,10 +6,6 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
-  WhatsAppCTA,
-  PhoneCTA,
-  Accordion,
-  AccordionItem,
   RevealSection,
   RevealGroup,
   RevealItem,
@@ -156,36 +152,6 @@ export default async function ServicesPage() {
         </div>
       </RevealSection>
 
-      {/* Process */}
-      <RevealSection className="bg-surface py-space-9 px-6">
-        <div className="max-w-content mx-auto">
-          <SectionHeader centered subtitle="תהליך פשוט ושקוף — מהפנייה הראשונה ועד שירות שוטף.">
-            איך מתחילים?
-          </SectionHeader>
-
-          <div className="max-w-narrow mx-auto mt-space-8">
-            <Accordion>
-              <AccordionItem title="1. פנייה ראשונית" defaultOpen>
-                צרו קשר בטלפון, בוואטסאפ או דרך האתר. נקבע פגישת היכרות בהתאם
-                לזמינות שלכם — אפשר גם בווידאו.
-              </AccordionItem>
-              <AccordionItem title="2. פגישת היכרות (ללא עלות)">
-                נכיר את העסק, נבין את הצרכים ונציג את השירותים הרלוונטיים. נענה
-                על כל שאלה ונציג הצעת מחיר שקופה.
-              </AccordionItem>
-              <AccordionItem title="3. התחלת עבודה">
-                לאחר אישור, נתחיל בתהליך קליטה מסודר — העברת מסמכים, הגדרת
-                גישות למערכות, ותיאום ציפיות.
-              </AccordionItem>
-              <AccordionItem title="4. שירות שוטף וליווי">
-                מענה מהיר, דיווחים בזמן, עדכונים יזומים על שינויים ברגולציה,
-                ותמיכה מתמשכת לאורך כל הדרך.
-              </AccordionItem>
-            </Accordion>
-          </div>
-        </div>
-      </RevealSection>
-
       {/* Trust Module */}
       <TrustModule showProcess={false} showCTA={false} />
 
@@ -193,20 +159,19 @@ export default async function ServicesPage() {
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto text-center">
           <h2 className="text-white text-h2 font-bold">
-            צריכים שירות מקצועי?
+            לפרטים נוספים
           </h2>
           <span className="gold-underline mt-3 mx-auto" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto">
-            נשמח לשמוע על העסק שלכם ולהתאים חבילת שירות מותאמת.
+            נשמח להכיר את העסק שלכם ולבחון כיצד נוכל לסייע.
           </p>
           <div className="flex flex-wrap justify-center gap-4 mt-space-7">
-            <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="lg" />
-            <PhoneCTA
-              label="חייגו אלינו"
-              variant="secondary"
-              size="lg"
-              className="border-white text-white hover:bg-white/10 hover:text-white"
-            />
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+            >
+              פנו למשרד
+            </a>
           </div>
         </div>
       </section>

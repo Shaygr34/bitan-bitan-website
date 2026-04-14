@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { getServiceBySlug, getServiceSlugs } from '@/sanity/queries'
 import { urlFor } from '@/sanity/image'
-import { WhatsAppCTA, PhoneCTA, SectionHeader } from '@/components/ui'
+import { SectionHeader } from '@/components/ui'
 import { Breadcrumb } from '@/components/Breadcrumb'
 
 export const revalidate = 300
@@ -177,22 +177,23 @@ export default async function ServiceDetailPage({ params }: Props) {
         <div className="max-w-content mx-auto text-center">
           <SectionHeader
             centered
-            subtitle={`מעוניינים בשירותי ${service.title}? נשמח לשמוע מכם.`}
+            subtitle={`מעוניינים בשירותי ${service.title}?`}
           >
-            <span className="text-white">בואו נדבר</span>
+            <span className="text-white">לתיאום פגישה</span>
           </SectionHeader>
           <div className="flex flex-wrap justify-center gap-4 mt-space-7">
-            <WhatsAppCTA
-              label="שלחו הודעה בוואטסאפ"
-              size="lg"
-              message={`היי, אשמח לשמוע על שירותי ${service.title}`}
-            />
-            <PhoneCTA
-              label="חייגו אלינו"
-              variant="secondary"
-              size="lg"
-              className="border-white text-white hover:bg-white/10 hover:text-white"
-            />
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+            >
+              פנו למשרד
+            </a>
+            <a
+              href="tel:+97235174295"
+              className="inline-flex items-center gap-2 px-8 py-3 border border-white/40 text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+            >
+              03-5174295
+            </a>
           </div>
         </div>
       </section>

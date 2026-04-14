@@ -5,8 +5,6 @@ import {
   SectionHeader,
   Card,
   CardBody,
-  WhatsAppCTA,
-  PhoneCTA,
   RevealSection,
   RevealGroup,
   RevealItem,
@@ -296,21 +294,26 @@ export default async function AboutPage() {
           )}
 
           <h2 className="text-white text-h2 font-bold">
-            {page?.ctaHeadline ?? 'רוצים להכיר אותנו?'}
+            {page?.ctaHeadline ?? 'לתיאום פגישה'}
           </h2>
           <span className="gold-underline mt-3 mx-auto" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto">
             {page?.ctaSubtitle ??
-              'נשמח לשבת איתכם לפגישת היכרות ללא עלות ולהבין איך נוכל לעזור.'}
+              'נשמח להכיר את העסק שלכם.'}
           </p>
           <div className="flex flex-wrap justify-center gap-4 mt-space-7">
-            <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="lg" />
-            <PhoneCTA
-              label="חייגו אלינו"
-              variant="secondary"
-              size="lg"
-              className="border-white text-white hover:bg-white/10 hover:text-white"
-            />
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+            >
+              פנו אלינו
+            </a>
+            <a
+              href="tel:+97235174295"
+              className="inline-flex items-center gap-2 px-8 py-3 border border-white/40 text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+            >
+              03-5174295
+            </a>
           </div>
         </div>
       </section>
@@ -440,14 +443,14 @@ const FALLBACK_DIFFERENTIATORS = [
     _key: 'd2',
     title: 'יחס אישי',
     description:
-      'אנחנו מכירים כל לקוח בשם. תמיד תדברו ישירות עם רואה חשבון, לא עם מזכירה.',
+      'מענה ישיר מצוות המשרד — היכרות אישית עם כל לקוח ולקוחה.',
     icon: 'users',
   },
   {
     _key: 'd3',
     title: 'מענה מהיר',
     description:
-      'זמינות גבוהה וחזרה מהירה — כי אנחנו יודעים שזמן שלכם שווה כסף.',
+      'זמינות ומענה מקצועי — מחויבות לשירות ברמה הגבוהה ביותר.',
     icon: 'headphones',
   },
   {
