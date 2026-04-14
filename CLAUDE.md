@@ -33,11 +33,11 @@ CMS: Sanity project ul4uwnp7, dataset production
 - **Leasing Calculator V3** (`/tools/leasing-simulator`): Real loan amortization, Israeli tax rules (VAT 67%/100%, deductions 45%/100%, marginal tax brackets). Slider-based UX. 3 options × 4 vehicle types. Comparison with "מה עדיף?" verdict. Code: `src/components/tools/calculator/`.
   - **שכיר path** (April 13): Employee mode enabled. Zero VAT/deductions, negative tax savings showing שווי שימוש cost. Employee NII rates (4.27%/12.17%) in config.
   - **חברה בע"מ mode**: Company tax 23%, שווי מס רכב, NII employer on שווי מס.
-  - **Ron feedback session (April 14)**: 6 commits, 2 feedback rounds:
+  - **Ron feedback session (April 14)**: 9 commits, 3 feedback rounds:
     - Income subtitle reworded (self-employed: "רווח מעסק חודשי...")
     - Purchase interest: dual display — gold shows P+X%, gray shows effective %
     - Financial leasing restructured: monthly payment slider (₪500-₪10K) replaces interest rate slider. IRR solver (Newton-Raphson) back-calculates effective rate from cash flows.
-    - Smart default monthly payment: computed from car price at ~6% rate (150K→1,800, 300K→3,600)
+    - Smart default monthly payment: computed from car price at ~7.5% rate (150K→1,900, 300K→3,800)
     - Rate warning: red text when computed rate >15%, hidden when >50%
     - Trade-in slider: dynamic cap + dynamic step size + message when max=0
     - Comparison: goes back to Step 1 (base) so user can change car price/income
@@ -45,6 +45,12 @@ CMS: Sanity project ul4uwnp7, dataset production
     - PDF print: break-inside:avoid prevents mid-card page breaks
     - **Tax engine upgraded**: bracket-by-bracket tax savings (not single marginal rate). 2026 expanded brackets: 20% ceiling ₪228,000 (was ₪193,800), 31% ceiling ₪301,200 (was ₪269,280). Verified against Ron's XLSX — numbers match within rounding.
     - CTA section updated: "לחישוב מדויק" + contact link + phone (removed WhatsApp/Phone components)
+    - Total expenses before tax: now net of VAT recovery (matches Ron's XLSX)
+    - Period-dependent residual value (87% annual retention, was fixed 50%)
+    - Results: "סכום ליסינג חודשי" metric card + "עלות רכב חדש" row
+    - IRR warning when payment too low for period + suggested minimum
+    - Share: clipboard-only on desktop (fixes email freeze)
+    - **Deferred**: share URL for comparison mode (needs dual-result encoding)
 - **Employer Cost Calculator V2** (`/tools/employer-cost`): Full Israeli payroll engine (April 13). Code: `src/components/tools/employer/`.
   - Ron's 11-item feedback implemented: `docs/ron-employer-calc-feedback-2026-04-12.md`
   - שווי מס generalized: vehicle + ארוחות + שווי מס נוסף (3 conditional toggles)
