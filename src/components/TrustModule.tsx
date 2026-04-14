@@ -2,8 +2,6 @@
 
 import {
   SectionHeader,
-  WhatsAppCTA,
-  PhoneCTA,
   RevealSection,
   RevealGroup,
   RevealItem,
@@ -68,8 +66,8 @@ const PROMISES = [
   },
   {
     icon: HeartHandshake,
-    title: 'ללא תקופת התחייבות',
-    description: 'אנחנו מרוויחים את האמון שלכם בכל חודש מחדש — לא בחוזה ארוך.',
+    title: 'מחויבות לטווח ארוך',
+    description: 'ליווי מקצועי רציף — בנוי על אמון ותוצאות.',
   },
 ] as const
 
@@ -213,17 +211,9 @@ export function TrustModule({
       {showCTA && (
         <section className="py-space-8 px-6">
           <div className="max-w-narrow mx-auto text-center">
-            <p className="text-body-lg text-text-secondary mb-space-5">
-              יש שאלות? נשמח לעזור — בלי התחייבות.
+            <p className="text-body-lg text-text-secondary">
+              ביטן את ביטן · 03-5174295
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="md" />
-              <PhoneCTA
-                label="חייגו אלינו"
-                variant="secondary"
-                size="md"
-              />
-            </div>
           </div>
         </section>
       )}

@@ -5,8 +5,7 @@ import Image from 'next/image'
 import { LTR } from '@/components/ui'
 import { Phone, Mail, MapPin, Clock, Facebook, Linkedin, Instagram } from 'lucide-react'
 import { useSiteSettings } from '@/components/SiteSettingsContext'
-import { trackPhoneClick, trackWhatsAppClick } from '@/lib/analytics'
-import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon'
+import { trackPhoneClick } from '@/lib/analytics'
 
 const NAV_LINKS = [
   { label: 'דף הבית', href: '/' },
@@ -26,12 +25,9 @@ export function Footer() {
   const s = useSiteSettings()
 
   const phone = s?.phone ?? '03-5174295'
-  const fax = s?.fax ?? '03-5174298'
   const email = s?.email ?? 'office@bitancpa.com'
   const address = s?.address ?? 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב'
   const officeHours = s?.officeHours ?? 'ראשון–חמישי 08:30–17:00'
-  const whatsapp = s?.whatsapp ?? '+972527221111'
-  const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
   const disclaimer =
     s?.footerDisclaimer ??
     'המידע באתר הינו כללי בלבד ואינו מהווה תחליף לייעוץ מקצועי פרטני.'
@@ -72,29 +68,12 @@ export function Footer() {
                 </a>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 shrink-0 text-text-muted" />
-                <span className="text-text-muted">פקס:</span>
-                <LTR>{fax}</LTR>
-              </li>
-              <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-text-muted" />
                 <a
                   href={`mailto:${email}`}
                   className="hover:text-primary transition-colors"
                 >
                   <LTR>{email}</LTR>
-                </a>
-              </li>
-              <li className="flex items-center gap-2">
-                <WhatsAppIcon className="h-4 w-4 shrink-0 text-text-muted" />
-                <a
-                  href={`https://wa.me/${whatsappClean}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-primary transition-colors"
-                  onClick={() => trackWhatsAppClick('footer')}
-                >
-                  WhatsApp
                 </a>
               </li>
               <li className="flex items-center gap-2">
