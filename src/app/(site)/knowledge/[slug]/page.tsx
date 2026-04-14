@@ -3,7 +3,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { PortableText } from 'next-sanity'
 import { getArticleBySlug, getRelatedArticles, getParentCategories } from '@/sanity/queries'
-import { NewsletterSignup } from '@/components/NewsletterSignup'
 import { urlFor } from '@/sanity/image'
 import { SectionHeader } from '@/components/ui'
 import { JsonLd } from '@/components/JsonLd'
@@ -444,14 +443,6 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         </section>
       )}
-
-      {/* Newsletter signup */}
-      <div className="max-w-narrow mx-auto px-6 mb-space-8">
-        <NewsletterSignup
-          categories={parentCategories}
-          preSelectedCategoryId={primaryCategory?._id}
-        />
-      </div>
 
       {/* CTA */}
       <section className="bg-primary py-space-9 px-6">

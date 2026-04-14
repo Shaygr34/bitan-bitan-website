@@ -53,8 +53,8 @@ export default async function Home() {
       <ClientLogosSection logos={clientLogos} />
       <KnowledgePreview articles={articles} />
       <TrustModule showProcess={false} showPrepare={false} showCTA={false} />
-      <FAQSection faqs={faqs} />
       <CTASection />
+      <FAQSection faqs={faqs} />
     </>
   )
 }

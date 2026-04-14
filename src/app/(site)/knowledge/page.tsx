@@ -9,7 +9,6 @@ import {
   getArticleCount,
   getParentCategories,
 } from "@/sanity/queries";
-import { NewsletterSignup } from "@/components/NewsletterSignup";
 import {
   ArticleCardComponent,
   FallbackCard,
@@ -102,12 +101,6 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
         </div>
       </section>
 
-      {/* Newsletter signup */}
-      <section className="bg-white px-6 pb-space-3">
-        <div className="max-w-content mx-auto">
-          <NewsletterSignup categories={parentCategories} compact />
-        </div>
-      </section>
 
       {/* Category pills (parent + subcategory rows) */}
       <CategoryPills

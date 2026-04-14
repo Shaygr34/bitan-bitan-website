@@ -14,7 +14,6 @@ const NAV_LINKS = [
   { label: 'אודות', href: '/about' },
   { label: 'שירותים', href: '/services' },
   { label: 'מרכז ידע', href: '/knowledge' },
-  { label: 'שאלות נפוצות', href: '/faq' },
   { label: 'כלים', href: '/tools' },
   { label: 'צור קשר', href: '/contact' },
 ] as const
