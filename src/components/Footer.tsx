@@ -19,6 +19,7 @@ const NAV_LINKS = [
 const LEGAL_LINKS = [
   { label: 'מדיניות פרטיות', href: '/privacy' },
   { label: 'תנאי שימוש', href: '/terms' },
+  { label: 'הצהרת נגישות', href: '/accessibility' },
 ] as const
 
 export function Footer() {
