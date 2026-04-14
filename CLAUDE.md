@@ -624,9 +624,49 @@ See memory file: `bitan-dev-backlog-2026-04-05.md` for complete 17-item prioriti
 
 ### Open Items — Next Session
 See memory: `bitan-dev-backlog-2026-04-05.md` + `bitan-employer-calc-spec.md`
-- **שכיר path for car calculator** — Ron's spec pages 22-27 read, values confirmed. Full payroll engine needed (השפעה על שכר עובד section). Dedicated session.
-- **Employer cost calculator feedback** — awaiting Ron/Avi testing
-- **Onboarding feedback** — sent WhatsApp to Avi/Ron for testing
-- **IDOM-Summit sync P0** — mid-development, spec exists
+- **Onboarding V3** — new pivot from Avi/Ron meeting (April 13). Dedicated session.
 - **Contact form email** — needs RESEND_API_KEY + CONTACT_EMAIL_TO on Railway
 - **July 2026 handoff** — service ownership transfer planning
+
+## Session: April 14, 2026 — Calculator Sprint Fixes + QA Crawl
+
+### 1. Employer Cost Calculator — Ron's Sprint Fixes
+- Removed שכר מבוטח קצבה מזכה from UI (engine uses 9,700 cap internally)
+- Service default: ללא שירות first, removed ללא from היקף options
+- נטו עובד at top key metrics alongside עלות מעסיק
+- Kids: קצבת ילדים + נטול יכולת side-by-side (compact)
+- Comparison: proper table with הפרש column, moved to TOP of results
+- Removed פירוט שווי מס section
+
+### 2. Leasing Calculator — Ron's Sprint Fixes
+- Print/share buttons added to results
+- Default selections pre-selected → immediate proceed
+- Compare → step 1 for fresh vehicle selection
+- Interest rate shows actual % instead of P+1%
+- Consolidated action buttons (single row)
+
+### 3. QA Crawl — Critical Bugs Fixed
+- **Trade-in value NEVER subtracted from financial leasing loan** (silently overstated)
+- React key collision comparing same option type
+- Dirty comparison inputs (age sentinels leaked)
+- State leak on second compare (scenario B overwrote A)
+- excludeOption wired to StepPickOption
+
+### 4. Shareable Result Links
+- Both calcs encode all inputs as URL query params
+- Share button generates link that auto-calculates on open
+- Employer: `?gs=15000&ta=315&pe=6&pp=6.5&g=m&ms=married...`
+- Leasing: `?opt=purchase&ut=selfEmployed&cp=150000...`
+- Decode on mount → auto-calculate → show results
+
+### 5. Polish
+- Print CSS: both calcs compact one-pager, tool page hero/intro/disclaimer `print:hidden`
+- Car price slider max 400K → 600K
+- Verdict text handles negative tax savings (employee mode)
+- alert() → inline toast for share fallback
+- Dead code removed (getComparisonRows)
+
+### Known Remaining
+- H4: Employee manufacturer price default ₪200K — no UX guidance
+- H5: pensionSalary/educationFundSalary not editable
+- L6: disabilityRate field is dead code
