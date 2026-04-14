@@ -4,12 +4,10 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Phone } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { EASE_OUT_QUART } from '@/lib/motion'
 import { useSiteSettings } from '@/components/SiteSettingsContext'
-import { trackWhatsAppClick, trackPhoneClick } from '@/lib/analytics'
-import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon'
 
 const NAV_LINKS = [
   { label: 'דף הבית', href: '/' },
@@ -21,8 +19,6 @@ const NAV_LINKS = [
   { label: 'צור קשר', href: '/contact' },
 ] as const
 
-/** Scroll distance in pixels before showing the sticky mobile CTA bar */
-const STICKY_CTA_THRESHOLD = 600
 /** Scroll distance before navbar transitions to dark/blur mode */
 const NAV_BLUR_THRESHOLD = 80
 
@@ -32,13 +28,6 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [navBlurred, setNavBlurred] = useState(false)
-  const [showStickyCTA, setShowStickyCTA] = useState(false)
-
-  const phone = s?.phone ?? '03-5174295'
-  const phoneDigits = phone.replace(/[^+\d]/g, '')
-  const phoneTel = phoneDigits.startsWith('+') ? phoneDigits : `+972${phoneDigits.replace(/^0/, '')}`
-  const whatsapp = s?.whatsapp ?? '+972527221111'
-  const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
 
   // Shadow on scroll + sticky CTA visibility + nav blur
   useEffect(() => {
@@ -50,7 +39,6 @@ export function Header() {
         const y = window.scrollY
         setScrolled(y > 0)
         setNavBlurred(y > NAV_BLUR_THRESHOLD)
-        setShowStickyCTA(y > STICKY_CTA_THRESHOLD)
         ticking = false
       })
     }
@@ -210,37 +198,6 @@ export function Header() {
         )}
       </AnimatePresence>
 
-      {/* Sticky mobile CTA bar — appears after scrolling past hero */}
-      <AnimatePresence>
-        {showStickyCTA && (
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ duration: 0.3, ease: EASE_OUT_QUART }}
-            className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white border-t border-border shadow-lg px-4 py-3 flex gap-3"
-          >
-            <a
-              href={`https://wa.me/${whatsappClean}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackWhatsAppClick('header_sticky')}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-gold text-primary font-bold text-body-sm py-2.5 rounded-lg hover:bg-gold-hover transition-colors"
-            >
-              <WhatsAppIcon className="h-4 w-4" />
-              WhatsApp
-            </a>
-            <a
-              href={`tel:${phoneTel}`}
-              onClick={() => trackPhoneClick('header_sticky')}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-white font-medium text-body-sm py-2.5 rounded-lg hover:bg-primary-light transition-colors"
-            >
-              <Phone className="h-4 w-4" />
-              <span dir="ltr">{phone}</span>
-            </a>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   )
 }
