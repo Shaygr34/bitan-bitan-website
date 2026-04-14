@@ -266,12 +266,22 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
           muted: r.vatOnPurchase === null,
         },
         ...(r.monthlyLeasingPayment !== null ? [{
-          label: 'תשלום ליסינג חודשי',
+          label: 'סכום חודשי ליסינג',
           value: fmtCurrency(r.monthlyLeasingPayment),
+          bold: true as const,
         }] : []),
-        ...(r.loan ? [{
+        ...(r.computedEffectiveRate !== null ? [{
+          label: 'ריבית משוקללת לעסקה',
+          value: `${r.computedEffectiveRate.toFixed(1)}%`,
+          muted: true as const,
+        }] : []),
+        ...(r.loan && r.computedEffectiveRate === null ? [{
           label: 'הלוואה',
           value: `${fmtCurrency(r.loan.amount)} ב-${r.loan.annualRate.toFixed(1)}% ל-${r.loan.periodMonths} חודשים`,
+        }] : []),
+        ...(r.loan && r.computedEffectiveRate !== null ? [{
+          label: 'סכום מימון',
+          value: `${fmtCurrency(r.loan.amount)} ל-${r.loan.periodMonths} חודשים`,
         }] : []),
         ...(r.residualPayment !== null ? [{
           label: 'יתרת תשלום סוף תקופה (בלון)',

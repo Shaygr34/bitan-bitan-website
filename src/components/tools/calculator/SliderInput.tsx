@@ -21,6 +21,7 @@ type SliderInputProps = {
   allowManual?: boolean
   computedDisplay?: string
   compact?: boolean
+  goldFormat?: (value: number) => string // separate format for the large gold display (e.g. "P + 1%")
 }
 
 function defaultFormat(n: number): string {
@@ -41,6 +42,7 @@ export function SliderInput({
   allowManual = true,
   computedDisplay,
   compact = false,
+  goldFormat,
 }: SliderInputProps) {
   const [manualValue, setManualValue] = useState('')
   const [isManualFocused, setIsManualFocused] = useState(false)
@@ -80,7 +82,8 @@ export function SliderInput({
     }
   }, [value, isManualFocused])
 
-  // Displayed value text
+  // Displayed value text — goldFormat overrides for the large display only
+  const goldDisplayValue = goldFormat ? goldFormat(value) : `${format(value)} ${suffix}`.trim()
   const displayValue = `${format(value)} ${suffix}`.trim()
 
   return (
@@ -95,7 +98,7 @@ export function SliderInput({
 
       {/* Large centered value */}
       <div className="text-center mb-space-2">
-        <span className="text-h3 font-bold text-gold">{displayValue}</span>
+        <span className="text-h3 font-bold text-gold">{goldDisplayValue}</span>
       </div>
 
       {/* Slider track */}

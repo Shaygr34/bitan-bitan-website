@@ -9,6 +9,7 @@ import {
   DEFAULT_INSURANCE_YEARLY,
   getOperationalRateBracket,
 } from './config'
+import { solveEffectiveRate } from './engine'
 import type {
   OptionType,
   VehicleType,
@@ -166,6 +167,7 @@ function PurchaseFields({
                 { value: 1, label: `${(primeRate + 1).toFixed(1)}%` },
                 { value: 2, label: `${(primeRate + 2).toFixed(1)}%` },
               ]}
+              goldFormat={(v) => v === 0 ? 'P + 0%' : v > 0 ? `P + ${v}%` : `P - ${Math.abs(v)}%`}
               format={(v) => `${(primeRate + v).toFixed(1)}%`}
               suffix=""
               compact
@@ -218,9 +220,16 @@ function FinancialFields({
   const residualPct = inputs.residualPercent ?? 30
   const downAmount = Math.round(carPrice * (downPct / 100))
   const residualAmount = Math.round(carPrice * (residualPct / 100))
-  const loanAmount = Math.max(0, carPrice - downAmount - residualAmount)
-  const spread = inputs.interestSpread ?? 2
-  const effectiveRate = primeRate + spread
+  const tradeInValue = inputs.tradeIn ? (inputs.tradeInAmount ?? 0) : 0
+  const financedAmount = Math.max(0, carPrice - downAmount - tradeInValue)
+  const monthlyPayment = inputs.monthlyLeasingPayment ?? 3000
+  const periodMonths = inputs.periodMonths ?? 60
+
+  // Dynamic trade-in max: can't exceed carPrice - downPayment - residual
+  const tradeInMax = Math.max(0, carPrice - downAmount - residualAmount)
+
+  // Compute effective rate via IRR for display
+  const computedRate = solveEffectiveRate(financedAmount, monthlyPayment, residualAmount, periodMonths)
 
   return (
     <>
@@ -261,7 +270,7 @@ function FinancialFields({
           ]}
           format={formatPercent}
           suffix=""
-          computedDisplay={`הלוואה: ${formatCurrency(loanAmount)} ₪`}
+          computedDisplay={`${formatCurrency(residualAmount)} ₪`}
           compact
         />
 
@@ -274,41 +283,53 @@ function FinancialFields({
         {inputs.tradeIn && (
           <SliderInput
             label="סכום שהתקבל בגין הרכב הישן"
+            subtitle="משמש לרכישת הרכב החדש"
             min={0}
-            max={200000}
+            max={Math.max(5000, tradeInMax)}
             step={5000}
-            value={inputs.tradeInAmount ?? 0}
-            onChange={(v) => onChange({ tradeInAmount: v })}
+            value={Math.min(inputs.tradeInAmount ?? 0, tradeInMax)}
+            onChange={(v) => onChange({ tradeInAmount: Math.min(v, tradeInMax) })}
             format={formatCurrency}
             compact
           />
         )}
 
         <SliderInput
-          label="ריבית"
-          subtitle={`פריים: ${primeRate}%`}
-          min={0.5}
-          max={4}
-          step={0.5}
-          value={spread}
-          onChange={(v) => onChange({ interestSpread: v })}
+          label="סכום חודשי ליסינג"
+          subtitle="הסכום שחברת הליסינג מציעה"
+          min={500}
+          max={10000}
+          step={100}
+          value={monthlyPayment}
+          onChange={(v) => onChange({ monthlyLeasingPayment: v })}
           nodes={[
-            { value: 1, label: `${(primeRate + 1).toFixed(1)}%` },
-            { value: 2, label: `${(primeRate + 2).toFixed(1)}%` },
-            { value: 3, label: `${(primeRate + 3).toFixed(1)}%` },
+            { value: 1500, label: '1,500' },
+            { value: 3000, label: '3,000' },
+            { value: 5000, label: '5,000' },
+            { value: 7000, label: '7,000' },
           ]}
-          format={(v) => `${(primeRate + v).toFixed(1)}%`}
-          suffix=""
-          allowManual={false}
+          format={formatCurrency}
           compact
         />
+
+        {/* Computed effective rate from IRR */}
+        {computedRate > 0 && (
+          <div className="text-center mb-space-4 -mt-space-2">
+            <span className="text-body-sm text-text-muted">
+              ריבית משוקללת לעסקה:{' '}
+            </span>
+            <span className="text-body-sm font-bold text-gold">
+              {computedRate.toFixed(1)}%
+            </span>
+          </div>
+        )}
 
         <SliderInput
           label="תקופה"
           min={12}
           max={72}
           step={6}
-          value={inputs.periodMonths ?? 60}
+          value={periodMonths}
           onChange={(v) => onChange({ periodMonths: v })}
           nodes={[
             { value: 24, label: '24' },

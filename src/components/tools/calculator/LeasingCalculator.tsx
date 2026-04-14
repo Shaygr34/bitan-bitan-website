@@ -175,7 +175,7 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
     setComparisonResult(null)
     setComparisonInputs({})
     setComparisonOption(null)
-    setPhase('base')
+    setPhase('pickOption')
   }, [])
 
   const handleRestart = useCallback(() => {
@@ -193,16 +193,20 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
   const handleBack = useCallback(() => {
     const idx = PHASE_ORDER.indexOf(phase)
     if (idx > 0) {
-      // If we're comparing and going back from details, go to pickOption
       if (isComparing && phase === 'details') {
         setPhase('pickOption')
       } else if (phase === 'results') {
+        // When going back from results after comparison, re-enter comparison mode
+        // so the details show the comparison option (the last one edited)
+        if (comparisonResult && comparisonOption) {
+          setIsComparing(true)
+        }
         setPhase('details')
       } else {
         setPhase(PHASE_ORDER[idx - 1])
       }
     }
-  }, [phase, isComparing])
+  }, [phase, isComparing, comparisonResult, comparisonOption])
 
   // ─── Render ───
 
@@ -268,7 +272,7 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
         {phase === 'pickOption' && (
           <StepPickOption
             onSelect={handlePickOption}
-            excludeOption={isComparing ? primaryOption : null}
+            excludeOption={null}
           />
         )}
 

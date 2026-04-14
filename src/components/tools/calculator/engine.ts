@@ -100,6 +100,104 @@ export function calculateAmortization(
 }
 
 /* ═══════════════════════════════════════════════
+   IRR / Effective Rate Solver (Newton-Raphson)
+   ═══════════════════════════════════════════════ */
+
+/**
+ * Solve for the effective annual interest rate implied by a leasing deal.
+ *
+ * Cash flow model (from lender perspective):
+ *   t=0:  -financedAmount (lender disburses)
+ *   t=1…N: +monthlyPayment (lender receives)
+ *   t=N:  +balloon (lender receives residual)
+ *
+ * Solves:  financedAmount = P·[1-(1+r)^(-N)]/r + B·(1+r)^(-N)
+ * Returns annual rate as percentage (e.g. 6.5 for 6.5%), or 0 on failure.
+ */
+export function solveEffectiveRate(
+  financedAmount: number,
+  monthlyPayment: number,
+  balloon: number,
+  months: number,
+): number {
+  if (financedAmount <= 0 || monthlyPayment <= 0 || months <= 0) return 0
+
+  // Quick check: if total payments < financed (impossible loan), return 0
+  const totalOut = monthlyPayment * months + balloon
+  if (totalOut <= financedAmount) return 0
+
+  // Initial guess from simple interest approximation
+  const totalInterest = totalOut - financedAmount
+  let r = Math.max(0.0005, Math.min(0.04, (totalInterest / financedAmount / months) * 2))
+
+  for (let i = 0; i < 100; i++) {
+    const opr = 1 + r
+    const oprN = Math.pow(opr, -months)
+
+    // f(r) = P·[1-(1+r)^-N]/r + B·(1+r)^-N - F
+    const pvPayments = monthlyPayment * (1 - oprN) / r
+    const pvBalloon = balloon * oprN
+    const f = pvPayments + pvBalloon - financedAmount
+
+    // f'(r)
+    const oprN1 = Math.pow(opr, -months - 1)
+    const df = monthlyPayment * (-months * oprN1 / r - (1 - oprN) / (r * r))
+      + balloon * (-months) * oprN1
+
+    if (Math.abs(df) < 1e-15) break
+    const delta = f / df
+    r = Math.max(0.00001, r - delta)
+    if (Math.abs(delta) < 1e-8) break
+  }
+
+  return r * 12 * 100 // monthly → annual %
+}
+
+/**
+ * Amortization schedule for a loan with known monthly payment (may not fully amortize — balloon remainder).
+ */
+export function calculateAmortizationWithBalloon(
+  principal: number,
+  monthlyPayment: number,
+  months: number,
+  annualRate: number,
+): AmortizationResult {
+  if (principal <= 0 || months <= 0) {
+    return { monthlyPayment, totalInterest: 0, yearlyBreakdown: [] }
+  }
+
+  const monthlyRate = annualRate / 100 / 12
+  let balance = principal
+  let totalInterest = 0
+  const yearlyBreakdown: YearlyLoanBreakdown[] = []
+  const totalYears = Math.ceil(months / 12)
+
+  for (let year = 1; year <= totalYears; year++) {
+    let yearInterest = 0
+    let yearPrincipal = 0
+    const monthsThisYear = Math.min(12, months - (year - 1) * 12)
+
+    for (let m = 0; m < monthsThisYear; m++) {
+      const interestPortion = balance * monthlyRate
+      const principalPortion = monthlyPayment - interestPortion
+      yearInterest += interestPortion
+      yearPrincipal += Math.max(0, principalPortion)
+      balance = Math.max(0, balance - principalPortion)
+    }
+
+    totalInterest += yearInterest
+    yearlyBreakdown.push({
+      year,
+      interestPaid: Math.round(yearInterest),
+      principalPaid: Math.round(yearPrincipal),
+      endBalance: Math.round(balance),
+    })
+  }
+
+  return { monthlyPayment, totalInterest: Math.round(totalInterest), yearlyBreakdown }
+}
+
+/* ═══════════════════════════════════════════════
    VAT Helpers
    ═══════════════════════════════════════════════ */
 
@@ -266,6 +364,7 @@ export function calculatePurchase(
     grossIncludingVehicle: companyFields.grossIncludingVehicle,
     employerNii: companyFields.employerNii,
     excessKmNote: false,
+    computedEffectiveRate: null,
   } as CalculationResult
 }
 
@@ -281,18 +380,22 @@ export function calculateFinancialLeasing(
   const { carPrice, vehicleType, monthlyIncome } = base
   const {
     downPaymentPercent, residualPercent, tradeIn, tradeInAmount,
-    interestSpread, periodMonths, fuelMonthly, maintenanceYearly, insuranceYearly,
+    monthlyLeasingPayment, periodMonths, fuelMonthly, maintenanceYearly, insuranceYearly,
   } = inputs
 
   const downPayment = Math.round(carPrice * (downPaymentPercent / 100))
   const residualPayment = Math.round(carPrice * (residualPercent / 100))
   const tradeInValue = tradeIn ? tradeInAmount : 0
 
-  // Loan = car price - down payment - residual (balloon) - trade-in
-  const loanPrincipal = Math.max(0, carPrice - downPayment - residualPayment - tradeInValue)
-  const annualRate = config.primeRate + interestSpread
+  // Total financed = car price - down payment - trade-in (balloon stays as end-of-term obligation)
+  const financedAmount = Math.max(0, carPrice - downPayment - tradeInValue)
 
-  const amort = calculateAmortization(loanPrincipal, annualRate, periodMonths)
+  // Compute effective annual rate via IRR from the cash flows
+  const computedRate = solveEffectiveRate(financedAmount, monthlyLeasingPayment, residualPayment, periodMonths)
+
+  // Build amortization schedule using computed rate (remaining balance at end ≈ balloon)
+  const amort = calculateAmortizationWithBalloon(financedAmount, monthlyLeasingPayment, periodMonths, computedRate)
+  const annualRate = computedRate
 
   // Depreciation
   const depRate = getDepreciationRate(vehicleType)
@@ -364,9 +467,9 @@ export function calculateFinancialLeasing(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Cashflow-based expenses (loan payment, not depreciation)
+  // Cashflow-based expenses (leasing payment + running costs)
   const monthlyCashflow = Math.round(
-    amort.monthlyPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
+    monthlyLeasingPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
   )
   const totalAnnualExpenses = monthlyCashflow * 12
 
@@ -386,9 +489,9 @@ export function calculateFinancialLeasing(
     carPrice,
     vatOnPurchase,
     equity: downPayment,
-    monthlyLeasingPayment: null,
-    loan: loanPrincipal > 0
-      ? { amount: loanPrincipal, annualRate, periodMonths, monthlyPayment: amort.monthlyPayment }
+    monthlyLeasingPayment,
+    loan: financedAmount > 0
+      ? { amount: financedAmount, annualRate, periodMonths, monthlyPayment: monthlyLeasingPayment }
       : null,
     depreciation,
     fuelMonthly,
@@ -412,6 +515,7 @@ export function calculateFinancialLeasing(
     grossIncludingVehicle: companyFields.grossIncludingVehicle,
     employerNii: companyFields.employerNii,
     excessKmNote: false,
+    computedEffectiveRate: computedRate > 0 ? computedRate : null,
   } as CalculationResult
 }
 
@@ -533,6 +637,7 @@ export function calculateOperationalLeasing(
     grossIncludingVehicle: companyFields.grossIncludingVehicle,
     employerNii: companyFields.employerNii,
     excessKmNote: true,
+    computedEffectiveRate: null,
   } as CalculationResult
 }
 
@@ -577,7 +682,7 @@ export function getDefaultFinancialInputs(): FinancialLeasingInputs {
     residualPercent: 30,
     tradeIn: false,
     tradeInAmount: 0,
-    interestSpread: 2,
+    monthlyLeasingPayment: 3000,
     periodMonths: 60,
     fuelMonthly: 1500,
     maintenanceYearly: 5000,

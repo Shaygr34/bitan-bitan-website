@@ -37,7 +37,7 @@ export type FinancialLeasingInputs = {
   residualPercent: number // end-of-term residual as % of car price
   tradeIn: boolean
   tradeInAmount: number // ₪ received for old car
-  interestSpread: number
+  monthlyLeasingPayment: number // ₪/month — replaces interestSpread (Ron V3: leasing companies quote monthly, not rate)
   periodMonths: number
   fuelMonthly: number
   maintenanceYearly: number
@@ -99,6 +99,8 @@ export type CalculationResult = {
   employerNii: number // ביטוח לאומי מעביד on שווי מס (annual)
   // Excess km note for operational leasing
   excessKmNote: boolean
+  // Financial leasing V3: computed effective rate from IRR
+  computedEffectiveRate: number | null // annual % — null for non-financial options
 }
 
 /* ─── Config ─── */
