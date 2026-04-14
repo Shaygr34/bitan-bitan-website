@@ -139,9 +139,9 @@ export function solveEffectiveRate(
     const pvBalloon = balloon * oprN
     const f = pvPayments + pvBalloon - financedAmount
 
-    // f'(r)
+    // f'(r) — quotient rule on P·[1-(1+r)^-N]/r gives +N·(1+r)^(-N-1)/r term
     const oprN1 = Math.pow(opr, -months - 1)
-    const df = monthlyPayment * (-months * oprN1 / r - (1 - oprN) / (r * r))
+    const df = monthlyPayment * (months * oprN1 / r - (1 - oprN) / (r * r))
       + balloon * (-months) * oprN1
 
     if (Math.abs(df) < 1e-15) break
@@ -181,8 +181,8 @@ export function calculateAmortizationWithBalloon(
       const interestPortion = balance * monthlyRate
       const principalPortion = monthlyPayment - interestPortion
       yearInterest += interestPortion
-      yearPrincipal += Math.max(0, principalPortion)
-      balance = Math.max(0, balance - principalPortion)
+      yearPrincipal += principalPortion
+      balance = balance - principalPortion
     }
 
     totalInterest += yearInterest
