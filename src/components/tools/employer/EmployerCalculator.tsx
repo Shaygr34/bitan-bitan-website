@@ -510,7 +510,7 @@ export function EmployerCalculator() {
                           }
                           update({ childrenAges: newAges })
                         }}
-                        className="w-full rounded-lg border border-border px-2 py-1.5 text-body-sm text-center focus:border-gold focus:outline-none placeholder:text-text-muted/50"
+                        className="w-full rounded-lg border border-border px-2 py-1.5 text-body-sm text-center focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 placeholder:text-text-muted/50"
                       />
                     </div>
                   ))}
@@ -557,7 +557,7 @@ export function EmployerCalculator() {
                           const v = parseInt(e.target.value) || 0
                           update({ disabledChildrenCount: Math.min(Math.max(0, v), inputs.childrenAges.length) })
                         }}
-                        className="w-20 rounded-lg border border-border px-2 py-1.5 text-body-sm text-center focus:border-gold focus:outline-none"
+                        className="w-20 rounded-lg border border-border px-2 py-1.5 text-body-sm text-center focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
                       />
                       <span className="text-caption text-text-muted">מתוך {inputs.childrenAges.length}</span>
                     </div>

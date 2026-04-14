@@ -110,8 +110,8 @@ export function InputGroup({
             className={[
               'rounded-lg border px-3 py-2.5 text-body-sm w-full text-center transition-colors',
               isManual && value !== null
-                ? 'border-gold bg-gold/5 focus:border-gold focus:outline-none'
-                : 'border-border focus:border-gold focus:outline-none',
+                ? 'border-gold bg-gold/5 focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40'
+                : 'border-border focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40',
             ].join(' ')}
           />
           {suffix && <span className="text-body-sm text-text-muted shrink-0">{suffix}</span>}

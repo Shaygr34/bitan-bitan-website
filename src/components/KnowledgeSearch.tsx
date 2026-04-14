@@ -122,7 +122,7 @@ export function KnowledgeSearch({ articles }: KnowledgeSearchProps) {
           onChange={(e) => handleInputChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="חיפוש לפי כותרת, תוכן או קטגוריה..."
-          className="flex-1 bg-transparent text-body-sm text-primary placeholder:text-text-muted outline-none"
+          className="flex-1 bg-transparent text-body-sm text-primary placeholder:text-text-muted outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-1"
           role="combobox"
           aria-expanded={results.length > 0}
           aria-controls="search-results"

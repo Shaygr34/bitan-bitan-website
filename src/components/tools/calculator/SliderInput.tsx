@@ -165,7 +165,7 @@ export function SliderInput({
               }
             }}
             placeholder="הזנה ידנית"
-            className="rounded-lg border border-border px-3 py-1.5 text-body-sm w-full text-center focus:border-gold focus:outline-none transition-colors text-text-muted placeholder:text-text-muted/60"
+            className="rounded-lg border border-border px-3 py-1.5 text-body-sm w-full text-center focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 transition-colors text-text-muted placeholder:text-text-muted/60"
           />
           <span className="text-body-sm text-text-muted shrink-0">{suffix}</span>
         </div>
