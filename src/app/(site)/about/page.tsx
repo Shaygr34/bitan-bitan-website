@@ -208,43 +208,6 @@ export default async function AboutPage() {
         </div>
       </RevealSection>
 
-      {/* 6. Process Steps */}
-      <RevealSection className="py-space-10 px-6">
-        <div className="max-w-content mx-auto">
-          <SectionHeader
-            centered
-            subtitle={page?.processSubtitle ?? 'תהליך פשוט ושקוף — מהפנייה הראשונה ועד ליווי שוטף.'}
-          >
-            {page?.processTitle ?? 'איך מתחילים?'}
-          </SectionHeader>
-
-          <RevealGroup className="mt-space-8 max-w-narrow mx-auto space-y-space-5">
-            {(page?.processSteps ?? FALLBACK_PROCESS).map((step) => (
-              <RevealItem key={step._key}>
-                <div className="flex gap-space-4 items-start">
-                  <div className="shrink-0 w-12 h-12 rounded-full bg-gold flex items-center justify-center">
-                    <span
-                      className="text-primary font-bold text-body-lg"
-                      dir="ltr"
-                    >
-                      {step.stepNumber}
-                    </span>
-                  </div>
-                  <div className="pt-1">
-                    <h3 className="text-h4 font-bold text-primary">
-                      {step.title}
-                    </h3>
-                    <p className="text-text-secondary text-body mt-1 leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-              </RevealItem>
-            ))}
-          </RevealGroup>
-        </div>
-      </RevealSection>
-
       {/* 7. Values */}
       <RevealSection className="bg-surface py-space-10 px-6">
         <div className="max-w-content mx-auto">
@@ -303,7 +266,7 @@ export default async function AboutPage() {
           <div className="flex flex-wrap justify-center gap-4 mt-space-7">
             <a
               href="/contact"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-gold text-primary font-medium rounded-lg hover:bg-gold-hover transition-colors"
             >
               פנו למשרד
             </a>

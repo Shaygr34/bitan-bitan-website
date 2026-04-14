@@ -183,7 +183,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           <div className="flex flex-wrap justify-center gap-4 mt-space-7">
             <a
               href="/contact"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-gold text-primary font-medium rounded-lg hover:bg-gold-hover transition-colors"
             >
               פנו למשרד
             </a>

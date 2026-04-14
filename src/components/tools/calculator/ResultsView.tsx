@@ -2,7 +2,6 @@
 
 import { useCallback, useState } from 'react'
 import { ArrowRight, Calculator, TrendingDown, Receipt, Wallet, Info, Printer, Share2 } from 'lucide-react'
-import { WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import type { CalculationResult, OptionType } from './types'
 
 type ResultsViewProps = {
@@ -100,14 +99,18 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
       {/* CTA Section */}
       <div className="mt-space-5 text-center no-print">
         <h3 className="text-h3 font-bold text-primary mb-space-3">
-          רוצים חישוב מדויק?
+          לחישוב מדויק המותאם למצב שלכם
         </h3>
         <p className="text-body text-text-secondary max-w-narrow mx-auto mb-space-6">
-          המחשבון נותן הערכה כללית. לחישוב מדויק המותאם למצב שלכם — דברו איתנו.
+          המחשבון מספק הערכה כללית. לתוצאות מדויקות — פנו למשרד.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <WhatsAppCTA label="שלחו הודעה בוואטסאפ" location="leasing-calculator" />
-          <PhoneCTA label="חייגו אלינו" variant="secondary" location="leasing-calculator" />
+          <a href="/contact" className="inline-flex items-center gap-2 px-8 py-3 bg-gold text-primary font-medium rounded-lg hover:bg-gold-hover transition-colors">
+            פנו למשרד
+          </a>
+          <a href="tel:+97235174295" className="inline-flex items-center gap-2 px-8 py-3 border-2 border-primary text-primary font-medium rounded-lg hover:bg-primary hover:text-white transition-colors" dir="ltr">
+            03-5174295
+          </a>
         </div>
 
       </div>

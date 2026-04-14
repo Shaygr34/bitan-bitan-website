@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import {
   SectionHeader,
-  WhatsAppCTA,
 } from "@/components/ui";
 import {
   getArticles,
@@ -151,19 +150,27 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
       </section>
 
       {/* CTA */}
-      <section className="bg-surface py-space-9 px-6">
+      <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto text-center">
-          <SectionHeader
-            centered
-            subtitle="יש לכם שאלה שלא מצאתם לה תשובה? אנחנו כאן בשבילכם."
-          >
-            צריכים ייעוץ אישי?
-          </SectionHeader>
-          <div className="mt-space-7">
-            <WhatsAppCTA
-              label="שלחו לנו שאלה בוואטסאפ"
-              size="lg"
-            />
+          <h2 className="text-white text-h2 font-bold">לפרטים נוספים</h2>
+          <span className="gold-underline mt-3 mx-auto" />
+          <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto">
+            לא מצאתם תשובה? נשמח לסייע.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 mt-space-7">
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-gold text-primary font-medium rounded-lg hover:bg-gold-hover transition-colors"
+            >
+              פנו למשרד
+            </a>
+            <a
+              href="tel:+97235174295"
+              className="inline-flex items-center gap-2 px-8 py-3 border border-white/40 text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+              dir="ltr"
+            >
+              03-5174295
+            </a>
           </div>
         </div>
       </section>
