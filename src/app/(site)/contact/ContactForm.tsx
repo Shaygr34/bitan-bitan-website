@@ -108,7 +108,7 @@ export function ContactForm() {
         </h3>
 
         {status === 'error' && (
-          <div className="mb-space-4 p-space-3 bg-red-50 border border-red-200 rounded-lg text-body-sm text-red-700 flex items-center gap-2">
+          <div role="alert" className="mb-space-4 p-space-3 bg-red-50 border border-red-200 rounded-lg text-body-sm text-red-700 flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0" />
             שגיאה בשליחת הטופס. נסו שוב או צרו קשר בטלפון.
           </div>
@@ -142,6 +142,8 @@ export function ContactForm() {
               id="name"
               name="name"
               required
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? 'name-error' : undefined}
               className={[
                 'w-full px-4 py-3 border rounded-lg text-body text-primary bg-white placeholder:text-text-muted focus:ring-1 transition-colors',
                 errors.name
@@ -152,7 +154,7 @@ export function ContactForm() {
               onChange={() => errors.name && setErrors((prev) => ({ ...prev, name: undefined }))}
             />
             {errors.name && (
-              <p className="mt-1 text-caption text-red-500 flex items-center gap-1">
+              <p id="name-error" role="alert" className="mt-1 text-caption text-red-500 flex items-center gap-1">
                 <AlertCircle className="h-3.5 w-3.5" />
                 {errors.name}
               </p>
@@ -173,6 +175,8 @@ export function ContactForm() {
               name="phone"
               required
               dir="ltr"
+              aria-invalid={!!errors.phone}
+              aria-describedby={errors.phone ? 'phone-error' : undefined}
               className={[
                 'w-full px-4 py-3 border rounded-lg text-body text-primary bg-white placeholder:text-text-muted focus:ring-1 transition-colors text-start',
                 errors.phone
@@ -183,7 +187,7 @@ export function ContactForm() {
               onChange={() => errors.phone && setErrors((prev) => ({ ...prev, phone: undefined }))}
             />
             {errors.phone && (
-              <p className="mt-1 text-caption text-red-500 flex items-center gap-1">
+              <p id="phone-error" role="alert" className="mt-1 text-caption text-red-500 flex items-center gap-1">
                 <AlertCircle className="h-3.5 w-3.5" />
                 {errors.phone}
               </p>
@@ -203,6 +207,8 @@ export function ContactForm() {
               id="email"
               name="email"
               dir="ltr"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
               className={[
                 'w-full px-4 py-3 border rounded-lg text-body text-primary bg-white placeholder:text-text-muted focus:ring-1 transition-colors text-start',
                 errors.email
@@ -213,7 +219,7 @@ export function ContactForm() {
               onChange={() => errors.email && setErrors((prev) => ({ ...prev, email: undefined }))}
             />
             {errors.email && (
-              <p className="mt-1 text-caption text-red-500 flex items-center gap-1">
+              <p id="email-error" role="alert" className="mt-1 text-caption text-red-500 flex items-center gap-1">
                 <AlertCircle className="h-3.5 w-3.5" />
                 {errors.email}
               </p>
