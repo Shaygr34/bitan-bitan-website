@@ -22,11 +22,11 @@ import {
   getDepreciationRate,
   getVatRecoveryRate,
   getTaxDeductionMultiplier,
-  getMarginalTaxRate,
   getNiiSavingsRate,
   getResidualCarValue,
   getOperationalRateBracket,
   calculateVehicleTaxBenefit,
+  calculateTaxSavings,
   COMPANY_TAX_RATE,
   NII_EMPLOYER_RATE_HIGH,
   NII_SALARY_THRESHOLD,
@@ -300,16 +300,16 @@ export function calculatePurchase(
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings // NII is a COST for company, not savings
   } else if (isEmployee) {
-    // Employee: no deductions. שווי מס INCREASES tax burden
-    const marginalRate = getMarginalTaxRate(monthlyIncome)
+    // Employee: no deductions. שווי מס INCREASES tax burden (bracket-by-bracket)
     const vehicleTaxAnnual = companyFields.vehicleTaxBenefit * 12
-    annualTaxSavings = -Math.round(vehicleTaxAnnual * marginalRate)
+    // Tax cost = tax at (salary + שווי מס) minus tax at salary
+    annualTaxSavings = -calculateTaxSavings(monthlyIncome + companyFields.vehicleTaxBenefit, vehicleTaxAnnual)
     const employeeNiiRate = monthlyIncome > NII_SALARY_THRESHOLD ? NII_EMPLOYEE_RATE_HIGH : NII_EMPLOYEE_RATE_LOW
     niiSavings = -Math.round(vehicleTaxAnnual * employeeNiiRate)
     totalTaxSavings = annualTaxSavings + niiSavings
   } else {
-    const marginalRate = getMarginalTaxRate(monthlyIncome)
-    annualTaxSavings = Math.round(finalDeductibleExpenses * marginalRate)
+    // Self-employed: bracket-by-bracket tax savings from deductible expenses
+    annualTaxSavings = calculateTaxSavings(monthlyIncome, finalDeductibleExpenses)
     const niiRate = getNiiSavingsRate(monthlyIncome)
     niiSavings = Math.round(finalDeductibleExpenses * niiRate)
     totalTaxSavings = annualTaxSavings + niiSavings
@@ -453,15 +453,13 @@ export function calculateFinancialLeasing(
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings
   } else if (isEmployee) {
-    const marginalRate = getMarginalTaxRate(monthlyIncome)
     const vehicleTaxAnnual = companyFields.vehicleTaxBenefit * 12
-    annualTaxSavings = -Math.round(vehicleTaxAnnual * marginalRate)
+    annualTaxSavings = -calculateTaxSavings(monthlyIncome + companyFields.vehicleTaxBenefit, vehicleTaxAnnual)
     const employeeNiiRate = monthlyIncome > NII_SALARY_THRESHOLD ? NII_EMPLOYEE_RATE_HIGH : NII_EMPLOYEE_RATE_LOW
     niiSavings = -Math.round(vehicleTaxAnnual * employeeNiiRate)
     totalTaxSavings = annualTaxSavings + niiSavings
   } else {
-    const marginalRate = getMarginalTaxRate(monthlyIncome)
-    annualTaxSavings = Math.round(finalDeductibleExpenses * marginalRate)
+    annualTaxSavings = calculateTaxSavings(monthlyIncome, finalDeductibleExpenses)
     const niiRate = getNiiSavingsRate(monthlyIncome)
     niiSavings = Math.round(finalDeductibleExpenses * niiRate)
     totalTaxSavings = annualTaxSavings + niiSavings
@@ -581,15 +579,13 @@ export function calculateOperationalLeasing(
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings
   } else if (isEmployee) {
-    const marginalRate = getMarginalTaxRate(monthlyIncome)
     const vehicleTaxAnnual = companyFields.vehicleTaxBenefit * 12
-    annualTaxSavings = -Math.round(vehicleTaxAnnual * marginalRate)
+    annualTaxSavings = -calculateTaxSavings(monthlyIncome + companyFields.vehicleTaxBenefit, vehicleTaxAnnual)
     const employeeNiiRate = monthlyIncome > NII_SALARY_THRESHOLD ? NII_EMPLOYEE_RATE_HIGH : NII_EMPLOYEE_RATE_LOW
     niiSavings = -Math.round(vehicleTaxAnnual * employeeNiiRate)
     totalTaxSavings = annualTaxSavings + niiSavings
   } else {
-    const marginalRate = getMarginalTaxRate(monthlyIncome)
-    annualTaxSavings = Math.round(finalDeductibleExpenses * marginalRate)
+    annualTaxSavings = calculateTaxSavings(monthlyIncome, finalDeductibleExpenses)
     const niiRate = getNiiSavingsRate(monthlyIncome)
     niiSavings = Math.round(finalDeductibleExpenses * niiRate)
     totalTaxSavings = annualTaxSavings + niiSavings

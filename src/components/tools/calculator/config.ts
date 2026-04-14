@@ -52,18 +52,48 @@ export function getTaxDeductionMultiplier(vehicleType: VehicleType): number {
   return vehicleType.startsWith('commercial') ? 1.0 : 0.45
 }
 
-/* ─── Israeli Marginal Tax Rate by Monthly Income ─── */
+/* ─── Israeli Marginal Tax Brackets (2026) ─── */
 
-// Simplified brackets for self-employed (2026)
+const TAX_BRACKETS_ANNUAL = [
+  { ceiling: 84_120, rate: 0.10 },
+  { ceiling: 120_720, rate: 0.14 },
+  { ceiling: 193_800, rate: 0.20 },
+  { ceiling: 269_280, rate: 0.31 },
+  { ceiling: 560_280, rate: 0.35 },
+  { ceiling: 721_560, rate: 0.47 },
+  { ceiling: Infinity, rate: 0.50 },
+]
+
+/** Top marginal rate for a given monthly income — used for display only */
 export function getMarginalTaxRate(monthlyIncome: number): number {
   const annual = monthlyIncome * 12
-  if (annual <= 84_120) return 0.10
-  if (annual <= 120_720) return 0.14
-  if (annual <= 193_800) return 0.20
-  if (annual <= 269_280) return 0.31
-  if (annual <= 560_280) return 0.35
-  if (annual <= 721_560) return 0.47
+  for (const b of TAX_BRACKETS_ANNUAL) {
+    if (annual <= b.ceiling) return b.rate
+  }
   return 0.50
+}
+
+/** Total annual income tax for a given annual income — bracket-by-bracket */
+export function calculateAnnualTax(annualIncome: number): number {
+  let tax = 0
+  let prev = 0
+  for (const b of TAX_BRACKETS_ANNUAL) {
+    if (annualIncome <= prev) break
+    const taxable = Math.min(annualIncome, b.ceiling) - prev
+    tax += taxable * b.rate
+    prev = b.ceiling
+  }
+  return tax
+}
+
+/**
+ * Tax savings from an annual deduction — proper bracket-by-bracket difference.
+ * Returns the actual tax reduction (tax at income - tax at income minus deduction).
+ */
+export function calculateTaxSavings(monthlyIncome: number, annualDeduction: number): number {
+  const annualIncome = monthlyIncome * 12
+  const reducedIncome = Math.max(0, annualIncome - annualDeduction)
+  return Math.round(calculateAnnualTax(annualIncome) - calculateAnnualTax(reducedIncome))
 }
 
 /* ─── National Insurance (ביטוח לאומי) Savings Rate ─── */
