@@ -152,6 +152,10 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
           .shadow-md, .shadow-lg { box-shadow: none !important; }
           .grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
 
+          /* Prevent page breaks inside result cards and sections */
+          .rounded-2xl, .bg-primary, .grid { break-inside: avoid !important; page-break-inside: avoid !important; }
+          h4 { break-after: avoid !important; page-break-after: avoid !important; }
+
           /* Show print-only elements */
           .print\\:block { display: block !important; }
         }

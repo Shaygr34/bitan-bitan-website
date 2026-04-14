@@ -175,7 +175,7 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
     setComparisonResult(null)
     setComparisonInputs({})
     setComparisonOption(null)
-    setPhase('pickOption')
+    setPhase('base')
   }, [])
 
   const handleRestart = useCallback(() => {
@@ -317,7 +317,7 @@ function getDefaultInputsForOption(option: OptionType, carPrice: number): Record
     case 'purchase':
       return { ...getDefaultPurchaseInputs() }
     case 'financialLeasing':
-      return { ...getDefaultFinancialInputs() }
+      return { ...getDefaultFinancialInputs(carPrice) }
     case 'operationalLeasing': {
       const bracket = getOperationalRateBracket(carPrice)
       return {

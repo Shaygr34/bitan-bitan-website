@@ -280,18 +280,23 @@ function FinancialFields({
           onChange={(v) => onChange({ tradeIn: v })}
         />
 
-        {inputs.tradeIn && (
+        {inputs.tradeIn && tradeInMax > 0 && (
           <SliderInput
             label="סכום שהתקבל בגין הרכב הישן"
             subtitle="משמש לרכישת הרכב החדש"
             min={0}
-            max={Math.max(5000, tradeInMax)}
-            step={5000}
+            max={tradeInMax}
+            step={Math.max(1000, Math.round(tradeInMax / 20 / 1000) * 1000)}
             value={Math.min(inputs.tradeInAmount ?? 0, tradeInMax)}
             onChange={(v) => onChange({ tradeInAmount: Math.min(v, tradeInMax) })}
             format={formatCurrency}
             compact
           />
+        )}
+        {inputs.tradeIn && tradeInMax <= 0 && (
+          <p className="text-caption text-red-400 mb-space-3">
+            מקדמה + יתרת בלון מכסים את מלוא מחיר הרכב — אין מקום לטרייד אין
+          </p>
         )}
 
         <SliderInput
@@ -303,24 +308,31 @@ function FinancialFields({
           value={monthlyPayment}
           onChange={(v) => onChange({ monthlyLeasingPayment: v })}
           nodes={[
-            { value: 1500, label: '1,500' },
-            { value: 3000, label: '3,000' },
-            { value: 5000, label: '5,000' },
-            { value: 7000, label: '7,000' },
+            { value: 500, label: '500' },
+            { value: 2000, label: '2,000' },
+            { value: 4000, label: '4,000' },
+            { value: 6000, label: '6,000' },
+            { value: 8000, label: '8,000' },
+            { value: 10000, label: '10,000' },
           ]}
           format={formatCurrency}
           compact
         />
 
         {/* Computed effective rate from IRR */}
-        {computedRate > 0 && (
+        {computedRate > 0 && computedRate < 50 && (
           <div className="text-center mb-space-4 -mt-space-2">
             <span className="text-body-sm text-text-muted">
               ריבית משוקללת לעסקה:{' '}
             </span>
-            <span className="text-body-sm font-bold text-gold">
+            <span className={`text-body-sm font-bold ${computedRate > 15 ? 'text-red-500' : 'text-gold'}`}>
               {computedRate.toFixed(1)}%
             </span>
+            {computedRate > 15 && (
+              <span className="text-caption text-red-400 block">
+                ריבית גבוהה — בדקו את הפרמטרים
+              </span>
+            )}
           </div>
         )}
 

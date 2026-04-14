@@ -672,13 +672,23 @@ export function getDefaultPurchaseInputs(): PurchaseInputs {
   }
 }
 
-export function getDefaultFinancialInputs(): FinancialLeasingInputs {
+export function getDefaultFinancialInputs(carPrice: number): FinancialLeasingInputs {
+  // Compute reasonable default monthly payment assuming ~6% annual rate
+  const downPct = 0.15
+  const residualPct = 0.30
+  const financed = carPrice * (1 - downPct)
+  const balloon = carPrice * residualPct
+  const monthlyRate = 0.06 / 12 // 6% annual
+  const months = 60
+  const oprN = Math.pow(1 + monthlyRate, -months)
+  const defaultPayment = Math.round(((financed - balloon * oprN) * monthlyRate / (1 - oprN)) / 100) * 100
+
   return {
     downPaymentPercent: 15,
     residualPercent: 30,
     tradeIn: false,
     tradeInAmount: 0,
-    monthlyLeasingPayment: 3000,
+    monthlyLeasingPayment: Math.max(500, defaultPayment),
     periodMonths: 60,
     fuelMonthly: 1500,
     maintenanceYearly: 5000,
