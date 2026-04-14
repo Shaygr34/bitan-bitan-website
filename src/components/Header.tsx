@@ -130,7 +130,7 @@ export function Header() {
       {/* Mobile overlay menu with AnimatePresence */}
       <AnimatePresence>
         {mobileOpen && (
-          <div className="fixed inset-0 z-[60] md:hidden">
+          <div className="fixed inset-0 z-[60] md:hidden" role="dialog" aria-modal="true" aria-label="תפריט ראשי">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
