@@ -29,20 +29,38 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
 
   const [shareMsg, setShareMsg] = useState('')
   const handleShare = useCallback(async () => {
-    const url = window.location.href
+    // Build share URL with encoded inputs
+    const params = new URLSearchParams()
+    params.set('gs', String(inputs.grossSalary))
+    params.set('ta', String(inputs.travelAllowance))
+    if (inputs.hasVehicle) { params.set('v', '1'); params.set('vf', inputs.vehicleFuelType); params.set('mp', String(inputs.manufacturerPrice)) }
+    if (inputs.hasMealBenefit) params.set('ml', String(inputs.mealBenefitAmount))
+    if (inputs.hasOtherBenefit) params.set('ob', String(inputs.otherBenefitAmount))
+    params.set('pe', String(inputs.employeePensionRate))
+    params.set('pp', String(inputs.employerPensionRate))
+    params.set('sv', String(inputs.severanceRate))
+    params.set('ee', String(inputs.employerEducationRate))
+    params.set('g', inputs.gender[0])
+    params.set('ms', inputs.maritalStatus)
+    if (inputs.childrenAges.length > 0) params.set('ca', inputs.childrenAges.join(','))
+    if (inputs.childAllowanceRecipient === 'employee') params.set('cr', 'e')
+    if (inputs.disabledChildrenCount > 0) params.set('dc', String(inputs.disabledChildrenCount))
+    if (inputs.serviceType !== 'none') { params.set('st', inputs.serviceType); params.set('sl', inputs.serviceLevel) }
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+
     const text = `מחשבון עלות מעסיק — ביטן את ביטן`
     if (navigator.share) {
       try {
-        await navigator.share({ title: text, url })
+        await navigator.share({ title: text, url: shareUrl })
       } catch {
         // user cancelled
       }
     } else {
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(shareUrl)
       setShareMsg('הקישור הועתק!')
       setTimeout(() => setShareMsg(''), 2000)
     }
-  }, [])
+  }, [inputs])
 
   return (
     <div className="print-area">

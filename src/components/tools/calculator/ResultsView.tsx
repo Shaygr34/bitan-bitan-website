@@ -10,6 +10,7 @@ type ResultsViewProps = {
   comparison: CalculationResult | null
   onCompare: () => void
   onRestart: () => void
+  shareUrl?: string
 }
 
 const OPTION_NAMES: Record<OptionType, string> = {
@@ -28,14 +29,14 @@ function fmtCurrency(n: number | null | undefined): string {
   return `${fmt(n)} ₪`
 }
 
-export function ResultsView({ primary, comparison, onCompare, onRestart }: ResultsViewProps) {
+export function ResultsView({ primary, comparison, onCompare, onRestart, shareUrl }: ResultsViewProps) {
   const results = comparison ? [primary, comparison] : [primary]
   const hasComparison = !!comparison
 
   const handlePrint = useCallback(() => { window.print() }, [])
   const [shareMsg, setShareMsg] = useState('')
   const handleShare = useCallback(async () => {
-    const url = window.location.href
+    const url = shareUrl || window.location.href
     if (navigator.share) {
       try { await navigator.share({ title: 'מחשבון ליסינג/רכב — ביטן את ביטן', url }) } catch { /* cancelled */ }
     } else {
@@ -43,7 +44,7 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
       setShareMsg('הקישור הועתק!')
       setTimeout(() => setShareMsg(''), 2000)
     }
-  }, [])
+  }, [shareUrl])
 
   return (
     <div>

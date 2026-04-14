@@ -31,6 +31,43 @@ const PHASE_LABELS: Record<WizardPhase, string> = {
 
 const PHASE_ORDER: WizardPhase[] = ['base', 'pickOption', 'details', 'results']
 
+// ── URL param helpers for shareable links ──
+function encodeLeasingParams(b: Partial<BaseInputs>, opt: OptionType, inp: Record<string, unknown>): string {
+  const p = new URLSearchParams()
+  if (b.userType) p.set('ut', b.userType)
+  if (b.vehicleType) p.set('vt', b.vehicleType)
+  if (b.carPrice) p.set('cp', String(b.carPrice))
+  if (b.monthlyIncome) p.set('mi', String(b.monthlyIncome))
+  if (b.manufacturerPrice) p.set('mfp', String(b.manufacturerPrice))
+  p.set('opt', opt)
+  // Encode option-specific inputs
+  for (const [k, v] of Object.entries(inp)) {
+    if (v !== undefined && v !== null && v !== '') p.set(k, String(v))
+  }
+  return p.toString()
+}
+
+function decodeLeasingParams(search: string): { base: Partial<BaseInputs>; option: OptionType; inputs: Record<string, unknown> } | null {
+  const p = new URLSearchParams(search)
+  if (!p.has('opt')) return null
+  const base: Partial<BaseInputs> = {
+    userType: (p.get('ut') as BaseInputs['userType']) || 'selfEmployed',
+    vehicleType: (p.get('vt') as BaseInputs['vehicleType']) || 'privatePetrol',
+    carPrice: Number(p.get('cp')) || 150000,
+    monthlyIncome: Number(p.get('mi')) || 20000,
+  }
+  if (p.has('mfp')) base.manufacturerPrice = Number(p.get('mfp'))
+  const option = p.get('opt') as OptionType
+  const inputs: Record<string, unknown> = {}
+  // Parse known numeric/boolean option fields
+  const numFields = ['equityPercent', 'interestSpread', 'periodMonths', 'fuelMonthly', 'maintenanceYearly', 'insuranceYearly', 'downPaymentPercent', 'residualPercent', 'tradeInAmount', 'monthlyLeasingPayment', 'kmPerMonth']
+  for (const k of numFields) {
+    if (p.has(k)) inputs[k] = Number(p.get(k))
+  }
+  if (p.has('tradeIn')) inputs.tradeIn = p.get('tradeIn') === 'true'
+  return { base, option, inputs }
+}
+
 export function LeasingCalculator({ config: configOverride }: LeasingCalculatorProps) {
   const config: CalculatorConfig = {
     ...DEFAULT_CONFIG,
@@ -54,6 +91,24 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
 
   const phaseIndex = PHASE_ORDER.indexOf(phase)
   const progressPercent = phase === 'results' ? 100 : ((phaseIndex + 1) / PHASE_ORDER.length) * 100
+
+  // Auto-restore from URL params on mount
+  useEffect(() => {
+    const restored = decodeLeasingParams(window.location.search)
+    if (restored) {
+      setBase(restored.base)
+      setPrimaryOption(restored.option)
+      setPrimaryInputs(restored.inputs)
+      const result = calculateOption(
+        restored.option,
+        restored.base as BaseInputs,
+        restored.inputs as PurchaseInputs | FinancialLeasingInputs | OperationalLeasingInputs,
+        config
+      )
+      setPrimaryResult(result)
+      setPhase('results')
+    }
+  }, []) // eslint-disable-line
 
   // F9: scroll to top on phase change (mobile fix)
   useEffect(() => {
@@ -229,12 +284,13 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
           />
         )}
 
-        {phase === 'results' && primaryResult && (
+        {phase === 'results' && primaryResult && primaryOption && (
           <ResultsView
             primary={primaryResult}
             comparison={comparisonResult}
             onCompare={handleCompare}
             onRestart={handleRestart}
+            shareUrl={`${typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''}?${encodeLeasingParams(base, primaryOption, primaryInputs)}`}
           />
         )}
       </div>

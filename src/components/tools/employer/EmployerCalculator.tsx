@@ -22,6 +22,60 @@ function fmt(n: number): string {
   return n.toLocaleString('he-IL')
 }
 
+// ── URL param helpers ──
+function encodeEmployerParams(inp: EmployerInputs): string {
+  const p = new URLSearchParams()
+  p.set('gs', String(inp.grossSalary))
+  p.set('ta', String(inp.travelAllowance))
+  if (inp.hasVehicle) { p.set('v', '1'); p.set('vf', inp.vehicleFuelType); p.set('mp', String(inp.manufacturerPrice)) }
+  if (inp.hasMealBenefit) { p.set('ml', String(inp.mealBenefitAmount)) }
+  if (inp.hasOtherBenefit) { p.set('ob', String(inp.otherBenefitAmount)) }
+  p.set('pe', String(inp.employeePensionRate))
+  p.set('pp', String(inp.employerPensionRate))
+  p.set('sv', String(inp.severanceRate))
+  p.set('ee', String(inp.employerEducationRate))
+  p.set('g', inp.gender[0]) // m/f
+  p.set('ms', inp.maritalStatus)
+  if (inp.childrenAges.length > 0) p.set('ca', inp.childrenAges.join(','))
+  if (inp.childAllowanceRecipient === 'employee') p.set('cr', 'e')
+  if (inp.disabledChildrenCount > 0) p.set('dc', String(inp.disabledChildrenCount))
+  if (inp.serviceType !== 'none') { p.set('st', inp.serviceType); p.set('sl', inp.serviceLevel) }
+  return p.toString()
+}
+
+function decodeEmployerParams(search: string): EmployerInputs | null {
+  const p = new URLSearchParams(search)
+  if (!p.has('gs')) return null
+  const defaults = getDefaultEmployerInputs()
+  const gs = Number(p.get('gs')) || defaults.grossSalary
+  return {
+    ...defaults,
+    grossSalary: gs,
+    pensionSalary: gs,
+    travelAllowance: Number(p.get('ta')) || defaults.travelAllowance,
+    hasVehicle: p.get('v') === '1',
+    vehicleFuelType: (p.get('vf') as EmployerInputs['vehicleFuelType']) || defaults.vehicleFuelType,
+    manufacturerPrice: Number(p.get('mp')) || defaults.manufacturerPrice,
+    hasMealBenefit: p.has('ml'),
+    mealBenefitAmount: Number(p.get('ml')) || defaults.mealBenefitAmount,
+    hasOtherBenefit: p.has('ob'),
+    otherBenefitAmount: Number(p.get('ob')) || defaults.otherBenefitAmount,
+    employeePensionRate: Number(p.get('pe')) || defaults.employeePensionRate,
+    employerPensionRate: Number(p.get('pp')) || defaults.employerPensionRate,
+    severanceRate: Number(p.get('sv')) || defaults.severanceRate,
+    employerEducationRate: Number(p.get('ee')) || defaults.employerEducationRate,
+    educationFundSalary: Math.min(gs, DEFAULT_EMPLOYER_CONFIG.educationFundCap),
+    gender: p.get('g') === 'f' ? 'female' : 'male',
+    maritalStatus: (p.get('ms') as EmployerInputs['maritalStatus']) || defaults.maritalStatus,
+    childrenAges: p.has('ca') ? p.get('ca')!.split(',').map(Number) : [],
+    childAllowanceRecipient: p.get('cr') === 'e' ? 'employee' : 'spouse',
+    disabledChildrenCount: Number(p.get('dc')) || 0,
+    serviceType: (p.get('st') as EmployerInputs['serviceType']) || 'none',
+    serviceLevel: (p.get('sl') as EmployerInputs['serviceLevel']) || 'none',
+    pensionCreditSalary: defaults.pensionCreditSalary,
+  }
+}
+
 export function EmployerCalculator() {
   const [phase, setPhase] = useState<Phase>('salary')
   const [inputs, setInputs] = useState<EmployerInputs>(getDefaultEmployerInputs())
@@ -33,6 +87,17 @@ export function EmployerCalculator() {
   const [primaryInputs, setPrimaryInputs] = useState<EmployerInputs | null>(null)
 
   const phaseIndex = PHASE_ORDER.indexOf(phase)
+
+  // Auto-calculate from URL params on mount
+  useEffect(() => {
+    const restored = decodeEmployerParams(window.location.search)
+    if (restored) {
+      setInputs(restored)
+      const res = calculateEmployerCost(restored, DEFAULT_EMPLOYER_CONFIG)
+      setResult(res)
+      setPhase('results')
+    }
+  }, []) // eslint-disable-line
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
