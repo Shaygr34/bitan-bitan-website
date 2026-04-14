@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'motion/react'
-import { WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import { fadeUp, fadeIn, underlineGrow } from '@/lib/motion'
 
 const heroStagger = {
@@ -47,20 +46,19 @@ export function HeroSection({ headline, subtitle, footerNote }: HeroProps) {
         </motion.p>
 
         <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mt-space-7">
-          <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="lg" />
-          <PhoneCTA
-            label="חייגו אלינו"
-            variant="secondary"
-            size="lg"
-            className="border-white text-white hover:bg-white/10 hover:text-white"
-          />
+          <a
+            href="/contact"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+          >
+            לתיאום פגישה
+          </a>
         </motion.div>
 
         <motion.p
           variants={fadeIn}
           className="text-white/60 text-body-sm mt-space-5"
         >
-          {footerNote ?? 'רואי חשבון ומשפטנים · ייעוץ מיסוי וליווי עסקי · תל אביב'}
+          {footerNote ?? 'רואי חשבון ומשפטנים · דור שני · תל אביב'}
         </motion.p>
       </motion.div>
     </section>

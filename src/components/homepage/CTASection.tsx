@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'motion/react'
-import { WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import { fadeUp, underlineGrow } from '@/lib/motion'
 
 const ctaStagger = {
@@ -14,10 +13,9 @@ const ctaStagger = {
 type CTAProps = {
   headline?: string
   subtitle?: string
-  footerNote?: string
 }
 
-export function CTASection({ headline, subtitle, footerNote }: CTAProps) {
+export function CTASection({ headline, subtitle }: CTAProps) {
   return (
     <section className="bg-primary py-space-9 md:py-space-10 px-6">
       <motion.div
@@ -28,7 +26,7 @@ export function CTASection({ headline, subtitle, footerNote }: CTAProps) {
         viewport={{ once: true, margin: '-60px' }}
       >
         <motion.h2 variants={fadeUp} className="text-white text-h2 font-bold">
-          {headline ?? 'מוכנים להתחיל?'}
+          {headline ?? 'ביטן את ביטן — לשירותכם'}
         </motion.h2>
         <motion.span
           variants={underlineGrow}
@@ -39,28 +37,26 @@ export function CTASection({ headline, subtitle, footerNote }: CTAProps) {
           className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto"
         >
           {subtitle ??
-            'צרו קשר עוד היום לפגישת ייעוץ ראשונית ללא עלות. נשמח להכיר ולהבין איך נוכל לעזור.'}
+            'נשמח להכיר את העסק שלכם ולבחון כיצד נוכל לסייע.'}
         </motion.p>
 
         <motion.div
           variants={fadeUp}
           className="flex flex-wrap justify-center gap-4 mt-space-7"
         >
-          <WhatsAppCTA label="שלחו הודעה בוואטסאפ" size="lg" />
-          <PhoneCTA
-            label="חייגו אלינו"
-            variant="secondary"
-            size="lg"
-            className="border-white text-white hover:bg-white/10 hover:text-white"
-          />
+          <a
+            href="/contact"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+          >
+            לתיאום פגישה
+          </a>
+          <a
+            href="tel:+97235174295"
+            className="inline-flex items-center gap-2 px-8 py-3 border border-white/40 text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+          >
+            03-5174295
+          </a>
         </motion.div>
-
-        <motion.p
-          variants={fadeUp}
-          className="text-white/50 text-body-sm mt-space-5"
-        >
-          {footerNote ?? 'ללא התחייבות · תשובה תוך 24 שעות · שיחה חינם'}
-        </motion.p>
       </motion.div>
     </section>
   )

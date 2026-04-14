@@ -4,7 +4,6 @@ import {
   TrustBar,
   ServicesSection,
   AboutSection,
-  ProcessSection,
   KnowledgePreview,
   TestimonialsSection,
   ClientLogosSection,
@@ -50,11 +49,6 @@ export default async function Home() {
         linkText={homePage?.aboutLinkText}
         differentiators={homePage?.aboutDifferentiators}
       />
-      <ProcessSection
-        heading={homePage?.processHeading}
-        subtitle={homePage?.processSubtitle}
-        steps={homePage?.processSteps}
-      />
       <TestimonialsSection />
       <ClientLogosSection logos={clientLogos} />
       <KnowledgePreview articles={articles} />
@@ -63,7 +57,6 @@ export default async function Home() {
       <CTASection
         headline={homePage?.ctaHeadline}
         subtitle={homePage?.ctaSubtitle}
-        footerNote={homePage?.ctaFooterNote}
       />
     </>
   )
