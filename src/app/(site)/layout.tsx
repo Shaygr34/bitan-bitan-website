@@ -92,8 +92,14 @@ export default async function SiteLayout({
       <GoogleAnalytics />
       <JsonLd data={buildOrganizationJsonLd(settings)} />
       <SiteSettingsProvider settings={settings}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-[100] focus:bg-gold focus:text-primary focus:px-4 focus:py-2 focus:rounded-lg focus:font-medium focus:shadow-lg"
+        >
+          דלג לתוכן
+        </a>
         <Header />
-        <main className="flex-1">
+        <main id="main-content" className="flex-1">
           <PageTransition>{children}</PageTransition>
         </main>
         <Footer />
