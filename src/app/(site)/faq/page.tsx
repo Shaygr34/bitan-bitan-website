@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getFAQs } from '@/sanity/queries'
-import { SectionHeader, WhatsAppCTA, PhoneCTA } from '@/components/ui'
+import { SectionHeader } from '@/components/ui'
 import { FAQAccordion } from './FAQAccordion'
 import { FAQFilterable } from './FAQFilterable'
 import { JsonLd } from '@/components/JsonLd'
@@ -130,13 +130,17 @@ export default async function FAQPage() {
         <div className="max-w-content mx-auto text-center">
           <SectionHeader
             centered
-            subtitle="לא מצאתם תשובה לשאלה שלכם? נשמח לעזור."
+            subtitle="לא מצאתם תשובה? פנו אלינו."
           >
-            צריכים ייעוץ אישי?
+            ביטן את ביטן — 03-5174295
           </SectionHeader>
           <div className="flex flex-wrap justify-center gap-4 mt-space-7">
-            <WhatsAppCTA label="שלחו לנו שאלה בוואטסאפ" size="lg" />
-            <PhoneCTA label="התקשרו אלינו" size="lg" variant="secondary" />
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+            >
+              פנו למשרד
+            </a>
           </div>
         </div>
       </section>

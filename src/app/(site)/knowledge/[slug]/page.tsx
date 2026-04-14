@@ -5,7 +5,7 @@ import { PortableText } from 'next-sanity'
 import { getArticleBySlug, getRelatedArticles, getParentCategories } from '@/sanity/queries'
 import { NewsletterSignup } from '@/components/NewsletterSignup'
 import { urlFor } from '@/sanity/image'
-import { SectionHeader, WhatsAppCTA } from '@/components/ui'
+import { SectionHeader } from '@/components/ui'
 import { JsonLd } from '@/components/JsonLd'
 import { SITE_URL } from '@/lib/site-url'
 import { Breadcrumb } from '@/components/Breadcrumb'
@@ -458,12 +458,17 @@ export default async function ArticlePage({ params }: Props) {
         <div className="max-w-content mx-auto text-center">
           <SectionHeader
             centered
-            subtitle="יש לכם שאלה על הנושא? נשמח לעזור."
+            subtitle="לשאלות בנושא — 03-5174295"
           >
-            צריכים ייעוץ מקצועי?
+            ביטן את ביטן — לשירותכם
           </SectionHeader>
           <div className="mt-space-7">
-            <WhatsAppCTA label="שלחו לנו שאלה בוואטסאפ" size="lg" />
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
+            >
+              פנו אלינו
+            </a>
           </div>
         </div>
       </section>
