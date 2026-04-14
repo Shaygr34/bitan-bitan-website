@@ -54,11 +54,13 @@ export function getTaxDeductionMultiplier(vehicleType: VehicleType): number {
 
 /* ─── Israeli Marginal Tax Brackets (2026) ─── */
 
+// 2026 brackets — expanded per budget law (ריווח מדרגות מס)
+// Source: כל-זכות, malam-payroll, CWS Israel (April 2026)
 const TAX_BRACKETS_ANNUAL = [
   { ceiling: 84_120, rate: 0.10 },
   { ceiling: 120_720, rate: 0.14 },
-  { ceiling: 193_800, rate: 0.20 },
-  { ceiling: 269_280, rate: 0.31 },
+  { ceiling: 228_000, rate: 0.20 },  // expanded from 193,800 in 2025
+  { ceiling: 301_200, rate: 0.31 },  // expanded from 269,280 in 2025
   { ceiling: 560_280, rate: 0.35 },
   { ceiling: 721_560, rate: 0.47 },
   { ceiling: Infinity, rate: 0.50 },
