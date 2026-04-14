@@ -104,7 +104,7 @@ export function ContactForm() {
     <Card hover={false}>
       <CardBody>
         <h3 className="text-h3 font-bold text-primary mb-space-5">
-          השאירו פרטים
+          פנייה למשרד
         </h3>
 
         {status === 'error' && (

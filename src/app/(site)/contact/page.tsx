@@ -2,25 +2,21 @@ import type { Metadata } from "next";
 import {
   SectionHeader,
   LTR,
-  WhatsAppCTA,
-  PhoneCTA,
 } from "@/components/ui";
 import { ContactForm } from "./ContactForm";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { getSiteSettings } from "@/sanity/queries";
-import { TrustModule } from "@/components/TrustModule";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 export const metadata: Metadata = {
   title: 'צור קשר',
   description:
-    'צרו קשר עם משרד רואי חשבון ביטן את ביטן — טלפון, דוא״ל, וואטסאפ או ביקור במשרד בתל אביב.',
+    'צרו קשר עם משרד רואי חשבון ביטן את ביטן — טלפון, דוא״ל או ביקור במשרד בתל אביב.',
   alternates: { canonical: '/contact' },
   openGraph: {
     title: 'צור קשר — ביטן את ביטן רואי חשבון',
     description:
-      'צרו קשר עם משרד רואי חשבון ביטן את ביטן — טלפון, דוא״ל, וואטסאפ או ביקור במשרד.',
+      'צרו קשר עם משרד רואי חשבון ביטן את ביטן — טלפון, דוא״ל או ביקור במשרד.',
   },
 };
 
@@ -59,9 +55,6 @@ export default async function ContactPage() {
   const phoneDigits = phone.replace(/[^+\d]/g, '')
   const phoneTel = phoneDigits.startsWith('+') ? phoneDigits : `+972${phoneDigits.replace(/^0/, '')}`
   const email = s?.email ?? 'office@bitancpa.com'
-  const whatsapp = s?.whatsapp ?? '+972527221111'
-  const whatsappClean = whatsapp.replace(/[^0-9]/g, '')
-  const whatsappDisplay = whatsapp.replace(/(\+972)(\d{2})(\d{3})(\d{4})/, '$1-$2-$3-$4')
   const address = s?.address ?? 'הרכבת 58, מגדל אלקטרה סיטי, קומה 11, תל אביב'
   const officeHours = s?.officeHours ?? 'ראשון–חמישי 08:30–17:00'
 
@@ -85,14 +78,6 @@ export default async function ContactPage() {
       href: `mailto:${email}`,
       ltr: true,
       external: false,
-    },
-    {
-      icon: WhatsAppIcon,
-      label: "WhatsApp",
-      value: whatsappDisplay,
-      href: `https://wa.me/${whatsappClean}`,
-      ltr: true,
-      external: true,
     },
     {
       icon: MapPin,
@@ -123,8 +108,7 @@ export default async function ContactPage() {
           <h1 className="text-white text-h1 font-bold">צור קשר</h1>
           <span className="gold-underline mt-4" />
           <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow">
-            נשמח לשמוע מכם. צרו קשר בכל דרך שנוחה לכם — נחזור אליכם תוך 24
-            שעות.
+            נשמח לשמוע מכם.
           </p>
         </div>
       </section>
@@ -165,17 +149,6 @@ export default async function ContactPage() {
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-3 mt-space-7">
-                <WhatsAppCTA label="WhatsApp" size="md" />
-                <PhoneCTA size="md" />
-                <a
-                  href={`mailto:${email}`}
-                  className="inline-flex items-center justify-center gap-2 border-2 border-primary text-primary font-medium text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary hover:text-white transition-all duration-base"
-                >
-                  <Mail className="h-4 w-4" />
-                  שלחו מייל
-                </a>
-              </div>
             </div>
 
             {/* Contact form */}
@@ -220,22 +193,13 @@ export default async function ContactPage() {
 
               <div className="flex gap-3 shrink-0">
                 <a
-                  href={gmapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-white border-2 border-[#EA4335] text-[#EA4335] font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#EA4335] hover:text-white transition-all"
-                >
-                  <GoogleMapsIcon className="h-5 w-5" />
-                  Google Maps
-                </a>
-                <a
                   href={navUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#30B6FC] text-white font-bold text-body-sm px-5 py-2.5 rounded-lg hover:bg-[#28a0e0] transition-all"
+                  className="inline-flex items-center gap-2 bg-primary text-white font-medium text-body-sm px-5 py-2.5 rounded-lg hover:bg-primary-light transition-all"
                 >
-                  <WazeIcon className="h-5 w-5" />
-                  נווט ב-Waze
+                  <MapPin className="h-4 w-4" />
+                  הגעה למשרד
                 </a>
               </div>
             </div>
@@ -243,8 +207,6 @@ export default async function ContactPage() {
         </div>
       </section>
 
-      {/* Trust Module — process + prepare docs */}
-      <TrustModule showProcess={true} showPrepare={true} />
     </div>
   );
 }
