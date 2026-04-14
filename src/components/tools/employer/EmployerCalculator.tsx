@@ -223,7 +223,7 @@ export function EmployerCalculator() {
       {/* Back */}
       {phase !== 'salary' && (
         <div className="mb-space-4">
-          <button type="button" onClick={back} className="text-gold hover:text-gold-hover text-body font-medium transition-colors cursor-pointer px-2 py-1">
+          <button type="button" onClick={back} className="text-gold-dark hover:text-gold text-body font-medium transition-colors cursor-pointer px-2 py-1">
             ← חזרה לשלב הקודם
           </button>
         </div>

@@ -15,6 +15,7 @@ const config: Config = {
         gold: {
           DEFAULT: "#C5A572",
           hover: "#B8955F",
+          dark: "#8B7342",
         },
         surface: "#F8F7F4",
         callout: "#F0EDE6",

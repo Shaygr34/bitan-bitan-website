@@ -104,7 +104,7 @@ export function NewsletterSignup({ categories, preSelectedCategoryId, compact = 
             <button
               type="button"
               onClick={() => setExpanded(!expanded)}
-              className="inline-flex items-center gap-1 text-body-sm font-medium text-gold hover:text-gold-hover transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 text-body-sm font-medium text-gold-dark hover:text-gold transition-colors cursor-pointer"
             >
               בחרו נושאים
               <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />

@@ -68,7 +68,7 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
           {member.name}
         </h3>
         {member.role && (
-          <p className="text-caption text-gold font-semibold mt-1 tracking-wide">
+          <p className="text-caption text-gold-dark font-semibold mt-1 tracking-wide">
             {member.role}
           </p>
         )}

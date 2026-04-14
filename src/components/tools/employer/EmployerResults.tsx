@@ -101,13 +101,13 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
                 </tr>
                 <tr className="border-b border-border-light bg-surface/30">
                   <td className="py-2 px-4 text-text-muted font-medium">עלות מעסיק</td>
-                  <td className="py-2 px-4 text-center font-bold text-gold">{fmt(result.employer.totalWithShvui)} ₪</td>
+                  <td className="py-2 px-4 text-center font-bold text-gold-dark">{fmt(result.employer.totalWithShvui)} ₪</td>
                   <td className="py-2 px-4 text-center font-bold text-primary">{fmt(comparisonResult.employer.totalWithShvui)} ₪</td>
                   <td className="py-2 px-4 text-center font-bold text-primary">{fmt(Math.abs(result.employer.totalWithShvui - comparisonResult.employer.totalWithShvui))} ₪</td>
                 </tr>
                 <tr className="border-b border-border-light">
                   <td className="py-2 px-4 text-text-muted font-medium">נטו עובד</td>
-                  <td className="py-2 px-4 text-center font-bold text-gold">{fmt(result.employee.netWithShvui)} ₪</td>
+                  <td className="py-2 px-4 text-center font-bold text-gold-dark">{fmt(result.employee.netWithShvui)} ₪</td>
                   <td className="py-2 px-4 text-center font-bold text-primary">{fmt(comparisonResult.employee.netWithShvui)} ₪</td>
                   <td className="py-2 px-4 text-center font-bold text-primary">{fmt(Math.abs(result.employee.netWithShvui - comparisonResult.employee.netWithShvui))} ₪</td>
                 </tr>
@@ -150,14 +150,14 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             <Wallet className="h-4 w-4 text-gold" />
             <span className="text-caption text-text-muted">עלות מעסיק כולל</span>
           </div>
-          <span className="text-body-lg font-bold text-gold block">{fmt(empr.totalWithShvui)} ₪</span>
+          <span className="text-body-lg font-bold text-gold-dark block">{fmt(empr.totalWithShvui)} ₪</span>
         </div>
         <div className="rounded-lg p-space-3 border border-gold bg-gold/5">
           <div className="flex items-center gap-1.5 mb-1">
             <Users className="h-4 w-4 text-gold" />
             <span className="text-caption text-text-muted">נטו עובד</span>
           </div>
-          <span className="text-body-lg font-bold text-gold block">{fmt(emp.netWithShvui)} ₪</span>
+          <span className="text-body-lg font-bold text-gold-dark block">{fmt(emp.netWithShvui)} ₪</span>
         </div>
         {hasShvuiMas && (
           <>
@@ -228,7 +228,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             <div className="grid grid-cols-2 gap-3 mt-2">
               <div className="rounded-lg border border-gold bg-gold/5 p-space-3 text-center">
                 <span className="text-caption text-text-muted block mb-1">נטו עובד <strong>כולל</strong> שווי מס</span>
-                <span className="text-body-lg font-bold text-gold block">{fmt(emp.netWithShvui)} ₪</span>
+                <span className="text-body-lg font-bold text-gold-dark block">{fmt(emp.netWithShvui)} ₪</span>
               </div>
               <div className="rounded-lg border border-border p-space-3 text-center">
                 <span className="text-caption text-text-muted block mb-1">נטו עובד <strong>ללא</strong> שווי מס</span>
@@ -266,7 +266,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             <div className="grid grid-cols-2 gap-3 mt-2">
               <div className="rounded-lg border border-gold bg-gold/5 p-space-3 text-center">
                 <span className="text-caption text-text-muted block mb-1">כולל שווי מס</span>
-                <span className="text-body-lg font-bold text-gold block">{fmt(empr.totalWithShvui)} ₪</span>
+                <span className="text-body-lg font-bold text-gold-dark block">{fmt(empr.totalWithShvui)} ₪</span>
               </div>
               <div className="rounded-lg border border-border p-space-3 text-center">
                 <span className="text-caption text-text-muted block mb-1">ללא שווי מס</span>
