@@ -172,6 +172,13 @@ export default async function ServicesPage() {
             >
               פנו למשרד
             </a>
+            <a
+              href="tel:+97235174295"
+              className="inline-flex items-center gap-2 px-8 py-3 border border-white/40 text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+              dir="ltr"
+            >
+              03-5174295
+            </a>
           </div>
         </div>
       </section>

@@ -175,12 +175,11 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* CTA */}
       <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto text-center">
-          <SectionHeader
-            centered
-            subtitle={`מעוניינים בשירותי ${service.title}?`}
-          >
-            <span className="text-white">לתיאום פגישה</span>
-          </SectionHeader>
+          <h2 className="text-white text-h2 font-bold">לפרטים נוספים</h2>
+          <span className="gold-underline mt-3 mx-auto" />
+          <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto">
+            {`מעוניינים בשירותי ${service.title}? נשמח לסייע.`}
+          </p>
           <div className="flex flex-wrap justify-center gap-4 mt-space-7">
             <a
               href="/contact"

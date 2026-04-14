@@ -54,10 +54,7 @@ export default async function Home() {
       <KnowledgePreview articles={articles} />
       <TrustModule showProcess={false} showPrepare={false} showCTA={false} />
       <FAQSection faqs={faqs} />
-      <CTASection
-        headline={homePage?.ctaHeadline}
-        subtitle={homePage?.ctaSubtitle}
-      />
+      <CTASection />
     </>
   )
 }

@@ -454,20 +454,26 @@ export default async function ArticlePage({ params }: Props) {
       </div>
 
       {/* CTA */}
-      <section className={`${relatedArticles.length > 0 ? '' : 'bg-surface'} py-space-9 px-6`}>
+      <section className="bg-primary py-space-9 px-6">
         <div className="max-w-content mx-auto text-center">
-          <SectionHeader
-            centered
-            subtitle="לשאלות בנושא — 03-5174295"
-          >
-            ביטן את ביטן — לשירותכם
-          </SectionHeader>
-          <div className="mt-space-7">
+          <h2 className="text-white text-h2 font-bold">לפרטים נוספים</h2>
+          <span className="gold-underline mt-3 mx-auto" />
+          <p className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto">
+            לשאלות בנושא — נשמח לסייע.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 mt-space-7">
             <a
               href="/contact"
               className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-primary font-medium rounded-lg hover:bg-accent/90 transition-colors"
             >
-              פנו אלינו
+              פנו למשרד
+            </a>
+            <a
+              href="tel:+97235174295"
+              className="inline-flex items-center gap-2 px-8 py-3 border border-white/40 text-white font-medium rounded-lg hover:bg-white/10 transition-colors"
+              dir="ltr"
+            >
+              03-5174295
             </a>
           </div>
         </div>

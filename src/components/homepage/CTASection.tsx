@@ -10,12 +10,7 @@ const ctaStagger = {
   },
 }
 
-type CTAProps = {
-  headline?: string
-  subtitle?: string
-}
-
-export function CTASection({ headline, subtitle }: CTAProps) {
+export function CTASection() {
   return (
     <section className="bg-primary py-space-9 md:py-space-10 px-6">
       <motion.div
@@ -26,7 +21,7 @@ export function CTASection({ headline, subtitle }: CTAProps) {
         viewport={{ once: true, margin: '-60px' }}
       >
         <motion.h2 variants={fadeUp} className="text-white text-h2 font-bold">
-          {headline ?? 'ביטן את ביטן — לשירותכם'}
+          לפרטים נוספים
         </motion.h2>
         <motion.span
           variants={underlineGrow}
@@ -36,8 +31,7 @@ export function CTASection({ headline, subtitle }: CTAProps) {
           variants={fadeUp}
           className="text-white/85 text-body-lg mt-space-5 max-w-narrow mx-auto"
         >
-          {subtitle ??
-            'נשמח להכיר את העסק שלכם ולבחון כיצד נוכל לסייע.'}
+          נשמח להכיר את העסק שלכם ולבחון כיצד נוכל לסייע.
         </motion.p>
 
         <motion.div
