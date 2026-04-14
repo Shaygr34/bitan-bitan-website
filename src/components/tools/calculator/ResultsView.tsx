@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { ArrowRight, Calculator, TrendingDown, Receipt, Wallet, Info, Printer, Share2 } from 'lucide-react'
 import { WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import type { CalculationResult, OptionType } from './types'
@@ -33,13 +33,15 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
   const hasComparison = !!comparison
 
   const handlePrint = useCallback(() => { window.print() }, [])
+  const [shareMsg, setShareMsg] = useState('')
   const handleShare = useCallback(async () => {
     const url = window.location.href
     if (navigator.share) {
       try { await navigator.share({ title: 'מחשבון ליסינג/רכב — ביטן את ביטן', url }) } catch { /* cancelled */ }
     } else {
       await navigator.clipboard.writeText(url)
-      alert('הקישור הועתק!')
+      setShareMsg('הקישור הועתק!')
+      setTimeout(() => setShareMsg(''), 2000)
     }
   }, [])
 
@@ -89,6 +91,9 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
           <Share2 className="h-4 w-4" />
           שיתוף
         </button>
+        {shareMsg && (
+          <span className="text-body-sm text-green-600 font-medium animate-pulse">{shareMsg}</span>
+        )}
       </div>
 
       {/* CTA Section */}
@@ -106,13 +111,48 @@ export function ResultsView({ primary, comparison, onCompare, onRestart }: Resul
 
       </div>
 
-      {/* Print CSS */}
+      {/* Print disclaimer (hidden on screen) */}
+      <div className="hidden print:block mt-8 pt-4 border-t border-border text-center">
+        <p className="text-caption text-text-muted">אין לנו אחריות. המידע להמחשה בלבד ואינו מהווה ייעוץ מקצועי.</p>
+        <p className="text-caption text-text-muted">ביטן את ביטן — רואי חשבון | bitancpa.com</p>
+      </div>
+
+      {/* Print CSS — compact one-pager (matches employer calc) */}
       <style jsx global>{`
         @media print {
-          nav, footer, .no-print { display: none !important; }
-          body { font-size: 11px !important; line-height: 1.3 !important; }
-          * { break-inside: avoid; }
-          .shadow-md { box-shadow: none !important; }
+          /* Hide non-content elements */
+          nav, footer, header, .no-print,
+          [class*="WhatsApp"], [class*="whatsapp"] { display: none !important; }
+
+          /* Page setup */
+          @page { margin: 10mm; }
+          main, article, section { padding: 0 !important; }
+
+          /* Compact typography */
+          body { font-size: 10px !important; line-height: 1.3 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          h2, h3, h4 { font-size: 12px !important; margin-bottom: 2px !important; }
+          .text-h3 { font-size: 14px !important; }
+          .text-body-lg { font-size: 11px !important; }
+          .text-body, .text-body-sm { font-size: 9px !important; }
+          .text-caption { font-size: 7.5px !important; }
+
+          /* Tight spacing */
+          .mb-space-5, .mb-space-6, .mb-space-7, .mb-space-8 { margin-bottom: 6px !important; }
+          .mb-space-3, .mb-space-2 { margin-bottom: 3px !important; }
+          .p-space-4, .p-space-3, .p-space-5 { padding: 4px 6px !important; }
+          .py-space-9 { padding-top: 8px !important; padding-bottom: 8px !important; }
+          .py-2 { padding-top: 1px !important; padding-bottom: 1px !important; }
+          .gap-3, .gap-4 { gap: 3px !important; }
+          .mt-space-8, .mt-space-7, .mt-space-5, .mt-space-6 { margin-top: 6px !important; }
+          .space-y-space-5 > * + * { margin-top: 6px !important; }
+
+          /* Visual cleanup */
+          .rounded-2xl, .rounded-xl { border-radius: 4px !important; }
+          .shadow-md, .shadow-lg { box-shadow: none !important; }
+          .grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
+
+          /* Show print-only elements */
+          .print\\:block { display: block !important; }
         }
       `}</style>
     </div>
@@ -442,7 +482,9 @@ function Verdict({ primary, comparison }: { primary: CalculationResult; comparis
       label: 'חיסכון מס',
       aWins: taxA > taxB,
       bWins: taxB > taxA,
-      detail: `${OPTION_NAMES[winner.optionType]} חוסך ${fmt(diff)} ₪ נוספים במס`,
+      detail: taxA >= 0 || taxB >= 0
+        ? `${OPTION_NAMES[winner.optionType]} חוסך ${fmt(diff)} ₪ נוספים במס`
+        : `${OPTION_NAMES[winner.optionType]} עלות מס נמוכה יותר ב-${fmt(diff)} ₪`,
     })
   }
 
@@ -486,16 +528,4 @@ function Verdict({ primary, comparison }: { primary: CalculationResult; comparis
   )
 }
 
-function getComparisonRows(): { key: string; label: string; getValue: (r: CalculationResult) => string }[] {
-  return [
-    { key: 'carPrice', label: 'עלות רכב', getValue: (r) => fmtCurrency(r.carPrice) },
-    { key: 'equity', label: 'הון עצמי / מקדמה', getValue: (r) => fmtCurrency(r.equity) },
-    { key: 'monthlyCashflow', label: 'תשלום חודשי ממוצע', getValue: (r) => fmtCurrency(r.monthlyCashflow) },
-    { key: 'totalAnnual', label: 'סה"כ הוצאות שנתי', getValue: (r) => fmtCurrency(r.totalAnnualExpenses) },
-    { key: 'vatRecoverable', label: 'מע"מ מוכר (שנתי)', getValue: (r) => fmtCurrency(r.vatRecoverable) },
-    { key: 'deductible', label: 'הוצאות מוכרות (שנתי)', getValue: (r) => fmtCurrency(r.deductibleExpenses) },
-    { key: 'taxSavings', label: 'חיסכון מס שנתי', getValue: (r) => fmtCurrency(r.annualTaxSavings) },
-    { key: 'loanInterest', label: 'ריבית הלוואה (סה"כ)', getValue: (r) => r.loanInterestTotal > 0 ? fmtCurrency(r.loanInterestTotal) : '—' },
-    { key: 'residual', label: 'שווי רכב לאחר 5 שנים', getValue: (r) => r.residualCarValue !== null ? fmtCurrency(r.residualCarValue) : '—' },
-  ]
-}
+// getComparisonRows was dead code — removed

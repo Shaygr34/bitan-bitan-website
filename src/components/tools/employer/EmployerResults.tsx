@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2 } from 'lucide-react'
 import { WhatsAppCTA, PhoneCTA } from '@/components/ui'
 import type { EmployerCalcResult, EmployerInputs } from './types'
@@ -27,6 +27,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
     window.print()
   }, [])
 
+  const [shareMsg, setShareMsg] = useState('')
   const handleShare = useCallback(async () => {
     const url = window.location.href
     const text = `מחשבון עלות מעסיק — ביטן את ביטן`
@@ -38,7 +39,8 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
       }
     } else {
       await navigator.clipboard.writeText(url)
-      alert('הקישור הועתק!')
+      setShareMsg('הקישור הועתק!')
+      setTimeout(() => setShareMsg(''), 2000)
     }
   }, [])
 
@@ -287,6 +289,9 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
           <Share2 className="h-4 w-4" />
           שיתוף
         </button>
+        {shareMsg && (
+          <span className="text-body-sm text-green-600 font-medium animate-pulse">{shareMsg}</span>
+        )}
       </div>
 
       {/* Comparison — intentionally empty here, moved to top */}

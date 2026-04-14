@@ -164,16 +164,16 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         label="מחיר הרכב"
         subtitle="כולל מע״מ"
         min={50000}
-        max={400000}
+        max={600000}
         step={5000}
         value={values.carPrice || 150000}
         onChange={(v) => onChange({ carPrice: v })}
         nodes={[
           { value: 100000, label: '100K' },
-          { value: 150000, label: '150K' },
           { value: 200000, label: '200K' },
-          { value: 250000, label: '250K' },
           { value: 300000, label: '300K' },
+          { value: 400000, label: '400K' },
+          { value: 500000, label: '500K' },
         ]}
         format={formatCurrency}
       />
