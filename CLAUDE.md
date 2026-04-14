@@ -30,9 +30,16 @@ CMS: Sanity project ul4uwnp7, dataset production
 ### Tools / Mini-Apps (V5.0)
 - **Architecture**: SSR page shell (metadata, SEO) + `"use client"` component per toolType. Adding new tool = logic file + React component + Sanity doc. No route/schema changes needed.
 - **Sanity schema**: `tool` type with toolType (maps to React component), configJson (JSON blob for rates), primeRate, vatRate, introBody, disclaimer, SEO
-- **Leasing Calculator V2** (`/tools/leasing-calculator`): Real loan amortization, Israeli tax rules (VAT 67%/100%, deductions 45%/100%, marginal tax brackets). Slider-based UX. 3 options × 4 vehicle types. Comparison with "מה עדיף?" verdict. Code: `src/components/tools/calculator/`.
+- **Leasing Calculator V3** (`/tools/leasing-simulator`): Real loan amortization, Israeli tax rules (VAT 67%/100%, deductions 45%/100%, marginal tax brackets). Slider-based UX. 3 options × 4 vehicle types. Comparison with "מה עדיף?" verdict. Code: `src/components/tools/calculator/`.
   - **שכיר path** (April 13): Employee mode enabled. Zero VAT/deductions, negative tax savings showing שווי שימוש cost. Employee NII rates (4.27%/12.17%) in config.
   - **חברה בע"מ mode**: Company tax 23%, שווי מס רכב, NII employer on שווי מס.
+  - **Ron feedback round (April 14)**: 7 fixes in 2 commits:
+    - Income subtitle reworded (self-employed: "רווח מעסק חודשי...")
+    - Purchase interest: dual display — gold shows P+X%, gray shows effective %
+    - Financial leasing restructured: monthly payment slider (₪500-₪10K) replaces interest rate slider. IRR solver (Newton-Raphson) back-calculates effective rate from cash flows.
+    - Trade-in slider max: dynamic cap at carPrice - downPayment - residual
+    - Comparison: same-type allowed (no option exclusion per Ron)
+    - Back button: restores last-active option when returning from comparison results
 - **Employer Cost Calculator V2** (`/tools/employer-cost`): Full Israeli payroll engine (April 13). Code: `src/components/tools/employer/`.
   - Ron's 11-item feedback implemented: `docs/ron-employer-calc-feedback-2026-04-12.md`
   - שווי מס generalized: vehicle + ארוחות + שווי מס נוסף (3 conditional toggles)
