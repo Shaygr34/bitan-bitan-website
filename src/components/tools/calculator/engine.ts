@@ -330,7 +330,7 @@ export function calculatePurchase(
     ? maintenanceYearly
     : Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * vatRecoveryRate))
 
-  const residualCarValue = getResidualCarValue(carPrice)
+  const residualCarValue = getResidualCarValue(carPrice, periodMonths)
 
   return {
     optionType: 'purchase',
@@ -359,7 +359,7 @@ export function calculatePurchase(
     totalTaxSavings,
     fuelMonthlyNetVat,
     maintenanceYearlyNetVat,
-    totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
+    totalExpensesBeforeTax: Math.round(deductibleBase),
     vehicleTaxBenefit: companyFields.vehicleTaxBenefit,
     grossIncludingVehicle: companyFields.grossIncludingVehicle,
     employerNii: companyFields.employerNii,
@@ -479,7 +479,7 @@ export function calculateFinancialLeasing(
     ? maintenanceYearly
     : Math.round(maintenanceYearly - (extractVat(maintenanceYearly, config.vatRate) * getVatRecoveryRate(vehicleType)))
 
-  const residualCarValue = getResidualCarValue(carPrice)
+  const residualCarValue = getResidualCarValue(carPrice, periodMonths)
 
   return {
     optionType: 'financialLeasing',
@@ -508,7 +508,7 @@ export function calculateFinancialLeasing(
     totalTaxSavings,
     fuelMonthlyNetVat,
     maintenanceYearlyNetVat,
-    totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
+    totalExpensesBeforeTax: Math.round(deductibleBase),
     vehicleTaxBenefit: companyFields.vehicleTaxBenefit,
     grossIncludingVehicle: companyFields.grossIncludingVehicle,
     employerNii: companyFields.employerNii,
@@ -628,7 +628,7 @@ export function calculateOperationalLeasing(
     totalTaxSavings,
     fuelMonthlyNetVat,
     maintenanceYearlyNetVat: null,
-    totalExpensesBeforeTax: Math.round(totalAnnualBeforeVat),
+    totalExpensesBeforeTax: Math.round(deductibleBase),
     vehicleTaxBenefit: companyFields.vehicleTaxBenefit,
     grossIncludingVehicle: companyFields.grossIncludingVehicle,
     employerNii: companyFields.employerNii,
@@ -673,12 +673,12 @@ export function getDefaultPurchaseInputs(): PurchaseInputs {
 }
 
 export function getDefaultFinancialInputs(carPrice: number): FinancialLeasingInputs {
-  // Compute reasonable default monthly payment assuming ~6% annual rate
+  // Compute reasonable default monthly payment assuming ~7.5% annual rate (Ron's spec)
   const downPct = 0.15
   const residualPct = 0.30
   const financed = carPrice * (1 - downPct)
   const balloon = carPrice * residualPct
-  const monthlyRate = 0.06 / 12 // 6% annual
+  const monthlyRate = 0.075 / 12 // 7.5% annual — Ron's benchmark rate
   const months = 60
   const oprN = Math.pow(1 + monthlyRate, -months)
   const defaultPayment = Math.round(((financed - balloon * oprN) * monthlyRate / (1 - oprN)) / 100) * 100

@@ -24,9 +24,12 @@ export const INCOME_PRESETS = [15_000, 20_000, 25_000, 30_000, 35_000, 40_000]
 
 /* ─── Residual Car Values (Ron's spec: ~50% after 5 years) ─── */
 
-export function getResidualCarValue(carPrice: number): number {
-  // Ron's mapping: 100K→50K, 150K→75K, 200K→100K, 250K→125K, 300K→150K
-  return Math.round(carPrice * 0.5)
+export function getResidualCarValue(carPrice: number, periodMonths = 60): number {
+  // ~10% depreciation per year, compounding. At 5yr → ~50%, at 3yr → ~35%, at 2yr → ~25%
+  const years = periodMonths / 12
+  const annualRetention = 0.87 // ~13% annual depreciation
+  const retentionRate = Math.pow(annualRetention, years)
+  return Math.round(carPrice * retentionRate)
 }
 
 /* ─── Depreciation Rate ─── */

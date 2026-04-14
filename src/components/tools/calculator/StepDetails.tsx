@@ -231,6 +231,13 @@ function FinancialFields({
   // Compute effective rate via IRR for display
   const computedRate = solveEffectiveRate(financedAmount, monthlyPayment, residualAmount, periodMonths)
 
+  // Minimum viable payment for this period (at ~7.5% rate) — for guidance
+  const minRate = 0.075 / 12
+  const loanPart = Math.max(0, financedAmount - residualAmount)
+  const minPayment = loanPart > 0 && periodMonths > 0
+    ? Math.round((loanPart * minRate / (1 - Math.pow(1 + minRate, -periodMonths))) + residualAmount * minRate)
+    : 0
+
   return (
     <>
       <div className="bg-surface rounded-xl p-space-4 mb-space-4">
@@ -320,7 +327,7 @@ function FinancialFields({
         />
 
         {/* Computed effective rate from IRR */}
-        {computedRate > 0 && computedRate < 50 && (
+        {computedRate > 0 && computedRate < 50 ? (
           <div className="text-center mb-space-4 -mt-space-2">
             <span className="text-body-sm text-text-muted">
               ריבית משוקללת לעסקה:{' '}
@@ -334,7 +341,13 @@ function FinancialFields({
               </span>
             )}
           </div>
-        )}
+        ) : computedRate <= 0 && minPayment > 0 ? (
+          <div className="text-center mb-space-4 -mt-space-2">
+            <span className="text-caption text-amber-600 block">
+              התשלום נמוך מהנדרש לתקופה זו — נסו מעל {formatCurrency(minPayment)} ₪
+            </span>
+          </div>
+        ) : null}
 
         <SliderInput
           label="תקופה"

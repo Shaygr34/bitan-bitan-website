@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { ArrowRight, Calculator, TrendingDown, Receipt, Wallet, Info, Printer, Share2 } from 'lucide-react'
+import { ArrowRight, Calculator, CreditCard, TrendingDown, Receipt, Wallet, Info, Printer, Share2 } from 'lucide-react'
 import type { CalculationResult, OptionType } from './types'
 
 type ResultsViewProps = {
@@ -36,8 +36,10 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
   const [shareMsg, setShareMsg] = useState('')
   const handleShare = useCallback(async () => {
     const url = shareUrl || window.location.href
-    if (navigator.share) {
-      try { await navigator.share({ title: 'מחשבון ליסינג/רכב — ביטן את ביטן', url }) } catch { /* cancelled */ }
+    // Use navigator.share only on mobile (touch devices), clipboard on desktop
+    const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    if (isMobile && navigator.share) {
+      try { await navigator.share({ title: 'סימולטור ליסינג/רכישה — ביטן את ביטן', url }) } catch { /* cancelled */ }
     } else {
       await navigator.clipboard.writeText(url)
       setShareMsg('הקישור הועתק!')
@@ -201,10 +203,17 @@ function SingleResult({ result }: { result: CalculationResult }) {
             label={result.totalTaxSavings < 0 ? 'עלות מס נוספת (שווי שימוש)' : 'חיסכון מס שנתי'}
             value={fmtCurrency(Math.abs(result.totalTaxSavings))}
           />
+          {result.monthlyLeasingPayment !== null && (
+            <MetricCard
+              icon={<CreditCard className="h-4 w-4 text-gold" />}
+              label="סכום ליסינג חודשי"
+              value={fmtCurrency(result.monthlyLeasingPayment)}
+            />
+          )}
           {result.residualCarValue !== null && (
             <MetricCard
               icon={<Info className="h-4 w-4 text-gold" />}
-              label="שווי רכב לאחר 5 שנים"
+              label={`שווי רכב לאחר ${result.loan ? Math.ceil(result.loan.periodMonths / 12) : 5} שנים`}
               value={fmtCurrency(result.residualCarValue)}
             />
           )}
@@ -295,8 +304,9 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
           value: fmtCurrency(r.residualPayment),
           bold: true,
         }] : []),
+        { label: 'עלות רכב חדש', value: fmtCurrency(r.carPrice) },
         ...(r.residualCarValue !== null ? [{
-          label: 'שווי רכב משוער בשוק לאחר 5 שנים',
+          label: `שווי רכב משוער לאחר ${r.loan ? Math.ceil(r.loan.periodMonths / 12) : 5} שנים`,
           value: fmtCurrency(r.residualCarValue),
         }] : []),
         ...(r.loanInterestTotal > 0 ? [{
