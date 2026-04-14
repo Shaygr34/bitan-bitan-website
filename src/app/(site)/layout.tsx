@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { PageTransition } from '@/components/PageTransition'
 import { SiteSettingsProvider } from '@/components/SiteSettingsContext'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
@@ -94,11 +93,10 @@ export default async function SiteLayout({
       <JsonLd data={buildOrganizationJsonLd(settings)} />
       <SiteSettingsProvider settings={settings}>
         <Header />
-        <main className="flex-1 pb-[var(--mobile-cta-height)] md:pb-0">
+        <main className="flex-1">
           <PageTransition>{children}</PageTransition>
         </main>
         <Footer />
-        <WhatsAppButton />
       </SiteSettingsProvider>
     </>
   )

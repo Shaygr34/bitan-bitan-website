@@ -134,15 +134,6 @@
   transform: rotate(45deg);
 }
 
-/* WhatsApp floating button pulse glow */
-@keyframes whatsapp-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
-  50% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
-}
-.whatsapp-pulse {
-  animation: whatsapp-pulse 3s ease-in-out infinite;
-}
-
 /* Respect user's reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
