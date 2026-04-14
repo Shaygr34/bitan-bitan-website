@@ -50,9 +50,9 @@ const PROCESS_STEPS = [
 
 const PROMISES = [
   {
-    icon: ShieldCheck,
-    title: 'הצעת מחיר שקופה',
-    description: 'תדעו בדיוק כמה תשלמו — ללא הפתעות ובלי עלויות נסתרות.',
+    icon: HeartHandshake,
+    title: 'מחויבות לטווח ארוך',
+    description: 'ליווי מקצועי רציף לאורך שנים — בנוי על אמון ותוצאות.',
   },
   {
     icon: Eye,
@@ -60,14 +60,14 @@ const PROMISES = [
     description: 'כל הדוחות, המסמכים והנתונים שלכם זמינים לכם בכל רגע.',
   },
   {
-    icon: Clock,
-    title: 'זמני תגובה מחייבים',
-    description: 'תשובה ראשונית תוך יום עסקים אחד — לכל פנייה ושאלה.',
+    icon: ShieldCheck,
+    title: 'מקצועיות ברמה הגבוהה ביותר',
+    description: 'רואי חשבון ומשפטנים עם עשרות שנות ניסיון, דור שני במקצוע.',
   },
   {
-    icon: HeartHandshake,
-    title: 'מחויבות לטווח ארוך',
-    description: 'ליווי מקצועי רציף — בנוי על אמון ותוצאות.',
+    icon: Clock,
+    title: 'חדשנות טכנולוגית',
+    description: 'מערכות מתקדמות לניהול מידע, דיווח ושירות — כי המקצוע דורש את הכלים הטובים ביותר.',
   },
 ] as const
 
