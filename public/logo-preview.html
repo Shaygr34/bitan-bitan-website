@@ -6,179 +6,120 @@
   <title>לקוחות המשרד — ביטן את ביטן</title>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Heebo', sans-serif; background: #F8F7F4; color: #1B2A4A; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Heebo',sans-serif;background:#F8F7F4;color:#1B2A4A}
+    .header{background:#1B2A4A;padding:1.5rem 2rem;text-align:center}
+    .header h1{color:white;font-size:1.25rem;font-weight:700}
+    .header p{color:rgba(255,255,255,0.6);font-size:0.8rem;margin-top:0.5rem}
 
-    .header { background: #1B2A4A; padding: 1.5rem 2rem; text-align: center; }
-    .header h1 { color: white; font-size: 1.25rem; font-weight: 700; }
-    .header p { color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-top: 0.5rem; }
+    .conveyor-section{background:#1B2A4A;padding:2rem 0 2.5rem;overflow:hidden;position:relative}
+    .conveyor-section::before,.conveyor-section::after{content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none}
+    .conveyor-section::before{right:0;background:linear-gradient(to left,#1B2A4A,transparent)}
+    .conveyor-section::after{left:0;background:linear-gradient(to right,#1B2A4A,transparent)}
 
-    /* === CONVEYOR === */
-    .conveyor-section {
-      background: #1B2A4A;
-      padding: 2.5rem 0 3rem;
-      overflow: hidden;
-      position: relative;
-    }
-    /* Edge fade */
-    .conveyor-section::before, .conveyor-section::after {
-      content: ''; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2; pointer-events: none;
-    }
-    .conveyor-section::before { right: 0; background: linear-gradient(to left, #1B2A4A, transparent); }
-    .conveyor-section::after { left: 0; background: linear-gradient(to right, #1B2A4A, transparent); }
+    .section-title{text-align:center;margin-bottom:1.5rem}
+    .section-title h2{color:white;font-size:1.5rem;font-weight:700}
+    .section-title .gl{width:50px;height:3px;background:#C5A572;margin:0.5rem auto 0;border-radius:2px}
+    .section-title p{color:rgba(255,255,255,0.5);font-size:0.85rem;margin-top:0.6rem}
 
-    .section-title { text-align: center; margin-bottom: 2rem; }
-    .section-title h2 { color: white; font-size: 1.5rem; font-weight: 700; }
-    .section-title .gold-line { width: 50px; height: 3px; background: #C5A572; margin: 0.6rem auto 0; border-radius: 2px; }
-    .section-title p { color: rgba(255,255,255,0.5); font-size: 0.875rem; margin-top: 0.75rem; }
+    .belt{overflow:hidden}
+    .track{display:flex;align-items:center;white-space:nowrap}
+    .track.r1{animation:go-left 25s linear infinite}
+    .track.r2{animation:go-right 28s linear infinite;margin-top:1rem}
+    @keyframes go-left{from{transform:translateX(0)}to{transform:translateX(calc(-100%/3))}}
+    @keyframes go-right{from{transform:translateX(calc(-100%/3))}to{transform:translateX(0)}}
 
-    /* Track */
-    .conveyor-wrapper { overflow: hidden; }
-    .conveyor-track {
-      display: flex;
-      align-items: center;
-      width: max-content;
-      gap: 0;
-    }
-    .conveyor-track.row1 { animation: slide-rtl 30s linear infinite; }
-    .conveyor-track.row2 { animation: slide-ltr 35s linear infinite; margin-top: 1.25rem; }
+    .s{flex-shrink:0;width:130px;height:48px;margin:0 0.9rem;display:flex;align-items:center;justify-content:center;opacity:0.55;transition:opacity 0.3s}
+    .s:hover{opacity:1}
+    .s img{max-width:100%;max-height:100%;object-fit:contain;filter:brightness(0) invert(1)}
+    .t{text-align:center;line-height:1.2}
+    .t b{color:white;font-weight:500;font-size:0.85rem;display:block;white-space:nowrap}
+    .t small{color:rgba(255,255,255,0.35);font-weight:300;font-size:0.6rem;white-space:nowrap}
 
-    .conveyor-track:hover { animation-play-state: paused; }
-
-    @keyframes slide-rtl {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
-    }
-    @keyframes slide-ltr {
-      from { transform: translateX(-50%); }
-      to { transform: translateX(0); }
-    }
-
-    /* Logo items — unified */
-    .logo-slot {
-      flex-shrink: 0;
-      width: 140px;
-      height: 55px;
-      margin: 0 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0.6;
-      transition: opacity 0.3s;
-    }
-    .logo-slot:hover { opacity: 1; }
-
-    /* Image logos */
-    .logo-slot img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      filter: brightness(0) invert(1);
-    }
-
-    /* Text logos */
-    .logo-slot .tl {
-      text-align: center;
-      line-height: 1.25;
-    }
-    .logo-slot .tl-name {
-      color: white;
-      font-weight: 500;
-      font-size: 0.9rem;
-      white-space: nowrap;
-    }
-    .logo-slot .tl-sub {
-      color: rgba(255,255,255,0.35);
-      font-weight: 300;
-      font-size: 0.65rem;
-      display: block;
-      margin-top: 1px;
-      white-space: nowrap;
-    }
-
-    /* Info */
-    .info { max-width: 650px; margin: 2.5rem auto; padding: 1.5rem 2rem; text-align: center; }
-    .info h3 { font-size: 1.1rem; margin-bottom: 0.75rem; }
-    .info p { color: #4A5568; font-size: 0.875rem; line-height: 1.7; }
-    .info .note { background: #F0EDE6; border: 1px solid #E2E0DB; border-radius: 8px; padding: 1rem 1.25rem; margin-top: 1.25rem; font-size: 0.8rem; color: #718096; text-align: right; }
-
-    @media (max-width: 768px) {
-      .logo-slot { width: 110px; height: 45px; margin: 0 0.75rem; }
-      .logo-slot .tl-name { font-size: 0.75rem; }
-    }
+    .info{max-width:600px;margin:2rem auto;padding:1.5rem 2rem;text-align:center}
+    .info h3{font-size:1.1rem;margin-bottom:0.5rem}
+    .info .note{background:#F0EDE6;border:1px solid #E2E0DB;border-radius:8px;padding:1rem;margin-top:1rem;font-size:0.8rem;color:#718096;text-align:right}
+    @media(max-width:768px){.s{width:100px;height:38px;margin:0 0.6rem}.t b{font-size:0.75rem}}
   </style>
 </head>
 <body>
-
-<div class="header">
-  <h1>תצוגה מקדימה — מדור לקוחות</h1>
-  <p>כך ייראה בעמוד הבית של bitancpa.com</p>
-</div>
+<div class="header"><h1>תצוגה מקדימה — מדור לקוחות</h1><p>כך ייראה בעמוד הבית של bitancpa.com</p></div>
 
 <div class="conveyor-section">
-  <div class="section-title">
-    <h2>לקוחות שבחרו בנו</h2>
-    <div class="gold-line"></div>
-    <p>חברות ועסקים שסומכים על ביטן את ביטן</p>
-  </div>
+  <div class="section-title"><h2>לקוחות שבחרו בנו</h2><div class="gl"></div><p>חברות ועסקים שסומכים על ביטן את ביטן</p></div>
 
-  <!-- ROW 1 -->
-  <div class="conveyor-wrapper">
-    <div class="conveyor-track row1">
-      <!-- Set A -->
-      <div class="logo-slot"><img src="/logos/hemilton.png" alt="המילטון"></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">א.י.ל. סלע</span><span class="tl-sub">בנייה ותשתית בע"מ</span></div></div>
-      <div class="logo-slot"><img src="/logos/climax.png" alt="קליימקס נדל״ן"></div>
-      <div class="logo-slot"><img src="/logos/citizen.svg" alt="Citizen Cafe"></div>
-      <div class="logo-slot"><img src="/logos/schlein.png" alt="קבוצת שליין"></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">אורן שאיבת בטון</span><span class="tl-sub">בע"מ</span></div></div>
-      <div class="logo-slot"><img src="/logos/hanna.png" alt="בית חנה"></div>
-      <div class="logo-slot"><img src="/logos/tapuz.png" alt="תפוז"></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">סופר קליק</span><span class="tl-sub">רשת סופרמרקטים</span></div></div>
-      <div class="logo-slot"><img src="/logos/alchemist.jpg" alt="The Alchemist"></div>
-      <div class="logo-slot"><img src="/logos/mozart.png" alt="מוצארט מאפייה"></div>
-      <!-- Set B (duplicate for seamless) -->
-      <div class="logo-slot"><img src="/logos/hemilton.png" alt="המילטון"></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">א.י.ל. סלע</span><span class="tl-sub">בנייה ותשתית בע"מ</span></div></div>
-      <div class="logo-slot"><img src="/logos/climax.png" alt="קליימקס נדל״ן"></div>
-      <div class="logo-slot"><img src="/logos/citizen.svg" alt="Citizen Cafe"></div>
-      <div class="logo-slot"><img src="/logos/schlein.png" alt="קבוצת שליין"></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">אורן שאיבת בטון</span><span class="tl-sub">בע"מ</span></div></div>
-      <div class="logo-slot"><img src="/logos/hanna.png" alt="בית חנה"></div>
-      <div class="logo-slot"><img src="/logos/tapuz.png" alt="תפוז"></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">סופר קליק</span><span class="tl-sub">רשת סופרמרקטים</span></div></div>
-      <div class="logo-slot"><img src="/logos/alchemist.jpg" alt="The Alchemist"></div>
-      <div class="logo-slot"><img src="/logos/mozart.png" alt="מוצארט מאפייה"></div>
-    </div>
-  </div>
+  <div class="belt"><div class="track r1">
+    <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
+    <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
+    <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
+    <div class="s"><div class="t"><b>Citizen Cafe</b><small>TLV</small></div></div>
+    <div class="s"><img src="/logos/schlein.png" alt="שליין"></div>
+    <div class="s"><div class="t"><b>אורן שאיבת בטון</b><small>בע"מ</small></div></div>
+    <div class="s"><img src="/logos/hanna.png" alt="בית חנה"></div>
+    <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
+    <div class="s"><img src="/logos/tapuz.png" alt="תפוז"></div>
+    <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
+    <div class="s"><img src="/logos/alchemist.jpg" alt="The Alchemist"></div>
+    <!--x2-->
+    <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
+    <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
+    <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
+    <div class="s"><div class="t"><b>Citizen Cafe</b><small>TLV</small></div></div>
+    <div class="s"><img src="/logos/schlein.png" alt="שליין"></div>
+    <div class="s"><div class="t"><b>אורן שאיבת בטון</b><small>בע"מ</small></div></div>
+    <div class="s"><img src="/logos/hanna.png" alt="בית חנה"></div>
+    <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
+    <div class="s"><img src="/logos/tapuz.png" alt="תפוז"></div>
+    <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
+    <div class="s"><img src="/logos/alchemist.jpg" alt="The Alchemist"></div>
+    <!--x3-->
+    <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
+    <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
+    <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
+    <div class="s"><div class="t"><b>Citizen Cafe</b><small>TLV</small></div></div>
+    <div class="s"><img src="/logos/schlein.png" alt="שליין"></div>
+    <div class="s"><div class="t"><b>אורן שאיבת בטון</b><small>בע"מ</small></div></div>
+    <div class="s"><img src="/logos/hanna.png" alt="בית חנה"></div>
+    <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
+    <div class="s"><img src="/logos/tapuz.png" alt="תפוז"></div>
+    <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
+    <div class="s"><img src="/logos/alchemist.jpg" alt="The Alchemist"></div>
+  </div></div>
 
-  <!-- ROW 2 -->
-  <div class="conveyor-wrapper">
-    <div class="conveyor-track row2">
-      <!-- Set A -->
-      <div class="logo-slot"><div class="tl"><span class="tl-name">סינגל טקסטיל</span><span class="tl-sub">בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">סולומון</span><span class="tl-sub">שיווק נעליים בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">Knil</span><span class="tl-sub">Technology</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">ברק אור</span><span class="tl-sub">שירותי רכב בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">גרין אלמה</span><span class="tl-sub">חברה לבנייה בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">אלקטרו סיטי</span><span class="tl-sub">חשמל ואלקטרוניקה</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">צלר תעופה</span><span class="tl-sub">שירותי תעופה בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">ווימברג</span><span class="tl-sub">יבוא ושיווק בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">הפשפש</span><span class="tl-sub">חנות חיות חברתית</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">ESP 710</span><span class="tl-sub">טכנולוגיה</span></div></div>
-      <!-- Set B (duplicate) -->
-      <div class="logo-slot"><div class="tl"><span class="tl-name">סינגל טקסטיל</span><span class="tl-sub">בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">סולומון</span><span class="tl-sub">שיווק נעליים בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">Knil</span><span class="tl-sub">Technology</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">ברק אור</span><span class="tl-sub">שירותי רכב בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">גרין אלמה</span><span class="tl-sub">חברה לבנייה בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">אלקטרו סיטי</span><span class="tl-sub">חשמל ואלקטרוניקה</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">צלר תעופה</span><span class="tl-sub">שירותי תעופה בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">ווימברג</span><span class="tl-sub">יבוא ושיווק בע"מ</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">הפשפש</span><span class="tl-sub">חנות חיות חברתית</span></div></div>
-      <div class="logo-slot"><div class="tl"><span class="tl-name">ESP 710</span><span class="tl-sub">טכנולוגיה</span></div></div>
-    </div>
-  </div>
+  <div class="belt"><div class="track r2">
+    <div class="s"><img src="/logos/mozart.png" alt="מוצארט"></div>
+    <div class="s"><div class="t"><b>סולומון</b><small>שיווק נעליים</small></div></div>
+    <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
+    <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
+    <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
+    <div class="s"><div class="t"><b>אלקטרו סיטי</b><small>חשמל ואלקטרוניקה</small></div></div>
+    <div class="s"><div class="t"><b>צלר תעופה</b><small>שירותי תעופה</small></div></div>
+    <div class="s"><div class="t"><b>ווימברג</b><small>יבוא ושיווק</small></div></div>
+    <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
+    <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
+    <!--x2-->
+    <div class="s"><img src="/logos/mozart.png" alt="מוצארט"></div>
+    <div class="s"><div class="t"><b>סולומון</b><small>שיווק נעליים</small></div></div>
+    <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
+    <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
+    <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
+    <div class="s"><div class="t"><b>אלקטרו סיטי</b><small>חשמל ואלקטרוניקה</small></div></div>
+    <div class="s"><div class="t"><b>צלר תעופה</b><small>שירותי תעופה</small></div></div>
+    <div class="s"><div class="t"><b>ווימברג</b><small>יבוא ושיווק</small></div></div>
+    <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
+    <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
+    <!--x3-->
+    <div class="s"><img src="/logos/mozart.png" alt="מוצארט"></div>
+    <div class="s"><div class="t"><b>סולומון</b><small>שיווק נעליים</small></div></div>
+    <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
+    <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
+    <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
+    <div class="s"><div class="t"><b>אלקטרו סיטי</b><small>חשמל ואלקטרוניקה</small></div></div>
+    <div class="s"><div class="t"><b>צלר תעופה</b><small>שירותי תעופה</small></div></div>
+    <div class="s"><div class="t"><b>ווימברג</b><small>יבוא ושיווק</small></div></div>
+    <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
+    <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
+  </div></div>
 </div>
 
 <div class="info">
@@ -188,6 +129,5 @@
     חלק מהחברות מופיעות כשם בלבד (בלי לוגו). אם יש לכם קובץ לוגו של מישהו — תשלחו ונעדכן.
   </div>
 </div>
-
 </body>
 </html>
