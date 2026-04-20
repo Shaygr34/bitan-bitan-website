@@ -69,11 +69,16 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         options={[
           { value: 'selfEmployed', label: 'עצמאי' },
           { value: 'company', label: 'חברה בע"מ' },
-          { value: 'employee', label: 'שכיר' },
+          { value: 'employee', label: 'הצמדת רכב לשכיר' },
         ]}
         value={values.userType || null}
         onChange={(v) => onChange({ userType: v as UserType })}
       />
+      {values.userType === 'employee' && (
+        <p className="text-caption text-text-muted -mt-space-3 mb-space-3 text-center">
+          מיועד למעסיקים — חישוב עלות שווי שימוש ברכב צמוד לעובד
+        </p>
+      )}
 
       {/* Vehicle Type — 2 step reveal */}
       <div className="mb-space-6">

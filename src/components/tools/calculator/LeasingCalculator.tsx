@@ -118,7 +118,14 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
   // ─── Handlers ───
 
   const handleBaseChange = useCallback((updates: Partial<BaseInputs>) => {
-    setBase((prev) => ({ ...prev, ...updates }))
+    setBase((prev) => {
+      const next = { ...prev, ...updates }
+      // Auto-initialize manufacturerPrice when switching to company/employee
+      if (updates.userType && (updates.userType === 'company' || updates.userType === 'employee') && !next.manufacturerPrice) {
+        next.manufacturerPrice = next.carPrice || 200000
+      }
+      return next
+    })
   }, [])
 
   const handleBaseNext = useCallback(() => {

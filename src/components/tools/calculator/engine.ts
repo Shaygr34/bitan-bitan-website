@@ -211,14 +211,17 @@ function extractVat(amountInclVat: number, vatRate: number): number {
    ═══════════════════════════════════════════════ */
 
 function computeCompanyFields(base: BaseInputs) {
-  const { userType, vehicleType, monthlyIncome, manufacturerPrice } = base
+  const { userType, vehicleType, monthlyIncome, manufacturerPrice, carPrice } = base
   const isCompanyOrEmployee = userType === 'company' || userType === 'employee'
 
-  if (!isCompanyOrEmployee || !manufacturerPrice) {
+  if (!isCompanyOrEmployee) {
     return { vehicleTaxBenefit: 0, grossIncludingVehicle: monthlyIncome, employerNii: 0 }
   }
 
-  const vehicleTaxBenefit = calculateVehicleTaxBenefit(manufacturerPrice, vehicleType)
+  // Default manufacturerPrice to carPrice if not set (slider phantom-default fix)
+  const mfp = manufacturerPrice || carPrice || 200000
+
+  const vehicleTaxBenefit = calculateVehicleTaxBenefit(mfp, vehicleType)
   const grossIncludingVehicle = monthlyIncome + vehicleTaxBenefit
 
   // ביטוח לאומי מעביד on שווי מס — only if salary > threshold
@@ -591,12 +594,9 @@ export function calculateOperationalLeasing(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Total annual expenses
-  const totalAnnualExpenses = Math.round(annualLeasing + annualFuel - finalVatRecoverable
-    + (isCompanyMode ? companyFields.employerNii : 0))
-
-  // Monthly cashflow
+  // Cashflow-based expenses (pure out-of-pocket — VAT recovery is in tax section)
   const monthlyCashflow = Math.round(monthlyLeasingPayment + fuelMonthly)
+  const totalAnnualExpenses = monthlyCashflow * 12
 
   // Net-of-VAT (R18) — employee sees full price (no VAT recovery)
   const fuelMonthlyNetVat = isEmployee

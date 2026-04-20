@@ -56,6 +56,11 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
         כל הסכומים שנתיים אלא אם צוין אחרת
       </p>
 
+      {/* Print watermark (hidden on screen) */}
+      <div className="print-only hidden text-center text-text-muted text-caption mb-4">
+        להמחשה בלבד — אינו מהווה ייעוץ מקצועי
+      </div>
+
       {/* Result Cards / Comparison */}
       {hasComparison ? (
         <>
@@ -118,7 +123,7 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
       </div>
 
       {/* Print disclaimer (hidden on screen) */}
-      <div className="hidden print:block mt-8 pt-4 border-t border-border text-center">
+      <div className="print-only hidden mt-8 pt-4 border-t border-border text-center">
         <p className="text-caption text-text-muted">אין לנו אחריות. המידע להמחשה בלבד ואינו מהווה ייעוץ מקצועי.</p>
         <p className="text-caption text-text-muted">ביטן את ביטן — רואי חשבון | bitancpa.com</p>
       </div>
@@ -163,6 +168,7 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
 
           /* Show print-only elements */
           .print\\:block { display: block !important; }
+          .print-only { display: block !important; }
         }
       `}</style>
     </div>
@@ -304,6 +310,12 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
           value: fmtCurrency(r.residualPayment),
           bold: true,
         }] : []),
+        // שווי רכב prominent display for company/employee — Ron's feedback
+        ...(r.vehicleTaxBenefit > 0 ? [{
+          label: 'שווי מס רכב שנתי / חודשי',
+          value: `${fmtCurrency(r.vehicleTaxBenefit * 12)} / שנה | ${fmtCurrency(r.vehicleTaxBenefit)} / חודש`,
+          bold: true as const,
+        }] : []),
         { label: 'עלות רכב חדש', value: fmtCurrency(r.carPrice) },
         ...(r.residualCarValue !== null ? [{
           label: `שווי רכב משוער לאחר ${r.loan ? Math.ceil(r.loan.periodMonths / 12) : 5} שנים`,
@@ -375,6 +387,12 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
           value: fmtCurrency(Math.abs(r.totalTaxSavings)),
           bold: true,
         },
+        // Note for company mode when שווי מס makes expenses negative
+        ...(r.vehicleTaxBenefit > 0 && r.annualTaxSavings < 0 ? [{
+          label: '',
+          value: 'אין חיסכון מס — הוצאות שליליות בניכוי שווי רכב',
+          muted: true as const,
+        }] : []),
       ],
     },
     {
@@ -513,6 +531,23 @@ function Verdict({ primary, comparison }: { primary: CalculationResult; comparis
       detail: taxA >= 0 || taxB >= 0
         ? `${OPTION_NAMES[winner.optionType]} חוסך ${fmt(diff)} ₪ נוספים במס`
         : `${OPTION_NAMES[winner.optionType]} עלות מס נמוכה יותר ב-${fmt(diff)} ₪`,
+    })
+  }
+
+  // End-of-term obligation (lower is better) — balloon vs. free-and-clear
+  const endA = primary.residualPayment ?? 0
+  const endB = comparison.residualPayment ?? 0
+  if (endA !== endB) {
+    const winner = endA < endB ? primary : comparison
+    const loser = endA < endB ? comparison : primary
+    const diff = Math.abs(endA - endB)
+    metrics.push({
+      label: 'סוף תקופה',
+      aWins: endA < endB,
+      bWins: endB < endA,
+      detail: winner.residualPayment
+        ? `${OPTION_NAMES[winner.optionType]} — בלון נמוך יותר ב-${fmt(diff)} ₪`
+        : `ב${OPTION_NAMES[winner.optionType]} אין התחייבות בסוף התקופה (ב${OPTION_NAMES[loser.optionType]}: בלון ${fmt(diff)} ₪)`,
     })
   }
 
