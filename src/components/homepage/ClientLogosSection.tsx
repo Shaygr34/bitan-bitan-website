@@ -90,9 +90,6 @@ function MarqueeRow({ items, reverse }: { items: LogoEntry[]; reverse?: boolean 
 export function ClientLogosSection() {
   return (
     <section className={styles.section}>
-      <div className={styles.fadeRight} />
-      <div className={styles.fadeLeft} />
-
       <div className={styles.header}>
         <h2 className={styles.title}>לקוחות שבחרו בנו</h2>
         <div className={styles.accent} />
