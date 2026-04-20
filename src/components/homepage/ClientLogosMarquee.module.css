@@ -1,40 +1,36 @@
 /* ═══════════════════════════════════════════════
    Client Logos Marquee — CSS Module
-   Based on Ryan Mulligan infinite marquee pattern.
 
-   Key principle:
-   - .marquee is flex + overflow:hidden + gap
-   - .marqueeContent has min-width:100% → always fills viewport
-   - Animation shifts by calc(-100% - var(--gap))
-   - Two identical lists → seamless infinite loop
+   The ONLY way to get zero dead space:
+   - Items are tightly packed with a small fixed gap
+   - Each list is a dense strip of logos (NOT spread to fill viewport)
+   - Two identical strips sit side-by-side
+   - Animation slides by exactly one strip width + gap
+   - The strip must be wider than the viewport → duplicate items if needed
    ═══════════════════════════════════════════════ */
 
 .section {
-  --gap: 2rem;
+  --gap: 1.5rem;
   background: #1B2A4A;
   padding: 2rem 0 2.5rem;
   overflow: hidden;
-  position: relative;
 }
 
 @media (min-width: 768px) {
   .section {
-    --gap: 3rem;
+    --gap: 2.5rem;
     padding: 2.5rem 0 3rem;
   }
 }
 
-/* ─── Edge fades via mask-image (Stripe/Vercel pattern) ─── */
-/* Applied on .rows instead of overlay divs — cleaner, no z-index issues */
-
 /* ─── Header ─── */
 .header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 @media (min-width: 768px) {
   .header {
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
   }
 }
 .title {
@@ -55,23 +51,23 @@
   border-radius: 2px;
 }
 
-/* ─── Rows container ─── */
+/* ─── Rows container with mask fade ─── */
 .rows {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   mask-image: linear-gradient(
     to right,
     transparent 0,
-    black 40px,
-    black calc(100% - 40px),
+    black 30px,
+    black calc(100% - 30px),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0,
-    black 40px,
-    black calc(100% - 40px),
+    black 30px,
+    black calc(100% - 30px),
     transparent 100%
   );
 }
@@ -81,21 +77,31 @@
     mask-image: linear-gradient(
       to right,
       transparent 0,
-      black 80px,
-      black calc(100% - 80px),
+      black 60px,
+      black calc(100% - 60px),
       transparent 100%
     );
     -webkit-mask-image: linear-gradient(
       to right,
       transparent 0,
-      black 80px,
-      black calc(100% - 80px),
+      black 60px,
+      black calc(100% - 60px),
       transparent 100%
     );
   }
 }
 
-/* ═══ THE MARQUEE ═══ */
+/* ═══ THE MARQUEE ═══
+ *
+ * .marquee = the overflow container (flex, hidden)
+ * .marqueeContent = one dense strip of logos
+ * Two strips sit side-by-side. Animation slides the pair
+ * by exactly one strip width + one gap.
+ *
+ * CRITICAL: items are NOT spread out. They sit in a tight
+ * row with small gaps. The strip overflows the viewport
+ * and scrolls continuously — zero dead space.
+ */
 .marquee {
   display: flex;
   overflow: hidden;
@@ -109,20 +115,19 @@
 .marqueeContent {
   flex-shrink: 0;
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  min-width: 100%;
   gap: var(--gap);
   list-style: none;
   margin: 0;
   padding: 0;
-  animation: scroll 30s linear infinite;
+  animation: scroll 20s linear infinite;
+  will-change: transform;
 }
 
-/* Reverse direction for row 2 */
+/* Reverse for row 2 */
 .marqueeReverse .marqueeContent {
   animation-direction: reverse;
-  animation-duration: 35s;
+  animation-duration: 24s;
 }
 
 @keyframes scroll {
@@ -134,7 +139,6 @@
   }
 }
 
-/* Reduce motion preference */
 @media (prefers-reduced-motion: reduce) {
   .marqueeContent {
     animation-play-state: paused;
@@ -156,26 +160,26 @@
 
 /* ─── Image logos ─── */
 .img {
-  height: 28px;
+  height: 24px;
   width: auto;
-  max-width: 100px;
+  max-width: 90px;
   object-fit: contain;
 }
 .imgLarge {
-  height: 40px;
+  height: 34px;
   width: auto;
-  max-width: 130px;
+  max-width: 110px;
   object-fit: contain;
 }
 
 @media (min-width: 768px) {
   .img {
-    height: 40px;
-    max-width: 150px;
+    height: 36px;
+    max-width: 140px;
   }
   .imgLarge {
-    height: 56px;
-    max-width: 180px;
+    height: 50px;
+    max-width: 170px;
   }
 }
 
@@ -188,22 +192,22 @@
   display: block;
   color: white;
   font-weight: 500;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   white-space: nowrap;
 }
 .textSub {
   display: block;
   color: rgba(255, 255, 255, 0.3);
   font-weight: 300;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   white-space: nowrap;
 }
 
 @media (min-width: 768px) {
   .textName {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
   }
   .textSub {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 }

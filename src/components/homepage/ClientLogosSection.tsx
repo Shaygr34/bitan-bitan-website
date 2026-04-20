@@ -1,14 +1,11 @@
 /**
- * Client Logos Marquee — production implementation.
+ * Client Logos Marquee — zero dead space, seamless infinite scroll.
  *
- * Based on the Ryan Mulligan / CSS-Tricks infinite marquee pattern:
- * - Parent is display:flex with overflow:hidden and a --gap variable
- * - Two identical children, each with min-width:100% and flex-shrink:0
- * - Animation: translateX(calc(-100% - var(--gap)))
- * - min-width:100% guarantees items fill the viewport on ANY screen size
- * - The gap variable in the translateX calc prevents seam misalignment
- *
- * All image logos are white-on-transparent. No CSS filter.
+ * Architecture:
+ * - Items are tightly packed (small gap, no space-around)
+ * - Each strip is duplicated enough times to overflow any viewport
+ * - Two identical strips animate; translateX(calc(-100% - gap)) loops perfectly
+ * - mask-image gradient fades edges (Stripe pattern)
  */
 
 import styles from './ClientLogosMarquee.module.css'
@@ -68,10 +65,17 @@ function Slot({ entry }: { entry: LogoEntry }) {
   )
 }
 
-function MarqueeList({ items }: { items: LogoEntry[] }) {
+/**
+ * One dense strip of logos. Items repeat 2× inside each strip
+ * to guarantee the strip is always wider than the widest viewport.
+ * On 1440px desktop with ~120px avg item + 40px gap: 22 items = ~3500px.
+ */
+function MarqueeStrip({ items }: { items: LogoEntry[] }) {
+  // Repeat items to ensure strip is always wider than viewport
+  const doubled = [...items, ...items]
   return (
     <ul className={styles.marqueeContent}>
-      {items.map((entry, i) => (
+      {doubled.map((entry, i) => (
         <Slot key={i} entry={entry} />
       ))}
     </ul>
@@ -81,8 +85,9 @@ function MarqueeList({ items }: { items: LogoEntry[] }) {
 function MarqueeRow({ items, reverse }: { items: LogoEntry[]; reverse?: boolean }) {
   return (
     <div className={`${styles.marquee} ${reverse ? styles.marqueeReverse : ''}`}>
-      <MarqueeList items={items} />
-      <MarqueeList items={items} />
+      {/* Two identical strips for the seamless loop */}
+      <MarqueeStrip items={items} />
+      <MarqueeStrip items={items} />
     </div>
   )
 }
@@ -94,7 +99,6 @@ export function ClientLogosSection() {
         <h2 className={styles.title}>לקוחות שבחרו בנו</h2>
         <div className={styles.accent} />
       </div>
-
       <div className={styles.rows}>
         <MarqueeRow items={ROW_1} />
         <MarqueeRow items={ROW_2} reverse />
