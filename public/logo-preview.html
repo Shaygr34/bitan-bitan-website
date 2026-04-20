@@ -12,43 +12,91 @@
     .header h1{color:white;font-size:1.25rem;font-weight:700}
     .header p{color:rgba(255,255,255,0.6);font-size:0.8rem;margin-top:0.5rem}
 
-    .conveyor-section{background:#1B2A4A;padding:2rem 0 2.5rem;overflow:hidden;position:relative}
-    .conveyor-section::before,.conveyor-section::after{content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none}
-    .conveyor-section::before{right:0;background:linear-gradient(to left,#1B2A4A,transparent)}
-    .conveyor-section::after{left:0;background:linear-gradient(to right,#1B2A4A,transparent)}
+    /* ─── Conveyor Section ─── */
+    .conveyor-section{background:#1B2A4A;padding:2.5rem 0 3rem;overflow:hidden;position:relative}
+    .conveyor-section::before,.conveyor-section::after{
+      content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none
+    }
+    .conveyor-section::before{right:0;background:linear-gradient(to left,#1B2A4A 0%,transparent 100%)}
+    .conveyor-section::after{left:0;background:linear-gradient(to right,#1B2A4A 0%,transparent 100%)}
 
-    .section-title{text-align:center;margin-bottom:1.5rem}
+    .section-title{text-align:center;margin-bottom:2rem}
     .section-title h2{color:white;font-size:1.5rem;font-weight:700}
     .section-title .gl{width:50px;height:3px;background:#C5A572;margin:0.5rem auto 0;border-radius:2px}
     .section-title p{color:rgba(255,255,255,0.5);font-size:0.85rem;margin-top:0.6rem}
 
-    .belt{overflow:hidden}
-    .track{display:flex;align-items:center;white-space:nowrap}
-    .track.r1{animation:go-left 25s linear infinite}
-    .track.r2{animation:go-right 28s linear infinite;margin-top:1rem}
-    @keyframes go-left{from{transform:translateX(0)}to{transform:translateX(calc(-100%/3))}}
-    @keyframes go-right{from{transform:translateX(calc(-100%/3))}to{transform:translateX(0)}}
+    /* ─── Belt: seamless infinite scroll ─── */
+    .belt{overflow:hidden;padding:0.5rem 0}
+    .track{
+      display:flex;
+      align-items:center;
+      gap:2.5rem;
+      width:max-content;
+      will-change:transform;
+    }
+    .track:hover{animation-play-state:paused !important}
 
-    .s{flex-shrink:0;width:130px;height:48px;margin:0 0.9rem;display:flex;align-items:center;justify-content:center;opacity:0.55;transition:opacity 0.3s}
+    /* Row 1 scrolls RTL (leftward). Track has 2 copies. Translate by 50% = 1 full set. */
+    .track.r1{animation:scroll-left 35s linear infinite}
+    /* Row 2 scrolls LTR (rightward). */
+    .track.r2{animation:scroll-right 40s linear infinite;margin-top:1.25rem}
+
+    @keyframes scroll-left{
+      0%{transform:translateX(0)}
+      100%{transform:translateX(-50%)}
+    }
+    @keyframes scroll-right{
+      0%{transform:translateX(-50%)}
+      100%{transform:translateX(0)}
+    }
+
+    /* ─── Logo Slot ─── */
+    .s{
+      flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      height:52px;
+      opacity:0.5;
+      transition:opacity 0.35s ease;
+    }
     .s:hover{opacity:1}
-    .s img{max-width:100%;max-height:100%;object-fit:contain;filter:brightness(0) invert(1)}
-    .t{text-align:center;line-height:1.2}
+
+    /* Image logos */
+    .s img{
+      height:44px;
+      width:auto;
+      max-width:160px;
+      object-fit:contain;
+      filter:brightness(0) invert(1);
+    }
+    /* Larger slot for specific logos */
+    .s.lg img{height:60px;max-width:180px}
+
+    /* Text logos */
+    .t{text-align:center;line-height:1.2;min-width:90px}
     .t b{color:white;font-weight:500;font-size:0.85rem;display:block;white-space:nowrap}
     .t small{color:rgba(255,255,255,0.35);font-weight:300;font-size:0.6rem;white-space:nowrap}
 
     .info{max-width:600px;margin:2rem auto;padding:1.5rem 2rem;text-align:center}
     .info h3{font-size:1.1rem;margin-bottom:0.5rem}
-    .info .note{background:#F0EDE6;border:1px solid #E2E0DB;border-radius:8px;padding:1rem;margin-top:1rem;font-size:0.8rem;color:#718096;text-align:right}
-    @media(max-width:768px){.s{width:100px;height:38px;margin:0 0.6rem}.t b{font-size:0.75rem}}
+    .info .note{background:#F0EDE6;border:1px solid #E2E0DB;border-radius:8px;padding:1rem;margin-top:1rem;font-size:0.8rem;color:#718096;text-align:right;line-height:1.8}
+
+    @media(max-width:768px){
+      .s img{height:34px;max-width:120px}
+      .s.lg img{height:46px;max-width:140px}
+      .t b{font-size:0.75rem}
+      .track{gap:1.8rem}
+    }
   </style>
 </head>
 <body>
-<div class="header"><h1>תצוגה מקדימה — מדור לקוחות</h1><p>כך ייראה בעמוד הבית של bitancpa.com · גרסה 2 (אחרי משוב אבי ורון)</p></div>
+<div class="header"><h1>תצוגה מקדימה — מדור לקוחות</h1><p>כך ייראה בעמוד הבית של bitancpa.com · גרסה 3</p></div>
 
 <div class="conveyor-section">
   <div class="section-title"><h2>לקוחות שבחרו בנו</h2><div class="gl"></div><p>חברות ועסקים שסומכים על ביטן את ביטן</p></div>
 
+  <!-- ROW 1: scrolls left. 2 identical copies for seamless loop. -->
   <div class="belt"><div class="track r1">
+    <!-- Copy A -->
     <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
     <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
     <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
@@ -59,7 +107,8 @@
     <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
     <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
     <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
-    <!--x2-->
+    <div class="s lg"><img src="/logos/mozart.png" alt="מוצארט"></div>
+    <!-- Copy B (identical) -->
     <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
     <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
     <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
@@ -70,20 +119,12 @@
     <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
     <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
     <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
-    <!--x3-->
-    <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
-    <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
-    <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
-    <div class="s"><img src="/logos/citizen.svg" alt="Citizen Cafe TLV"></div>
-    <div class="s"><img src="/logos/schlein.png" alt="שליין"></div>
-    <div class="s"><div class="t"><b>אורן שאיבת בטון</b><small>בע"מ</small></div></div>
-    <div class="s"><img src="/logos/zamsh.svg" alt="ZAMSH"></div>
-    <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
-    <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
-    <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
+    <div class="s lg"><img src="/logos/mozart.png" alt="מוצארט"></div>
   </div></div>
 
+  <!-- ROW 2: scrolls right. 2 identical copies for seamless loop. -->
   <div class="belt"><div class="track r2">
+    <!-- Copy A -->
     <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
     <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
     <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
@@ -94,18 +135,7 @@
     <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
     <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
     <div class="s"><div class="t"><b>TAPUZ</b><small>שירותי אריזה ומשלוח</small></div></div>
-    <!--x2-->
-    <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
-    <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
-    <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
-    <div class="s"><div class="t"><b>אלקטרו סיטי</b><small>חשמל ואלקטרוניקה</small></div></div>
-    <div class="s"><div class="t"><b>The Alchemist</b><small>TLV</small></div></div>
-    <div class="s"><div class="t"><b>צלר תעופה</b><small>שירותי תעופה</small></div></div>
-    <div class="s"><div class="t"><b>ווימברג</b><small>יבוא ושיווק</small></div></div>
-    <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
-    <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
-    <div class="s"><div class="t"><b>TAPUZ</b><small>שירותי אריזה ומשלוח</small></div></div>
-    <!--x3-->
+    <!-- Copy B (identical) -->
     <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
     <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
     <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
@@ -120,14 +150,15 @@
 </div>
 
 <div class="info">
-  <h3>גרסה 2 — שינויים</h3>
+  <h3>גרסה 3 — שינויים</h3>
   <div class="note">
+    ✓ הריבוע הלבן (alchemist) — הוסר, הוחלף בטקסט<br>
+    ✓ הכתם האפור (tapuz) — הוסר, הוחלף בטקסט<br>
     ✓ סולומון — הוסר<br>
-    ✓ בית חנה (המקום השלישי) — תוקן, מופיע עכשיו (שורה עליונה, ראשון)<br>
-    ✓ ZAMSH (אידאה) — נוסף עם לוגו מהאתר (שורה עליונה)<br>
-    ✓ מוצארט — הוסר (לא מספיק ברור)<br>
-    ✓ The Alchemist — הוחלף מתמונה לטקסט (התמונה הייתה צילום, לא לוגו)<br>
-    ✓ TAPUZ — הוחלף מלוגו צבעוני לטקסט (הלוגו לא עבד עם הפילטר)<br>
+    ✓ בית חנה (המקום השלישי) — תוקן, הלוגו מופיע<br>
+    ✓ ZAMSH (אידאה) — נוסף עם לוגו מהאתר<br>
+    ✓ מוצרט — הוגדל (slot גדול יותר)<br>
+    ✓ אנימציה — שוכתבה מאפס: 2 עותקים (לא 3), translateX(-50%) מדויק, will-change, מהירות רגועה יותר, ללא גליצ׳
   </div>
 </div>
 </body>
