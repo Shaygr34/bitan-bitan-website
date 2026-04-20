@@ -90,8 +90,8 @@ const config: Config = {
       },
       animation: {
         "slide-in": "slide-in 250ms ease-out",
-        "scroll-left": "scroll-left 45s linear infinite",
-        "scroll-right": "scroll-right 50s linear infinite",
+        "scroll-left": "scroll-left 25s linear infinite",
+        "scroll-right": "scroll-right 28s linear infinite",
       },
     },
   },
