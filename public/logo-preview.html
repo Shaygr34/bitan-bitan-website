@@ -12,10 +12,9 @@
     .header h1{color:white;font-size:1.25rem;font-weight:700}
     .header p{color:rgba(255,255,255,0.6);font-size:0.8rem;margin-top:0.5rem}
 
-    /* ─── Conveyor Section ─── */
     .conveyor-section{background:#1B2A4A;padding:2.5rem 0 3rem;overflow:hidden;position:relative}
     .conveyor-section::before,.conveyor-section::after{
-      content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none
+      content:'';position:absolute;top:0;bottom:0;width:100px;z-index:2;pointer-events:none
     }
     .conveyor-section::before{right:0;background:linear-gradient(to left,#1B2A4A 0%,transparent 100%)}
     .conveyor-section::after{left:0;background:linear-gradient(to right,#1B2A4A 0%,transparent 100%)}
@@ -25,47 +24,49 @@
     .section-title .gl{width:50px;height:3px;background:#C5A572;margin:0.5rem auto 0;border-radius:2px}
     .section-title p{color:rgba(255,255,255,0.5);font-size:0.85rem;margin-top:0.6rem}
 
-    /* ─── Belt: seamless infinite scroll ─── */
-    .belt{overflow:hidden;padding:0.5rem 0}
-
-    /*
-     * Seamless loop technique:
-     * - .track is a flex row with width:max-content
-     * - Contains 2 identical .set wrappers
-     * - Each .set is flex with gap
-     * - .set also has padding-inline-end = gap, so the space between
-     *   the LAST item of set A and FIRST item of set B equals the gap
-     * - Animation translates by exactly -50% (= one full .set width including its padding)
-     * - will-change + translateZ(0) for GPU compositing
+    /* ═══ Marquee: true infinite scroll ═══
+     * Each .marquee has overflow:hidden.
+     * .marquee-track is display:flex with TWO identical .marquee-set children.
+     * Each .marquee-set has display:inline-flex + gap.
+     * Animation slides the track left by exactly ONE set width.
+     * Since there are two identical sets side-by-side, the moment
+     * set-A scrolls fully off-screen, set-B is in the exact same position
+     * set-A started → seamless loop, no blip, ever.
+     *
+     * The key trick: each .marquee-set has margin-inline-end equal to the gap,
+     * so items flow evenly across the seam between set-A and set-B.
      */
-    .track{
+    .marquee{overflow:hidden;padding:0.5rem 0}
+    .marquee + .marquee{margin-top:1.25rem}
+
+    .marquee-track{
       display:flex;
       width:max-content;
       will-change:transform;
     }
-    .track:hover{animation-play-state:paused !important}
+    .marquee:hover .marquee-track{animation-play-state:paused}
 
-    .set{
-      display:flex;
+    .marquee-set{
+      display:inline-flex;
       align-items:center;
-      gap:2.5rem;
-      padding-inline-end:2.5rem; /* critical: matches gap so seam is seamless */
+      gap:3rem;
+      margin-inline-end:3rem;
       flex-shrink:0;
     }
 
-    .track.r1{animation:scroll-left 40s linear infinite}
-    .track.r2{animation:scroll-right 45s linear infinite;margin-top:1.25rem}
+    .marquee--left .marquee-track{animation:marquee-scroll-left 45s linear infinite}
+    .marquee--right .marquee-track{animation:marquee-scroll-right 50s linear infinite}
 
-    @keyframes scroll-left{
-      0%{transform:translateX(0) translateZ(0)}
-      100%{transform:translateX(-50%) translateZ(0)}
+    @keyframes marquee-scroll-left{
+      0%{transform:translate3d(0,0,0)}
+      100%{transform:translate3d(-50%,0,0)}
     }
-    @keyframes scroll-right{
-      0%{transform:translateX(-50%) translateZ(0)}
-      100%{transform:translateX(0) translateZ(0)}
+    @keyframes marquee-scroll-right{
+      0%{transform:translate3d(-50%,0,0)}
+      100%{transform:translate3d(0,0,0)}
     }
 
-    /* ─── Logo Slot ─── */
+    /* ═══ Slots ═══ */
     .s{
       flex-shrink:0;
       display:flex;align-items:center;justify-content:center;
@@ -75,18 +76,10 @@
     }
     .s:hover{opacity:1}
 
-    /* Image logos — all pre-processed as white-on-transparent, NO CSS filter */
-    .s img{
-      height:44px;
-      width:auto;
-      max-width:160px;
-      object-fit:contain;
-    }
-    /* Larger slot for specific logos */
-    .s.lg img{height:60px;max-width:180px}
+    .s img{height:44px;width:auto;max-width:160px;object-fit:contain}
+    .s.lg img{height:64px;max-width:200px}
 
-    /* Text logos */
-    .t{text-align:center;line-height:1.2;min-width:90px}
+    .t{text-align:center;line-height:1.2;min-width:80px}
     .t b{color:white;font-weight:500;font-size:0.85rem;display:block;white-space:nowrap}
     .t small{color:rgba(255,255,255,0.35);font-weight:300;font-size:0.6rem;white-space:nowrap}
 
@@ -96,22 +89,22 @@
 
     @media(max-width:768px){
       .s img{height:34px;max-width:120px}
-      .s.lg img{height:46px;max-width:140px}
+      .s.lg img{height:50px;max-width:160px}
       .t b{font-size:0.75rem}
-      .set{gap:1.8rem;padding-inline-end:1.8rem}
+      .marquee-set{gap:2rem;margin-inline-end:2rem}
     }
   </style>
 </head>
 <body>
-<div class="header"><h1>תצוגה מקדימה — מדור לקוחות</h1><p>כך ייראה בעמוד הבית של bitancpa.com · גרסה 4 (סופי)</p></div>
+<div class="header"><h1>תצוגה מקדימה — מדור לקוחות</h1><p>כך ייראה בעמוד הבית של bitancpa.com · גרסה 5</p></div>
 
 <div class="conveyor-section">
   <div class="section-title"><h2>לקוחות שבחרו בנו</h2><div class="gl"></div><p>חברות ועסקים שסומכים על ביטן את ביטן</p></div>
 
-  <!-- ROW 1 -->
-  <div class="belt"><div class="track r1">
-    <div class="set">
-      <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
+  <!-- ROW 1: scrolls left -->
+  <div class="marquee marquee--left"><div class="marquee-track">
+    <div class="marquee-set">
+      <div class="s"><div class="t"><b>בית חנה</b><small>המקום השלישי</small></div></div>
       <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
       <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
       <div class="s"><img src="/logos/citizen.svg" alt="Citizen Cafe TLV"></div>
@@ -123,8 +116,8 @@
       <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
       <div class="s lg"><img src="/logos/mozart.png" alt="מוצארט"></div>
     </div>
-    <div class="set" aria-hidden="true">
-      <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
+    <div class="marquee-set" aria-hidden="true">
+      <div class="s"><div class="t"><b>בית חנה</b><small>המקום השלישי</small></div></div>
       <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
       <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
       <div class="s"><img src="/logos/citizen.svg" alt="Citizen Cafe TLV"></div>
@@ -138,9 +131,9 @@
     </div>
   </div></div>
 
-  <!-- ROW 2 -->
-  <div class="belt"><div class="track r2">
-    <div class="set">
+  <!-- ROW 2: scrolls right -->
+  <div class="marquee marquee--right"><div class="marquee-track">
+    <div class="marquee-set">
       <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
       <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
       <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
@@ -152,7 +145,7 @@
       <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
       <div class="s"><div class="t"><b>TAPUZ</b><small>שירותי אריזה ומשלוח</small></div></div>
     </div>
-    <div class="set" aria-hidden="true">
+    <div class="marquee-set" aria-hidden="true">
       <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
       <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
       <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
@@ -168,15 +161,13 @@
 </div>
 
 <div class="info">
-  <h3>גרסה 4 — סופי</h3>
+  <h3>גרסה 5</h3>
   <div class="note">
-    ✓ <b>אפס ריבועים לבנים</b> — כל הלוגואים עכשיו לבנים על שקוף, ללא CSS filter<br>
-    ✓ Citizen SVG — תוקן (הסרת רקע צהוב+לבן)<br>
-    ✓ ZAMSH SVG — הפך ללבן ישירות<br>
-    ✓ כל ה-PNG — הומרו ללבן-על-שקוף (hanna, climax, schlein, hemilton, mozart)<br>
-    ✓ <b>לולאה חלקה</b> — ארכיטקטורה חדשה: .set עם padding-inline-end = gap, translateX(-50%) מדויק<br>
-    ✓ מוצרט — הוגדל (60px slot)<br>
-    ✓ GPU compositing — translateZ(0) + will-change<br>
+    ✓ <b>אפס ריבועים לבנים</b> — הוסרו hanna.png (הפך לטקסט "בית חנה") + citizen SVG (הוסרו מלבני רקע)<br>
+    ✓ <b>לולאה אינסופית אמיתית</b> — ארכיטקטורת marquee: 2 סטים זהים + margin-inline-end = gap. translate3d(-50%) ← בדיוק סט אחד. אין ריק, אין קפיצה, אין blip.<br>
+    ✓ מוצרט — 64px slot (מוגדל)<br>
+    ✓ GPU compositing — translate3d + will-change<br>
+    ✓ מהירות רגועה — 45s/50s<br>
   </div>
 </div>
 </body>
