@@ -33,13 +33,15 @@ export type EmployerInputs = {
   hasOtherBenefit: boolean
   otherBenefitAmount: number // 500-3000, default 1000
 
-  // Pension rates
+  // Pension toggle + rates
+  hasPension: boolean // כן/לא — default true
   employeePensionRate: number // 6% or 7%
   employerPensionRate: number // 5%, 6.5%, or 7.5% (includes disability)
   severanceRate: number // 6% or 8.33%
   disabilityRate: number // 0%, 1.5%, or 2.5% (included in employerPensionRate cap 7.5%)
 
-  // Education fund (קרן השתלמות)
+  // Education fund toggle + rates (קרן השתלמות)
+  hasEducationFund: boolean // כן/לא — default true
   educationFundSalary: number // שכר לקרן השתלמות (default = min(grossSalary, 15712))
   employeeEducationRate: number // 2.5%
   employerEducationRate: number // 5% or 7.5%

@@ -30,9 +30,11 @@ function encodeEmployerParams(inp: EmployerInputs): string {
   if (inp.hasVehicle) { p.set('v', '1'); p.set('vf', inp.vehicleFuelType); p.set('mp', String(inp.manufacturerPrice)) }
   if (inp.hasMealBenefit) { p.set('ml', String(inp.mealBenefitAmount)) }
   if (inp.hasOtherBenefit) { p.set('ob', String(inp.otherBenefitAmount)) }
+  if (!inp.hasPension) p.set('np', '1')
   p.set('pe', String(inp.employeePensionRate))
   p.set('pp', String(inp.employerPensionRate))
   p.set('sv', String(inp.severanceRate))
+  if (!inp.hasEducationFund) p.set('ne', '1')
   p.set('ee', String(inp.employerEducationRate))
   p.set('g', inp.gender[0]) // m/f
   p.set('ms', inp.maritalStatus)
@@ -60,9 +62,11 @@ function decodeEmployerParams(search: string): EmployerInputs | null {
     mealBenefitAmount: Number(p.get('ml')) || defaults.mealBenefitAmount,
     hasOtherBenefit: p.has('ob'),
     otherBenefitAmount: Number(p.get('ob')) || defaults.otherBenefitAmount,
+    hasPension: p.get('np') !== '1',
     employeePensionRate: Number(p.get('pe')) || defaults.employeePensionRate,
     employerPensionRate: Number(p.get('pp')) || defaults.employerPensionRate,
     severanceRate: Number(p.get('sv')) || defaults.severanceRate,
+    hasEducationFund: p.get('ne') !== '1',
     employerEducationRate: Number(p.get('ee')) || defaults.employerEducationRate,
     educationFundSalary: Math.min(gs, DEFAULT_EMPLOYER_CONFIG.educationFundCap),
     gender: p.get('g') === 'f' ? 'female' : 'male',
@@ -358,74 +362,96 @@ export function EmployerCalculator() {
         {phase === 'pension' && (
           <div>
             <h2 className="text-h3 font-bold text-primary text-center mb-space-2">פנסיה / ביטוח מנהלים וקרן השתלמות</h2>
-            <p className="text-body text-text-muted text-center mb-space-6">אחוזי הפרשה — ברירת מחדל לפי חוק</p>
+            <p className="text-body text-text-muted text-center mb-space-6">סמנו מה רלוונטי — ברירת מחדל לפי חוק</p>
 
-            <div className="bg-surface rounded-xl p-space-4 mb-space-5">
-              <h3 className="text-body font-bold text-primary mb-space-3">פנסיה</h3>
-
-              <div className="grid grid-cols-2 gap-3 mb-space-3">
-                <div>
-                  <label className="text-body-sm font-medium text-primary block mb-1">עובד</label>
-                  <div className="flex gap-1">
-                    {PENSION_EMPLOYEE_RATES.map(r => (
-                      <button key={r.value} type="button" onClick={() => update({ employeePensionRate: r.value })}
-                        className={['rounded-lg border px-3 py-2 text-body-sm cursor-pointer transition-all flex-1',
-                          inputs.employeePensionRate === r.value ? 'border-gold bg-gold/10 font-bold text-primary' : 'border-border text-text-muted'].join(' ')}>
-                        {r.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-body-sm font-medium text-primary block mb-1">מעסיק (כולל א.כ.ע)</label>
-                  <div className="flex gap-1">
-                    {PENSION_EMPLOYER_RATES.map(r => (
-                      <button key={r.value} type="button" onClick={() => update({ employerPensionRate: r.value })}
-                        className={['rounded-lg border px-2 py-2 text-body-sm cursor-pointer transition-all flex-1',
-                          inputs.employerPensionRate === r.value ? 'border-gold bg-gold/10 font-bold text-primary' : 'border-border text-text-muted'].join(' ')}>
-                        {r.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+            {/* Toggle questions — Ron's solution */}
+            <div className="grid grid-cols-2 gap-3 mb-space-5">
+              <div className="bg-surface rounded-xl p-space-4">
+                <YesNoToggle
+                  label="קרן פנסיה?"
+                  value={inputs.hasPension}
+                  onChange={v => update({ hasPension: v })}
+                />
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-body-sm font-medium text-primary block mb-1">פיצויים</label>
-                  <div className="flex gap-1">
-                    {SEVERANCE_RATES.map(r => (
-                      <button key={r.value} type="button" onClick={() => update({ severanceRate: r.value })}
-                        className={['rounded-lg border px-3 py-2 text-body-sm cursor-pointer transition-all flex-1',
-                          inputs.severanceRate === r.value ? 'border-gold bg-gold/10 font-bold text-primary' : 'border-border text-text-muted'].join(' ')}>
-                        {r.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {(inputs.disabilityRate + (inputs.employerPensionRate > 5 ? inputs.employerPensionRate - 5 : 0)) > 2.5 && (
-                <p className="text-caption text-red-600 mt-space-2">אחוז א.כ.ע + תגמולים מעסיק לא יכול לעבור 7.5%</p>
-              )}
-            </div>
-
-            <div className="bg-surface rounded-xl p-space-4 mb-space-5">
-              <h3 className="text-body font-bold text-primary mb-space-3">קרן השתלמות</h3>
-              <div>
-                <label className="text-body-sm font-medium text-primary block mb-1">מעסיק</label>
-                <div className="flex gap-2">
-                  {EDUCATION_EMPLOYER_RATES.map(r => (
-                    <button key={r.value} type="button" onClick={() => update({ employerEducationRate: r.value })}
-                      className={['rounded-lg border px-4 py-2 text-body-sm cursor-pointer transition-all',
-                        inputs.employerEducationRate === r.value ? 'border-gold bg-gold/10 font-bold text-primary' : 'border-border text-text-muted'].join(' ')}>
-                      {r.label}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-caption text-text-muted mt-1">עובד: 2.5% (קבוע)</p>
+              <div className="bg-surface rounded-xl p-space-4">
+                <YesNoToggle
+                  label="קרן השתלמות?"
+                  value={inputs.hasEducationFund}
+                  onChange={v => update({ hasEducationFund: v })}
+                />
               </div>
             </div>
+
+            {inputs.hasPension && (
+              <div className="bg-surface rounded-xl p-space-4 mb-space-5" style={{ animation: 'fadeIn 200ms ease-out' }}>
+                <h3 className="text-body font-bold text-primary mb-space-3">פנסיה</h3>
+
+                <div className="grid grid-cols-2 gap-3 mb-space-3">
+                  <div>
+                    <label className="text-body-sm font-medium text-primary block mb-1">עובד</label>
+                    <div className="flex gap-1">
+                      {PENSION_EMPLOYEE_RATES.map(r => (
+                        <button key={r.value} type="button" onClick={() => update({ employeePensionRate: r.value })}
+                          className={['rounded-lg border px-3 py-2 text-body-sm cursor-pointer transition-all flex-1',
+                            inputs.employeePensionRate === r.value ? 'border-gold bg-gold/10 font-bold text-primary' : 'border-border text-text-muted'].join(' ')}>
+                          {r.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-body-sm font-medium text-primary block mb-1">מעסיק (כולל א.כ.ע)</label>
+                    <div className="flex gap-1">
+                      {PENSION_EMPLOYER_RATES.map(r => (
+                        <button key={r.value} type="button" onClick={() => update({ employerPensionRate: r.value })}
+                          className={['rounded-lg border px-2 py-2 text-body-sm cursor-pointer transition-all flex-1',
+                            inputs.employerPensionRate === r.value ? 'border-gold bg-gold/10 font-bold text-primary' : 'border-border text-text-muted'].join(' ')}>
+                          {r.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-body-sm font-medium text-primary block mb-1">פיצויים</label>
+                    <div className="flex gap-1">
+                      {SEVERANCE_RATES.map(r => (
+                        <button key={r.value} type="button" onClick={() => update({ severanceRate: r.value })}
+                          className={['rounded-lg border px-3 py-2 text-body-sm cursor-pointer transition-all flex-1',
+                            inputs.severanceRate === r.value ? 'border-gold bg-gold/10 font-bold text-primary' : 'border-border text-text-muted'].join(' ')}>
+                          {r.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {(inputs.disabilityRate + (inputs.employerPensionRate > 5 ? inputs.employerPensionRate - 5 : 0)) > 2.5 && (
+                  <p className="text-caption text-red-600 mt-space-2">אחוז א.כ.ע + תגמולים מעסיק לא יכול לעבור 7.5%</p>
+                )}
+              </div>
+            )}
+
+            {inputs.hasEducationFund && (
+              <div className="bg-surface rounded-xl p-space-4 mb-space-5" style={{ animation: 'fadeIn 200ms ease-out' }}>
+                <h3 className="text-body font-bold text-primary mb-space-3">קרן השתלמות</h3>
+                <div>
+                  <label className="text-body-sm font-medium text-primary block mb-1">מעסיק</label>
+                  <div className="flex gap-2">
+                    {EDUCATION_EMPLOYER_RATES.map(r => (
+                      <button key={r.value} type="button" onClick={() => update({ employerEducationRate: r.value })}
+                        className={['rounded-lg border px-4 py-2 text-body-sm cursor-pointer transition-all',
+                          inputs.employerEducationRate === r.value ? 'border-gold bg-gold/10 font-bold text-primary' : 'border-border text-text-muted'].join(' ')}>
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-caption text-text-muted mt-1">עובד: 2.5% (קבוע)</p>
+                </div>
+              </div>
+            )}
 
             <NextButton onClick={next} />
           </div>

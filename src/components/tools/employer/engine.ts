@@ -224,12 +224,19 @@ export function calculateEmployerCost(
     hasVehicle, vehicleFuelType, manufacturerPrice,
     hasMealBenefit, mealBenefitAmount,
     hasOtherBenefit, otherBenefitAmount,
-    employeePensionRate, employerPensionRate, severanceRate,
-    educationFundSalary, employeeEducationRate, employerEducationRate,
+    hasPension, hasEducationFund,
     gender, maritalStatus, childAllowanceRecipient, childrenAges,
     disabledChildrenCount, serviceType, serviceLevel,
     pensionCreditSalary,
   } = inputs
+
+  // Zero out rates when pension/education fund is disabled
+  const employeePensionRate = hasPension ? inputs.employeePensionRate : 0
+  const employerPensionRate = hasPension ? inputs.employerPensionRate : 0
+  const severanceRate = hasPension ? inputs.severanceRate : 0
+  const employeeEducationRate = hasEducationFund ? inputs.employeeEducationRate : 0
+  const employerEducationRate = hasEducationFund ? inputs.employerEducationRate : 0
+  const educationFundSalary = hasEducationFund ? inputs.educationFundSalary : 0
 
   // ─── Vehicle ───
   const vehicleTaxBenefit = hasVehicle
@@ -263,7 +270,9 @@ export function calculateEmployerCost(
   const creditPointsMonthly = Math.round((creditBreakdown.total * config.creditPointValue) / 12)
 
   // ─── Pension Tax Benefits (employee-specific) ───
-  const pensionTax = calculatePensionTaxBenefits(pensionSalary, pensionCreditSalary, config)
+  const pensionTax = hasPension
+    ? calculatePensionTaxBenefits(pensionSalary, pensionCreditSalary, config)
+    : { pensionDeduction: 0, pensionCredit: 0 }
 
   // Build full credit points breakdown with pension credit
   const creditPointsBreakdownFull: CreditPointsBreakdown = {
@@ -367,10 +376,12 @@ export function getDefaultEmployerInputs(): EmployerInputs {
     mealBenefitAmount: 1_000,
     hasOtherBenefit: false,
     otherBenefitAmount: 1_000,
+    hasPension: true,
     employeePensionRate: 6,
     employerPensionRate: 6.5,
     severanceRate: 6,
     disabilityRate: 0,
+    hasEducationFund: true,
     educationFundSalary: 15_000,
     employeeEducationRate: 2.5,
     employerEducationRate: 7.5,
