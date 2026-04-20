@@ -1,0 +1,203 @@
+/* ═══════════════════════════════════════════════
+   Client Logos Marquee — CSS Module
+   Based on Ryan Mulligan infinite marquee pattern.
+
+   Key principle:
+   - .marquee is flex + overflow:hidden + gap
+   - .marqueeContent has min-width:100% → always fills viewport
+   - Animation shifts by calc(-100% - var(--gap))
+   - Two identical lists → seamless infinite loop
+   ═══════════════════════════════════════════════ */
+
+.section {
+  --gap: 2rem;
+  background: #1B2A4A;
+  padding: 2rem 0 2.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .section {
+    --gap: 3rem;
+    padding: 2.5rem 0 3rem;
+  }
+}
+
+/* ─── Edge fades ─── */
+.fadeRight,
+.fadeLeft {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  z-index: 2;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .fadeRight,
+  .fadeLeft {
+    width: 80px;
+  }
+}
+.fadeRight {
+  right: 0;
+  background: linear-gradient(to left, #1B2A4A, transparent);
+}
+.fadeLeft {
+  left: 0;
+  background: linear-gradient(to right, #1B2A4A, transparent);
+}
+
+/* ─── Header ─── */
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+@media (min-width: 768px) {
+  .header {
+    margin-bottom: 2rem;
+  }
+}
+.title {
+  color: white;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+@media (min-width: 768px) {
+  .title {
+    font-size: 1.5rem;
+  }
+}
+.accent {
+  width: 40px;
+  height: 3px;
+  background: #C5A572;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+/* ─── Rows container ─── */
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+@media (min-width: 768px) {
+  .rows {
+    gap: 1rem;
+  }
+}
+
+/* ═══ THE MARQUEE ═══ */
+.marquee {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  gap: var(--gap);
+}
+.marquee:hover .marqueeContent {
+  animation-play-state: paused;
+}
+
+.marqueeContent {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  min-width: 100%;
+  gap: var(--gap);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  animation: scroll 30s linear infinite;
+}
+
+/* Reverse direction for row 2 */
+.marqueeReverse .marqueeContent {
+  animation-direction: reverse;
+  animation-duration: 35s;
+}
+
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .marqueeContent {
+    animation-play-state: paused;
+  }
+}
+
+/* ─── Slot ─── */
+.slot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+.slot:hover {
+  opacity: 1;
+}
+
+/* ─── Image logos ─── */
+.img {
+  height: 28px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+}
+.imgLarge {
+  height: 40px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .img {
+    height: 40px;
+    max-width: 150px;
+  }
+  .imgLarge {
+    height: 56px;
+    max-width: 180px;
+  }
+}
+
+/* ─── Text logos ─── */
+.textLogo {
+  text-align: center;
+  line-height: 1.2;
+}
+.textName {
+  display: block;
+  color: white;
+  font-weight: 500;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.textSub {
+  display: block;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 300;
+  font-size: 0.6rem;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .textName {
+    font-size: 0.875rem;
+  }
+  .textSub {
+    font-size: 0.7rem;
+  }
+}

@@ -79,19 +79,9 @@ const config: Config = {
           from: { transform: "translateX(100%)" },
           to: { transform: "translateX(0)" },
         },
-        "scroll-left": {
-          from: { transform: "translate3d(0,0,0)" },
-          to: { transform: "translate3d(-50%,0,0)" },
-        },
-        "scroll-right": {
-          from: { transform: "translate3d(-50%,0,0)" },
-          to: { transform: "translate3d(0,0,0)" },
-        },
       },
       animation: {
         "slide-in": "slide-in 250ms ease-out",
-        "scroll-left": "scroll-left 25s linear infinite",
-        "scroll-right": "scroll-right 28s linear infinite",
       },
     },
   },

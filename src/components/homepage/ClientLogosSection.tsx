@@ -1,11 +1,17 @@
 /**
- * Client Logos Conveyor Belt — hardcoded from curated list.
- * True infinite marquee: 2 identical sets, translateX(-50%), seamless loop.
- * All image logos are white-on-transparent (no CSS filter).
+ * Client Logos Marquee — production implementation.
  *
- * Mobile: tighter gap (1.5rem), smaller images, faster animation.
- * Desktop: generous gap (3rem), full-size images, relaxed speed.
+ * Based on the Ryan Mulligan / CSS-Tricks infinite marquee pattern:
+ * - Parent is display:flex with overflow:hidden and a --gap variable
+ * - Two identical children, each with min-width:100% and flex-shrink:0
+ * - Animation: translateX(calc(-100% - var(--gap)))
+ * - min-width:100% guarantees items fill the viewport on ANY screen size
+ * - The gap variable in the translateX calc prevents seam misalignment
+ *
+ * All image logos are white-on-transparent. No CSS filter.
  */
+
+import styles from './ClientLogosMarquee.module.css'
 
 type LogoEntry =
   | { type: 'image'; src: string; alt: string; large?: boolean }
@@ -38,77 +44,63 @@ const ROW_2: LogoEntry[] = [
   { type: 'text', name: 'TAPUZ', subtitle: 'שירותי אריזה ומשלוח' },
 ]
 
-/* gap value used in both the flex gap AND margin-inline-end for seamless seam */
-const GAP = 'gap-6 md:gap-12'
-const MARGIN = 'me-6 md:me-12'
-
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
     return (
-      <div className="flex-shrink-0 flex items-center justify-center h-10 md:h-[52px]">
+      <li className={styles.slot}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={entry.src}
           alt={entry.alt}
-          className={[
-            'w-auto object-contain',
-            entry.large
-              ? 'h-10 md:h-[64px] max-w-[120px] md:max-w-[200px]'
-              : 'h-8 md:h-[44px] max-w-[100px] md:max-w-[160px]',
-          ].join(' ')}
+          className={entry.large ? styles.imgLarge : styles.img}
           loading="lazy"
         />
-      </div>
+      </li>
     )
   }
-
   return (
-    <div className="flex-shrink-0 flex items-center justify-center h-10 md:h-[52px] text-center leading-tight">
-      <div>
-        <span className="block text-white font-medium text-caption md:text-body-sm whitespace-nowrap">{entry.name}</span>
-        <span className="block text-white/30 font-light text-[0.6rem] md:text-caption whitespace-nowrap">{entry.subtitle}</span>
+    <li className={styles.slot}>
+      <div className={styles.textLogo}>
+        <span className={styles.textName}>{entry.name}</span>
+        <span className={styles.textSub}>{entry.subtitle}</span>
       </div>
-    </div>
+    </li>
   )
 }
 
-function MarqueeSet({ items }: { items: LogoEntry[] }) {
+function MarqueeList({ items }: { items: LogoEntry[] }) {
   return (
-    <div className={`inline-flex items-center ${GAP} ${MARGIN} flex-shrink-0`}>
+    <ul className={styles.marqueeContent}>
       {items.map((entry, i) => (
         <Slot key={i} entry={entry} />
       ))}
-    </div>
+    </ul>
   )
 }
 
-function MarqueeRow({ items, direction }: { items: LogoEntry[]; direction: 'left' | 'right' }) {
-  const animClass = direction === 'left' ? 'animate-scroll-left' : 'animate-scroll-right'
-
+function MarqueeRow({ items, reverse }: { items: LogoEntry[]; reverse?: boolean }) {
   return (
-    <div className="overflow-hidden py-1">
-      <div className={`flex w-max will-change-transform hover:[animation-play-state:paused] ${animClass}`}>
-        <MarqueeSet items={items} />
-        <MarqueeSet items={items} />
-      </div>
+    <div className={`${styles.marquee} ${reverse ? styles.marqueeReverse : ''}`}>
+      <MarqueeList items={items} />
+      <MarqueeList items={items} />
     </div>
   )
 }
 
 export function ClientLogosSection() {
   return (
-    <section className="bg-primary py-space-7 md:py-space-9 overflow-hidden relative">
-      {/* Edge fade — narrower on mobile */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-[100px] z-10 bg-gradient-to-l from-primary to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-[100px] z-10 bg-gradient-to-r from-primary to-transparent" />
+    <section className={styles.section}>
+      <div className={styles.fadeRight} />
+      <div className={styles.fadeLeft} />
 
-      <div className="text-center mb-space-5 md:mb-space-7">
-        <h2 className="text-body-lg md:text-h3 font-bold text-white">לקוחות שבחרו בנו</h2>
-        <div className="w-[40px] md:w-[50px] h-[3px] bg-gold mx-auto mt-space-2 rounded-full" />
+      <div className={styles.header}>
+        <h2 className={styles.title}>לקוחות שבחרו בנו</h2>
+        <div className={styles.accent} />
       </div>
 
-      <div className="flex flex-col gap-2 md:gap-space-4">
-        <MarqueeRow items={ROW_1} direction="left" />
-        <MarqueeRow items={ROW_2} direction="right" />
+      <div className={styles.rows}>
+        <MarqueeRow items={ROW_1} />
+        <MarqueeRow items={ROW_2} reverse />
       </div>
     </section>
   )
