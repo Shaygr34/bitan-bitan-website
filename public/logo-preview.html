@@ -27,27 +27,42 @@
 
     /* ─── Belt: seamless infinite scroll ─── */
     .belt{overflow:hidden;padding:0.5rem 0}
+
+    /*
+     * Seamless loop technique:
+     * - .track is a flex row with width:max-content
+     * - Contains 2 identical .set wrappers
+     * - Each .set is flex with gap
+     * - .set also has padding-inline-end = gap, so the space between
+     *   the LAST item of set A and FIRST item of set B equals the gap
+     * - Animation translates by exactly -50% (= one full .set width including its padding)
+     * - will-change + translateZ(0) for GPU compositing
+     */
     .track{
       display:flex;
-      align-items:center;
-      gap:2.5rem;
       width:max-content;
       will-change:transform;
     }
     .track:hover{animation-play-state:paused !important}
 
-    /* Row 1 scrolls RTL (leftward). Track has 2 copies. Translate by 50% = 1 full set. */
-    .track.r1{animation:scroll-left 35s linear infinite}
-    /* Row 2 scrolls LTR (rightward). */
-    .track.r2{animation:scroll-right 40s linear infinite;margin-top:1.25rem}
+    .set{
+      display:flex;
+      align-items:center;
+      gap:2.5rem;
+      padding-inline-end:2.5rem; /* critical: matches gap so seam is seamless */
+      flex-shrink:0;
+    }
+
+    .track.r1{animation:scroll-left 40s linear infinite}
+    .track.r2{animation:scroll-right 45s linear infinite;margin-top:1.25rem}
 
     @keyframes scroll-left{
-      0%{transform:translateX(0)}
-      100%{transform:translateX(-50%)}
+      0%{transform:translateX(0) translateZ(0)}
+      100%{transform:translateX(-50%) translateZ(0)}
     }
     @keyframes scroll-right{
-      0%{transform:translateX(-50%)}
-      100%{transform:translateX(0)}
+      0%{transform:translateX(-50%) translateZ(0)}
+      100%{transform:translateX(0) translateZ(0)}
     }
 
     /* ─── Logo Slot ─── */
@@ -60,13 +75,12 @@
     }
     .s:hover{opacity:1}
 
-    /* Image logos */
+    /* Image logos — all pre-processed as white-on-transparent, NO CSS filter */
     .s img{
       height:44px;
       width:auto;
       max-width:160px;
       object-fit:contain;
-      filter:brightness(0) invert(1);
     }
     /* Larger slot for specific logos */
     .s.lg img{height:60px;max-width:180px}
@@ -84,81 +98,85 @@
       .s img{height:34px;max-width:120px}
       .s.lg img{height:46px;max-width:140px}
       .t b{font-size:0.75rem}
-      .track{gap:1.8rem}
+      .set{gap:1.8rem;padding-inline-end:1.8rem}
     }
   </style>
 </head>
 <body>
-<div class="header"><h1>תצוגה מקדימה — מדור לקוחות</h1><p>כך ייראה בעמוד הבית של bitancpa.com · גרסה 3</p></div>
+<div class="header"><h1>תצוגה מקדימה — מדור לקוחות</h1><p>כך ייראה בעמוד הבית של bitancpa.com · גרסה 4 (סופי)</p></div>
 
 <div class="conveyor-section">
   <div class="section-title"><h2>לקוחות שבחרו בנו</h2><div class="gl"></div><p>חברות ועסקים שסומכים על ביטן את ביטן</p></div>
 
-  <!-- ROW 1: scrolls left. 2 identical copies for seamless loop. -->
+  <!-- ROW 1 -->
   <div class="belt"><div class="track r1">
-    <!-- Copy A -->
-    <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
-    <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
-    <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
-    <div class="s"><img src="/logos/citizen.svg" alt="Citizen Cafe TLV"></div>
-    <div class="s"><img src="/logos/schlein.png" alt="שליין"></div>
-    <div class="s"><div class="t"><b>אורן שאיבת בטון</b><small>בע"מ</small></div></div>
-    <div class="s"><img src="/logos/zamsh.svg" alt="ZAMSH"></div>
-    <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
-    <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
-    <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
-    <div class="s lg"><img src="/logos/mozart.png" alt="מוצארט"></div>
-    <!-- Copy B (identical) -->
-    <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
-    <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
-    <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
-    <div class="s"><img src="/logos/citizen.svg" alt="Citizen Cafe TLV"></div>
-    <div class="s"><img src="/logos/schlein.png" alt="שליין"></div>
-    <div class="s"><div class="t"><b>אורן שאיבת בטון</b><small>בע"מ</small></div></div>
-    <div class="s"><img src="/logos/zamsh.svg" alt="ZAMSH"></div>
-    <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
-    <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
-    <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
-    <div class="s lg"><img src="/logos/mozart.png" alt="מוצארט"></div>
+    <div class="set">
+      <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
+      <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
+      <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
+      <div class="s"><img src="/logos/citizen.svg" alt="Citizen Cafe TLV"></div>
+      <div class="s"><img src="/logos/schlein.png" alt="שליין"></div>
+      <div class="s"><div class="t"><b>אורן שאיבת בטון</b><small>בע"מ</small></div></div>
+      <div class="s"><img src="/logos/zamsh.svg" alt="ZAMSH"></div>
+      <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
+      <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
+      <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
+      <div class="s lg"><img src="/logos/mozart.png" alt="מוצארט"></div>
+    </div>
+    <div class="set" aria-hidden="true">
+      <div class="s"><img src="/logos/hanna.png" alt="בית חנה — המקום השלישי"></div>
+      <div class="s"><div class="t"><b>א.י.ל. סלע</b><small>בנייה ותשתית</small></div></div>
+      <div class="s"><img src="/logos/climax.png" alt="קליימקס"></div>
+      <div class="s"><img src="/logos/citizen.svg" alt="Citizen Cafe TLV"></div>
+      <div class="s"><img src="/logos/schlein.png" alt="שליין"></div>
+      <div class="s"><div class="t"><b>אורן שאיבת בטון</b><small>בע"מ</small></div></div>
+      <div class="s"><img src="/logos/zamsh.svg" alt="ZAMSH"></div>
+      <div class="s"><div class="t"><b>סופר קליק</b><small>רשת סופרמרקטים</small></div></div>
+      <div class="s"><img src="/logos/hemilton.png" alt="המילטון"></div>
+      <div class="s"><div class="t"><b>סינגל טקסטיל</b><small>בע"מ</small></div></div>
+      <div class="s lg"><img src="/logos/mozart.png" alt="מוצארט"></div>
+    </div>
   </div></div>
 
-  <!-- ROW 2: scrolls right. 2 identical copies for seamless loop. -->
+  <!-- ROW 2 -->
   <div class="belt"><div class="track r2">
-    <!-- Copy A -->
-    <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
-    <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
-    <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
-    <div class="s"><div class="t"><b>אלקטרו סיטי</b><small>חשמל ואלקטרוניקה</small></div></div>
-    <div class="s"><div class="t"><b>The Alchemist</b><small>TLV</small></div></div>
-    <div class="s"><div class="t"><b>צלר תעופה</b><small>שירותי תעופה</small></div></div>
-    <div class="s"><div class="t"><b>ווימברג</b><small>יבוא ושיווק</small></div></div>
-    <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
-    <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
-    <div class="s"><div class="t"><b>TAPUZ</b><small>שירותי אריזה ומשלוח</small></div></div>
-    <!-- Copy B (identical) -->
-    <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
-    <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
-    <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
-    <div class="s"><div class="t"><b>אלקטרו סיטי</b><small>חשמל ואלקטרוניקה</small></div></div>
-    <div class="s"><div class="t"><b>The Alchemist</b><small>TLV</small></div></div>
-    <div class="s"><div class="t"><b>צלר תעופה</b><small>שירותי תעופה</small></div></div>
-    <div class="s"><div class="t"><b>ווימברג</b><small>יבוא ושיווק</small></div></div>
-    <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
-    <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
-    <div class="s"><div class="t"><b>TAPUZ</b><small>שירותי אריזה ומשלוח</small></div></div>
+    <div class="set">
+      <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
+      <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
+      <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
+      <div class="s"><div class="t"><b>אלקטרו סיטי</b><small>חשמל ואלקטרוניקה</small></div></div>
+      <div class="s"><div class="t"><b>The Alchemist</b><small>TLV</small></div></div>
+      <div class="s"><div class="t"><b>צלר תעופה</b><small>שירותי תעופה</small></div></div>
+      <div class="s"><div class="t"><b>ווימברג</b><small>יבוא ושיווק</small></div></div>
+      <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
+      <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
+      <div class="s"><div class="t"><b>TAPUZ</b><small>שירותי אריזה ומשלוח</small></div></div>
+    </div>
+    <div class="set" aria-hidden="true">
+      <div class="s"><div class="t"><b>Knil</b><small>Technology</small></div></div>
+      <div class="s"><div class="t"><b>ברק אור</b><small>שירותי רכב</small></div></div>
+      <div class="s"><div class="t"><b>גרין אלמה</b><small>חברה לבנייה</small></div></div>
+      <div class="s"><div class="t"><b>אלקטרו סיטי</b><small>חשמל ואלקטרוניקה</small></div></div>
+      <div class="s"><div class="t"><b>The Alchemist</b><small>TLV</small></div></div>
+      <div class="s"><div class="t"><b>צלר תעופה</b><small>שירותי תעופה</small></div></div>
+      <div class="s"><div class="t"><b>ווימברג</b><small>יבוא ושיווק</small></div></div>
+      <div class="s"><div class="t"><b>הפשפש</b><small>חנות חיות חברתית</small></div></div>
+      <div class="s"><div class="t"><b>ESP 710</b><small>טכנולוגיה</small></div></div>
+      <div class="s"><div class="t"><b>TAPUZ</b><small>שירותי אריזה ומשלוח</small></div></div>
+    </div>
   </div></div>
 </div>
 
 <div class="info">
-  <h3>גרסה 3 — שינויים</h3>
+  <h3>גרסה 4 — סופי</h3>
   <div class="note">
-    ✓ הריבוע הלבן (alchemist) — הוסר, הוחלף בטקסט<br>
-    ✓ הכתם האפור (tapuz) — הוסר, הוחלף בטקסט<br>
-    ✓ סולומון — הוסר<br>
-    ✓ בית חנה (המקום השלישי) — תוקן, הלוגו מופיע<br>
-    ✓ ZAMSH (אידאה) — נוסף עם לוגו מהאתר<br>
-    ✓ מוצרט — הוגדל (slot גדול יותר)<br>
-    ✓ אנימציה — שוכתבה מאפס: 2 עותקים (לא 3), translateX(-50%) מדויק, will-change, מהירות רגועה יותר, ללא גליצ׳
+    ✓ <b>אפס ריבועים לבנים</b> — כל הלוגואים עכשיו לבנים על שקוף, ללא CSS filter<br>
+    ✓ Citizen SVG — תוקן (הסרת רקע צהוב+לבן)<br>
+    ✓ ZAMSH SVG — הפך ללבן ישירות<br>
+    ✓ כל ה-PNG — הומרו ללבן-על-שקוף (hanna, climax, schlein, hemilton, mozart)<br>
+    ✓ <b>לולאה חלקה</b> — ארכיטקטורה חדשה: .set עם padding-inline-end = gap, translateX(-50%) מדויק<br>
+    ✓ מוצרט — הוגדל (60px slot)<br>
+    ✓ GPU compositing — translateZ(0) + will-change<br>
   </div>
 </div>
 </body>
