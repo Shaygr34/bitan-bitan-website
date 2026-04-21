@@ -34,6 +34,7 @@ const ROW_2: LogoEntry[] = [
 ]
 
 const GAP = 40
+const COPIES = 4 // Number of times items are duplicated in the track
 
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
@@ -74,11 +75,12 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
 
     function measure() {
       if (!track || !active) return
-      const first = track.children[0] as HTMLElement | undefined
-      const copyStart = track.children[items.length] as HTMLElement | undefined
-      if (first && copyStart) {
-        // Use Math.abs because RTL pages have inverted offsetLeft values
-        setWidth = Math.abs(copyStart.offsetLeft - first.offsetLeft)
+      // scrollWidth includes (totalItems - 1) gaps. We need (totalItems) gaps
+      // for perfect per-copy measurement (each copy needs a trailing gap).
+      // Add one gap to make it evenly divisible by COPIES.
+      const totalWidth = track.scrollWidth + GAP
+      if (totalWidth > GAP) {
+        setWidth = totalWidth / COPIES
       }
     }
 
@@ -96,16 +98,20 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
         if (reverse) offset = 0
       }
 
-      // RTL page: positive translateX scrolls content leftward (natural reading direction)
+      // Accumulate offset continuously (never "reset" — avoids blip)
       if (reverse) {
         offset -= speed
-        if (offset <= -setWidth) offset += setWidth
       } else {
         offset += speed
-        if (offset >= setWidth) offset -= setWidth
       }
 
-      track!.style.transform = `translate3d(${offset}px,0,0)`
+      // Use modulo to keep the visual offset within one set width
+      // This creates a perfect loop without any discrete jump
+      let visualOffset = offset % setWidth
+      if (reverse && visualOffset > 0) visualOffset -= setWidth
+      if (!reverse && visualOffset < 0) visualOffset += setWidth
+
+      track!.style.transform = `translate3d(${visualOffset}px,0,0)`
       rafId = requestAnimationFrame(tick)
     }
 
