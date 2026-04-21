@@ -1,17 +1,6 @@
 'use client'
 
-/**
- * Client Logos Marquee — JS-driven infinite scroll, zero dead space.
- *
- * How it works:
- * - Items rendered 4× to guarantee continuous coverage on any screen
- * - Track is one flat flex row with uniform gap
- * - rAF measures ONE set (N items × width + N × gap) from DOM
- * - Offset resets by exactly one set width → seamless closed loop
- * - No CSS animation, no percentage guesswork
- */
-
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 
 type LogoEntry =
   | { type: 'image'; src: string; alt: string; large?: boolean }
@@ -44,12 +33,12 @@ const ROW_2: LogoEntry[] = [
   { type: 'text', name: 'TAPUZ', subtitle: 'שירותי אריזה ומשלוח' },
 ]
 
-const GAP = 40 // px between items
+const GAP = 40
 
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
     return (
-      <div className="flex-shrink-0 flex items-center justify-center">
+      <div className="flex-shrink-0 flex items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={entry.src}
@@ -71,116 +60,65 @@ function Slot({ entry }: { entry: LogoEntry }) {
   )
 }
 
-/**
- * Measure one "set" width = sum of the first N items' widths + (N) gaps.
- * We include one trailing gap because that's the spacing before the next
- * copy's first item — this makes the reset seamless.
- */
-function measureSetWidth(track: HTMLElement, itemCount: number): number {
-  const children = track.children
-  if (children.length === 0) return 0
-  const firstItem = children[0] as HTMLElement
-  const lastItemOfSet = children[itemCount - 1] as HTMLElement
-  // Distance from start of first item to start of (itemCount)th item
-  // = one full set including trailing gap
-  const nextSetStart = children[itemCount] as HTMLElement
-  if (nextSetStart) {
-    return nextSetStart.offsetLeft - firstItem.offsetLeft
-  }
-  // Fallback: measure manually
-  return lastItemOfSet.offsetLeft + lastItemOfSet.offsetWidth - firstItem.offsetLeft + GAP
-}
-
-function InfiniteRow({
-  items,
-  speed,
-  reverse = false,
-}: {
-  items: LogoEntry[]
-  speed: number
-  reverse?: boolean
-}) {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const offsetRef = useRef(0)
-  const setWidthRef = useRef(0)
-  const readyRef = useRef(false)
-
-  const startAnimation = useCallback(() => {
-    const track = trackRef.current
-    if (!track || readyRef.current) return
-
-    setWidthRef.current = measureSetWidth(track, items.length)
-    if (setWidthRef.current <= 0) return
-
-    readyRef.current = true
-
-    // For reverse: start offset at -setWidth so it scrolls the other way
-    if (reverse) {
-      offsetRef.current = -setWidthRef.current
-    }
-
-    let rafId: number
-
-    function tick() {
-      const sw = setWidthRef.current
-      if (reverse) {
-        offsetRef.current += speed
-        if (offsetRef.current >= 0) offsetRef.current -= sw
-      } else {
-        offsetRef.current -= speed
-        if (offsetRef.current <= -sw) offsetRef.current += sw
-      }
-      track!.style.transform = `translate3d(${offsetRef.current}px,0,0)`
-      rafId = requestAnimationFrame(tick)
-    }
-
-    rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-  }, [items.length, speed, reverse])
-
+function useMarquee(
+  trackRef: React.RefObject<HTMLDivElement | null>,
+  itemCount: number,
+  speed: number,
+  reverse: boolean
+) {
   useEffect(() => {
     const track = trackRef.current
     if (!track) return
 
-    // Wait for all images to load before measuring
-    const images = track.querySelectorAll('img')
-    let loaded = 0
-    const total = images.length
+    let offset = 0
+    let setWidth = 0
+    let rafId: number
+    let cancelled = false
 
-    if (total === 0) {
-      const cleanup = startAnimation()
-      return cleanup
-    }
+    // Measure after a short delay to let images render
+    const timer = setTimeout(() => {
+      if (cancelled || !track) return
 
-    const onLoad = () => {
-      loaded++
-      if (loaded >= total) {
-        const cleanup = startAnimation()
-        // Store cleanup for unmount
-        if (cleanup) cleanupRef.current = cleanup
+      // Measure: distance from child[0] to child[itemCount]
+      const first = track.children[0] as HTMLElement
+      const copyStart = track.children[itemCount] as HTMLElement
+      if (first && copyStart) {
+        setWidth = copyStart.offsetLeft - first.offsetLeft
       }
-    }
 
-    const cleanupRef = { current: () => {} }
+      if (setWidth <= 0) return
 
-    images.forEach((img) => {
-      if (img.complete) {
-        onLoad()
-      } else {
-        img.addEventListener('load', onLoad, { once: true })
-        img.addEventListener('error', onLoad, { once: true })
+      if (reverse) offset = -setWidth
+
+      function tick() {
+        if (cancelled) return
+        if (reverse) {
+          offset += speed
+          if (offset >= 0) offset -= setWidth
+        } else {
+          offset -= speed
+          if (offset <= -setWidth) offset += setWidth
+        }
+        track!.style.transform = `translate3d(${offset}px,0,0)`
+        rafId = requestAnimationFrame(tick)
       }
-    })
+
+      rafId = requestAnimationFrame(tick)
+    }, 300)
 
     return () => {
-      cleanupRef.current()
-      readyRef.current = false
+      cancelled = true
+      clearTimeout(timer)
+      cancelAnimationFrame(rafId)
     }
-  }, [startAnimation])
+  }, [trackRef, itemCount, speed, reverse])
+}
 
-  // 4 copies: guarantees continuous coverage on any viewport.
-  // On mobile (375px), one set is ~1200px → 4× = 4800px.
-  // On desktop (1440px), one set is ~1800px → 4× = 7200px.
+function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; speed: number; reverse?: boolean }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  useMarquee(trackRef, items.length, speed, reverse)
+
+  // 4 copies for continuous coverage
   const repeated = [...items, ...items, ...items, ...items]
 
   return (
