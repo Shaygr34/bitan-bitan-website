@@ -1,21 +1,17 @@
 'use client'
 
 /**
- * Client Logos Marquee — JS-driven infinite scroll.
+ * Client Logos Marquee — JS-driven infinite scroll, zero dead space.
  *
- * Why JS instead of CSS animation:
- * CSS translateX(-50%) / calc(-100% - gap) never matches the actual
- * rendered width precisely — causing dead space, pops, and glitches.
- *
- * This approach:
- * 1. Renders items in a single row, duplicated enough to overflow 2× viewport
- * 2. Uses requestAnimationFrame to smoothly translate the track
- * 3. When the first set scrolls fully off-screen, resets position by
- *    exactly one set width — creating a perfect closed loop
- * 4. Measures actual DOM widths — zero guesswork
+ * How it works:
+ * - Items rendered 4× to guarantee continuous coverage on any screen
+ * - Track is one flat flex row with uniform gap
+ * - rAF measures ONE set (N items × width + N × gap) from DOM
+ * - Offset resets by exactly one set width → seamless closed loop
+ * - No CSS animation, no percentage guesswork
  */
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
 type LogoEntry =
   | { type: 'image'; src: string; alt: string; large?: boolean }
@@ -48,8 +44,7 @@ const ROW_2: LogoEntry[] = [
   { type: 'text', name: 'TAPUZ', subtitle: 'שירותי אריזה ומשלוח' },
 ]
 
-const GAP = 32 // px gap between items
-const SPEED = 0.5 // px per frame (~30px/sec at 60fps)
+const GAP = 40 // px between items
 
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
@@ -76,121 +71,117 @@ function Slot({ entry }: { entry: LogoEntry }) {
   )
 }
 
-function InfiniteMarquee({ items, speed = SPEED }: { items: LogoEntry[]; speed?: number }) {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const offsetRef = useRef(0)
-  const setWidthRef = useRef(0)
-
-  useEffect(() => {
-    const track = trackRef.current
-    if (!track) return
-
-    // Wait for images to load before measuring
-    const images = track.querySelectorAll('img')
-    const imageLoadPromises = Array.from(images).map(
-      (img) => img.complete ? Promise.resolve() : new Promise<void>((r) => { img.onload = () => r(); img.onerror = () => r() })
-    )
-
-    let rafId: number
-    let running = true
-
-    Promise.all(imageLoadPromises).then(() => {
-      if (!running) return
-
-      // Measure one set width: total track width / 3 (we render 3 copies)
-      const totalWidth = track.scrollWidth
-      setWidthRef.current = totalWidth / 3
-
-      function tick() {
-        if (!running) return
-        offsetRef.current -= speed
-        // When we've scrolled past one full set, reset by adding one set width back
-        if (Math.abs(offsetRef.current) >= setWidthRef.current) {
-          offsetRef.current += setWidthRef.current
-        }
-        track!.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`
-        rafId = requestAnimationFrame(tick)
-      }
-
-      rafId = requestAnimationFrame(tick)
-    })
-
-    return () => {
-      running = false
-      cancelAnimationFrame(rafId)
-    }
-  }, [speed])
-
-  // Render 3 copies to ensure the track is always wider than viewport
-  // and there's always a "next" set sliding in from the edge
-  const tripled = [...items, ...items, ...items]
-
-  return (
-    <div className="overflow-hidden">
-      <div
-        ref={trackRef}
-        className="flex items-center will-change-transform"
-        style={{ gap: `${GAP}px` }}
-      >
-        {tripled.map((entry, i) => (
-          <Slot key={i} entry={entry} />
-        ))}
-      </div>
-    </div>
-  )
+/**
+ * Measure one "set" width = sum of the first N items' widths + (N) gaps.
+ * We include one trailing gap because that's the spacing before the next
+ * copy's first item — this makes the reset seamless.
+ */
+function measureSetWidth(track: HTMLElement, itemCount: number): number {
+  const children = track.children
+  if (children.length === 0) return 0
+  const firstItem = children[0] as HTMLElement
+  const lastItemOfSet = children[itemCount - 1] as HTMLElement
+  // Distance from start of first item to start of (itemCount)th item
+  // = one full set including trailing gap
+  const nextSetStart = children[itemCount] as HTMLElement
+  if (nextSetStart) {
+    return nextSetStart.offsetLeft - firstItem.offsetLeft
+  }
+  // Fallback: measure manually
+  return lastItemOfSet.offsetLeft + lastItemOfSet.offsetWidth - firstItem.offsetLeft + GAP
 }
 
-function InfiniteMarqueeReverse({ items, speed = SPEED }: { items: LogoEntry[]; speed?: number }) {
+function InfiniteRow({
+  items,
+  speed,
+  reverse = false,
+}: {
+  items: LogoEntry[]
+  speed: number
+  reverse?: boolean
+}) {
   const trackRef = useRef<HTMLDivElement>(null)
   const offsetRef = useRef(0)
   const setWidthRef = useRef(0)
-  const initializedRef = useRef(false)
+  const readyRef = useRef(false)
+
+  const startAnimation = useCallback(() => {
+    const track = trackRef.current
+    if (!track || readyRef.current) return
+
+    setWidthRef.current = measureSetWidth(track, items.length)
+    if (setWidthRef.current <= 0) return
+
+    readyRef.current = true
+
+    // For reverse: start offset at -setWidth so it scrolls the other way
+    if (reverse) {
+      offsetRef.current = -setWidthRef.current
+    }
+
+    let rafId: number
+
+    function tick() {
+      const sw = setWidthRef.current
+      if (reverse) {
+        offsetRef.current += speed
+        if (offsetRef.current >= 0) offsetRef.current -= sw
+      } else {
+        offsetRef.current -= speed
+        if (offsetRef.current <= -sw) offsetRef.current += sw
+      }
+      track!.style.transform = `translate3d(${offsetRef.current}px,0,0)`
+      rafId = requestAnimationFrame(tick)
+    }
+
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [items.length, speed, reverse])
 
   useEffect(() => {
     const track = trackRef.current
     if (!track) return
 
+    // Wait for all images to load before measuring
     const images = track.querySelectorAll('img')
-    const imageLoadPromises = Array.from(images).map(
-      (img) => img.complete ? Promise.resolve() : new Promise<void>((r) => { img.onload = () => r(); img.onerror = () => r() })
-    )
+    let loaded = 0
+    const total = images.length
 
-    let rafId: number
-    let running = true
+    if (total === 0) {
+      const cleanup = startAnimation()
+      return cleanup
+    }
 
-    Promise.all(imageLoadPromises).then(() => {
-      if (!running) return
-
-      const totalWidth = track.scrollWidth
-      setWidthRef.current = totalWidth / 3
-
-      // Start offset at -1 set width so we scroll in the opposite direction
-      if (!initializedRef.current) {
-        offsetRef.current = -setWidthRef.current
-        initializedRef.current = true
+    const onLoad = () => {
+      loaded++
+      if (loaded >= total) {
+        const cleanup = startAnimation()
+        // Store cleanup for unmount
+        if (cleanup) cleanupRef.current = cleanup
       }
+    }
 
-      function tick() {
-        if (!running) return
-        offsetRef.current += speed
-        // When we've scrolled past zero, reset by subtracting one set width
-        if (offsetRef.current >= 0) {
-          offsetRef.current -= setWidthRef.current
-        }
-        track!.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`
-        rafId = requestAnimationFrame(tick)
+    const cleanupRef = { current: () => {} }
+
+    images.forEach((img) => {
+      if (img.complete) {
+        onLoad()
+      } else {
+        img.addEventListener('load', onLoad, { once: true })
+        img.addEventListener('error', onLoad, { once: true })
       }
-
-      rafId = requestAnimationFrame(tick)
     })
 
     return () => {
-      running = false
-      cancelAnimationFrame(rafId)
+      cleanupRef.current()
+      readyRef.current = false
     }
-  }, [speed])
+  }, [startAnimation])
 
-  const tripled = [...items, ...items, ...items]
+  // 4 copies: guarantees continuous coverage on any viewport.
+  // On mobile (375px), one set is ~1200px → 4× = 4800px.
+  // On desktop (1440px), one set is ~1800px → 4× = 7200px.
+  const repeated = [...items, ...items, ...items, ...items]
 
   return (
     <div className="overflow-hidden">
@@ -199,7 +190,7 @@ function InfiniteMarqueeReverse({ items, speed = SPEED }: { items: LogoEntry[]; 
         className="flex items-center will-change-transform"
         style={{ gap: `${GAP}px` }}
       >
-        {tripled.map((entry, i) => (
+        {repeated.map((entry, i) => (
           <Slot key={i} entry={entry} />
         ))}
       </div>
@@ -209,20 +200,15 @@ function InfiniteMarqueeReverse({ items, speed = SPEED }: { items: LogoEntry[]; 
 
 export function ClientLogosSection() {
   return (
-    <section className="bg-primary py-6 md:py-10 overflow-hidden"
-      style={{
-        maskImage: 'linear-gradient(to right, transparent 0, black 30px, black calc(100% - 30px), transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent 0, black 30px, black calc(100% - 30px), transparent 100%)',
-      }}
-    >
+    <section className="bg-primary py-6 md:py-10 overflow-hidden">
       <div className="text-center mb-4 md:mb-6">
         <h2 className="text-body-lg md:text-h3 font-bold text-white">לקוחות שבחרו בנו</h2>
         <div className="w-10 h-[3px] bg-gold mx-auto mt-2 rounded-full" />
       </div>
 
       <div className="flex flex-col gap-3 md:gap-4">
-        <InfiniteMarquee items={ROW_1} speed={0.4} />
-        <InfiniteMarqueeReverse items={ROW_2} speed={0.35} />
+        <InfiniteRow items={ROW_1} speed={0.4} />
+        <InfiniteRow items={ROW_2} speed={0.35} reverse />
       </div>
     </section>
   )
