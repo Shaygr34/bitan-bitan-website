@@ -76,6 +76,7 @@ async function createSummitEntity(fields: {
 
   // Auto-set fields
   properties['מועד תחילת ייצוג'] = new Date().toISOString().split('T')[0] + 'T00:00:00'
+  properties['Customers_Status'] = 557688551 // "1. איסוף נתונים"
 
   // Transfer + business details → store in Customers_Text (structured notes)
   const textParts: string[] = []
@@ -131,6 +132,25 @@ async function createSummitEntity(fields: {
   } catch (err) {
     console.error('Summit createentity error:', err)
     return { entityId: null, error: `Exception: ${err instanceof Error ? err.message : String(err)}` }
+  }
+}
+
+async function sendSummitSms(phone: string, message: string): Promise<void> {
+  const credentials = getSummitCredentials()
+  if (!credentials.APIKey || !credentials.CompanyID || !phone) return
+
+  try {
+    await fetch('https://api.sumit.co.il/sms/sms/send/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Language': 'he' },
+      body: JSON.stringify({
+        Credentials: credentials,
+        Recipient: phone,
+        Text: message,
+      }),
+    })
+  } catch (err) {
+    console.error('Summit SMS send error:', err)
   }
 }
 
@@ -399,7 +419,7 @@ export async function POST(req: NextRequest) {
       .commit()
 
     // -----------------------------------------------------------------------
-    // 8. Fire-and-forget emails
+    // 8. Fire-and-forget notifications (email + SMS)
     // -----------------------------------------------------------------------
     void Promise.all([
       sendIntakeNotification({
@@ -411,6 +431,13 @@ export async function POST(req: NextRequest) {
         fileCount: fileUrls.length,
       }),
       sendWelcomeEmail(email, fullName),
+      // SMS confirmation to client — only on new submissions (not updates)
+      ...(!isUpdateMode && phone
+        ? [sendSummitSms(
+            phone,
+            `שלום ${fullName}, קיבלנו את הפרטים שלך בהצלחה. בשלב הבא נשלח ייפוי כוח לחתימה דיגיטלית. צוות ביטן את ביטן רואי חשבון`
+          )]
+        : []),
     ])
 
     // -----------------------------------------------------------------------
