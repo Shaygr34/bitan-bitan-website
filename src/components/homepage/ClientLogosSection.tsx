@@ -65,10 +65,10 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
   const trackRef = useRef<HTMLDivElement>(null)
 
   // Repeat items within each "set" so one set is always wider than viewport.
-  // Average item width ~100px + 40px gap = ~140px per item.
-  // For 1440px viewport safety: need at least ~12 items per set.
   // Double the items if needed so each set overflows any screen.
-  const setItems = items.length < 12 ? [...items, ...items] : items
+  let setItems = items.length < 12 ? [...items, ...items] : items
+  // Reverse row: reverse item order (scroll direction stays the same)
+  if (reverse) setItems = [...setItems].reverse()
   const setItemCount = setItems.length
 
   useEffect(() => {
@@ -98,22 +98,24 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
           rafId = requestAnimationFrame(tick)
           return
         }
-        // Initialize offset for reverse direction
-        if (reverse) offset = 0
+        // Both directions start at offset 0
       }
 
-      // Accumulate offset continuously (never "reset" — avoids blip)
-      if (reverse) {
-        offset -= speed
-      } else {
-        offset += speed
-      }
+      // Both directions use positive offset increment.
+      // Row 1: positive translateX = items scroll left (RTL natural)
+      // Row 2 (reverse): negative translateX = items scroll right
+      // But BOTH need copies entering from the same side, so both
+      // use the same positive offset, just applied with opposite sign.
+      offset += speed
 
-      // Use modulo to keep the visual offset within one set width
-      // This creates a perfect loop without any discrete jump
-      let visualOffset = offset % setWidth
-      if (reverse && visualOffset > 0) visualOffset -= setWidth
-      if (!reverse && visualOffset < 0) visualOffset += setWidth
+      // Modulo wraps within one set width
+      const wrappedOffset = offset % setWidth
+
+      // Both rows use positive translateX (items move LEFT in RTL).
+      // Row 2 reverses the ITEM ORDER in the DOM instead of the scroll direction.
+      // This way both rows scroll the same direction mechanically but show
+      // different content order, creating the visual impression of opposite flow.
+      const visualOffset = wrappedOffset
 
       track!.style.transform = `translate3d(${visualOffset}px,0,0)`
       rafId = requestAnimationFrame(tick)
