@@ -9,7 +9,7 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V5.1 — April 14, 2026)
+## Current State (V5.2 — April 21, 2026)
 
 ### Content
 - ~72 articles in Sanity — ALL with AI-generated images (100% coverage)
@@ -70,6 +70,8 @@ CMS: Sanity project ul4uwnp7, dataset production
 - **Soft docs validation**: Amber warnings on docs step (not hard block). Inline confirmation on submit when docs missing. Progress bar amber badge. Client can submit without all docs.
 - **Summit error surfacing**: `createSummitEntity` returns `{ entityId, error }`. Token status `summit_failed` with `summitError` field stored when entity creation fails. OS dashboard shows red error box.
 - **Sanity schemas**: `clientDocument` (structured file index per client — replaces הערות URL dump), `intakeToken` with `mode` field (new/update) and `summitError` field.
+
+- **Onboarding V4** (April 21): Intake form now sets Summit status "1. איסוף נתונים" on submit. Auto-email to client + office via Resend. SMS placeholder (pending Summit sender approval). Full spec at ~/bitan-onboarding-v4-spec.md.
 
 ### Data Completion System (V3 — April 13, 2026)
 - **Purpose**: Mass CRM data completion for ~960 existing clients (0% document uploads, 4% birthdate)
@@ -232,6 +234,7 @@ Set: RESEND_API_KEY (contact form email — set April 13, 2026)
 Set: CONTACT_EMAIL_TO = office@bitancpa.com (set April 13, 2026)
 Note: API routes use `process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_API_TOKEN` for local/prod compat
 Note: GOOGLE_AI_API_KEY set via env var when running image scripts, not stored in .env.local
+Note: SUMMIT_COMPANY_ID and SUMMIT_API_KEY are required for intake form → Summit entity creation + status setting
 
 ## Post-Launch Checklist
 - [x] DNS cutover (A + CNAME → Railway) — DONE
@@ -261,6 +264,8 @@ Content Factory is a SEPARATE repo (apps/os-hub) — not this project
 - **Employee vs self-employed pension credit**: Employee = min(salary, 9700) × 7% × 35%. Self-employed = avgSalary × 5% × 35%. DIFFERENT formulas — reason the employer calc is a separate tool.
 - **Children age sentinel (-1)**: Using -1 as "empty" in childrenAges array causes silent credit point miscalculation. Clean to 0 at calculation boundary.
 - **Zsh glob escaping**: File paths with `[brackets]` must be quoted in git/shell commands.
+- **Resend domain mismatch**: EMAIL_FROM must use `bitancpa.com` (not `.co.il`). Resend is only verified for `bitancpa.com`. Mismatched domain causes silent send failure.
+- **Summit SMS**: No approved sender name configured in Summit as of April 2026. SMS calls will silently fail. Email-first approach for now.
 
 ## Session History (archived — see git log for details)
 - March 22, 2026: Economics report, analytics report, GA4/GSC API access, cost structure
@@ -688,3 +693,11 @@ See memory: `bitan-dev-backlog-2026-04-05.md` + `bitan-employer-calc-spec.md`
 - H4: Employee manufacturer price default ₪200K — no UX guidance
 - H5: pensionSalary/educationFundSalary not editable
 - L6: disabilityRate field is dead code
+
+## Session: April 21, 2026 — Onboarding V4 + Summit MCP Pipeline
+
+### Deliverables
+- **Onboarding V4 shipped (phases 1-4)**: Summit statuses, intake form status setting ("1. איסוף נתונים"), MCP pipeline tools, auto-email to client + office
+- **Moshik technical briefing produced** for developer handoff
+- **Email domain fix**: `bitancpa.co.il` → `bitancpa.com` (Resend only verified for `.com`)
+- **Summit MCP upgraded to v3.1.0**: 34 tools, onboarding pipeline support
