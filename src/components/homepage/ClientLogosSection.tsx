@@ -60,65 +60,63 @@ function Slot({ entry }: { entry: LogoEntry }) {
   )
 }
 
-function useMarquee(
-  trackRef: React.RefObject<HTMLDivElement | null>,
-  itemCount: number,
-  speed: number,
-  reverse: boolean
-) {
+function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; speed: number; reverse?: boolean }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const track = trackRef.current
     if (!track) return
 
     let offset = 0
     let setWidth = 0
-    let rafId: number
-    let cancelled = false
+    let rafId = 0
+    let active = true
 
-    // Measure after a short delay to let images render
-    const timer = setTimeout(() => {
-      if (cancelled || !track) return
-
-      // Measure: distance from child[0] to child[itemCount]
-      const first = track.children[0] as HTMLElement
-      const copyStart = track.children[itemCount] as HTMLElement
+    function measure() {
+      if (!track || !active) return
+      const first = track.children[0] as HTMLElement | undefined
+      const copyStart = track.children[items.length] as HTMLElement | undefined
       if (first && copyStart) {
         setWidth = copyStart.offsetLeft - first.offsetLeft
       }
+    }
 
-      if (setWidth <= 0) return
+    function tick() {
+      if (!active) return
 
-      if (reverse) offset = -setWidth
-
-      function tick() {
-        if (cancelled) return
-        if (reverse) {
-          offset += speed
-          if (offset >= 0) offset -= setWidth
-        } else {
-          offset -= speed
-          if (offset <= -setWidth) offset += setWidth
+      // Re-measure if not yet measured (images may have loaded)
+      if (setWidth <= 0) {
+        measure()
+        if (setWidth <= 0) {
+          rafId = requestAnimationFrame(tick)
+          return
         }
-        track!.style.transform = `translate3d(${offset}px,0,0)`
-        rafId = requestAnimationFrame(tick)
+        // Initialize offset for reverse direction
+        if (reverse) offset = -setWidth
       }
 
+      if (reverse) {
+        offset += speed
+        if (offset >= 0) offset -= setWidth
+      } else {
+        offset -= speed
+        if (offset <= -setWidth) offset += setWidth
+      }
+
+      track!.style.transform = `translate3d(${offset}px,0,0)`
       rafId = requestAnimationFrame(tick)
-    }, 300)
+    }
+
+    // Start immediately
+    rafId = requestAnimationFrame(tick)
 
     return () => {
-      cancelled = true
-      clearTimeout(timer)
+      active = false
       cancelAnimationFrame(rafId)
     }
-  }, [trackRef, itemCount, speed, reverse])
-}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; speed: number; reverse?: boolean }) {
-  const trackRef = useRef<HTMLDivElement>(null)
-  useMarquee(trackRef, items.length, speed, reverse)
-
-  // 4 copies for continuous coverage
   const repeated = [...items, ...items, ...items, ...items]
 
   return (
