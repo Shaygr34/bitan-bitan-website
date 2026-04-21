@@ -77,7 +77,8 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
       const first = track.children[0] as HTMLElement | undefined
       const copyStart = track.children[items.length] as HTMLElement | undefined
       if (first && copyStart) {
-        setWidth = copyStart.offsetLeft - first.offsetLeft
+        // Use Math.abs because RTL pages have inverted offsetLeft values
+        setWidth = Math.abs(copyStart.offsetLeft - first.offsetLeft)
       }
     }
 
@@ -92,15 +93,16 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
           return
         }
         // Initialize offset for reverse direction
-        if (reverse) offset = -setWidth
+        if (reverse) offset = 0
       }
 
+      // RTL page: positive translateX scrolls content leftward (natural reading direction)
       if (reverse) {
-        offset += speed
-        if (offset >= 0) offset -= setWidth
-      } else {
         offset -= speed
         if (offset <= -setWidth) offset += setWidth
+      } else {
+        offset += speed
+        if (offset >= setWidth) offset -= setWidth
       }
 
       track!.style.transform = `translate3d(${offset}px,0,0)`
