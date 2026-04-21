@@ -64,6 +64,13 @@ function Slot({ entry }: { entry: LogoEntry }) {
 function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; speed: number; reverse?: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null)
 
+  // Repeat items within each "set" so one set is always wider than viewport.
+  // Average item width ~100px + 40px gap = ~140px per item.
+  // For 1440px viewport safety: need at least ~12 items per set.
+  // Double the items if needed so each set overflows any screen.
+  const setItems = items.length < 12 ? [...items, ...items] : items
+  const setItemCount = setItems.length
+
   useEffect(() => {
     const track = trackRef.current
     if (!track) return
@@ -75,9 +82,6 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
 
     function measure() {
       if (!track || !active) return
-      // scrollWidth includes (totalItems - 1) gaps. We need (totalItems) gaps
-      // for perfect per-copy measurement (each copy needs a trailing gap).
-      // Add one gap to make it evenly divisible by COPIES.
       const totalWidth = track.scrollWidth + GAP
       if (totalWidth > GAP) {
         setWidth = totalWidth / COPIES
@@ -125,7 +129,8 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const repeated = [...items, ...items, ...items, ...items]
+  // 4 copies of the padded set — each set overflows viewport, 4 copies = seamless
+  const repeated = [...setItems, ...setItems, ...setItems, ...setItems]
 
   return (
     <div className="overflow-hidden">
