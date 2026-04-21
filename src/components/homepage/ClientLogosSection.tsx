@@ -1,14 +1,21 @@
+'use client'
+
 /**
- * Client Logos Marquee — zero dead space, seamless infinite scroll.
+ * Client Logos Marquee — JS-driven infinite scroll.
  *
- * Architecture:
- * - Items are tightly packed (small gap, no space-around)
- * - Each strip is duplicated enough times to overflow any viewport
- * - Two identical strips animate; translateX(calc(-100% - gap)) loops perfectly
- * - mask-image gradient fades edges (Stripe pattern)
+ * Why JS instead of CSS animation:
+ * CSS translateX(-50%) / calc(-100% - gap) never matches the actual
+ * rendered width precisely — causing dead space, pops, and glitches.
+ *
+ * This approach:
+ * 1. Renders items in a single row, duplicated enough to overflow 2× viewport
+ * 2. Uses requestAnimationFrame to smoothly translate the track
+ * 3. When the first set scrolls fully off-screen, resets position by
+ *    exactly one set width — creating a perfect closed loop
+ * 4. Measures actual DOM widths — zero guesswork
  */
 
-import styles from './ClientLogosMarquee.module.css'
+import { useEffect, useRef } from 'react'
 
 type LogoEntry =
   | { type: 'image'; src: string; alt: string; large?: boolean }
@@ -41,67 +48,181 @@ const ROW_2: LogoEntry[] = [
   { type: 'text', name: 'TAPUZ', subtitle: 'שירותי אריזה ומשלוח' },
 ]
 
+const GAP = 32 // px gap between items
+const SPEED = 0.5 // px per frame (~30px/sec at 60fps)
+
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
     return (
-      <li className={styles.slot}>
+      <div className="flex-shrink-0 flex items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={entry.src}
           alt={entry.alt}
-          className={entry.large ? styles.imgLarge : styles.img}
-          loading="lazy"
+          className={
+            entry.large
+              ? 'h-8 md:h-12 w-auto max-w-[110px] md:max-w-[170px] object-contain'
+              : 'h-6 md:h-9 w-auto max-w-[90px] md:max-w-[140px] object-contain'
+          }
         />
-      </li>
+      </div>
     )
   }
   return (
-    <li className={styles.slot}>
-      <div className={styles.textLogo}>
-        <span className={styles.textName}>{entry.name}</span>
-        <span className={styles.textSub}>{entry.subtitle}</span>
+    <div className="flex-shrink-0 text-center leading-tight">
+      <span className="block text-white font-medium text-[0.7rem] md:text-[0.85rem] whitespace-nowrap">{entry.name}</span>
+      <span className="block text-white/30 font-light text-[0.55rem] md:text-[0.65rem] whitespace-nowrap">{entry.subtitle}</span>
+    </div>
+  )
+}
+
+function InfiniteMarquee({ items, speed = SPEED }: { items: LogoEntry[]; speed?: number }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const offsetRef = useRef(0)
+  const setWidthRef = useRef(0)
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+
+    // Wait for images to load before measuring
+    const images = track.querySelectorAll('img')
+    const imageLoadPromises = Array.from(images).map(
+      (img) => img.complete ? Promise.resolve() : new Promise<void>((r) => { img.onload = () => r(); img.onerror = () => r() })
+    )
+
+    let rafId: number
+    let running = true
+
+    Promise.all(imageLoadPromises).then(() => {
+      if (!running) return
+
+      // Measure one set width: total track width / 3 (we render 3 copies)
+      const totalWidth = track.scrollWidth
+      setWidthRef.current = totalWidth / 3
+
+      function tick() {
+        if (!running) return
+        offsetRef.current -= speed
+        // When we've scrolled past one full set, reset by adding one set width back
+        if (Math.abs(offsetRef.current) >= setWidthRef.current) {
+          offsetRef.current += setWidthRef.current
+        }
+        track!.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`
+        rafId = requestAnimationFrame(tick)
+      }
+
+      rafId = requestAnimationFrame(tick)
+    })
+
+    return () => {
+      running = false
+      cancelAnimationFrame(rafId)
+    }
+  }, [speed])
+
+  // Render 3 copies to ensure the track is always wider than viewport
+  // and there's always a "next" set sliding in from the edge
+  const tripled = [...items, ...items, ...items]
+
+  return (
+    <div className="overflow-hidden">
+      <div
+        ref={trackRef}
+        className="flex items-center will-change-transform"
+        style={{ gap: `${GAP}px` }}
+      >
+        {tripled.map((entry, i) => (
+          <Slot key={i} entry={entry} />
+        ))}
       </div>
-    </li>
+    </div>
   )
 }
 
-/**
- * One dense strip of logos. Items repeat 2× inside each strip
- * to guarantee the strip is always wider than the widest viewport.
- * On 1440px desktop with ~120px avg item + 40px gap: 22 items = ~3500px.
- */
-function MarqueeStrip({ items }: { items: LogoEntry[] }) {
-  // Repeat items to ensure strip is always wider than viewport
-  const doubled = [...items, ...items]
-  return (
-    <ul className={styles.marqueeContent}>
-      {doubled.map((entry, i) => (
-        <Slot key={i} entry={entry} />
-      ))}
-    </ul>
-  )
-}
+function InfiniteMarqueeReverse({ items, speed = SPEED }: { items: LogoEntry[]; speed?: number }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const offsetRef = useRef(0)
+  const setWidthRef = useRef(0)
+  const initializedRef = useRef(false)
 
-function MarqueeRow({ items, reverse }: { items: LogoEntry[]; reverse?: boolean }) {
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+
+    const images = track.querySelectorAll('img')
+    const imageLoadPromises = Array.from(images).map(
+      (img) => img.complete ? Promise.resolve() : new Promise<void>((r) => { img.onload = () => r(); img.onerror = () => r() })
+    )
+
+    let rafId: number
+    let running = true
+
+    Promise.all(imageLoadPromises).then(() => {
+      if (!running) return
+
+      const totalWidth = track.scrollWidth
+      setWidthRef.current = totalWidth / 3
+
+      // Start offset at -1 set width so we scroll in the opposite direction
+      if (!initializedRef.current) {
+        offsetRef.current = -setWidthRef.current
+        initializedRef.current = true
+      }
+
+      function tick() {
+        if (!running) return
+        offsetRef.current += speed
+        // When we've scrolled past zero, reset by subtracting one set width
+        if (offsetRef.current >= 0) {
+          offsetRef.current -= setWidthRef.current
+        }
+        track!.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`
+        rafId = requestAnimationFrame(tick)
+      }
+
+      rafId = requestAnimationFrame(tick)
+    })
+
+    return () => {
+      running = false
+      cancelAnimationFrame(rafId)
+    }
+  }, [speed])
+
+  const tripled = [...items, ...items, ...items]
+
   return (
-    <div className={`${styles.marquee} ${reverse ? styles.marqueeReverse : ''}`}>
-      {/* Two identical strips for the seamless loop */}
-      <MarqueeStrip items={items} />
-      <MarqueeStrip items={items} />
+    <div className="overflow-hidden">
+      <div
+        ref={trackRef}
+        className="flex items-center will-change-transform"
+        style={{ gap: `${GAP}px` }}
+      >
+        {tripled.map((entry, i) => (
+          <Slot key={i} entry={entry} />
+        ))}
+      </div>
     </div>
   )
 }
 
 export function ClientLogosSection() {
   return (
-    <section className={styles.section}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>לקוחות שבחרו בנו</h2>
-        <div className={styles.accent} />
+    <section className="bg-primary py-6 md:py-10 overflow-hidden"
+      style={{
+        maskImage: 'linear-gradient(to right, transparent 0, black 30px, black calc(100% - 30px), transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0, black 30px, black calc(100% - 30px), transparent 100%)',
+      }}
+    >
+      <div className="text-center mb-4 md:mb-6">
+        <h2 className="text-body-lg md:text-h3 font-bold text-white">לקוחות שבחרו בנו</h2>
+        <div className="w-10 h-[3px] bg-gold mx-auto mt-2 rounded-full" />
       </div>
-      <div className={styles.rows}>
-        <MarqueeRow items={ROW_1} />
-        <MarqueeRow items={ROW_2} reverse />
+
+      <div className="flex flex-col gap-3 md:gap-4">
+        <InfiniteMarquee items={ROW_1} speed={0.4} />
+        <InfiniteMarqueeReverse items={ROW_2} speed={0.35} />
       </div>
     </section>
   )
