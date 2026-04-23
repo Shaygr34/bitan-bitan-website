@@ -55,8 +55,8 @@ function Slot({ entry }: { entry: LogoEntry }) {
     )
   }
   return (
-    <div className="flex-shrink-0 text-center leading-tight">
-      <span className="block text-white font-medium text-[0.7rem] md:text-[0.85rem] whitespace-nowrap">{entry.name}</span>
+    <div className="flex-shrink-0 text-center leading-tight min-w-[70px] md:min-w-[100px]">
+      <span className="block text-white font-medium text-[0.75rem] md:text-[0.9rem] whitespace-nowrap">{entry.name}</span>
       <span className="block text-white/30 font-light text-[0.55rem] md:text-[0.65rem] whitespace-nowrap">{entry.subtitle}</span>
     </div>
   )
@@ -137,7 +137,7 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
     <div className="overflow-hidden">
       <div
         ref={trackRef}
-        className="flex items-center will-change-transform gap-12 md:gap-20"
+        className="flex items-center will-change-transform gap-12 md:gap-24"
       >
         {repeated.map((entry, i) => (
           <Slot key={i} entry={entry} />
