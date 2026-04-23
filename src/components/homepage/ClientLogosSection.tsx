@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 
 type LogoEntry =
-  | { type: 'image'; src: string; alt: string; large?: boolean }
+  | { type: 'image'; src: string; alt: string; large?: boolean; small?: boolean }
   | { type: 'text'; name: string; subtitle: string }
 
 const ROW_1: LogoEntry[] = [
@@ -13,7 +13,7 @@ const ROW_1: LogoEntry[] = [
   { type: 'image', src: '/logos/citizen.svg', alt: 'Citizen Cafe TLV' },
   { type: 'image', src: '/logos/schlein.png', alt: 'קבוצת שליין' },
   { type: 'text', name: 'אורן שאיבת בטון', subtitle: 'בע"מ' },
-  { type: 'image', src: '/logos/zamsh.svg', alt: 'ZAMSH' },
+  { type: 'image', src: '/logos/zamsh.svg', alt: 'ZAMSH', small: true },
   { type: 'text', name: 'סופר קליק', subtitle: 'רשת סופרמרקטים' },
   { type: 'image', src: '/logos/hemilton.png', alt: 'המילטון' },
   { type: 'text', name: 'סינגל טקסטיל', subtitle: 'בע"מ' },
@@ -48,6 +48,8 @@ function Slot({ entry }: { entry: LogoEntry }) {
           className={
             entry.large
               ? 'h-10 md:h-14 w-auto max-w-[130px] md:max-w-[190px] object-contain'
+              : entry.small
+              ? 'h-5 md:h-7 w-auto max-w-[80px] md:max-w-[120px] object-contain'
               : 'h-7 md:h-10 w-auto max-w-[100px] md:max-w-[150px] object-contain'
           }
         />
