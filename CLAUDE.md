@@ -9,7 +9,7 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V5.2 — April 21, 2026)
+## Current State (V5.3 — April 23, 2026)
 
 ### Content
 - ~72 articles in Sanity — ALL with AI-generated images (100% coverage)
@@ -24,7 +24,7 @@ CMS: Sanity project ul4uwnp7, dataset production
 - 139+ redirects in next.config.ts (old WP URLs → new articles + חרבות ברזל specific redirects)
 - Elfsight All-in-One Reviews widget on homepage (Google + Facebook reviews)
 - 14 testimonial docs in Sanity (backup, not rendered — Elfsight replaced them)
-- Client logo conveyor belt — hidden when no real logos exist (returns null), real logos pending
+- Client logo conveyor belt — LIVE on homepage (between TrustBar and Services), JS-driven infinite marquee, 21 companies (11 row 1 + 10 row 2), CMS-managed via Sanity clientLogo documents
 - Newsletter signup collecting to Sanity (compact on /knowledge, full on /knowledge/[slug]), defaults to all categories selected
 
 ### Tools / Mini-Apps (V5.0)
@@ -51,6 +51,7 @@ CMS: Sanity project ul4uwnp7, dataset production
     - IRR warning when payment too low for period + suggested minimum
     - Share: clipboard-only on desktop (fixes email freeze)
     - **Deferred**: share URL for comparison mode (needs dual-result encoding)
+  - **Ron feedback session (April 23)**: 6 fixes — שכיר tax fix (manufacturerPrice phantom-default), operational leasing total expenses (VAT in cashflow), verdict balloon metric, שכיר label update, print watermark, שווי רכב prominence for חברה
 - **Employer Cost Calculator V2** (`/tools/employer-cost`): Full Israeli payroll engine (April 13). Code: `src/components/tools/employer/`.
   - Ron's 11-item feedback implemented: `docs/ron-employer-calc-feedback-2026-04-12.md`
   - שווי מס generalized: vehicle + ארוחות + שווי מס נוסף (3 conditional toggles)
@@ -62,6 +63,7 @@ CMS: Sanity project ul4uwnp7, dataset production
   - Comparison feature (two salary scenarios side-by-side)
   - Print/PDF with watermark disclaimer "נתוני שכר להמחשה בלבד"
   - QA audit done: 7 issues fixed (age sentinel, comparison state, service defaults, etc.)
+  - **Pension/education fund optional** (April 23): Yes/no toggles at step 2. Default=yes. Engine zeros rates when disabled.
 - **Planned tools**: סימולטור מענקי שאגת הארי (research done: `docs/superpowers/research/`)
 
 ### Client Onboarding (V3 — April 13, 2026)
@@ -247,7 +249,7 @@ Note: SUMMIT_COMPANY_ID and SUMMIT_API_KEY are required for intake form → Summ
 
 ## Known Issues
 - Partner photos are placeholder silhouettes (pending from founders to identify IMG numbers)
-- Client logos hidden (section returns null until real logos added)
+- Client logos: image logos use static files from /logos/ — upload to Sanity CDN when real high-quality logos are provided by clients
 - Team member photos: 10/10 uploaded (AI-generated grey gradient headshots via Gemini)
 - Google Maps on /contact may show rejection if API key referrer not configured for domain
 - No tests, no CI/CD
@@ -266,12 +268,17 @@ Content Factory is a SEPARATE repo (apps/os-hub) — not this project
 - **Zsh glob escaping**: File paths with `[brackets]` must be quoted in git/shell commands.
 - **Resend domain mismatch**: EMAIL_FROM must use `bitancpa.com` (not `.co.il`). Resend is only verified for `bitancpa.com`. Mismatched domain causes silent send failure.
 - **Summit SMS**: No approved sender name configured in Summit as of April 2026. SMS calls will silently fail. Email-first approach for now.
+- **RTL offsetLeft inversion**: On Hebrew RTL pages, `offsetLeft` values are inverted — rightmost elements have HIGHER values. DOM measurements using offsetLeft differences return NEGATIVE values. Always use `Math.abs()`.
+- **RTL translateX direction**: `translate3d(+X)` = items move LEFT visually, `translate3d(-X)` = items move RIGHT. For opposite-direction marquee rows, reverse ITEM ORDER in DOM, not the translate sign.
+- **CSS marquee on RTL fails**: CSS-only infinite marquees (`translateX(-50%)`, `calc(-100% - var(--gap))`) don't work reliably on RTL pages. Use JS `requestAnimationFrame` + `scrollWidth` measurement instead.
+- **Slider phantom-default bug**: `<SliderInput value={state.field || defaultValue}>` displays a default but doesn't set it in state. Auto-initialize state when dependent fields appear.
 
 ## Session History (archived — see git log for details)
 - March 22, 2026: Economics report, analytics report, GA4/GSC API access, cost structure
 - March 24, 2026: Sprint fixes, tools section V1, leasing simulator
 - April 5-11, 2026: Calculator V2 + company mode, employer calc V1, onboarding V2 (3 phases), Summit MCP v2.3.0
 - April 13, 2026: שכיר calc path, employer calc V2 (Ron's 11 items + QA), onboarding persistence + soft docs, Summit error surfacing, data completion dashboard, contact form email fix
+- April 23, 2026: Leasing calc 6 sprint fixes (Ron), employer calc pension/education toggles (Avi/Ron), client logo conveyor belt live + CMS migration (21 Sanity docs)
 
 ## Session: March 22, 2026 — Economics + Analytics + Infrastructure Separation
 
@@ -701,3 +708,26 @@ See memory: `bitan-dev-backlog-2026-04-05.md` + `bitan-employer-calc-spec.md`
 - **Moshik technical briefing produced** for developer handoff
 - **Email domain fix**: `bitancpa.co.il` → `bitancpa.com` (Resend only verified for `.com`)
 - **Summit MCP upgraded to v3.1.0**: 34 tools, onboarding pipeline support
+
+## Session: April 23, 2026 — Calculator Sprint Fixes + Client Logo Conveyor Belt
+
+### Deliverables
+- **Leasing calc sprint fixes (6)**: שכיר tax fix (manufacturerPrice phantom-default), operational leasing total expenses fix (VAT in cashflow), verdict balloon/end-of-term metric, שכיר label → "הצמדת רכב לשכיר (מיועד למעסיקים)", print watermark "להמחשה בלבד", שווי רכב prominence for חברה בע"מ
+- **Employer calc**: pension + education fund optional (yes/no toggles, Avi/Ron feedback)
+- **Client logo conveyor belt — full build + CMS migration**:
+  - JS-driven rAF infinite marquee (CSS animations failed on RTL)
+  - 21 companies: 6 image logos (climax, citizen, schlein, zamsh, hemilton, mozart) + 15 text
+  - Position: between TrustBar and Services on homepage
+  - Premium hover: spotlight effect (hovered → 0.85 opacity + scale 1.03, siblings → 0.25)
+  - RTL fixes: Math.abs(offsetLeft), reversed item order for row 2 direction
+  - Removed: סולומון (per Avi), alchemist photo, tapuz colorful logo, hanna PNG → text
+  - Added: ZAMSH/אידאה (SVG from zamsh.shoes)
+  - **CMS migration complete**: 21 clientLogo docs in Sanity, schema updated with subtitle/row/logoSize fields, component reads from CMS with hardcoded fallback
+  - Avi/Ron can add/remove/reorder/toggle logos from Studio
+
+### Key Learnings
+- RTL `offsetLeft` is inverted — caused animation to never start (setWidth was negative)
+- CSS marquee techniques (`translateX(-50%)`, `calc(-100% - gap)`) don't work on RTL pages — use JS rAF
+- For opposite-direction rows in RTL: reverse the ITEM ORDER, not the scroll direction
+- `min-width:100%` + `space-around` spreads items with dead space — use tight packing with overflow instead
+- React 19 strict mode double-mounts can break setTimeout-based initialization — use rAF retry loop
