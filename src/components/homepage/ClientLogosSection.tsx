@@ -45,7 +45,7 @@ const COPIES = 3
  * - Transition is smooth (300ms)
  * - Cursor pointer, no text selection
  */
-const SLOT_BASE = 'flex-shrink-0 opacity-40 transition-all duration-300 ease-out hover:!opacity-100 hover:scale-110 cursor-default select-none'
+const SLOT_BASE = 'flex-shrink-0 opacity-40 transition-all duration-500 ease-out cursor-default select-none'
 
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
@@ -175,8 +175,8 @@ export function ClientLogosSection() {
 
       {/* Group-hover: when track is hovered, dim all children except the hovered one */}
       <style>{`
-        .marquee-track:hover > * { opacity: 0.15 !important; transition: opacity 0.3s ease, transform 0.3s ease; }
-        .marquee-track:hover > *:hover { opacity: 1 !important; transform: scale(1.12); }
+        .marquee-track:hover > * { opacity: 0.25 !important; transition: opacity 0.5s ease, transform 0.5s ease; }
+        .marquee-track:hover > *:hover { opacity: 0.85 !important; transform: scale(1.03); }
       `}</style>
     </section>
   )
