@@ -283,7 +283,10 @@ export type FAQ = {
 export type ClientLogo = {
   _id: string
   companyName: string
-  logo: SanityImage
+  subtitle?: string
+  logo?: SanityImage
+  logoSize?: 'normal' | 'large' | 'small'
+  row: number
   url?: string
 }
 

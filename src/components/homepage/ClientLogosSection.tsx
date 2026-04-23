@@ -1,12 +1,26 @@
 'use client'
 
+/**
+ * Client Logos Marquee — CMS-driven infinite scroll.
+ *
+ * Data comes from Sanity (clientLogo documents) via props.
+ * Falls back to hardcoded list if no CMS data exists.
+ * JS-driven rAF animation, RTL-safe.
+ */
+
 import { useEffect, useRef } from 'react'
+import { urlFor } from '@/sanity/image'
+import type { ClientLogo } from '@/sanity/types'
+
+/* ─── Internal entry type (normalized from CMS or fallback) ─── */
 
 type LogoEntry =
   | { type: 'image'; src: string; alt: string; large?: boolean; small?: boolean }
   | { type: 'text'; name: string; subtitle: string }
 
-const ROW_1: LogoEntry[] = [
+/* ─── Hardcoded fallback (used when no CMS logos exist) ─── */
+
+const FALLBACK_ROW_1: LogoEntry[] = [
   { type: 'text', name: 'בית חנה', subtitle: 'המקום השלישי' },
   { type: 'text', name: 'א.י.ל. סלע', subtitle: 'בנייה ותשתית' },
   { type: 'image', src: '/logos/climax.png', alt: 'קליימקס נדל"ן' },
@@ -20,7 +34,7 @@ const ROW_1: LogoEntry[] = [
   { type: 'image', src: '/logos/mozart.png', alt: 'מוצארט', large: true },
 ]
 
-const ROW_2: LogoEntry[] = [
+const FALLBACK_ROW_2: LogoEntry[] = [
   { type: 'text', name: 'Knil', subtitle: 'Technology' },
   { type: 'text', name: 'ברק אור', subtitle: 'שירותי רכב' },
   { type: 'text', name: 'גרין אלמה', subtitle: 'חברה לבנייה' },
@@ -33,18 +47,32 @@ const ROW_2: LogoEntry[] = [
   { type: 'text', name: 'TAPUZ', subtitle: 'שירותי אריזה ומשלוח' },
 ]
 
-const GAP_MOBILE = 48
-const GAP_DESKTOP = 80
+/* ─── Convert CMS data to internal format ─── */
+
+function cmsToEntries(logos: ClientLogo[]): LogoEntry[] {
+  return logos.map((logo) => {
+    const src = logo.logo ? urlFor(logo.logo, 300) : null
+    if (src) {
+      return {
+        type: 'image' as const,
+        src,
+        alt: logo.companyName,
+        large: logo.logoSize === 'large',
+        small: logo.logoSize === 'small',
+      }
+    }
+    return {
+      type: 'text' as const,
+      name: logo.companyName,
+      subtitle: logo.subtitle || '',
+    }
+  })
+}
+
 const COPIES = 3
 
-/*
- * Slot hover effect:
- * - Default: opacity 0.4 (dimmed)
- * - When ANY slot in the row is hovered (group-hover on track):
- *   all slots dim to 0.2, the HOVERED slot pops to 1.0 + scale
- * - Transition is smooth (300ms)
- * - Cursor pointer, no text selection
- */
+/* ─── Slot component ─── */
+
 const SLOT_BASE = 'flex-shrink-0 opacity-40 transition-all duration-500 ease-out cursor-default select-none'
 
 function Slot({ entry }: { entry: LogoEntry }) {
@@ -75,10 +103,11 @@ function Slot({ entry }: { entry: LogoEntry }) {
   )
 }
 
+/* ─── Infinite row with rAF animation ─── */
+
 function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; speed: number; reverse?: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null)
 
-  // Reverse row: reverse item order (scroll direction stays the same mechanically)
   const setItems = reverse ? [...items].reverse() : items
 
   useEffect(() => {
@@ -92,8 +121,7 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
 
     function measure() {
       if (!track || !active) return
-      // Get actual gap from computed style
-      const gap = parseFloat(getComputedStyle(track).columnGap) || GAP_MOBILE
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 48
       const totalWidth = track.scrollWidth + gap
       if (totalWidth > gap) {
         setWidth = totalWidth / COPIES
@@ -103,37 +131,21 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
     function tick() {
       if (!active) return
 
-      // Re-measure if not yet measured (images may have loaded)
       if (setWidth <= 0) {
         measure()
         if (setWidth <= 0) {
           rafId = requestAnimationFrame(tick)
           return
         }
-        // Both directions start at offset 0
       }
 
-      // Both directions use positive offset increment.
-      // Row 1: positive translateX = items scroll left (RTL natural)
-      // Row 2 (reverse): negative translateX = items scroll right
-      // But BOTH need copies entering from the same side, so both
-      // use the same positive offset, just applied with opposite sign.
       offset += speed
-
-      // Modulo wraps within one set width
       const wrappedOffset = offset % setWidth
 
-      // Both rows use positive translateX (items move LEFT in RTL).
-      // Row 2 reverses the ITEM ORDER in the DOM instead of the scroll direction.
-      // This way both rows scroll the same direction mechanically but show
-      // different content order, creating the visual impression of opposite flow.
-      const visualOffset = wrappedOffset
-
-      track!.style.transform = `translate3d(${visualOffset}px,0,0)`
+      track!.style.transform = `translate3d(${wrappedOffset}px,0,0)`
       rafId = requestAnimationFrame(tick)
     }
 
-    // Start immediately
     rafId = requestAnimationFrame(tick)
 
     return () => {
@@ -143,7 +155,6 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 3 copies for seamless loop
   const repeated = [...setItems, ...setItems, ...setItems]
 
   return (
@@ -160,7 +171,27 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
   )
 }
 
-export function ClientLogosSection() {
+/* ─── Main section (accepts CMS data via props) ─── */
+
+type Props = {
+  logos?: ClientLogo[]
+}
+
+export function ClientLogosSection({ logos }: Props) {
+  // Convert CMS data or use fallback
+  let row1: LogoEntry[]
+  let row2: LogoEntry[]
+
+  if (logos && logos.length > 0) {
+    const r1 = logos.filter((l) => l.row === 1)
+    const r2 = logos.filter((l) => l.row === 2)
+    row1 = r1.length > 0 ? cmsToEntries(r1) : FALLBACK_ROW_1
+    row2 = r2.length > 0 ? cmsToEntries(r2) : FALLBACK_ROW_2
+  } else {
+    row1 = FALLBACK_ROW_1
+    row2 = FALLBACK_ROW_2
+  }
+
   return (
     <section className="bg-primary py-6 md:py-10 overflow-hidden">
       <div className="text-center mb-4 md:mb-6">
@@ -169,11 +200,10 @@ export function ClientLogosSection() {
       </div>
 
       <div className="flex flex-col gap-3 md:gap-4">
-        <InfiniteRow items={ROW_1} speed={0.3} />
-        <InfiniteRow items={ROW_2} speed={0.25} reverse />
+        <InfiniteRow items={row1} speed={0.3} />
+        <InfiniteRow items={row2} speed={0.25} reverse />
       </div>
 
-      {/* Group-hover: when track is hovered, dim all children except the hovered one */}
       <style>{`
         .marquee-track:hover > * { opacity: 0.25 !important; transition: opacity 0.5s ease, transform 0.5s ease; }
         .marquee-track:hover > *:hover { opacity: 0.85 !important; transform: scale(1.03); }

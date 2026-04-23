@@ -360,10 +360,13 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 
 /* ─── Client Logos ─── */
 
-const CLIENT_LOGOS_QUERY = `*[_type == "clientLogo" && isActive == true] | order(sortOrder asc){
+const CLIENT_LOGOS_QUERY = `*[_type == "clientLogo" && isActive == true] | order(row asc, sortOrder asc){
   _id,
   companyName,
+  subtitle,
   logo,
+  logoSize,
+  row,
   url
 }`
 

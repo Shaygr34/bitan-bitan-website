@@ -11,7 +11,7 @@ import {
   CTASection,
 } from '@/components/homepage'
 import { TrustModule } from '@/components/TrustModule'
-import { getServices, getFAQs, getArticles, getHomePage } from '@/sanity/queries'
+import { getServices, getFAQs, getArticles, getHomePage, getClientLogos } from '@/sanity/queries'
 
 export const metadata: Metadata = {
   title: 'ביטן את ביטן — רואי חשבון | ייעוץ מיסוי וליווי עסקי בתל אביב',
@@ -26,11 +26,12 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const [services, faqs, articles, homePage] = await Promise.all([
+  const [services, faqs, articles, homePage, clientLogos] = await Promise.all([
     getServices(),
     getFAQs(),
     getArticles(),
     getHomePage(),
+    getClientLogos(),
   ])
 
   return (
@@ -41,7 +42,7 @@ export default async function Home() {
         footerNote={homePage?.heroFooterNote}
       />
       <TrustBar trustPoints={homePage?.trustPoints} />
-      <ClientLogosSection />
+      <ClientLogosSection logos={clientLogos} />
       <ServicesSection services={services} />
       <AboutSection
         heading={homePage?.aboutHeading}

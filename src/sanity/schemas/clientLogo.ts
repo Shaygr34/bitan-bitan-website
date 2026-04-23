@@ -12,10 +12,42 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'subtitle',
+      title: 'תחום / תיאור קצר',
+      type: 'string',
+      description: 'למשל: "בנייה ותשתית", "Technology"',
+    }),
+    defineField({
       name: 'logo',
-      title: 'לוגו',
+      title: 'לוגו (לבן על שקוף)',
       type: 'image',
       options: { hotspot: true },
+      description: 'PNG/SVG לבן על רקע שקוף. אם ריק — יוצג כטקסט',
+    }),
+    defineField({
+      name: 'logoSize',
+      title: 'גודל לוגו',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'רגיל', value: 'normal' },
+          { title: 'גדול (מוצרט)', value: 'large' },
+          { title: 'קטן (ZAMSH)', value: 'small' },
+        ],
+      },
+      initialValue: 'normal',
+    }),
+    defineField({
+      name: 'row',
+      title: 'שורה',
+      type: 'number',
+      options: {
+        list: [
+          { title: 'שורה 1 (עליונה)', value: 1 },
+          { title: 'שורה 2 (תחתונה)', value: 2 },
+        ],
+      },
+      initialValue: 1,
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -34,16 +66,27 @@ export default defineType({
       title: 'סדר תצוגה',
       type: 'number',
       initialValue: 0,
+      description: 'מספר נמוך = מוצג קודם',
     }),
   ],
   orderings: [
     {
       title: 'סדר תצוגה',
       name: 'sortOrderAsc',
-      by: [{ field: 'sortOrder', direction: 'asc' }],
+      by: [
+        { field: 'row', direction: 'asc' },
+        { field: 'sortOrder', direction: 'asc' },
+      ],
     },
   ],
   preview: {
-    select: { title: 'companyName', media: 'logo' },
+    select: { title: 'companyName', subtitle: 'subtitle', media: 'logo' },
+    prepare({ title, subtitle, media }) {
+      return {
+        title,
+        subtitle: subtitle || '',
+        media,
+      }
+    },
   },
 })
