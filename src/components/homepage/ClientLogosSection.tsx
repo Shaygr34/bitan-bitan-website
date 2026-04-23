@@ -33,8 +33,9 @@ const ROW_2: LogoEntry[] = [
   { type: 'text', name: 'TAPUZ', subtitle: 'שירותי אריזה ומשלוח' },
 ]
 
-const GAP = 40
-const COPIES = 4 // Number of times items are duplicated in the track
+const GAP_MOBILE = 48
+const GAP_DESKTOP = 80
+const COPIES = 3
 
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
@@ -46,8 +47,8 @@ function Slot({ entry }: { entry: LogoEntry }) {
           alt={entry.alt}
           className={
             entry.large
-              ? 'h-8 md:h-12 w-auto max-w-[110px] md:max-w-[170px] object-contain'
-              : 'h-6 md:h-9 w-auto max-w-[90px] md:max-w-[140px] object-contain'
+              ? 'h-10 md:h-14 w-auto max-w-[130px] md:max-w-[190px] object-contain'
+              : 'h-7 md:h-10 w-auto max-w-[100px] md:max-w-[150px] object-contain'
           }
         />
       </div>
@@ -64,12 +65,8 @@ function Slot({ entry }: { entry: LogoEntry }) {
 function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; speed: number; reverse?: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null)
 
-  // Repeat items within each "set" so one set is always wider than viewport.
-  // Double the items if needed so each set overflows any screen.
-  let setItems = items.length < 12 ? [...items, ...items] : items
-  // Reverse row: reverse item order (scroll direction stays the same)
-  if (reverse) setItems = [...setItems].reverse()
-  const setItemCount = setItems.length
+  // Reverse row: reverse item order (scroll direction stays the same mechanically)
+  const setItems = reverse ? [...items].reverse() : items
 
   useEffect(() => {
     const track = trackRef.current
@@ -82,8 +79,10 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
 
     function measure() {
       if (!track || !active) return
-      const totalWidth = track.scrollWidth + GAP
-      if (totalWidth > GAP) {
+      // Get actual gap from computed style
+      const gap = parseFloat(getComputedStyle(track).columnGap) || GAP_MOBILE
+      const totalWidth = track.scrollWidth + gap
+      if (totalWidth > gap) {
         setWidth = totalWidth / COPIES
       }
     }
@@ -131,15 +130,14 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 4 copies of the padded set — each set overflows viewport, 4 copies = seamless
-  const repeated = [...setItems, ...setItems, ...setItems, ...setItems]
+  // 3 copies for seamless loop
+  const repeated = [...setItems, ...setItems, ...setItems]
 
   return (
     <div className="overflow-hidden">
       <div
         ref={trackRef}
-        className="flex items-center will-change-transform"
-        style={{ gap: `${GAP}px` }}
+        className="flex items-center will-change-transform gap-12 md:gap-20"
       >
         {repeated.map((entry, i) => (
           <Slot key={i} entry={entry} />
@@ -158,8 +156,8 @@ export function ClientLogosSection() {
       </div>
 
       <div className="flex flex-col gap-3 md:gap-4">
-        <InfiniteRow items={ROW_1} speed={0.4} />
-        <InfiniteRow items={ROW_2} speed={0.35} reverse />
+        <InfiniteRow items={ROW_1} speed={0.3} />
+        <InfiniteRow items={ROW_2} speed={0.25} reverse />
       </div>
     </section>
   )
