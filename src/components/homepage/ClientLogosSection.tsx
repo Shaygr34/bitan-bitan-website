@@ -37,27 +37,38 @@ const GAP_MOBILE = 48
 const GAP_DESKTOP = 80
 const COPIES = 3
 
+/*
+ * Slot hover effect:
+ * - Default: opacity 0.4 (dimmed)
+ * - When ANY slot in the row is hovered (group-hover on track):
+ *   all slots dim to 0.2, the HOVERED slot pops to 1.0 + scale
+ * - Transition is smooth (300ms)
+ * - Cursor pointer, no text selection
+ */
+const SLOT_BASE = 'flex-shrink-0 opacity-40 transition-all duration-300 ease-out hover:!opacity-100 hover:scale-110 cursor-default select-none'
+
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
     return (
-      <div className="flex-shrink-0 flex items-center">
+      <div className={`${SLOT_BASE} flex items-center`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={entry.src}
           alt={entry.alt}
+          draggable={false}
           className={
             entry.large
-              ? 'h-10 md:h-14 w-auto max-w-[130px] md:max-w-[190px] object-contain'
+              ? 'h-10 md:h-14 w-auto max-w-[130px] md:max-w-[190px] object-contain pointer-events-none'
               : entry.small
-              ? 'h-5 md:h-7 w-auto max-w-[80px] md:max-w-[120px] object-contain'
-              : 'h-7 md:h-10 w-auto max-w-[100px] md:max-w-[150px] object-contain'
+              ? 'h-5 md:h-7 w-auto max-w-[80px] md:max-w-[120px] object-contain pointer-events-none'
+              : 'h-7 md:h-10 w-auto max-w-[100px] md:max-w-[150px] object-contain pointer-events-none'
           }
         />
       </div>
     )
   }
   return (
-    <div className="flex-shrink-0 text-center leading-tight min-w-[70px] md:min-w-[100px]">
+    <div className={`${SLOT_BASE} text-center leading-tight min-w-[70px] md:min-w-[100px]`}>
       <span className="block text-white font-medium text-[0.75rem] md:text-[0.9rem] whitespace-nowrap">{entry.name}</span>
       <span className="block text-white/30 font-light text-[0.55rem] md:text-[0.65rem] whitespace-nowrap">{entry.subtitle}</span>
     </div>
@@ -139,7 +150,7 @@ function InfiniteRow({ items, speed, reverse = false }: { items: LogoEntry[]; sp
     <div className="overflow-hidden">
       <div
         ref={trackRef}
-        className="flex items-center will-change-transform gap-12 md:gap-24"
+        className="marquee-track flex items-center will-change-transform gap-12 md:gap-24"
       >
         {repeated.map((entry, i) => (
           <Slot key={i} entry={entry} />
@@ -161,6 +172,12 @@ export function ClientLogosSection() {
         <InfiniteRow items={ROW_1} speed={0.3} />
         <InfiniteRow items={ROW_2} speed={0.25} reverse />
       </div>
+
+      {/* Group-hover: when track is hovered, dim all children except the hovered one */}
+      <style>{`
+        .marquee-track:hover > * { opacity: 0.15 !important; transition: opacity 0.3s ease, transform 0.3s ease; }
+        .marquee-track:hover > *:hover { opacity: 1 !important; transform: scale(1.12); }
+      `}</style>
     </section>
   )
 }
