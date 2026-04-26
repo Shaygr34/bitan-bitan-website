@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'next-sanity'
 import { apiVersion, dataset, projectId } from '@/sanity/env'
-import { CLIENT_TYPE_IDS, getNewsletterFlags } from '@/lib/intake-types'
+import { CLIENT_TYPE_IDS, BUSINESS_SECTOR_IDS, ACCOUNT_MANAGER_IDS, getNewsletterFlags } from '@/lib/intake-types'
 import { sendIntakeNotification, sendWelcomeEmail } from '@/lib/intake-email'
 
 // ---------------------------------------------------------------------------
@@ -36,7 +36,9 @@ async function createSummitEntity(fields: {
   zipCode?: string
   birthdate?: string
   businessName?: string
+  businessNumber?: string
   businessSector?: string
+  businessDescription?: string
   businessAddress?: string
   shareholderDetails?: string
   // Transfer fields
@@ -44,6 +46,8 @@ async function createSummitEntity(fields: {
   previousCpaEmail?: string
   previousCpaSoftware?: string
   onboardingPath?: string
+  // From intake token
+  accountManager?: string
 }): Promise<{ entityId: string | null; error: string | null }> {
   const credentials = getSummitCredentials()
   if (!credentials.APIKey || !credentials.CompanyID) return { entityId: null, error: 'Summit API credentials not configured' }
@@ -51,12 +55,23 @@ async function createSummitEntity(fields: {
   const clientTypeId = CLIENT_TYPE_IDS[fields.clientType]
   const newsletterFlags = getNewsletterFlags(fields.clientType)
 
+  const sectorEntityId = fields.businessSector ? BUSINESS_SECTOR_IDS[fields.businessSector] : undefined
+  const isCompanyType = ['חברה', 'חברה שנתי', 'שותפות', 'עמותה'].includes(fields.clientType)
+
+  // מנהל תיק from intake token (set during link generation in OS)
+  const managerId = fields.accountManager ? ACCOUNT_MANAGER_IDS[fields.accountManager] : undefined
+
   const properties: Record<string, unknown> = {
-    Customers_FullName: fields.fullName,
-    Customers_CompanyNumber: fields.companyNumber,
+    // Companies → business name, individuals → personal name
+    Customers_FullName: (isCompanyType && fields.businessName) ? fields.businessName : fields.fullName,
+    // Companies: ח.פ/ע.מ = businessNumber, individuals: ת.ז = companyNumber
+    Customers_CompanyNumber: (isCompanyType && fields.businessNumber) ? fields.businessNumber : fields.companyNumber,
     Customers_Phone: fields.phone,
     Customers_EmailAddress: fields.email,
     'סוג לקוח': clientTypeId ?? undefined,
+    ...(sectorEntityId ? { 'תחום עיסוק': sectorEntityId } : {}),
+    ...(managerId ? { 'מנהל תיק': managerId } : {}),
+    // עובד/ת ביקורת — not set at intake, assigned manually in Summit
   }
 
   // Newsletter flags
@@ -82,7 +97,10 @@ async function createSummitEntity(fields: {
   const textParts: string[] = []
   if (fields.onboardingPath) textParts.push(`מסלול קליטה: ${fields.onboardingPath}`)
   if (fields.businessName) textParts.push(`שם העסק: ${fields.businessName}`)
+  if (isCompanyType && fields.companyNumber) textParts.push(`ת.ז בעלים: ${fields.companyNumber}`)
+  if (fields.businessNumber) textParts.push(`מס' ע.מ / ח.פ: ${fields.businessNumber}`)
   if (fields.businessSector) textParts.push(`תחום עיסוק: ${fields.businessSector}`)
+  if (fields.businessDescription) textParts.push(`תיאור פעילות: ${fields.businessDescription}`)
   if (fields.previousCpaName) textParts.push(`רו"ח קודם: ${fields.previousCpaName}`)
   if (fields.previousCpaEmail) textParts.push(`מייל רו"ח קודם: ${fields.previousCpaEmail}`)
   if (fields.previousCpaSoftware) textParts.push(`תוכנות רו"ח קודם: ${fields.previousCpaSoftware}`)
@@ -182,9 +200,17 @@ async function updateSummitEntityFields(entityId: string, fields: Record<string,
 
   const clientTypeId = fields.clientType ? CLIENT_TYPE_IDS[fields.clientType] : undefined
   const newsletterFlags = fields.clientType ? getNewsletterFlags(fields.clientType) : {}
+  const sectorEntityId = fields.businessSector ? BUSINESS_SECTOR_IDS[fields.businessSector] : undefined
+
+  const isCompanyType = fields.clientType ? ['חברה', 'חברה שנתי', 'שותפות', 'עמותה'].includes(fields.clientType) : false
 
   const properties: Record<string, unknown> = {}
-  if (fields.fullName) properties.Customers_FullName = fields.fullName
+  // Companies → business name, individuals → personal name
+  if (isCompanyType && fields.businessName) {
+    properties.Customers_FullName = fields.businessName
+  } else if (fields.fullName) {
+    properties.Customers_FullName = fields.fullName
+  }
   if (fields.companyNumber) properties.Customers_CompanyNumber = fields.companyNumber
   if (fields.phone) properties.Customers_Phone = fields.phone
   if (fields.email) properties.Customers_EmailAddress = fields.email
@@ -196,11 +222,16 @@ async function updateSummitEntityFields(entityId: string, fields: Record<string,
   if (fields.birthdate) properties.Customers_Birthdate = fields.birthdate.includes('T') ? fields.birthdate : `${fields.birthdate}T00:00:00`
   if (fields.shareholderDetails) properties['פרטי בעלי מניות'] = fields.shareholderDetails
   if (fields.businessAddress) properties.Customers_Address = fields.businessAddress
+  // Gap 1: תחום עיסוק entity reference — TODO: activate once BUSINESS_SECTOR_IDS are populated
+  if (sectorEntityId) properties['תחום עיסוק'] = sectorEntityId
 
   const textParts: string[] = []
   if (fields.onboardingPath) textParts.push(`מסלול קליטה: ${fields.onboardingPath}`)
   if (fields.businessName) textParts.push(`שם העסק: ${fields.businessName}`)
+  if (isCompanyType && fields.companyNumber) textParts.push(`ת.ז בעלים: ${fields.companyNumber}`)
+  if (fields.businessNumber) textParts.push(`מס' ע.מ / ח.פ: ${fields.businessNumber}`)
   if (fields.businessSector) textParts.push(`תחום עיסוק: ${fields.businessSector}`)
+  if (fields.businessDescription) textParts.push(`תיאור פעילות: ${fields.businessDescription}`)
   if (fields.previousCpaName) textParts.push(`רו"ח קודם: ${fields.previousCpaName}`)
   if (fields.previousCpaEmail) textParts.push(`מייל רו"ח קודם: ${fields.previousCpaEmail}`)
   if (fields.previousCpaSoftware) textParts.push(`תוכנות רו"ח קודם: ${fields.previousCpaSoftware}`)
@@ -250,7 +281,9 @@ export async function POST(req: NextRequest) {
     const birthdate = get('birthdate') || undefined
     // V2 fields
     const businessName = get('businessName') || undefined
+    const businessNumber = get('businessNumber') || undefined
     const businessSector = get('businessSector') || undefined
+    const businessDescription = get('businessDescription') || undefined
     const businessAddress = get('businessAddress') || undefined
     const shareholderDetails = get('shareholderDetails') || undefined
     // Transfer fields
@@ -282,8 +315,9 @@ export async function POST(req: NextRequest) {
     const tokenDoc = await writeClient.fetch<{
       _id: string
       status: string
+      prefillData?: string
     } | null>(
-      `*[_type == "intakeToken" && token == $tokenValue][0]{ _id, status }`,
+      `*[_type == "intakeToken" && token == $tokenValue][0]{ _id, status, prefillData }`,
       { tokenValue: token },
       { cache: 'no-store' }
     )
@@ -294,6 +328,15 @@ export async function POST(req: NextRequest) {
 
     const isUpdateMode = get('isUpdate') === 'true'
     const existingSummitId = get('summitEntityId') || undefined
+
+    // Extract accountManager from token's prefillData (set during link generation in OS)
+    let accountManager: string | undefined
+    if (tokenDoc.prefillData) {
+      try {
+        const prefill = JSON.parse(tokenDoc.prefillData)
+        if (prefill.manager) accountManager = prefill.manager
+      } catch { /* ignore parse errors */ }
+    }
 
     // Allow re-submission if isUpdate mode, otherwise block completed tokens
     if (!isUpdateMode && tokenDoc.status !== 'pending' && tokenDoc.status !== 'opened') {
@@ -314,9 +357,9 @@ export async function POST(req: NextRequest) {
       await updateSummitEntityFields(existingSummitId, {
         fullName, companyNumber, phone, email, clientType,
         address, city, zipCode, birthdate, businessName,
-        businessSector, businessAddress,
-        shareholderDetails, previousCpaName, previousCpaEmail,
-        previousCpaSoftware, onboardingPath,
+        businessNumber, businessSector, businessDescription,
+        businessAddress, shareholderDetails, previousCpaName,
+        previousCpaEmail, previousCpaSoftware, onboardingPath,
       })
     } else {
       // Create new entity
@@ -331,13 +374,16 @@ export async function POST(req: NextRequest) {
         zipCode,
         birthdate,
         businessName,
+        businessNumber,
         businessSector,
+        businessDescription,
         businessAddress,
         shareholderDetails,
         previousCpaName,
         previousCpaEmail,
         previousCpaSoftware,
         onboardingPath,
+        accountManager,
       })
       entityId = result.entityId
       summitError = result.error

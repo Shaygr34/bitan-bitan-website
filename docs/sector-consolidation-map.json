@@ -1,0 +1,3295 @@
+{
+  "metadata": {
+    "totalEntities": 472,
+    "categories": 25,
+    "statusEntries": 27,
+    "generated": "2026-04-23"
+  },
+  "mapping": [
+    {
+      "entityId": 1099299070,
+      "originalName": "נדל\"ן, תיווך וייזום",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "תיווך וייזום",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299050,
+      "originalName": "השכרת חנות",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "השכרת חנות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299041,
+      "originalName": "השכרת משרדים",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "השכרת משרדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298979,
+      "originalName": "שכירויות",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298945,
+      "originalName": "הדמיות מבנים נדל\"ן",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "הדמיות מבנים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298902,
+      "originalName": "מתווך נדל\"ן",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "תיווך",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298872,
+      "originalName": "השכרת חנויות",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "השכרת חנויות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298870,
+      "originalName": "אייר בי. אנ. בי",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "Airbnb",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298820,
+      "originalName": "ייעוץ ושיווק נדלן",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "ייעוץ ושיווק נדל\"ן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298738,
+      "originalName": "מתווך",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "תיווך",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298731,
+      "originalName": "השכרת נכס",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298652,
+      "originalName": "נדלן חו\"ל",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "נדל\"ן חו\"ל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298591,
+      "originalName": "דירות חו\"ל",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "דירות חו\"ל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298529,
+      "originalName": "השכרת נכס +גמר פעילות ביצור שמנים",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "השכרת נכס + סיום ייצור שמנים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298484,
+      "originalName": "נדל\"ן ושיפוצים",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "נדל\"ן ושיפוצים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298443,
+      "originalName": "שכירות",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298428,
+      "originalName": "אחזקת נכס",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "אחזקת נכס",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298387,
+      "originalName": "נכסים ויזמות",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "נכסים ויזמות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298382,
+      "originalName": "נדל\"I ואחזקות",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "נדל\"ן ואחזקות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298358,
+      "originalName": "השכרת חללים עסקיים וחדרי אימון",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "חללים עסקיים וחדרי אימון",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298353,
+      "originalName": "תיווך",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "תיווך",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298337,
+      "originalName": "השכרות",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298334,
+      "originalName": "שכירות נכסים",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298305,
+      "originalName": "תיווך ונדל\"ן",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "תיווך ונדל\"ן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298215,
+      "originalName": "השכרת נכסים",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298208,
+      "originalName": "נדל\"ן",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298240,
+      "originalName": "נדל\"ן בנייה",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "נדל\"ן בנייה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298583,
+      "originalName": "חנות אוכל , השכרת נכסים",
+      "canonicalCategory": "נדל\"ן ושכירות",
+      "highValueDetail": "חנות אוכל + השכרת נכסים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298953,
+      "originalName": "איטומים ושיפוצים",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "איטומים ושיפוצים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298899,
+      "originalName": "התקנת דלתות ושיפוצים",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "התקנת דלתות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298892,
+      "originalName": "מפקח בניה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "פיקוח בנייה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298860,
+      "originalName": "יעוץ , תכנון , פיקוח וביצוע עבודות הנדסיות וקבלניות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "תכנון, פיקוח וביצוע הנדסי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298842,
+      "originalName": "שרותי הנדסה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "שירותי הנדסה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298831,
+      "originalName": "ביצוע עבודות חשמל",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "עבודות חשמל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298803,
+      "originalName": "עבודות חשמל וכיבוי אש",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "חשמל וכיבוי אש",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298795,
+      "originalName": "דודי שמש",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "דודי שמש",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298793,
+      "originalName": "מהנדס בניין",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "מהנדס בניין",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298746,
+      "originalName": "עבודות אינסטלציה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "אינסטלציה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298670,
+      "originalName": "שיפוצים ותיקונים",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298622,
+      "originalName": "שיפוצים ועבודות חשמל",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "שיפוצים וחשמל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298614,
+      "originalName": "בניה ויזמות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "בנייה ויזמות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298575,
+      "originalName": "עבודות נגרות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "נגרות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298556,
+      "originalName": "עבודות אלומיניום",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "אלומיניום",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298544,
+      "originalName": "עבודות גינון",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "גינון",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298536,
+      "originalName": "עבודות שיפוץ מזדמנות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298512,
+      "originalName": "שיפוצים",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298483,
+      "originalName": "נגרות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "נגרות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298429,
+      "originalName": "שאיבות בטון",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "שאיבת בטון",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298398,
+      "originalName": "חשמל",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "חשמל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298380,
+      "originalName": "עבודות הנדסה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "הנדסה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298316,
+      "originalName": "הנדסה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "הנדסה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298308,
+      "originalName": "שאיבת בטון",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "שאיבת בטון",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298289,
+      "originalName": "בנייה ויזמות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "בנייה ויזמות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298277,
+      "originalName": "אלומיניום",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "אלומיניום",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298276,
+      "originalName": "תשתיות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "תשתיות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298250,
+      "originalName": "הנדסת בטיחות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "הנדסת בטיחות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298246,
+      "originalName": "כלים סנטריים",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "כלים סניטריים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298245,
+      "originalName": "ייעוץ הנדסי",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "ייעוץ הנדסי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298242,
+      "originalName": "יזמות בנייה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "יזמות בנייה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298241,
+      "originalName": "בניה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298238,
+      "originalName": "ייעוץ חיפוי זכוכית למבנים",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "חיפוי זכוכית למבנים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298237,
+      "originalName": "בניית מיזמי תשתיות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "מיזמי תשתיות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298978,
+      "originalName": "נגר",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "נגר",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298967,
+      "originalName": "אדריכלית",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "אדריכלות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298704,
+      "originalName": "מנהל עבודה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "מנהל עבודה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298410,
+      "originalName": "אדריכל נוף",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "אדריכל נוף",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298422,
+      "originalName": "מעליות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "מעליות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298391,
+      "originalName": "אחזקת מעליות",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "אחזקת מעליות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099297997,
+      "originalName": "בנייה",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298254,
+      "originalName": "גינון",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "גינון",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298765,
+      "originalName": "מיגון אש",
+      "canonicalCategory": "בנייה ושיפוצים",
+      "highValueDetail": "מיגון אש",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298826,
+      "originalName": "ייעוץ וניהול",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298921,
+      "originalName": "ייעוץ עסקי",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298592,
+      "originalName": "יעוץ עסקי",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298910,
+      "originalName": "דירקטורית , ייעוץ ניהולי",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "דירקטורית + ייעוץ ניהולי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298908,
+      "originalName": "ניהול , שיווק , יזמות ויעוץ אסטרטגי",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ניהול, שיווק, יזמות, ייעוץ אסטרטגי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298893,
+      "originalName": "פתרונות ייעוץ והשמה",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ייעוץ והשמה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298874,
+      "originalName": "ייעוץ והשקעות , דירקטורית",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ייעוץ, השקעות, דירקטורית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298944,
+      "originalName": "יעוץ והרצאות (אנתרופולוגיה)",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ייעוץ אנתרופולוגי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298919,
+      "originalName": "דירקטורית",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "דירקטורית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298612,
+      "originalName": "יועץ",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298660,
+      "originalName": "אדמיניסטרציה",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "אדמיניסטרציה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298563,
+      "originalName": "שיפור איכות ותהליכים ובארגונים",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "שיפור תהליכים ארגוניים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298340,
+      "originalName": "שירותי ניהול וייעוץ לפרוייקטים בחו\"ל",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ניהול פרויקטים בחו\"ל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298373,
+      "originalName": "אחזקות וייעוץ",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "אחזקות וייעוץ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298370,
+      "originalName": "החזקות וניהול",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "אחזקות וניהול",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298369,
+      "originalName": "אחזקות וניהול",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "אחזקות וניהול",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298362,
+      "originalName": "דירקטורית, ייעוץ והשקעות",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "דירקטורית, ייעוץ, השקעות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298357,
+      "originalName": "ייעוץ והשקעות",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ייעוץ והשקעות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298321,
+      "originalName": "השקעות/ ייעוץ",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "השקעות וייעוץ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298330,
+      "originalName": "אחזקות",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "אחזקות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298278,
+      "originalName": "חברת אחזקות",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "חברת אחזקות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298272,
+      "originalName": "ייעוץ",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298255,
+      "originalName": "גיאולוגיה וייעוץ",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ייעוץ גיאולוגי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298248,
+      "originalName": "תיווך/ייעוץ",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "תיווך וייעוץ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299011,
+      "originalName": "השקעות",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "השקעות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298479,
+      "originalName": "מנהל",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298523,
+      "originalName": "יעוץ עסקי וכלכלי",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ייעוץ עסקי וכלכלי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298730,
+      "originalName": "פרוייקטים",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "ניהול פרויקטים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298797,
+      "originalName": "חברת אחזקה",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "חברת אחזקה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298639,
+      "originalName": "משרד",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298355,
+      "originalName": "אנרגיה מתחדשת - אחזקות",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "אנרגיה מתחדשת - אחזקות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298541,
+      "originalName": "אחזקת כפר אומנים",
+      "canonicalCategory": "ייעוץ וניהול",
+      "highValueDetail": "אחזקת כפר אומנים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299014,
+      "originalName": "ייעוץ טכנולוגי",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "ייעוץ טכנולוגי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299028,
+      "originalName": "קידום באינטרנט",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "קידום באינטרנט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298983,
+      "originalName": "שירותים אלקטרונים",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "שירותים אלקטרוניים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298913,
+      "originalName": "תוכנה",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298811,
+      "originalName": "שירותי מיחשוב",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "מיחשוב",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298802,
+      "originalName": "שיווק וקידום אינטרנט",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "שיווק וקידום אינטרנט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298672,
+      "originalName": "קידום אינטרנט",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "קידום אינטרנט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298654,
+      "originalName": "תכנות",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298597,
+      "originalName": "אינטרנט",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298504,
+      "originalName": "תכנות-אינטרנט",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "תכנות אינטרנט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298436,
+      "originalName": "פיתוח וטכנולוגייה",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298423,
+      "originalName": "סטארט אפ",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "סטארט-אפ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298415,
+      "originalName": "פיתוח טכנולוגיות לאיתור בעלי מקצוע",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "פלטפורמת איתור בעלי מקצוע",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298411,
+      "originalName": "פיתוח טכנולוגיות לגיוס עובדים",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "פלטפורמת גיוס עובדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298381,
+      "originalName": "טכנולוגיה",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298377,
+      "originalName": "פיתוח טכנולוגיה",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298375,
+      "originalName": "טכנולוגייה בתחום הרחקת מזיקים",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "טכנולוגיית הרחקת מזיקים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298372,
+      "originalName": "קידום ושיווק אינטרנט",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "קידום ושיווק אינטרנט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298363,
+      "originalName": "קידום אתרים",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "קידום אתרים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298339,
+      "originalName": "תחזוקת אתרים",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "תחזוקת אתרים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298328,
+      "originalName": "פיתוח תוכנה",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298293,
+      "originalName": "שירותי תקשורת",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "שירותי תקשורת",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298292,
+      "originalName": "התקנת מערכות תקשורת",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "התקנת מערכות תקשורת",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298288,
+      "originalName": "שיווק דיגיטלי",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "שיווק דיגיטלי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298269,
+      "originalName": "פיתוח אפליקציות",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "פיתוח אפליקציות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298266,
+      "originalName": "הייטק",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298750,
+      "originalName": "תקשורת",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298560,
+      "originalName": "תקשורת והתקנת מצלמות",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "תקשורת ומצלמות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298696,
+      "originalName": "מערכות מיגון ובקרה",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "מיגון ובקרה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298203,
+      "originalName": "מיגון מחשבים ומערכות אזעקה",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "מיגון מחשבים ואזעקות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298435,
+      "originalName": "תיקון מדפסות ושירות",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "תיקון מדפסות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298659,
+      "originalName": "אתר מכירה אינטרנט",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "מסחר אלקטרוני",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298792,
+      "originalName": "שירות טלפוני ותפעול",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "שירות טלפוני ותפעול",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298682,
+      "originalName": "ייעוץ טכנולוגי רפואי",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "ייעוץ טכנולוגי רפואי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298506,
+      "originalName": "עיצוב דיגיטלי",
+      "canonicalCategory": "טכנולוגיה ודיגיטל",
+      "highValueDetail": "עיצוב דיגיטלי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299037,
+      "originalName": "בית קפה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "בית קפה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298963,
+      "originalName": "שיווק והפצה דברי מאפה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "שיווק והפצת מאפים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298828,
+      "originalName": "מזון",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298825,
+      "originalName": "גלידות",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "גלידות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298796,
+      "originalName": "מכירה סיטונאית של דברי מאפה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "מאפים סיטונאי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298871,
+      "originalName": "קווי חלוקת לחם",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "חלוקת לחם",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298760,
+      "originalName": "פירות קפואים",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "פירות קפואים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298733,
+      "originalName": "הסעדה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "הסעדה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298685,
+      "originalName": "ירקן",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "ירקן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298637,
+      "originalName": "קונדיטוריה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "קונדיטוריה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298561,
+      "originalName": "קפה ומסעדנות",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298555,
+      "originalName": "מסעדות",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298474,
+      "originalName": "קייטנרינג",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "קייטרינג",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298426,
+      "originalName": "קונדיטוריה מאפיה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "קונדיטוריה ומאפייה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298420,
+      "originalName": "מינימרקט",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "מינימרקט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298345,
+      "originalName": "מאפייה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "מאפייה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298331,
+      "originalName": "בר",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "בר",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298323,
+      "originalName": "מכירת מיצים",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "מכירת מיצים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298310,
+      "originalName": "חנות אוכל",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298300,
+      "originalName": "מסחר במוצרי מזון",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "מסחר מזון",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298299,
+      "originalName": "הפצת ושיווק של יינות",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "הפצת יינות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298298,
+      "originalName": "ייצור יינות",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "יקב",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298296,
+      "originalName": "בתי קפה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "בתי קפה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298295,
+      "originalName": "ייצור דברי מאפה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "ייצור מאפים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298239,
+      "originalName": "מסעדה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298217,
+      "originalName": "אוכל- קייטרינג",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "קייטרינג",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298690,
+      "originalName": "מכולת",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "מכולת",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298346,
+      "originalName": "ייבו- פירות קפואים",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "יבוא פירות קפואים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298251,
+      "originalName": "ייבוא- טונה",
+      "canonicalCategory": "מזון ומסעדנות",
+      "highValueDetail": "יבוא טונה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298925,
+      "originalName": "בגדי נשים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "בגדי נשים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298923,
+      "originalName": "יצור ומכירת בגדים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "ייצור ומכירת בגדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298780,
+      "originalName": "עיצוב אופנה",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "עיצוב אופנה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298714,
+      "originalName": "תופרת",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "תפירה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298711,
+      "originalName": "מסחר בגדי נשים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "מסחר בגדי נשים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298710,
+      "originalName": "טקסטיל וילונות",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "טקסטיל וילונות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298705,
+      "originalName": "מכירת בגדים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298703,
+      "originalName": "תפירה ומכירת בגדים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "תפירה ומכירה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298699,
+      "originalName": "שיווק שטיחים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "שטיחים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298692,
+      "originalName": "יצור בגדים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "ייצור בגדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298567,
+      "originalName": "ביגוד וטקסטיל",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298499,
+      "originalName": "הנעלה",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "הנעלה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298419,
+      "originalName": "יצור אופנה",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "ייצור אופנה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298417,
+      "originalName": "אביזרי אופנה",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "אביזרי אופנה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298416,
+      "originalName": "שיווק וייבוא נעליים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "יבוא נעליים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298390,
+      "originalName": "טקסטיל סיטונאות",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "טקסטיל סיטונאי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298389,
+      "originalName": "טקסטיל נשים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "טקסטיל נשים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298368,
+      "originalName": "טקסטיל לבית",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "טקסטיל לבית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298319,
+      "originalName": "חנות בגדים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298318,
+      "originalName": "בגדים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298307,
+      "originalName": "הלבשה",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298267,
+      "originalName": "ביגוד",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298259,
+      "originalName": "מכירה סיטונאית בגדים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "בגדים סיטונאי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298849,
+      "originalName": "דוכני מכירת בגדים",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "דוכני בגדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298715,
+      "originalName": "בניית קולקציות בתחום ההנעלה",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "עיצוב קולקציות נעליים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298225,
+      "originalName": "טקסטיל",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298804,
+      "originalName": "וילונות",
+      "canonicalCategory": "אופנה וטקסטיל",
+      "highValueDetail": "וילונות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298366,
+      "originalName": "ביטוח ופיננסים",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299019,
+      "originalName": "ראיית חשבון ופיננסים",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "ראיית חשבון ופיננסים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298886,
+      "originalName": "ייעוץ פיננסי וחשבונאי וליווי חברות",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "ייעוץ פיננסי וחשבונאי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298769,
+      "originalName": "ניהול פיננסי ומסים",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "ניהול פיננסי ומסים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298756,
+      "originalName": "סוכנת ביטוח",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "סוכנת ביטוח",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298709,
+      "originalName": "סוכן ביטוח",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "סוכן ביטוח",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298706,
+      "originalName": "שירותי ייעוץ ניהולי פיננסי",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "ייעוץ ניהולי פיננסי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298586,
+      "originalName": "יועץ משכנתאות",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "ייעוץ משכנתאות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298510,
+      "originalName": "משכנתאות ופיננסים",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "משכנתאות ופיננסים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298438,
+      "originalName": "פיננסים וייעוץ",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298396,
+      "originalName": "שירותים פיננסיים",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298320,
+      "originalName": "ייעוץ פיננסי",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298290,
+      "originalName": "נותן שירותים פיננסיים",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298281,
+      "originalName": "סוכנות לביטוח",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "סוכנות ביטוח",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298279,
+      "originalName": "ביטוח",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298218,
+      "originalName": "ביטוחים",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298200,
+      "originalName": "פיננסים וביטוח",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299008,
+      "originalName": "זכיין פיס",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "זכיין מפעל הפיס",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298625,
+      "originalName": "מפעל הפיס",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "מפעל הפיס",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298397,
+      "originalName": "ציוד בנקאי",
+      "canonicalCategory": "ביטוח ופיננסים",
+      "highValueDetail": "ציוד בנקאי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299038,
+      "originalName": "עורכי דין",
+      "canonicalCategory": "עריכת דין",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298876,
+      "originalName": "עריכת דין",
+      "canonicalCategory": "עריכת דין",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298741,
+      "originalName": "עורכת דין",
+      "canonicalCategory": "עריכת דין",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298683,
+      "originalName": "עו\"ד",
+      "canonicalCategory": "עריכת דין",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298593,
+      "originalName": "משרד עורכי דין",
+      "canonicalCategory": "עריכת דין",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298735,
+      "originalName": "רואה חשבון",
+      "canonicalCategory": "ראיית חשבון",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298638,
+      "originalName": "הנהלת חשבונות",
+      "canonicalCategory": "ראיית חשבון",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099297995,
+      "originalName": "רו\"ח",
+      "canonicalCategory": "ראיית חשבון",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298937,
+      "originalName": "פיזיוטרפיה",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "פיזיותרפיה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298841,
+      "originalName": "רופאה",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298830,
+      "originalName": "בדיקות והתאמת מכשירי שמיעה",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "מכשירי שמיעה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298781,
+      "originalName": "רפואת שיניים",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "רפואת שיניים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298739,
+      "originalName": "רופא שיניים",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "רופא שיניים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298724,
+      "originalName": "שירותי ניהול ייעוף וטפולים פסיותראפיסטיים",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "פיזיותרפיה וניהול",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298649,
+      "originalName": "דולה",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "דולה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298604,
+      "originalName": "וטרינר",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "וטרינר",
+      "isStatus": false
+    },
+    {
+      "entityId": 1081849295,
+      "originalName": "רופא ילדים",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "רופא ילדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298833,
+      "originalName": "פתרונות ספיגה למבוגרים",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "מוצרי ספיגה למבוגרים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298236,
+      "originalName": "ייצור צנרות לרפואה",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "ייצור צנרות רפואיות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299023,
+      "originalName": "חוקר מכון ויצמן",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "חוקר מכון ויצמן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1157043461,
+      "originalName": "אופטיקה",
+      "canonicalCategory": "בריאות ורפואה",
+      "highValueDetail": "אופטיקה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298994,
+      "originalName": "תרפיה בתנועה",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "תרפיה בתנועה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298977,
+      "originalName": "טיפול באומנות",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "טיפול באומנות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298974,
+      "originalName": "טיפול",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298904,
+      "originalName": "פסיכולוגיה",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298869,
+      "originalName": "יעוץ אישי, זוגי, משפחתי ועסקי",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "ייעוץ אישי/זוגי/משפחתי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298805,
+      "originalName": "עובדת סוציאלית",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "עבודה סוציאלית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298779,
+      "originalName": "מאמנת לצמיחה אישית",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "אימון אישי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298677,
+      "originalName": "עיסוי וטיפול",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "עיסוי וטיפול",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298669,
+      "originalName": "הדרכות וטיפולים",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "הדרכות וטיפולים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298613,
+      "originalName": "מאמנת הורית ואישית",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "אימון הורי ואישי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298605,
+      "originalName": "פסיכולוגית",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298451,
+      "originalName": "טיפולים",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298697,
+      "originalName": "שירותי שרטוט+פסיכוטרפיה",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "שרטוט + פסיכותרפיה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298926,
+      "originalName": "מאבחנת לקויות למידה",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "אבחון לקויות למידה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298589,
+      "originalName": "לקויות למידה",
+      "canonicalCategory": "טיפול ופסיכולוגיה",
+      "highValueDetail": "לקויות למידה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1192143021,
+      "originalName": "הוראה, חינוך והדרכה",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298848,
+      "originalName": "מורה פרטית",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "הוראה פרטית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298836,
+      "originalName": "הדרכות ילדים",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "הדרכות ילדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298822,
+      "originalName": "הפעלות והדרכות",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "הפעלות והדרכות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298896,
+      "originalName": "פעוטון",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "פעוטון",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298676,
+      "originalName": "גננת",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "גננת",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298645,
+      "originalName": "הדרכות",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298636,
+      "originalName": "הדרכה",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298616,
+      "originalName": "הרצאות",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "הרצאות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298608,
+      "originalName": "מדריך טיולים",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "מדריך טיולים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298606,
+      "originalName": "מרצה",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298601,
+      "originalName": "הקראה מתקנת",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "הקראה מתקנת",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298598,
+      "originalName": "הוראה מתקנת",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "הוראה מתקנת",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298534,
+      "originalName": "ייעוץ ופיתוח מוצרים חינוכיים ושיעורים פרטיים",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "מוצרים חינוכיים ושיעורים פרטיים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298460,
+      "originalName": "חינוך והצהרונים",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "חינוך והצהרונים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298439,
+      "originalName": "לימוד שפה עברית",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "לימוד עברית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298213,
+      "originalName": "חינוך",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298905,
+      "originalName": "ליווי פרויקטים , סדנאות והרצאות בנושאי מגדר וגיוון תעסוק",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "סדנאות מגדר וגיוון תעסוקתי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298829,
+      "originalName": "ספרית",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "ספרנות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1192139452,
+      "originalName": "הדרכה וספורט",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "הדרכה וספורט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298603,
+      "originalName": "כתיבת תוכן",
+      "canonicalCategory": "חינוך והדרכה",
+      "highValueDetail": "כתיבת תוכן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299018,
+      "originalName": "עבודות אומנות ויצירה",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "אומנות ויצירה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298993,
+      "originalName": "מעצבת",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298932,
+      "originalName": "עיצוב",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298898,
+      "originalName": "ריהוט בהזמנה אישית",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "ריהוט בהזמנה אישית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298895,
+      "originalName": "עבודות יצירה מבטון",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "יצירה מבטון",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298863,
+      "originalName": "איורים ושירותי גרפיקה",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "איורים וגרפיקה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298839,
+      "originalName": "מיתוג ועיצוב גרפי",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "מיתוג ועיצוב גרפי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298678,
+      "originalName": "עיצוב ויצירה",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298630,
+      "originalName": "עיצוב גרפי",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "עיצוב גרפי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298623,
+      "originalName": "עיצוב פנים",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "עיצוב פנים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298610,
+      "originalName": "עיצוב ואומנות",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "עיצוב ואומנות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298582,
+      "originalName": "מעצב",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298736,
+      "originalName": "עיצוב אנימציה",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "אנימציה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298657,
+      "originalName": "פרסום, שיווק ועיצוב",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "פרסום, שיווק, עיצוב",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298851,
+      "originalName": "מדיה וגרפיקה",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "מדיה וגרפיקה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298640,
+      "originalName": "מכירת מוצרי עץ ממותגים הזמנה אישית",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "מוצרי עץ ממותגים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298626,
+      "originalName": "בית מלאכה לכריות",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "כריות בהתאמה אישית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298332,
+      "originalName": "כתיבה ויצירה",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "כתיבה ויצירה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298348,
+      "originalName": "יוצרי משחקים",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "יצירת משחקים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298950,
+      "originalName": "שירותי גרפיקה וצילום ופעילות נדל\"ן",
+      "canonicalCategory": "עיצוב ויצירה",
+      "highValueDetail": "גרפיקה, צילום ונדל\"ן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298628,
+      "originalName": "צילום",
+      "canonicalCategory": "צילום ומדיה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298590,
+      "originalName": "עורך וידיאו",
+      "canonicalCategory": "צילום ומדיה",
+      "highValueDetail": "עריכת וידאו",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298264,
+      "originalName": "עריכת וידיאו- פוסט פרודקשן",
+      "canonicalCategory": "צילום ומדיה",
+      "highValueDetail": "פוסט פרודקשן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298744,
+      "originalName": "תיעוד תולדות חיים",
+      "canonicalCategory": "צילום ומדיה",
+      "highValueDetail": "תיעוד תולדות חיים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1220976224,
+      "originalName": "הפקת אירועים",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "הפקת אירועים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299002,
+      "originalName": "תאורה והגברה",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "תאורה והגברה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298984,
+      "originalName": "תקליטנית",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "DJ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298975,
+      "originalName": "שחקן",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "שחקן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298957,
+      "originalName": "מפיק בפועל",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "מפיק",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298962,
+      "originalName": "שירותי סאונד ושיווק",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "סאונד ושיווק",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298889,
+      "originalName": "שירותי מוזיקה",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298885,
+      "originalName": "הופעות לילדים",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "הופעות לילדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298868,
+      "originalName": "אקסטרים ומיני גולף",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "אקסטרים ומיני גולף",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298856,
+      "originalName": "ניהול הופעות",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "ניהול הופעות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298674,
+      "originalName": "זמרת/אדריכלית",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "זמרת + אדריכלית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298634,
+      "originalName": "זמרת",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298632,
+      "originalName": "יצירה ואומנות - אולפן הקלטות",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "אולפן הקלטות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298602,
+      "originalName": "מוזיקאי",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298596,
+      "originalName": "די. ג'י",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "DJ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298588,
+      "originalName": "מוהל",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "מוהל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298532,
+      "originalName": "זמר , הפקת תקליטים",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "זמר והפקת תקליטים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298522,
+      "originalName": "מוזיקה",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298440,
+      "originalName": "הפקות אירועים ותקליטן",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "הפקת אירועים + DJ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298437,
+      "originalName": "סטאנד אפ",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "סטנד-אפ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298376,
+      "originalName": "פארקור אקסטרים",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "פארקור",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298343,
+      "originalName": "הפקת אירועים",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "הפקת אירועים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298342,
+      "originalName": "הפקות",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298262,
+      "originalName": "אולם אירועים",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "אולם אירועים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298235,
+      "originalName": "זמר",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099297996,
+      "originalName": "מוזיקה- dj",
+      "canonicalCategory": "מוזיקה ובידור",
+      "highValueDetail": "DJ",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298981,
+      "originalName": "ייעוץ וייבוא מסין",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יבוא מסין",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298585,
+      "originalName": "ייעוץ יבוא",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298718,
+      "originalName": "יבוא מכירת מוצרי תינוקות",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יבוא מוצרי תינוקות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298414,
+      "originalName": "סחר וייבוא מתכות",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יבוא מתכות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298401,
+      "originalName": "יבוא קראוונים",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יבוא קראוונים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298274,
+      "originalName": "ייבוא שמנים",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יבוא שמנים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298270,
+      "originalName": "ייבוא ושיווק גופי תאורה",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יבוא גופי תאורה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298216,
+      "originalName": "יבוא מכונות מדידה לעיבוד שבבי",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יבוא מכונות מדידה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099297998,
+      "originalName": "יבוא בדים",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יבוא בדים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298684,
+      "originalName": "שיווק מוצרי צריכה",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "שיווק מוצרי צריכה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298527,
+      "originalName": "סוכן מכירות",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "סוכן מכירות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298922,
+      "originalName": "מכירות ושיווק",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298364,
+      "originalName": "ייעוץ ושיווק",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "ייעוץ ושיווק",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298658,
+      "originalName": "שיווק ופרסום",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "שיווק ופרסום",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298667,
+      "originalName": "שירותי יח\"צ ושיווק",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "יח\"צ ושיווק",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298695,
+      "originalName": "פרסום",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "פרסום",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298827,
+      "originalName": "שירותי פירסום",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "פרסום",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298273,
+      "originalName": "ייעוץ ותפעול והשכרת רכבים",
+      "canonicalCategory": "יבוא וסחר",
+      "highValueDetail": "ייעוץ, תפעול, השכרת רכבים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299039,
+      "originalName": "עסק לנרות ריחניים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "נרות ריחניים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298878,
+      "originalName": "נעליים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "נעליים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298810,
+      "originalName": "תיקים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "תיקים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298809,
+      "originalName": "מכירת שקיות",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "שקיות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298782,
+      "originalName": "מכירת אביזרי נייד",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "אביזרי נייד",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298758,
+      "originalName": "חנות לממכר נעליים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "חנות נעליים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298754,
+      "originalName": "יודאיקה",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "יודאיקה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298749,
+      "originalName": "פרחים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "פרחים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298747,
+      "originalName": "מוצרי היגיינה",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "מוצרי היגיינה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298643,
+      "originalName": "יהלומים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "יהלומים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298548,
+      "originalName": "חנות חשמל",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "חנות חשמל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298471,
+      "originalName": "ריהוט",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "ריהוט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298408,
+      "originalName": "חנות נעליים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "חנות נעליים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298347,
+      "originalName": "דלתות",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "דלתות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298326,
+      "originalName": "חנות רהיטים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "חנות רהיטים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298324,
+      "originalName": "חנות פלאפון",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "חנות סלולר",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298265,
+      "originalName": "חנות",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298256,
+      "originalName": "מוצרי חשמל",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "מוצרי חשמל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298253,
+      "originalName": "חנות מוצרי חשמל",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "חנות חשמל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298234,
+      "originalName": "חנות ברזים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "ברזים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298223,
+      "originalName": "חנות אלקטרוניקה",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "אלקטרוניקה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298221,
+      "originalName": "חנות צעצועים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "צעצועים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298219,
+      "originalName": "מוצרי יודאיקה+מתנות",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "יודאיקה ומתנות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298211,
+      "originalName": "מכירת חומרי ניקוי",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "חומרי ניקוי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298294,
+      "originalName": "קמעונאות חיות מחמד",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "חיות מחמד",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298333,
+      "originalName": "מוצרים מתכלים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "מוצרים מתכלים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298402,
+      "originalName": "סופר",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "סופרמרקט",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298412,
+      "originalName": "מכירה סיטונאית וקמעונאית באופניים חשמליות",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "אופניים חשמליות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298263,
+      "originalName": "מכירה סיטונאית וקמעונאית באופניים חשמליות",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "אופניים חשמליות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298939,
+      "originalName": "מכירת דלתות",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "דלתות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298224,
+      "originalName": "שיווק נעליים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "שיווק נעליים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298220,
+      "originalName": "מסחר נעליים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "מסחר נעליים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298726,
+      "originalName": "פתרונות הדפסה",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "פתרונות הדפסה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298311,
+      "originalName": "ייצור רהיטים",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "ייצור רהיטים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1181464908,
+      "originalName": "אלקטרוניקה",
+      "canonicalCategory": "קמעונאות",
+      "highValueDetail": "אלקטרוניקה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298907,
+      "originalName": "הסעות וסולארי",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "הסעות + סולארי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298897,
+      "originalName": "השכרת מונית",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "מונית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298838,
+      "originalName": "בלדרות",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "בלדרות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298824,
+      "originalName": "הסעות",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "הסעות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298799,
+      "originalName": "סוכנת נסיעות",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "סוכנת נסיעות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298712,
+      "originalName": "מונית",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "מונית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298689,
+      "originalName": "שירותי בלדרות",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "בלדרות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298629,
+      "originalName": "שליחויות",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298600,
+      "originalName": "נהג מונית",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "נהג מונית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298317,
+      "originalName": "מוניות",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298304,
+      "originalName": "הובלות",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298877,
+      "originalName": "אשרות לחו\"ל",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "אשרות לחו\"ל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298727,
+      "originalName": "ייעוץ בתחום התיירות",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "ייעוץ תיירות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298424,
+      "originalName": "שרותי תעופה",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "שירותי תעופה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298335,
+      "originalName": "חבילות סקי",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "חבילות סקי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099299021,
+      "originalName": "טייס",
+      "canonicalCategory": "הובלות ושליחויות",
+      "highValueDetail": "טייס",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298959,
+      "originalName": "מאמן טניס",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": "מאמן טניס",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298933,
+      "originalName": "אימון גופני",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298680,
+      "originalName": "מאמן כושר",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298664,
+      "originalName": "כושר",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298648,
+      "originalName": "כושר ותזונה",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": "כושר ותזונה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298641,
+      "originalName": "אימוני ספורט",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298607,
+      "originalName": "מאמנת כושר",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298356,
+      "originalName": "ספורט- מיניגולף",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": "מיני גולף",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298233,
+      "originalName": "ספורט- קב' כדורגל",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": "קבוצת כדורגל",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298668,
+      "originalName": "סוסים",
+      "canonicalCategory": "כושר וספורט",
+      "highValueDetail": "רכיבת סוסים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298991,
+      "originalName": "בניית ציפורניים",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "ציפורניים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298958,
+      "originalName": "טיפול קוסמטי",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "טיפול קוסמטי",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298783,
+      "originalName": "עיצוב שיער",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "עיצוב שיער",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298763,
+      "originalName": "מקעקע",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "קעקועים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298702,
+      "originalName": "קוסמטיקאית",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298620,
+      "originalName": "שיער ועיצוב",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "שיער",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298611,
+      "originalName": "קוסמטיקה וטיפוח אישי",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298609,
+      "originalName": "החלקת שיער",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "החלקת שיער",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298594,
+      "originalName": "קעקועים",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "קעקועים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298442,
+      "originalName": "ספר",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "ספר",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298258,
+      "originalName": "קוסמטיקה",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298201,
+      "originalName": "מספרה",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298881,
+      "originalName": "מספרה וחנות מכירת מוצרים לכלבים וחתולים",
+      "canonicalCategory": "יופי וטיפוח",
+      "highValueDetail": "מספרה + חנות חיות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298496,
+      "originalName": "פחחות",
+      "canonicalCategory": "רכב ומוסכים",
+      "highValueDetail": "פחחות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298409,
+      "originalName": "חלפים לרכבים",
+      "canonicalCategory": "רכב ומוסכים",
+      "highValueDetail": "חלפי רכב",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298303,
+      "originalName": "מוסכי רכב",
+      "canonicalCategory": "רכב ומוסכים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298210,
+      "originalName": "מוסך",
+      "canonicalCategory": "רכב ומוסכים",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099297999,
+      "originalName": "מכירת חלקי חילוף לרכבים",
+      "canonicalCategory": "רכב ומוסכים",
+      "highValueDetail": "חלקי חילוף",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298794,
+      "originalName": "שירותי ניקיון כלליים",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298624,
+      "originalName": "נקיון",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298405,
+      "originalName": "שרותי ניקיון",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298297,
+      "originalName": "שירותי ניקיון",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298336,
+      "originalName": "שרותי כביסה",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": "כביסה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298226,
+      "originalName": "פינוי אשפה",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": "פינוי אשפה",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298257,
+      "originalName": "אחזקה",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": null,
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298374,
+      "originalName": "מכבסה תעשייתית",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": "מכבסה תעשייתית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298716,
+      "originalName": "מיזוג",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": "מיזוג אוויר",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298315,
+      "originalName": "מיזוג אוויר",
+      "canonicalCategory": "ניקיון ותחזוקה",
+      "highValueDetail": "מיזוג אוויר",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298306,
+      "originalName": "עיבוד מתכות",
+      "canonicalCategory": "תעשייה וייצור",
+      "highValueDetail": "עיבוד מתכות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298249,
+      "originalName": "בניית מכונות",
+      "canonicalCategory": "תעשייה וייצור",
+      "highValueDetail": "בניית מכונות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298232,
+      "originalName": "ייצור שמן",
+      "canonicalCategory": "תעשייה וייצור",
+      "highValueDetail": "ייצור שמן",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298214,
+      "originalName": "ייצור שקיות",
+      "canonicalCategory": "תעשייה וייצור",
+      "highValueDetail": "ייצור שקיות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298413,
+      "originalName": "עבודות דפוס",
+      "canonicalCategory": "תעשייה וייצור",
+      "highValueDetail": "דפוס",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298271,
+      "originalName": "בית דפוס",
+      "canonicalCategory": "תעשייה וייצור",
+      "highValueDetail": "בית דפוס",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298633,
+      "originalName": "סולארי",
+      "canonicalCategory": "תעשייה וייצור",
+      "highValueDetail": "אנרגיה סולארית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298354,
+      "originalName": "אנרגיה סולארית",
+      "canonicalCategory": "תעשייה וייצור",
+      "highValueDetail": "אנרגיה סולארית",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298844,
+      "originalName": "ציוד לבעלי חיים",
+      "canonicalCategory": "חקלאות ובעלי חיים",
+      "highValueDetail": "ציוד לבעלי חיים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298745,
+      "originalName": "אילוף כלבים",
+      "canonicalCategory": "חקלאות ובעלי חיים",
+      "highValueDetail": "אילוף כלבים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298723,
+      "originalName": "עגלים",
+      "canonicalCategory": "חקלאות ובעלי חיים",
+      "highValueDetail": "גידול עגלים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298359,
+      "originalName": "חנות חיות",
+      "canonicalCategory": "חקלאות ובעלי חיים",
+      "highValueDetail": "חנות חיות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1388130102,
+      "originalName": "מכרזים",
+      "canonicalCategory": "אחר",
+      "highValueDetail": "מכרזים",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298835,
+      "originalName": "אתיופיולוג/ מחקר ופיתוח",
+      "canonicalCategory": "אחר",
+      "highValueDetail": "אתיופיולוגיה / מחקר ופיתוח",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298859,
+      "originalName": "שירותי תירגום",
+      "canonicalCategory": "אחר",
+      "highValueDetail": "תרגום",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298755,
+      "originalName": "תרגום והפקות",
+      "canonicalCategory": "אחר",
+      "highValueDetail": "תרגום והפקות",
+      "isStatus": false
+    },
+    {
+      "entityId": 1099298379,
+      "originalName": "אומנות ושילוח",
+      "canonicalCategory": "אחר",
+      "highValueDetail": "אומנות ושילוח",
+      "isStatus": false
+    }
+  ],
+  "statusEntries": [
+    {
+      "entityId": 1099298995,
+      "originalName": "הכנסות גבוהות",
+      "note": "Client income status, not a business sector"
+    },
+    {
+      "entityId": 1099298990,
+      "originalName": "פנסיונר + שכירות נכס",
+      "note": "Client status - pensioner with rental income"
+    },
+    {
+      "entityId": 1099298972,
+      "originalName": "פנסיונר + השכרת נכס",
+      "note": "Client status - pensioner with rental income"
+    },
+    {
+      "entityId": 1099298788,
+      "originalName": "דמי ניהול",
+      "note": "Client income type, not a business sector"
+    },
+    {
+      "entityId": 1099298785,
+      "originalName": "שכיר + השכרת מספר מונית",
+      "note": "Client status - salaried + taxi rental"
+    },
+    {
+      "entityId": 1099298776,
+      "originalName": "שכיר + מטבעות מבוזרים",
+      "note": "Client status - salaried + crypto"
+    },
+    {
+      "entityId": 1099298688,
+      "originalName": "הכנסות חו\"ל",
+      "note": "Client income type - foreign income"
+    },
+    {
+      "entityId": 1099298617,
+      "originalName": "לא פעילה",
+      "note": "Client status - inactive"
+    },
+    {
+      "entityId": 1099298615,
+      "originalName": "שכיר + שכירות מגורים",
+      "note": "Client status - salaried + residential rental"
+    },
+    {
+      "entityId": 1099298587,
+      "originalName": "שנתי",
+      "note": "Client status - annual filing"
+    },
+    {
+      "entityId": 1099298550,
+      "originalName": "מנהל חברה + פטור ס' 9(5)",
+      "note": "Client status - company director + exemption"
+    },
+    {
+      "entityId": 1099298545,
+      "originalName": "מנהל חברה + הכנסות משכירות + עצמאי",
+      "note": "Client status - company director + rental + self-employed"
+    },
+    {
+      "entityId": 1099298538,
+      "originalName": "מנהל חברה + השקעה בקרן הון",
+      "note": "Client status - company director + capital fund"
+    },
+    {
+      "entityId": 1099298503,
+      "originalName": "מנהל חברה + הכנסות ממשק",
+      "note": "Client status - company director + farming income"
+    },
+    {
+      "entityId": 1099298495,
+      "originalName": "שכיר + שכירות נכס",
+      "note": "Client status - salaried + property rental"
+    },
+    {
+      "entityId": 1099298476,
+      "originalName": "פנסיור + השכרת נכס",
+      "note": "Client status - pensioner + rental (typo variant)"
+    },
+    {
+      "entityId": 1099298472,
+      "originalName": "שכיר חייב בהגשת דוח",
+      "note": "Client status - salaried required to file"
+    },
+    {
+      "entityId": 1099298470,
+      "originalName": "שכיר",
+      "note": "Client status - salaried employee"
+    },
+    {
+      "entityId": 1099298458,
+      "originalName": "מנהל חברה + שכירות נכס",
+      "note": "Client status - company director + property rental"
+    },
+    {
+      "entityId": 1099298448,
+      "originalName": "הכנסות משכירויות",
+      "note": "Client income type - rental income"
+    },
+    {
+      "entityId": 1099298446,
+      "originalName": "לא פעיל",
+      "note": "Client status - inactive"
+    },
+    {
+      "entityId": 1099298445,
+      "originalName": "מנהל חברה",
+      "note": "Client status - company director"
+    },
+    {
+      "entityId": 1099298444,
+      "originalName": "מנהל חברה + שכירות מגורים",
+      "note": "Client status - company director + residential rental"
+    },
+    {
+      "entityId": 1099298441,
+      "originalName": "מנהל חברה + הכנסות משכירות",
+      "note": "Client status - company director + rental income"
+    },
+    {
+      "entityId": 1099298212,
+      "originalName": "שכ\"ד נכסים",
+      "note": "Client income type - property rental income"
+    },
+    {
+      "entityId": 1099298202,
+      "originalName": "שכ\"ד",
+      "note": "Client income type - rental income"
+    },
+    {
+      "entityId": 1099298206,
+      "originalName": "חברה לא פעילה",
+      "note": "Client status - inactive company"
+    }
+  ],
+  "exactMatches": {
+    "ייעוץ וניהול": 1099298826,
+    "ביטוח ופיננסים": 1099298366,
+    "עריכת דין": 1099298876,
+    "עיצוב ויצירה": 1099298678
+  },
+  "categoriesToCreate": [
+    "נדל\"ן ושכירות",
+    "בנייה ושיפוצים",
+    "ייעוץ וניהול",
+    "טכנולוגיה ודיגיטל",
+    "מזון ומסעדנות",
+    "אופנה וטקסטיל",
+    "ביטוח ופיננסים",
+    "עריכת דין",
+    "ראיית חשבון",
+    "בריאות ורפואה",
+    "טיפול ופסיכולוגיה",
+    "חינוך והדרכה",
+    "עיצוב ויצירה",
+    "צילום ומדיה",
+    "מוזיקה ובידור",
+    "יבוא וסחר",
+    "קמעונאות",
+    "הובלות ושליחויות",
+    "כושר וספורט",
+    "יופי וטיפוח",
+    "רכב ומוסכים",
+    "ניקיון ותחזוקה",
+    "תעשייה וייצור",
+    "חקלאות ובעלי חיים",
+    "אחר"
+  ]
+}

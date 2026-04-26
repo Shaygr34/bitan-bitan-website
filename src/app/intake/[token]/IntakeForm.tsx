@@ -20,6 +20,8 @@ const ACCEPTED_TYPES = '.pdf,.jpg,.jpeg,.png'
 const STEP_LABELS_FULL = ['סוג לקוח', 'פרטים אישיים', 'פרטי עסק', 'מסמכים', 'סיכום']
 const STEP_LABELS_SHORT = ['פרטים אישיים', 'פרטי עסק', 'מסמכים', 'סיכום']
 
+const EMPLOYEE_COUNT_OPTIONS = ['1-5', '6-10', '11-15', '15+']
+
 interface FormFields {
   fullName: string
   companyNumber: string
@@ -31,7 +33,9 @@ interface FormFields {
   birthdate: string
   // Business fields (new)
   businessName: string
+  businessNumber: string // מס' ע.מ / ח.פ (osek number)
   businessSector: string
+  businessDescription: string // תיאור פעילות עסקית
   businessAddress: string
   hasEmployees: string // 'yes' | 'no' | ''
   employeeCount: string
@@ -54,7 +58,9 @@ const EMPTY_FORM: FormFields = {
   zipCode: '',
   birthdate: '',
   businessName: '',
+  businessNumber: '',
   businessSector: '',
+  businessDescription: '',
   businessAddress: '',
   hasEmployees: '',
   employeeCount: '',
@@ -98,7 +104,9 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       zipCode: previousData.zipCode || '',
       birthdate: previousData.birthdate || '',
       businessName: previousData.businessName || '',
+      businessNumber: previousData.businessNumber || '',
       businessSector: previousData.businessSector || '',
+      businessDescription: previousData.businessDescription || '',
       businessAddress: previousData.businessAddress || '',
       hasEmployees: previousData.hasEmployees || '',
       employeeCount: previousData.employeeCount || '',
@@ -344,7 +352,9 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       if (formData.birthdate) fd.append('birthdate', formData.birthdate)
       // Business fields
       if (formData.businessName.trim()) fd.append('businessName', formData.businessName.trim())
+      if (formData.businessNumber.trim()) fd.append('businessNumber', formData.businessNumber.trim())
       if (formData.businessSector.trim()) fd.append('businessSector', formData.businessSector.trim())
+      if (formData.businessDescription.trim()) fd.append('businessDescription', formData.businessDescription.trim())
       if (formData.businessAddress.trim()) fd.append('businessAddress', formData.businessAddress.trim())
       if (formData.hasEmployees) fd.append('hasEmployees', formData.hasEmployees)
       if (formData.employeeCount) fd.append('employeeCount', formData.employeeCount)
@@ -542,7 +552,7 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
         <p className={styles.stepSubtitle}>פרטים בסיסיים כדי שנכיר אתכם</p>
 
         {renderInput('fullName', 'שם מלא', true)}
-        {renderInput('companyNumber', 'ת"ז / ח"פ', true)}
+        {renderInput('companyNumber', docCategory === 'company' ? 'ת"ז בעלים' : 'ת"ז / ח"פ', true)}
         {renderInput('phone', 'טלפון', true, 'tel')}
         {renderInput('email', 'דוא"ל', true, 'email')}
         {renderInput('address', 'כתובת', false)}
@@ -630,6 +640,7 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
         </p>
 
         {renderInput('businessName', 'שם העסק', true)}
+        {renderInput('businessNumber', 'מס\' ע.מ / ח.פ', true)}
 
         {/* Business sector — searchable dropdown */}
         <div className={styles.fieldGroup}>
@@ -646,6 +657,17 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
+        </div>
+
+        {/* Business activity description — free text */}
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>תיאור פעילות עסקית</label>
+          <textarea
+            className={styles.textarea}
+            value={formData.businessDescription}
+            onChange={(e) => updateField('businessDescription', e.target.value)}
+            placeholder="תארו בקצרה את הפעילות העסקית..."
+          />
         </div>
 
         {renderInput('businessAddress', 'כתובת העסק', false)}
@@ -670,7 +692,19 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
         </div>
 
         {formData.hasEmployees === 'yes' && (
-          renderInput('employeeCount', 'כמה עובדים?', false, 'number')
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>כמה עובדים?</label>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {EMPLOYEE_COUNT_OPTIONS.map((opt) => (
+                <button key={opt} type="button"
+                  className={formData.employeeCount === opt ? styles.typeCardSelected : styles.typeCard}
+                  style={{ flex: 1, padding: '0.5rem' }}
+                  onClick={() => updateField('employeeCount', opt)}>
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Transfer-specific fields */}
@@ -834,7 +868,7 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
     const personalRows: [string, string][] = [
       ['סוג לקוח', clientLabel],
       ['שם מלא', formData.fullName],
-      ['ת"ז / ח"פ', formData.companyNumber],
+      ['ת"ז', formData.companyNumber],
       ['טלפון', formData.phone],
       ['דוא"ל', formData.email],
     ]
@@ -843,8 +877,14 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
     if (formData.zipCode) personalRows.push(['מיקוד', formData.zipCode])
     if (formData.birthdate)
       personalRows.push(['תאריך לידה', formData.birthdate])
+    if (formData.businessNumber)
+      personalRows.push(['מס\' ע.מ / ח.פ', formData.businessNumber])
     if (formData.businessSector)
       personalRows.push(['תחום עיסוק', formData.businessSector])
+    if (formData.businessDescription)
+      personalRows.push(['תיאור פעילות', formData.businessDescription])
+    if (formData.employeeCount)
+      personalRows.push(['עובדים', formData.employeeCount])
     if (formData.shareholderDetails)
       personalRows.push(['פרטי בעלי מניות', formData.shareholderDetails])
 

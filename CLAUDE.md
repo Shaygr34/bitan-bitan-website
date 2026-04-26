@@ -73,7 +73,15 @@ CMS: Sanity project ul4uwnp7, dataset production
 - **Summit error surfacing**: `createSummitEntity` returns `{ entityId, error }`. Token status `summit_failed` with `summitError` field stored when entity creation fails. OS dashboard shows red error box.
 - **Sanity schemas**: `clientDocument` (structured file index per client — replaces הערות URL dump), `intakeToken` with `mode` field (new/update) and `summitError` field.
 
-- **Onboarding V4** (April 21): Intake form now sets Summit status "1. איסוף נתונים" on submit. Auto-email to client + office via Resend. SMS placeholder (pending Summit sender approval). Full spec at ~/bitan-onboarding-v4-spec.md.
+- **Onboarding V4** (April 21-23): Intake form → Summit entity creation. Full spec at ~/bitan-onboarding-v4-spec.md.
+  - Sets status "1. איסוף נתונים" on submit. Auto-email to client + office via Resend.
+  - **Customers_FullName logic**: companies (חברה/שותפות/עמותה) get `businessName`, individuals get `fullName`
+  - **מנהל תיק**: flows from OS link generation → token `prefillData.manager` → Summit entity. NOT defaulted.
+  - **עובד/ת ביקורת**: NOT set at intake. Assigned manually in Summit post-intake.
+  - **תחום עיסוק**: 25 canonical categories with entity IDs in `BUSINESS_SECTOR_IDS` (intake-types.ts). Migration of 869 existing clients completed April 23.
+  - **סוג לקוח**: mapped via `CLIENT_TYPE_IDS` (12 types). Working.
+  - SMS blocked (no Summit sender). Email-first via Resend.
+  - Key constants: `src/lib/intake-types.ts` (CLIENT_TYPE_IDS, BUSINESS_SECTOR_IDS, ACCOUNT_MANAGER_IDS, AUDIT_WORKER_IDS)
 
 ### Data Completion System (V3 — April 13, 2026)
 - **Purpose**: Mass CRM data completion for ~960 existing clients (0% document uploads, 4% birthdate)
@@ -272,6 +280,10 @@ Content Factory is a SEPARATE repo (apps/os-hub) — not this project
 - **RTL translateX direction**: `translate3d(+X)` = items move LEFT visually, `translate3d(-X)` = items move RIGHT. For opposite-direction marquee rows, reverse ITEM ORDER in DOM, not the translate sign.
 - **CSS marquee on RTL fails**: CSS-only infinite marquees (`translateX(-50%)`, `calc(-100% - var(--gap))`) don't work reliably on RTL pages. Use JS `requestAnimationFrame` + `scrollWidth` measurement instead.
 - **Slider phantom-default bug**: `<SliderInput value={state.field || defaultValue}>` displays a default but doesn't set it in state. Auto-initialize state when dependent fields appear.
+- **Summit API paths**: Use `/crm/data/listentities/` NOT `/api/CRM/V1.0/ListEntities`. All endpoints lowercase under `/crm/data/`. Paging uses `Paging: { StartIndex, PageSize }` object.
+- **Summit status clear**: Set `Customers_Status: -1` to clear (null/0 silently ignored).
+- **Summit addRemark**: Endpoint is `/crm/data/addclientremark/` with `{ EntityID, Folder, Content }`. May return HTML on rate limit — non-critical, skip gracefully.
+- **Summit API key**: Not stored locally. Pull from Railway: `cd bitan-bitan-os && railway variables | grep SUMMIT_API_KEY`
 
 ## Session History (archived — see git log for details)
 - March 22, 2026: Economics report, analytics report, GA4/GSC API access, cost structure
@@ -731,3 +743,30 @@ See memory: `bitan-dev-backlog-2026-04-05.md` + `bitan-employer-calc-spec.md`
 - For opposite-direction rows in RTL: reverse the ITEM ORDER, not the scroll direction
 - `min-width:100%` + `space-around` spreads items with dead space — use tight packing with overflow instead
 - React 19 strict mode double-mounts can break setTimeout-based initialization — use rAF retry loop
+
+## Session: April 23, 2026 — Intake Field Mapping + Sector Consolidation
+
+### Intake Form → Summit Field Mapping Fixes
+- Customers_FullName: companies get businessName, individuals get fullName
+- מנהל תיק: wired from OS intake token prefillData.manager → ACCOUNT_MANAGER_IDS lookup
+- עובד/ת ביקורת: removed from intake (manual assignment in Summit)
+- תחום עיסוק: 25 canonical entity IDs populated in BUSINESS_SECTOR_IDS
+
+### תחום עיסוק Taxonomy Consolidation (COMPLETED)
+- 25 canonical entities created in Summit folder 1081738742
+- 472 old granular entities mapped → 25 categories (docs/sector-consolidation-map.json)
+- 27 status entries identified (מנהל חברה, שכיר, etc.) → mapped to אחר
+- Migration script: scripts/migrate-sectors.mjs (resume-safe, rate-limited)
+- Results: 869 clients updated, 77 no sector, 27 already canonical, 3 errors
+- High-value occupation details copied to הערות where applicable
+
+### Test Entity Cleanup
+- 4 test entities (שי גרייבר × 2, שי × 2) cleared from pipeline via status=-1
+- Discovery: Customers_Status=-1 clears the status field (null/0 ignored)
+- עובדים entity incorrectly in pipeline — needs status cleared
+
+### Key Files Changed
+- src/lib/intake-types.ts — BUSINESS_SECTOR_IDS (25), ACCOUNT_MANAGER_IDS, removed defaults
+- src/app/api/intake/route.ts — FullName logic, מנהל תיק from token, removed עובד/ת ביקורת
+- scripts/migrate-sectors.mjs — Sector migration script
+- docs/sector-consolidation-map.json — Full 472→25 mapping with high-value details
