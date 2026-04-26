@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'next-sanity'
 import { apiVersion, dataset, projectId } from '@/sanity/env'
-import { CLIENT_TYPE_IDS, BUSINESS_SECTOR_IDS, ACCOUNT_MANAGER_IDS, getNewsletterFlags } from '@/lib/intake-types'
+import { CLIENT_TYPE_IDS, BUSINESS_SECTOR_IDS, ACCOUNT_MANAGER_IDS, DOC_FIELDS, getNewsletterFlags } from '@/lib/intake-types'
 import { sendIntakeNotification, sendWelcomeEmail } from '@/lib/intake-email'
+import { buildDocFilename, buildSummitNoteEntry } from '@/lib/document-urls'
 
 // ---------------------------------------------------------------------------
 // Sanity write client
@@ -390,46 +391,104 @@ export async function POST(req: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // 5. Upload files to Sanity CDN (slower, non-critical for entity)
+    // 5. Upload files to Sanity CDN + create clientDocument records
     // -----------------------------------------------------------------------
-    const fileUrls: { label: string; url: string; filename: string }[] = []
+    const fileResults: { docKey: string; label: string; url: string; filename: string; sanityDocId: string }[] = []
 
     const entries = Array.from(formData.entries())
     for (const [key, value] of entries) {
       if (!key.startsWith('file_')) continue
       if (!(value instanceof File)) continue
 
-      const fileKey = key.replace(/^file_/, '')
-      const label = (formData.get(`label_${fileKey}`) as string | null) ?? fileKey
-      const filename = value.name || `${fileKey}.bin`
+      const docKey = key.replace(/^file_/, '')
+      const docField = DOC_FIELDS.find(d => d.key === docKey)
+      const label = docField?.label ?? (formData.get(`label_${docKey}`) as string | null) ?? docKey
+      const originalFilename = value.name || `${docKey}.bin`
       const contentType = value.type || 'application/octet-stream'
+      const cleanFilename = buildDocFilename(fullName, label, originalFilename)
 
       try {
         const arrayBuffer = await value.arrayBuffer()
         const buffer = Buffer.from(arrayBuffer)
 
         const asset = await writeClient.assets.upload('file', buffer, {
-          filename,
+          filename: cleanFilename,
           contentType,
         })
 
-        if (asset?.url) {
-          fileUrls.push({ label, url: asset.url, filename })
-        }
+        if (!asset?.url) continue
+
+        // Create structured clientDocument in Sanity
+        const sanityDoc = await writeClient.create({
+          _type: 'clientDocument',
+          summitEntityId: entityId || '',
+          clientName: fullName,
+          docType: docKey,
+          file: {
+            _type: 'file',
+            asset: { _type: 'reference', _ref: asset._id },
+          },
+          uploadedBy: 'client',
+        })
+
+        fileResults.push({
+          docKey,
+          label,
+          url: asset.url,
+          filename: cleanFilename,
+          sanityDocId: sanityDoc._id,
+        })
       } catch (err) {
-        console.error(`Failed to upload file ${filename}:`, err)
+        console.error(`Failed to upload file ${originalFilename}:`, err)
       }
     }
 
     // -----------------------------------------------------------------------
-    // 6. Store file URLs in Summit entity notes
+    // 6. Write file URLs to Summit entity fields + notes
     // -----------------------------------------------------------------------
-    if (entityId && fileUrls.length > 0) {
-      const noteLines = ['קבצים שהועלו על ידי הלקוח:', '']
-      for (const f of fileUrls) {
-        noteLines.push(`${f.label}: ${f.url}`)
+    if (entityId && fileResults.length > 0) {
+      const summitFileProps: Record<string, unknown> = {}
+      const noteLines: string[] = ['מסמכים שהועלו:', '']
+
+      for (const f of fileResults) {
+        // Write to Summit's native file field if mapping exists
+        const docField = DOC_FIELDS.find(d => d.key === f.docKey)
+        if (docField?.summitField) {
+          // Multiple docs may share a Summit field (e.g., idCard + driverLicense)
+          const existing = summitFileProps[docField.summitField]
+          if (existing) {
+            summitFileProps[docField.summitField] = `${existing}\n${f.url}`
+          } else {
+            summitFileProps[docField.summitField] = f.url
+          }
+        }
+
+        noteLines.push(buildSummitNoteEntry(f.label, f.url))
       }
-      await updateSummitEntityNotes(entityId, noteLines.join('\n'))
+
+      // Update Summit: file fields + notes
+      const credentials = getSummitCredentials()
+      if (credentials.APIKey && credentials.CompanyID) {
+        try {
+          await fetch('https://api.sumit.co.il/crm/data/updateentity/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Content-Language': 'he' },
+            body: JSON.stringify({
+              Credentials: credentials,
+              Entity: {
+                ID: entityId,
+                Folder: '557688522',
+                Properties: {
+                  ...summitFileProps,
+                  'הערות': noteLines.join('\n'),
+                },
+              },
+            }),
+          })
+        } catch (err) {
+          console.error('Summit file fields update error:', err)
+        }
+      }
     }
 
     // -----------------------------------------------------------------------
@@ -447,8 +506,9 @@ export async function POST(req: NextRequest) {
       birthdate,
       businessSector,
       shareholderDetails,
-      fileCount: fileUrls.length,
-      fileNames: fileUrls.map((f) => f.filename),
+      fileCount: fileResults.length,
+      fileNames: fileResults.map((f) => f.filename),
+      sanityDocIds: fileResults.map((f) => f.sanityDocId),
     })
 
     const tokenStatus = summitError ? 'summit_failed' : 'completed'
@@ -474,7 +534,7 @@ export async function POST(req: NextRequest) {
         companyNumber,
         phone,
         email,
-        fileCount: fileUrls.length,
+        fileCount: fileResults.length,
       }),
       sendWelcomeEmail(email, fullName),
       // SMS confirmation to client — only on new submissions (not updates)
