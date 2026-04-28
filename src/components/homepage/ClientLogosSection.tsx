@@ -23,15 +23,15 @@ type LogoEntry =
 const FALLBACK_ROW_1: LogoEntry[] = [
   { type: 'image', src: '/logos/beit-hanna.svg', alt: 'בית חנה', name: 'בית חנה', subtitle: 'המקום השלישי' },
   { type: 'text', name: 'א.י.ל. סלע', subtitle: 'בנייה ותשתית' },
-  { type: 'image', src: '/logos/climax.png', alt: 'קליימקס נדל"ן', name: 'קליימקס נדל"ן' },
-  { type: 'image', src: '/logos/citizen.svg', alt: 'Citizen Cafe TLV', name: 'Citizen Cafe TLV' },
-  { type: 'image', src: '/logos/schlein.png', alt: 'קבוצת שליין', name: 'קבוצת שליין' },
+  { type: 'image', src: '/logos/climax.png', alt: 'קליימקס נדל"ן' },
+  { type: 'image', src: '/logos/citizen.svg', alt: 'Citizen Cafe TLV' },
+  { type: 'image', src: '/logos/schlein.png', alt: 'קבוצת שליין' },
   { type: 'text', name: 'אורן שאיבת בטון', subtitle: 'בע"מ' },
-  { type: 'image', src: '/logos/zamsh.svg', alt: 'ZAMSH', small: true, name: 'ZAMSH' },
+  { type: 'image', src: '/logos/zamsh.svg', alt: 'ZAMSH', small: true },
   { type: 'text', name: 'סופר קליק', subtitle: 'רשת סופרמרקטים' },
-  { type: 'image', src: '/logos/hemilton.png', alt: 'המילטון', name: 'המילטון' },
+  { type: 'image', src: '/logos/hemilton.png', alt: 'המילטון' },
   { type: 'text', name: 'סינגל טקסטיל', subtitle: 'בע"מ' },
-  { type: 'image', src: '/logos/mozart.png', alt: 'מוצארט', large: true, name: 'מוצארט' },
+  { type: 'image', src: '/logos/mozart.png', alt: 'מוצארט', large: true },
 ]
 
 const FALLBACK_ROW_2: LogoEntry[] = [
@@ -39,12 +39,12 @@ const FALLBACK_ROW_2: LogoEntry[] = [
   { type: 'text', name: 'ברק אור', subtitle: 'שירותי רכב' },
   { type: 'text', name: 'גרין אלמה', subtitle: 'חברה לבנייה' },
   { type: 'text', name: 'אלקטרו סיטי', subtitle: 'חשמל ואלקטרוניקה' },
-  { type: 'image', src: '/logos/alchemist-new.png', alt: 'The Alchemist TLV', name: 'The Alchemist' },
+  { type: 'image', src: '/logos/alchemist-new.png', alt: 'The Alchemist TLV' },
   { type: 'text', name: 'צלר תעופה', subtitle: 'שירותי תעופה' },
   { type: 'text', name: 'ווימברג', subtitle: 'יבוא ושיווק' },
   { type: 'text', name: 'הפשפש', subtitle: 'חנות חיות חברתית' },
   { type: 'text', name: 'ESP 710', subtitle: 'טכנולוגיה' },
-  { type: 'image', src: '/logos/tapuz.png', alt: 'TAPUZ', name: 'TAPUZ' },
+  { type: 'image', src: '/logos/tapuz.png', alt: 'TAPUZ', name: 'תפוז', subtitle: 'שירותי אריזה' },
 ]
 
 /* ─── Convert CMS data to internal format ─── */
@@ -53,14 +53,15 @@ function cmsToEntries(logos: ClientLogo[]): LogoEntry[] {
   return logos.map((logo) => {
     const src = logo.logo ? urlFor(logo.logo, 300) : null
     if (src) {
+      // Only show text label for logos that aren't self-explanatory as white silhouettes
+      const needsLabel = ['בית חנה', 'תפוז', 'TAPUZ'].includes(logo.companyName)
       return {
         type: 'image' as const,
         src,
         alt: logo.companyName,
         large: logo.logoSize === 'large',
         small: logo.logoSize === 'small',
-        name: logo.companyName,
-        subtitle: logo.subtitle || '',
+        ...(needsLabel ? { name: logo.companyName, subtitle: logo.subtitle || '' } : {}),
       }
     }
     return {
@@ -96,7 +97,10 @@ function Slot({ entry }: { entry: LogoEntry }) {
           }
         />
         {entry.name && (
-          <span className="block text-white/30 font-light text-[0.5rem] md:text-[0.6rem] whitespace-nowrap">{entry.name}</span>
+          <div className="text-center leading-tight mt-0.5">
+            <span className="block text-white/40 font-medium text-[0.55rem] md:text-[0.65rem] whitespace-nowrap">{entry.name}</span>
+            {entry.subtitle && <span className="block text-white/25 font-light text-[0.45rem] md:text-[0.55rem] whitespace-nowrap">{entry.subtitle}</span>}
+          </div>
         )}
       </div>
     )
