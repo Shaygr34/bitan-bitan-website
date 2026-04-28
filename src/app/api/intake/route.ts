@@ -470,13 +470,13 @@ export async function POST(req: NextRequest) {
       const credentials = getSummitCredentials()
       if (credentials.APIKey && credentials.CompanyID) {
         try {
-          await fetch('https://api.sumit.co.il/crm/data/updateentity/', {
+          const fileUpdateRes = await fetch('https://api.sumit.co.il/crm/data/updateentity/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Content-Language': 'he' },
             body: JSON.stringify({
               Credentials: credentials,
               Entity: {
-                ID: entityId,
+                ID: parseInt(String(entityId), 10),
                 Folder: '557688522',
                 Properties: {
                   ...summitFileProps,
@@ -485,6 +485,14 @@ export async function POST(req: NextRequest) {
               },
             }),
           })
+          if (!fileUpdateRes.ok) {
+            console.error('Summit file update HTTP error:', fileUpdateRes.status)
+          } else {
+            const fileUpdateJson = await fileUpdateRes.json().catch(() => null)
+            if (fileUpdateJson?.Status !== 0) {
+              console.error('Summit file update error:', fileUpdateJson?.UserErrorMessage || fileUpdateJson?.TechnicalErrorDetails || 'Unknown')
+            }
+          }
         } catch (err) {
           console.error('Summit file fields update error:', err)
         }
