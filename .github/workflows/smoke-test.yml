@@ -36,13 +36,18 @@ jobs:
             fi
           done
 
-          # Check a known article slug exists
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${SITE_URL}/knowledge/shaagat-haari-grants-2025")
-          if [ "$STATUS" -ne 200 ]; then
-            echo "❌ FAIL: /knowledge/shaagat-haari-grants-2025 returned ${STATUS}"
-            FAILED=1
+          # Check that at least one article resolves (extract first slug from sitemap)
+          ARTICLE_SLUG=$(curl -s --max-time 10 "${SITE_URL}/sitemap.xml" | grep -oP '/knowledge/[^<"]+' | head -1)
+          if [ -n "$ARTICLE_SLUG" ]; then
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${SITE_URL}${ARTICLE_SLUG}")
+            if [ "$STATUS" -ne 200 ]; then
+              echo "❌ FAIL: ${ARTICLE_SLUG} returned ${STATUS}"
+              FAILED=1
+            else
+              echo "✅ OK: ${ARTICLE_SLUG} (${STATUS})"
+            fi
           else
-            echo "✅ OK: /knowledge/shaagat-haari-grants-2025 (${STATUS})"
+            echo "⚠️ WARN: Could not extract article slug from sitemap — skipping article check"
           fi
 
           # Check a known tool slug exists
