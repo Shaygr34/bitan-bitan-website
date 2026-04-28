@@ -21,8 +21,8 @@ type LogoEntry =
 /* ─── Hardcoded fallback (used when no CMS logos exist) ─── */
 
 const FALLBACK_ROW_1: LogoEntry[] = [
-  { type: 'text', name: 'בית חנה', subtitle: 'המקום השלישי' },
-  { type: 'text', name: 'א.י.ל. סלע', subtitle: 'בנייה ותשתית' },
+  { type: 'image', src: '/logos/beit-hanna.svg', alt: 'בית חנה' },
+  { type: 'image', src: '/logos/sela.svg', alt: 'א.י.ל. סלע' },
   { type: 'image', src: '/logos/climax.png', alt: 'קליימקס נדל"ן' },
   { type: 'image', src: '/logos/citizen.svg', alt: 'Citizen Cafe TLV' },
   { type: 'image', src: '/logos/schlein.png', alt: 'קבוצת שליין' },
@@ -39,12 +39,12 @@ const FALLBACK_ROW_2: LogoEntry[] = [
   { type: 'text', name: 'ברק אור', subtitle: 'שירותי רכב' },
   { type: 'text', name: 'גרין אלמה', subtitle: 'חברה לבנייה' },
   { type: 'text', name: 'אלקטרו סיטי', subtitle: 'חשמל ואלקטרוניקה' },
-  { type: 'text', name: 'The Alchemist', subtitle: 'TLV' },
+  { type: 'image', src: '/logos/alchemist-new.png', alt: 'The Alchemist TLV' },
   { type: 'text', name: 'צלר תעופה', subtitle: 'שירותי תעופה' },
   { type: 'text', name: 'ווימברג', subtitle: 'יבוא ושיווק' },
   { type: 'text', name: 'הפשפש', subtitle: 'חנות חיות חברתית' },
   { type: 'text', name: 'ESP 710', subtitle: 'טכנולוגיה' },
-  { type: 'text', name: 'TAPUZ', subtitle: 'שירותי אריזה ומשלוח' },
+  { type: 'image', src: '/logos/tapuz.png', alt: 'TAPUZ' },
 ]
 
 /* ─── Convert CMS data to internal format ─── */
@@ -84,6 +84,7 @@ function Slot({ entry }: { entry: LogoEntry }) {
           src={entry.src}
           alt={entry.alt}
           draggable={false}
+          style={{ filter: 'brightness(0) invert(1)' }}
           className={
             entry.large
               ? 'h-10 md:h-14 w-auto max-w-[130px] md:max-w-[190px] object-contain pointer-events-none'
