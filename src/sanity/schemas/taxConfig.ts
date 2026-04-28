@@ -11,7 +11,7 @@ import { defineField, defineType } from 'sanity'
  */
 export default defineType({
   name: 'taxConfig',
-  title: 'הגדרות מס',
+  title: 'הגדרות מחשבונים',
   type: 'document',
   fieldsets: [
     { name: 'general', title: 'כללי', options: { collapsible: true, collapsed: false } },
@@ -277,8 +277,8 @@ export default defineType({
   preview: {
     select: { taxYear: 'taxYear' },
     prepare: ({ taxYear }) => ({
-      title: `הגדרות מס ${taxYear || ''}`,
-      subtitle: 'הגדרות משותפות לכל המחשבונים',
+      title: `הגדרות מחשבונים ${taxYear || ''}`,
+      subtitle: 'נתוני מס משותפים לכל הכלים',
     }),
   },
 })
