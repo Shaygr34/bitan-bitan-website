@@ -23,7 +23,7 @@ from datetime import datetime
 
 import requests
 
-from sources import deloitte, telegram, globes, btl, boi, knesset, os_experts
+from sources import deloitte, telegram, globes, btl, boi, knesset, os_experts, capitax, ronen
 
 # ── Config ──────────────────────────────────────────────────────────────
 
@@ -134,6 +134,8 @@ def generate_digest_email(new_items):
         "boi": "🏦",
         "knesset": "⚖️",
         "os_experts": "📂",
+        "capitax": "⚖️",
+        "ronen": "📚",
     }
 
     sections_html = ""
@@ -221,7 +223,7 @@ def generate_digest_email(new_items):
 <!-- Footer -->
 <tr><td style="background:#f8f8f8;padding:16px 32px;text-align:center;border-top:1px solid #eee;margin-top:16px;">
     <p style="margin:0;font-size:11px;color:#999;">עדכון אוטומטי — מודיעין מקצועי bitancpa.com</p>
-    <p style="margin:4px 0 0;font-size:11px;color:#999;">מקורות: Deloitte · רשות המיסים · Globes · ביטוח לאומי · בנק ישראל · הכנסת · OS Experts</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#999;">מקורות: Deloitte · רשות המיסים · Globes · ביטוח לאומי · בנק ישראל · הכנסת · OS Experts · CapiTax · מיסים אונליין</p>
 </td></tr>
 
 </table>
@@ -293,6 +295,8 @@ def main():
         ("בנק ישראל", boi),
         ("ועדת הכספים — הכנסת", knesset),
         ("OS Experts — חוזרים", os_experts),
+        ("CapiTax — שפירא ושות'", capitax),
+        ("מיסים אונליין — רונן", ronen),
     ]
 
     for i, (name, module) in enumerate(sources, 1):
