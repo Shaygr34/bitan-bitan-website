@@ -9,7 +9,7 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V5.3 — April 23, 2026)
+## Current State (V5.4 — April 28, 2026)
 
 ### Content
 - ~72 articles in Sanity — ALL with AI-generated images (100% coverage)
