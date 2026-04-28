@@ -1,0 +1,97 @@
+name: Smoke Test
+
+on:
+  # Run after Railway deploys (manual trigger or schedule)
+  schedule:
+    # Every day at 07:00 UTC (10:00 Israel time)
+    - cron: '0 7 * * *'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check critical pages
+        env:
+          SITE_URL: https://bitancpa.com
+        run: |
+          FAILED=0
+          PAGES=(
+            "/"
+            "/services"
+            "/knowledge"
+            "/tools"
+            "/contact"
+            "/faq"
+            "/about"
+          )
+
+          for page in "${PAGES[@]}"; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${SITE_URL}${page}")
+            if [ "$STATUS" -ne 200 ]; then
+              echo "❌ FAIL: ${page} returned ${STATUS}"
+              FAILED=1
+            else
+              echo "✅ OK: ${page} (${STATUS})"
+            fi
+          done
+
+          # Check a known article slug exists
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${SITE_URL}/knowledge/shaagat-haari-grants-2025")
+          if [ "$STATUS" -ne 200 ]; then
+            echo "❌ FAIL: /knowledge/shaagat-haari-grants-2025 returned ${STATUS}"
+            FAILED=1
+          else
+            echo "✅ OK: /knowledge/shaagat-haari-grants-2025 (${STATUS})"
+          fi
+
+          # Check a known tool slug exists
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${SITE_URL}/tools/leasing-simulator")
+          if [ "$STATUS" -ne 200 ]; then
+            echo "❌ FAIL: /tools/leasing-simulator returned ${STATUS}"
+            FAILED=1
+          else
+            echo "✅ OK: /tools/leasing-simulator (${STATUS})"
+          fi
+
+          # Check contact API responds (OPTIONS/HEAD)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -X HEAD "${SITE_URL}/api/contact")
+          if [ "$STATUS" -eq 405 ] || [ "$STATUS" -eq 200 ]; then
+            echo "✅ OK: /api/contact is responding (${STATUS})"
+          else
+            echo "❌ FAIL: /api/contact returned ${STATUS}"
+            FAILED=1
+          fi
+
+          # Check sitemap is valid
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${SITE_URL}/sitemap.xml")
+          if [ "$STATUS" -ne 200 ]; then
+            echo "❌ FAIL: /sitemap.xml returned ${STATUS}"
+            FAILED=1
+          else
+            echo "✅ OK: /sitemap.xml (${STATUS})"
+          fi
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "🚨 SMOKE TEST FAILED — one or more pages are down"
+            exit 1
+          else
+            echo ""
+            echo "✅ All smoke tests passed"
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          curl -s -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer ${RESEND_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "from": "alerts@bitancpa.com",
+              "to": ["shay@bitancpa.com"],
+              "subject": "🚨 bitancpa.com — Smoke test failed",
+              "html": "<h2>Smoke test failed</h2><p>One or more critical pages on bitancpa.com returned an error.</p><p>Check the <a href=\"https://github.com/Shaygr34/bitan-bitan-website/actions\">GitHub Actions log</a> for details.</p>"
+            }'
