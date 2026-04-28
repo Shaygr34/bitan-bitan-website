@@ -494,6 +494,26 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------------------------------------
     // 7. Mark token completed in Sanity
     // -----------------------------------------------------------------------
+    // Preserve previous file metadata on re-submission when no new files uploaded
+    let previousFileData: { fileCount?: number; fileNames?: string[]; sanityDocIds?: string[] } = {}
+    if (fileResults.length === 0 && isUpdateMode && tokenDoc.status === 'completed') {
+      try {
+        const prevData = await writeClient.fetch<{ submittedData?: string } | null>(
+          `*[_type == "intakeToken" && _id == $id][0]{ submittedData }`,
+          { id: tokenDoc._id },
+          { cache: 'no-store' }
+        )
+        if (prevData?.submittedData) {
+          const parsed = JSON.parse(prevData.submittedData)
+          previousFileData = {
+            fileCount: parsed.fileCount || 0,
+            fileNames: parsed.fileNames || [],
+            sanityDocIds: parsed.sanityDocIds || [],
+          }
+        }
+      } catch { /* ignore — will default to 0 */ }
+    }
+
     const submittedData = JSON.stringify({
       clientType,
       fullName,
@@ -506,9 +526,9 @@ export async function POST(req: NextRequest) {
       birthdate,
       businessSector,
       shareholderDetails,
-      fileCount: fileResults.length,
-      fileNames: fileResults.map((f) => f.filename),
-      sanityDocIds: fileResults.map((f) => f.sanityDocId),
+      fileCount: fileResults.length > 0 ? fileResults.length : (previousFileData.fileCount || 0),
+      fileNames: fileResults.length > 0 ? fileResults.map((f) => f.filename) : (previousFileData.fileNames || []),
+      sanityDocIds: fileResults.length > 0 ? fileResults.map((f) => f.sanityDocId) : (previousFileData.sanityDocIds || []),
     })
 
     const tokenStatus = summitError ? 'summit_failed' : 'completed'
