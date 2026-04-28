@@ -20,6 +20,7 @@ export const structure = (S: StructureBuilder) =>
     .items([
       /* ── Settings ── */
       singleton(S, 'siteSettings', 'הגדרות אתר', 'siteSettings'),
+      singleton(S, 'taxConfig', 'הגדרות מס', 'taxConfig'),
 
       S.divider(),
 

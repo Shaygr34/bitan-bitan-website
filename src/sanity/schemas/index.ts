@@ -21,6 +21,7 @@ import onboardingRecord from './onboardingRecord'
 import weeklyMetrics from './weeklyMetrics'
 import contentOpportunity from './contentOpportunity'
 import intelligenceItem from './intelligenceItem'
+import taxConfig from './taxConfig'
 
 export const schemaTypes = [
   // Content types
@@ -52,6 +53,7 @@ export const schemaTypes = [
 
   // Settings
   siteSettings,
+  taxConfig,
 
   // Intake
   intakeToken,

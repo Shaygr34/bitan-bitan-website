@@ -6,7 +6,11 @@ import { ToggleGroup, YesNoToggle } from '../calculator/InputGroup'
 import { calculateEmployerCost, getDefaultEmployerInputs } from './engine'
 import { DEFAULT_EMPLOYER_CONFIG, SALARY_PRESETS, PENSION_EMPLOYEE_RATES, PENSION_EMPLOYER_RATES, SEVERANCE_RATES, EDUCATION_EMPLOYER_RATES, VEHICLE_FUEL_OPTIONS, getServiceThresholds } from './config'
 import { EmployerResults } from './EmployerResults'
-import type { EmployerInputs, EmployerCalcResult, VehicleFuelType, Gender, MaritalStatus } from './types'
+import type { EmployerInputs, EmployerCalcResult, EmployerCalcConfig, VehicleFuelType, Gender, MaritalStatus } from './types'
+
+type EmployerCalculatorProps = {
+  config?: Partial<EmployerCalcConfig>
+}
 
 type Phase = 'salary' | 'pension' | 'personal' | 'results'
 
@@ -45,7 +49,7 @@ function encodeEmployerParams(inp: EmployerInputs): string {
   return p.toString()
 }
 
-function decodeEmployerParams(search: string): EmployerInputs | null {
+function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAULT_EMPLOYER_CONFIG): EmployerInputs | null {
   const p = new URLSearchParams(search)
   if (!p.has('gs')) return null
   const defaults = getDefaultEmployerInputs()
@@ -68,7 +72,7 @@ function decodeEmployerParams(search: string): EmployerInputs | null {
     severanceRate: Number(p.get('sv')) || defaults.severanceRate,
     hasEducationFund: p.get('ne') !== '1',
     employerEducationRate: Number(p.get('ee')) || defaults.employerEducationRate,
-    educationFundSalary: Math.min(gs, DEFAULT_EMPLOYER_CONFIG.educationFundCap),
+    educationFundSalary: Math.min(gs, config.educationFundCap),
     gender: p.get('g') === 'f' ? 'female' : 'male',
     maritalStatus: (p.get('ms') as EmployerInputs['maritalStatus']) || defaults.maritalStatus,
     childrenAges: p.has('ca') ? p.get('ca')!.split(',').map(Number) : [],
@@ -80,7 +84,9 @@ function decodeEmployerParams(search: string): EmployerInputs | null {
   }
 }
 
-export function EmployerCalculator() {
+export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProps = {}) {
+  // Merge CMS overrides with hardcoded defaults
+  const effectiveConfig: EmployerCalcConfig = { ...DEFAULT_EMPLOYER_CONFIG, ...cmsConfig }
   const [phase, setPhase] = useState<Phase>('salary')
   const [inputs, setInputs] = useState<EmployerInputs>(getDefaultEmployerInputs())
   const [result, setResult] = useState<EmployerCalcResult | null>(null)
@@ -94,10 +100,10 @@ export function EmployerCalculator() {
 
   // Auto-calculate from URL params on mount
   useEffect(() => {
-    const restored = decodeEmployerParams(window.location.search)
+    const restored = decodeEmployerParams(window.location.search, effectiveConfig)
     if (restored) {
       setInputs(restored)
-      const res = calculateEmployerCost(restored, DEFAULT_EMPLOYER_CONFIG)
+      const res = calculateEmployerCost(restored, effectiveConfig)
       setResult(res)
       setPhase('results')
     }
@@ -128,7 +134,7 @@ export function EmployerCalculator() {
         ...inputs,
         childrenAges: inputs.childrenAges.map(a => a < 0 ? 0 : a),
       }
-      const res = calculateEmployerCost(cleanedInputs, DEFAULT_EMPLOYER_CONFIG)
+      const res = calculateEmployerCost(cleanedInputs, effectiveConfig)
       if (isCompareMode) {
         setComparisonResult(res)
         setComparisonInputs(cleanedInputs)
@@ -175,7 +181,7 @@ export function EmployerCalculator() {
         ...primaryInputs,
         childrenAges: primaryInputs.childrenAges.map(a => a < 0 ? 0 : a),
       }
-      setResult(calculateEmployerCost(cleanedInputs, DEFAULT_EMPLOYER_CONFIG))
+      setResult(calculateEmployerCost(cleanedInputs, effectiveConfig))
       setInputs(primaryInputs)
     }
     setComparisonResult(null)
@@ -244,7 +250,7 @@ export function EmployerCalculator() {
               label="שכר ברוטו חודשי (ללא נסיעות)"
               min={5000} max={60000} step={500}
               value={inputs.grossSalary}
-              onChange={v => update({ grossSalary: v, pensionSalary: v, educationFundSalary: Math.min(v, DEFAULT_EMPLOYER_CONFIG.educationFundCap) })}
+              onChange={v => update({ grossSalary: v, pensionSalary: v, educationFundSalary: Math.min(v, effectiveConfig.educationFundCap) })}
               nodes={SALARY_PRESETS.map(s => ({ value: s, label: `${fmt(s)}` }))}
               format={fmt}
             />

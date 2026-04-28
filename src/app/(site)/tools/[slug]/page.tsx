@@ -1,11 +1,13 @@
 import { notFound } from 'next/navigation'
-import { getToolBySlug } from '@/sanity/queries'
+import { getToolBySlug, getTaxConfig } from '@/sanity/queries'
+import type { TaxConfig } from '@/sanity/queries'
 import { PortableText } from 'next-sanity'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import { AlertTriangle } from 'lucide-react'
 import { LeasingCalculator } from '@/components/tools/calculator/LeasingCalculator'
 import { EmployerCalculator } from '@/components/tools/employer/EmployerCalculator'
 import type { CalculatorConfig } from '@/components/tools/calculator/types'
+import type { EmployerCalcConfig } from '@/components/tools/employer/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,16 +26,52 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ToolPage({ params }: Props) {
   const { slug } = await params
-  const tool = await getToolBySlug(slug)
+  const [tool, taxConfig] = await Promise.all([getToolBySlug(slug), getTaxConfig()])
   if (!tool) notFound()
-
-  // Build calculator config from dedicated Sanity fields
-  const calcConfig: Partial<CalculatorConfig> = {}
-  if (tool.primeRate) calcConfig.primeRate = tool.primeRate
-  if (tool.vatRate) calcConfig.vatRate = tool.vatRate / 100 // Sanity stores 18, engine needs 0.18
 
   const isLeasing = tool.toolType === 'leasing-simulator'
   const isEmployer = tool.toolType === 'employer-cost-calculator'
+
+  // Build leasing config from tax config singleton + tool-level overrides
+  const calcConfig: Partial<CalculatorConfig> = {}
+  if (taxConfig?.primeRate) calcConfig.primeRate = taxConfig.primeRate
+  if (taxConfig?.vatRate) calcConfig.vatRate = taxConfig.vatRate / 100
+  // Tool-level fields override singleton (backwards compat)
+  if (tool.primeRate) calcConfig.primeRate = tool.primeRate
+  if (tool.vatRate) calcConfig.vatRate = tool.vatRate / 100
+
+  // Build employer config from tax config singleton
+  const employerConfig: Partial<EmployerCalcConfig> = {}
+  if (taxConfig) {
+    const tc = taxConfig
+    // Tax brackets — convert from CMS format (rate as %, annual ceiling) to engine format (rate as decimal, monthly upTo)
+    if (tc.taxBrackets?.length) {
+      employerConfig.taxBrackets = tc.taxBrackets.map(b => ({
+        upTo: b.ceiling ? Math.round(b.ceiling / 12) : Infinity,
+        rate: b.rate / 100,
+      }))
+    }
+    if (tc.niiLowThreshold) employerConfig.niiLowThreshold = tc.niiLowThreshold
+    if (tc.niiHighThreshold) employerConfig.niiHighThreshold = tc.niiHighThreshold
+    if (tc.niiEmployeeLow) employerConfig.niiEmployeeLow = tc.niiEmployeeLow / 100
+    if (tc.niiEmployeeHigh) employerConfig.niiEmployeeHigh = tc.niiEmployeeHigh / 100
+    if (tc.niiEmployerLow) employerConfig.niiEmployerLow = tc.niiEmployerLow / 100
+    if (tc.niiEmployerHigh) employerConfig.niiEmployerHigh = tc.niiEmployerHigh / 100
+    if (tc.creditPointValue) employerConfig.creditPointValue = tc.creditPointValue
+    if (tc.avgSalary) employerConfig.avgSalary = tc.avgSalary
+    if (tc.severanceCap) employerConfig.severanceCap = tc.severanceCap
+    if (tc.educationFundCap) employerConfig.educationFundCap = tc.educationFundCap
+    if (tc.vehicleTaxRate) employerConfig.vehicleTaxRate = tc.vehicleTaxRate / 100
+    if (tc.manufacturerPriceCap) employerConfig.manufacturerPriceCap = tc.manufacturerPriceCap
+    if (tc.electricReduction) employerConfig.electricReduction = tc.electricReduction
+    if (tc.plugInReduction) employerConfig.plugInReduction = tc.plugInReduction
+    if (tc.hybridReduction) employerConfig.hybridReduction = tc.hybridReduction
+    if (tc.surchargeThreshold) employerConfig.surchargeThreshold = tc.surchargeThreshold
+    if (tc.pensionCreditSalaryCap) employerConfig.pensionCreditSalaryCap = tc.pensionCreditSalaryCap
+    if (tc.pensionCreditRate) employerConfig.pensionCreditRate = tc.pensionCreditRate / 100
+    if (tc.pensionCreditTaxRate) employerConfig.pensionCreditTaxRate = tc.pensionCreditTaxRate / 100
+    if (tc.defaultTravelAllowance) employerConfig.defaultTravelAllowance = tc.defaultTravelAllowance
+  }
 
   return (
     <div>
@@ -55,7 +93,7 @@ export default async function ToolPage({ params }: Props) {
       <section className="py-space-9 px-6">
         <div className="max-w-narrow mx-auto">
           {isLeasing && <LeasingCalculator config={calcConfig} />}
-          {isEmployer && <EmployerCalculator />}
+          {isEmployer && <EmployerCalculator config={employerConfig} />}
         </div>
       </section>
 

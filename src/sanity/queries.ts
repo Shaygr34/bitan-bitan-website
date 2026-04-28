@@ -520,3 +520,56 @@ const TOOL_SLUGS_QUERY = `*[_type == "tool"]{ "slug": slug.current }`
 export async function getToolSlugs(): Promise<{ slug: string }[]> {
   return sanityFetch<{ slug: string }[]>(TOOL_SLUGS_QUERY)
 }
+
+/* ── Tax Config Singleton ── */
+
+const TAX_CONFIG_QUERY = `*[_type == "taxConfig" && _id == "taxConfig"][0]{
+  taxYear, primeRate, vatRate, companyTaxRate,
+  taxBrackets[]{ ceiling, rate },
+  niiLowThreshold, niiHighThreshold,
+  niiEmployeeLow, niiEmployeeHigh, niiEmployerLow, niiEmployerHigh,
+  vehicleTaxRate, manufacturerPriceCap,
+  electricReduction, plugInReduction, hybridReduction,
+  avgSalary, severanceCap, educationFundCap,
+  pensionCreditSalaryCap, pensionCreditRate, pensionCreditTaxRate,
+  creditPointValue,
+  depreciationPetrol, depreciationElectric,
+  vatRecoveryPrivate, taxDeductionPrivate,
+  defaultTravelAllowance, surchargeThreshold
+}`
+
+export type TaxConfig = {
+  taxYear?: number
+  primeRate?: number
+  vatRate?: number
+  companyTaxRate?: number
+  taxBrackets?: { ceiling: number; rate: number }[]
+  niiLowThreshold?: number
+  niiHighThreshold?: number
+  niiEmployeeLow?: number
+  niiEmployeeHigh?: number
+  niiEmployerLow?: number
+  niiEmployerHigh?: number
+  vehicleTaxRate?: number
+  manufacturerPriceCap?: number
+  electricReduction?: number
+  plugInReduction?: number
+  hybridReduction?: number
+  avgSalary?: number
+  severanceCap?: number
+  educationFundCap?: number
+  pensionCreditSalaryCap?: number
+  pensionCreditRate?: number
+  pensionCreditTaxRate?: number
+  creditPointValue?: number
+  depreciationPetrol?: number
+  depreciationElectric?: number
+  vatRecoveryPrivate?: number
+  taxDeductionPrivate?: number
+  defaultTravelAllowance?: number
+  surchargeThreshold?: number
+}
+
+export async function getTaxConfig(): Promise<TaxConfig | null> {
+  return sanityFetch<TaxConfig | null>(TAX_CONFIG_QUERY)
+}
