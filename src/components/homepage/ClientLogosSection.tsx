@@ -15,23 +15,23 @@ import type { ClientLogo } from '@/sanity/types'
 /* ─── Internal entry type (normalized from CMS or fallback) ─── */
 
 type LogoEntry =
-  | { type: 'image'; src: string; alt: string; large?: boolean; small?: boolean }
+  | { type: 'image'; src: string; alt: string; large?: boolean; small?: boolean; name?: string; subtitle?: string }
   | { type: 'text'; name: string; subtitle: string }
 
 /* ─── Hardcoded fallback (used when no CMS logos exist) ─── */
 
 const FALLBACK_ROW_1: LogoEntry[] = [
-  { type: 'image', src: '/logos/beit-hanna.svg', alt: 'בית חנה' },
-  { type: 'image', src: '/logos/sela.svg', alt: 'א.י.ל. סלע' },
-  { type: 'image', src: '/logos/climax.png', alt: 'קליימקס נדל"ן' },
-  { type: 'image', src: '/logos/citizen.svg', alt: 'Citizen Cafe TLV' },
-  { type: 'image', src: '/logos/schlein.png', alt: 'קבוצת שליין' },
+  { type: 'image', src: '/logos/beit-hanna.svg', alt: 'בית חנה', name: 'בית חנה', subtitle: 'המקום השלישי' },
+  { type: 'text', name: 'א.י.ל. סלע', subtitle: 'בנייה ותשתית' },
+  { type: 'image', src: '/logos/climax.png', alt: 'קליימקס נדל"ן', name: 'קליימקס נדל"ן' },
+  { type: 'image', src: '/logos/citizen.svg', alt: 'Citizen Cafe TLV', name: 'Citizen Cafe TLV' },
+  { type: 'image', src: '/logos/schlein.png', alt: 'קבוצת שליין', name: 'קבוצת שליין' },
   { type: 'text', name: 'אורן שאיבת בטון', subtitle: 'בע"מ' },
-  { type: 'image', src: '/logos/zamsh.svg', alt: 'ZAMSH', small: true },
+  { type: 'image', src: '/logos/zamsh.svg', alt: 'ZAMSH', small: true, name: 'ZAMSH' },
   { type: 'text', name: 'סופר קליק', subtitle: 'רשת סופרמרקטים' },
-  { type: 'image', src: '/logos/hemilton.png', alt: 'המילטון' },
+  { type: 'image', src: '/logos/hemilton.png', alt: 'המילטון', name: 'המילטון' },
   { type: 'text', name: 'סינגל טקסטיל', subtitle: 'בע"מ' },
-  { type: 'image', src: '/logos/mozart.png', alt: 'מוצארט', large: true },
+  { type: 'image', src: '/logos/mozart.png', alt: 'מוצארט', large: true, name: 'מוצארט' },
 ]
 
 const FALLBACK_ROW_2: LogoEntry[] = [
@@ -39,12 +39,12 @@ const FALLBACK_ROW_2: LogoEntry[] = [
   { type: 'text', name: 'ברק אור', subtitle: 'שירותי רכב' },
   { type: 'text', name: 'גרין אלמה', subtitle: 'חברה לבנייה' },
   { type: 'text', name: 'אלקטרו סיטי', subtitle: 'חשמל ואלקטרוניקה' },
-  { type: 'image', src: '/logos/alchemist-new.png', alt: 'The Alchemist TLV' },
+  { type: 'image', src: '/logos/alchemist-new.png', alt: 'The Alchemist TLV', name: 'The Alchemist' },
   { type: 'text', name: 'צלר תעופה', subtitle: 'שירותי תעופה' },
   { type: 'text', name: 'ווימברג', subtitle: 'יבוא ושיווק' },
   { type: 'text', name: 'הפשפש', subtitle: 'חנות חיות חברתית' },
   { type: 'text', name: 'ESP 710', subtitle: 'טכנולוגיה' },
-  { type: 'image', src: '/logos/tapuz.png', alt: 'TAPUZ' },
+  { type: 'image', src: '/logos/tapuz.png', alt: 'TAPUZ', name: 'TAPUZ' },
 ]
 
 /* ─── Convert CMS data to internal format ─── */
@@ -59,6 +59,8 @@ function cmsToEntries(logos: ClientLogo[]): LogoEntry[] {
         alt: logo.companyName,
         large: logo.logoSize === 'large',
         small: logo.logoSize === 'small',
+        name: logo.companyName,
+        subtitle: logo.subtitle || '',
       }
     }
     return {
@@ -78,7 +80,7 @@ const SLOT_BASE = 'flex-shrink-0 opacity-40 transition-all duration-500 ease-out
 function Slot({ entry }: { entry: LogoEntry }) {
   if (entry.type === 'image') {
     return (
-      <div className={`${SLOT_BASE} flex items-center`}>
+      <div className={`${SLOT_BASE} flex flex-col items-center gap-1`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={entry.src}
@@ -93,6 +95,9 @@ function Slot({ entry }: { entry: LogoEntry }) {
               : 'h-7 md:h-10 w-auto max-w-[100px] md:max-w-[150px] object-contain pointer-events-none'
           }
         />
+        {entry.name && (
+          <span className="block text-white/30 font-light text-[0.5rem] md:text-[0.6rem] whitespace-nowrap">{entry.name}</span>
+        )}
       </div>
     )
   }
