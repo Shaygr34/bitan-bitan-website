@@ -486,16 +486,10 @@ export async function POST(req: NextRequest) {
               },
             }),
           })
-          if (!fileUpdateRes.ok) {
-            console.error('[INTAKE-FILES] Summit HTTP error:', fileUpdateRes.status)
-          } else {
-            const fileUpdateJson = await fileUpdateRes.json().catch(() => null)
-            if (fileUpdateJson?.Status !== 0) {
-              console.error('[INTAKE-FILES] Summit API error:', fileUpdateJson?.UserErrorMessage || fileUpdateJson?.TechnicalErrorDetails || JSON.stringify(fileUpdateJson))
-            } else {
-              console.error('[INTAKE-FILES] Summit הערות update SUCCESS for entity', entityId)
-            }
-          }
+          const fileUpdateStatus = fileUpdateRes.status
+          const fileUpdateBody = await fileUpdateRes.text().catch(() => 'no body')
+          // @ts-expect-error — temporary debug
+          globalThis.__intakeFileDebug = { httpStatus: fileUpdateStatus, body: fileUpdateBody.substring(0, 200), entityId, noteLines: noteLines.length }
         } catch (err) {
           console.error('Summit file fields update error:', err)
         }
@@ -580,7 +574,9 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------------------------------------
     // 9. Return success
     // -----------------------------------------------------------------------
-    return NextResponse.json({ ok: true, entityId: entityId ?? null, _debug: { fileResults: fileResults.length, entityIdType: typeof entityId, entityIdValue: entityId } })
+    // @ts-expect-error — temporary debug field
+    const _fileDebug = globalThis.__intakeFileDebug || 'block not reached'
+    return NextResponse.json({ ok: true, entityId: entityId ?? null, _debug: { fileResults: fileResults.length, entityIdType: typeof entityId, entityIdValue: entityId, fileUpdateResult: _fileDebug } })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error('Intake submission error:', message)
