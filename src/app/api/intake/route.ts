@@ -452,22 +452,12 @@ export async function POST(req: NextRequest) {
       const noteLines: string[] = ['מסמכים שהועלו:', '']
 
       for (const f of fileResults) {
-        // Write to Summit's native file field if mapping exists
-        const docField = DOC_FIELDS.find(d => d.key === f.docKey)
-        if (docField?.summitField) {
-          // Multiple docs may share a Summit field (e.g., idCard + driverLicense)
-          const existing = summitFileProps[docField.summitField]
-          if (existing) {
-            summitFileProps[docField.summitField] = `${existing}\n${f.url}`
-          } else {
-            summitFileProps[docField.summitField] = f.url
-          }
-        }
-
         noteLines.push(buildSummitNoteEntry(f.label, f.url))
       }
 
-      // Update Summit: file fields + notes
+      // Update Summit: write doc URLs to הערות only
+      // Summit file-type fields require "Filename;Base64Value" format — can't accept URLs.
+      // Files are stored in Sanity CDN, URLs go to הערות for display/parsing.
       const credentials = getSummitCredentials()
       if (credentials.APIKey && credentials.CompanyID) {
         try {
@@ -480,16 +470,14 @@ export async function POST(req: NextRequest) {
                 ID: parseInt(String(entityId), 10),
                 Folder: '557688522',
                 Properties: {
-                  ...summitFileProps,
                   'הערות': noteLines.join('\n'),
                 },
               },
             }),
           })
-          const fileUpdateStatus = fileUpdateRes.status
           const fileUpdateBody = await fileUpdateRes.text().catch(() => 'no body')
           // @ts-expect-error — temporary debug
-          globalThis.__intakeFileDebug = { httpStatus: fileUpdateStatus, body: fileUpdateBody.substring(0, 200), entityId, noteLines: noteLines.length }
+          globalThis.__intakeFileDebug = { httpStatus: fileUpdateRes.status, body: fileUpdateBody.substring(0, 200), entityId }
         } catch (err) {
           console.error('Summit file fields update error:', err)
         }
