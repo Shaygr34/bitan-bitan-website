@@ -57,7 +57,7 @@ async function createSummitEntity(fields: {
   const newsletterFlags = getNewsletterFlags(fields.clientType)
 
   const sectorEntityId = fields.businessSector ? BUSINESS_SECTOR_IDS[fields.businessSector] : undefined
-  const isCompanyType = ['חברה', 'חברה שנתי', 'שותפות', 'עמותה'].includes(fields.clientType)
+  const isCompanyType = ['חברה', 'חברה בע"מ', 'חברה שנתי', 'שותפות', 'עמותה'].includes(fields.clientType)
 
   // מנהל תיק from intake token (set during link generation in OS)
   const managerId = fields.accountManager ? ACCOUNT_MANAGER_IDS[fields.accountManager] : undefined
@@ -203,7 +203,7 @@ async function updateSummitEntityFields(entityId: string, fields: Record<string,
   const newsletterFlags = fields.clientType ? getNewsletterFlags(fields.clientType) : {}
   const sectorEntityId = fields.businessSector ? BUSINESS_SECTOR_IDS[fields.businessSector] : undefined
 
-  const isCompanyType = fields.clientType ? ['חברה', 'חברה שנתי', 'שותפות', 'עמותה'].includes(fields.clientType) : false
+  const isCompanyType = fields.clientType ? ['חברה', 'חברה בע"מ', 'חברה שנתי', 'שותפות', 'עמותה'].includes(fields.clientType) : false
 
   const properties: Record<string, unknown> = {}
   // Companies → business name, individuals → personal name

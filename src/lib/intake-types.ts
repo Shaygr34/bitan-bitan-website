@@ -1,10 +1,13 @@
 /** Summit סוג לקוח entity IDs */
 export const CLIENT_TYPE_IDS: Record<string, number> = {
   'עצמאי': 1099570216,
+  'עוסק מורשה': 1099570216,   // alias — OS modal uses this name
   'עצמאי שנתי': 1099570129,
   'חברה': 1099570010,
+  'חברה בע"מ': 1099570010,    // alias — OS modal uses this name
   'חברה שנתי': 1099569991,
   'פטור': 1099570246,
+  'עוסק פטור': 1099570246,    // alias — OS modal uses this name
   'שותפות': 1099570170,
   'עמותה': 1099570107,
   'עסק זעיר': 1099570213,
