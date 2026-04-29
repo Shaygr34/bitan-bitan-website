@@ -9,7 +9,7 @@ Next.js 15 · React 19 · Tailwind 3 · Sanity v3 · Framer Motion · TypeScript
 Deploy: Railway (Docker, standalone output)
 CMS: Sanity project ul4uwnp7, dataset production
 
-## Current State (V5.4 — April 28, 2026)
+## Current State (V5.5 — April 29, 2026)
 
 ### Content
 - ~72 articles in Sanity — ALL with AI-generated images (100% coverage)
@@ -158,8 +158,8 @@ CMS: Sanity project ul4uwnp7, dataset production
 - Gold diamond bullet points: CSS `::before` pseudo-elements on footer, services, prose content
 - Logo crossfade: both logos rendered absolutely, opacity swap (no size jump — canvases matched)
 
-## Schemas (16)
-article (with downloadableFile/contentType incl. form/categories[]/authors[]/body with link+textColor annotations + **image** blocks + **table** blocks (@sanity/table)/checklist with link annotations) · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber · **tool** (with toolType/primeRate/vatRate/configJson/introBody)
+## Schemas (17)
+article (with downloadableFile/contentType incl. form/categories[]/authors[]/body with link+textColor annotations + **image** blocks + **table** blocks (@sanity/table)/checklist with link annotations) · author · category (with parent self-reference for subcategories) · tag · service (with processSteps/targetAudience/faqs) · faq · testimonial · contactLead · homePage · aboutPage · legalPage · siteSettings · clientLogo · teamMember · newsletterSubscriber · **tool** (with toolType/primeRate/vatRate/configJson/introBody) · **taxConfig** (singleton — CMS-editable tax brackets, NII, שווי מס, pension caps for all calculators)
 
 ## Key Conventions
 - Server components default, 'use client' only for interactivity
@@ -260,7 +260,9 @@ Note: SUMMIT_COMPANY_ID and SUMMIT_API_KEY are required for intake form → Summ
 - Client logos: image logos use static files from /logos/ — upload to Sanity CDN when real high-quality logos are provided by clients
 - Team member photos: 10/10 uploaded (AI-generated grey gradient headshots via Gemini)
 - Google Maps on /contact may show rejection if API key referrer not configured for domain
-- No tests, no CI/CD
+- 32 regression tests (leasing + employer engines) — run via `npm test`
+- Daily smoke test (GitHub Actions, 10:00 Israel) — checks 11 endpoints, emails on failure
+- Weekly dependency audit (GitHub Actions, Monday 09:00) — opens issue on vulnerabilities
 
 ## Not In Scope
 No client login · No payments · No i18n
@@ -770,3 +772,41 @@ See memory: `bitan-dev-backlog-2026-04-05.md` + `bitan-employer-calc-spec.md`
 - src/app/api/intake/route.ts — FullName logic, מנהל תיק from token, removed עובד/ת ביקורת
 - scripts/migrate-sectors.mjs — Sector migration script
 - docs/sector-consolidation-map.json — Full 472→25 mapping with high-value details
+
+## Session: April 28-29, 2026 — Codebase Audit + Guardrails + Tax Config CMS
+
+### 1. Dead Code Cleanup (Both Repos)
+**Website**: removed `WhatsAppButton.tsx` (replaced by `WhatsAppCTA`), `FadeIn.tsx` (replaced by `RevealSection`), `public/.gitkeep.html`, `public/logos/alchemist.jpg` (replaced by `alchemist-new.png`), `@google/genai` from dependencies (only used by standalone scripts).
+**OS**: removed entire `content-engine` system (5 files, superseded by `content-factory`), `test-ai/route.ts` (self-documenting dead code), `pdf-lib` from root devDeps.
+Full audit logged in memory: `bitan-codebase-audit-2026-04-28.md`
+
+### 2. Production Guardrails
+- **Daily smoke test** (`.github/workflows/smoke-test.yml`): 11 endpoints checked at 10:00 Israel, email alert via Resend on failure. Dynamic article slug from sitemap.
+- **Weekly dependency audit** (`.github/workflows/dependency-audit.yml`): both repos, Monday 09:00/09:30, opens GitHub Issue on vulnerabilities.
+- **Debug route lockdown** (OS): `sumit-sync/__debug` and `signing/test` return 404 in production unless `ENABLE_DEBUG=1`.
+
+### 3. Calculator Regression Tests (32 tests)
+- `src/components/tools/calculator/__tests__/engine.test.ts` — 20 tests (purchase×3 user types, financial leasing, operational×2, amortization×3, IRR×3, tax savings×3, annual tax, vehicle benefit×3)
+- `src/components/tools/employer/__tests__/engine.test.ts` — 12 tests (full calc×4, vehicle benefit×5, credit points×3)
+- Run via `npm test`. Node.js built-in test runner + tsx. Zero new dependencies.
+
+### 4. Tax Tables Reference
+- `src/lib/tax-tables-2026.ts` — canonical reference of all Israeli tax constants. Not imported by engines yet — serves as documented single source of truth for future rate updates.
+
+### 5. CMS-Editable Tax Config (taxConfig singleton)
+- `src/sanity/schemas/taxConfig.ts` — singleton with 8 Hebrew fieldsets: כללי, מדרגות מס, ביטוח לאומי, שווי מס רכב, פנסיה וחיסכון, נקודות זיכוי, ליסינג, עלות מעסיק
+- Shows as "הגדרות מחשבונים" in Studio sidebar
+- Tool page fetches singleton via `getTaxConfig()` + passes to both calculators
+- Unit conversion: Sanity stores human-friendly (18%, 84120 annual) → page converts to engine format (0.18, 7010 monthly)
+- Tool-level `primeRate`/`vatRate` override singleton (backwards compat)
+- Employer calculator now accepts optional `config` prop (was hardcoded only)
+- **Fallback safety**: if no taxConfig document published, hardcoded defaults used — zero risk
+
+### Key Files
+- `.github/workflows/smoke-test.yml` — daily site health check
+- `.github/workflows/dependency-audit.yml` — weekly dep audit
+- `src/lib/tax-tables-2026.ts` — canonical tax reference
+- `src/sanity/schemas/taxConfig.ts` — CMS tax config singleton
+- `src/components/tools/calculator/__tests__/engine.test.ts` — leasing regression tests
+- `src/components/tools/employer/__tests__/engine.test.ts` — employer regression tests
+- `docs/superpowers/specs/2026-04-28-tax-tables-and-regression-tests.md` — design spec
