@@ -580,7 +580,7 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------------------------------------
     // 9. Return success
     // -----------------------------------------------------------------------
-    return NextResponse.json({ ok: true, entityId: entityId ?? null })
+    return NextResponse.json({ ok: true, entityId: entityId ?? null, _debug: { fileResults: fileResults.length, entityIdType: typeof entityId, entityIdValue: entityId } })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error('Intake submission error:', message)
