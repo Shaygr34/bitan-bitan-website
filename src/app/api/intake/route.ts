@@ -446,6 +446,7 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------------------------------------
     // 6. Write file URLs to Summit entity fields + notes
     // -----------------------------------------------------------------------
+    console.error(`[INTAKE-FILES] fileResults: ${fileResults.length}, entityId: ${entityId}, urls: ${fileResults.map(f => f.url?.substring(0, 40)).join(', ')}`)
     if (entityId && fileResults.length > 0) {
       const summitFileProps: Record<string, unknown> = {}
       const noteLines: string[] = ['מסמכים שהועלו:', '']
@@ -486,11 +487,13 @@ export async function POST(req: NextRequest) {
             }),
           })
           if (!fileUpdateRes.ok) {
-            console.error('Summit file update HTTP error:', fileUpdateRes.status)
+            console.error('[INTAKE-FILES] Summit HTTP error:', fileUpdateRes.status)
           } else {
             const fileUpdateJson = await fileUpdateRes.json().catch(() => null)
             if (fileUpdateJson?.Status !== 0) {
-              console.error('Summit file update error:', fileUpdateJson?.UserErrorMessage || fileUpdateJson?.TechnicalErrorDetails || 'Unknown')
+              console.error('[INTAKE-FILES] Summit API error:', fileUpdateJson?.UserErrorMessage || fileUpdateJson?.TechnicalErrorDetails || JSON.stringify(fileUpdateJson))
+            } else {
+              console.error('[INTAKE-FILES] Summit הערות update SUCCESS for entity', entityId)
             }
           }
         } catch (err) {
