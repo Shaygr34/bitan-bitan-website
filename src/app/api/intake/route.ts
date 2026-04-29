@@ -447,15 +447,31 @@ export async function POST(req: NextRequest) {
     // 6. Write file URLs to Summit entity fields + notes
     // -----------------------------------------------------------------------
     if (entityId && fileResults.length > 0) {
+      const summitFileProps: Record<string, string> = {}
       const noteLines: string[] = ['מסמכים שהועלו:', '']
 
+      // Fetch files from Sanity CDN, base64 encode, and map to Summit File fields
       for (const f of fileResults) {
         noteLines.push(buildSummitNoteEntry(f.label, f.url))
+
+        const docField = DOC_FIELDS.find(d => d.key === f.docKey)
+        if (docField?.summitField) {
+          try {
+            const fileRes = await fetch(f.url)
+            if (fileRes.ok) {
+              const fileBuffer = await fileRes.arrayBuffer()
+              const base64 = Buffer.from(fileBuffer).toString('base64')
+              // Summit File fields expect "Filename;Base64Value" format
+              // Multiple files for same field: only keep the latest
+              summitFileProps[docField.summitField] = `${f.filename};${base64}`
+            }
+          } catch {
+            // Non-fatal: file fetch failed, skip this field
+          }
+        }
       }
 
-      // Update Summit: write doc URLs to הערות only
-      // Summit file-type fields require "Filename;Base64Value" format — can't accept URLs.
-      // Files are stored in Sanity CDN, URLs go to הערות for display/parsing.
+      // Update Summit: native File fields + הערות with URLs
       const credentials = getSummitCredentials()
       if (credentials.APIKey && credentials.CompanyID) {
         try {
@@ -468,6 +484,7 @@ export async function POST(req: NextRequest) {
                 ID: parseInt(String(entityId), 10),
                 Folder: '557688522',
                 Properties: {
+                  ...summitFileProps,
                   'הערות': noteLines.join('\n'),
                 },
               },
