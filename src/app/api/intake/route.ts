@@ -446,9 +446,7 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------------------------------------
     // 6. Write file URLs to Summit entity fields + notes
     // -----------------------------------------------------------------------
-    console.error(`[INTAKE-FILES] fileResults: ${fileResults.length}, entityId: ${entityId}, urls: ${fileResults.map(f => f.url?.substring(0, 40)).join(', ')}`)
     if (entityId && fileResults.length > 0) {
-      const summitFileProps: Record<string, unknown> = {}
       const noteLines: string[] = ['מסמכים שהועלו:', '']
 
       for (const f of fileResults) {
@@ -475,9 +473,14 @@ export async function POST(req: NextRequest) {
               },
             }),
           })
-          const fileUpdateBody = await fileUpdateRes.text().catch(() => 'no body')
-          // @ts-expect-error — temporary debug
-          globalThis.__intakeFileDebug = { httpStatus: fileUpdateRes.status, body: fileUpdateBody.substring(0, 200), entityId }
+          if (!fileUpdateRes.ok) {
+            console.error('[INTAKE] Summit file update HTTP error:', fileUpdateRes.status)
+          } else {
+            const fileUpdateJson = await fileUpdateRes.json().catch(() => null)
+            if (fileUpdateJson?.Status !== 0) {
+              console.error('[INTAKE] Summit file update error:', fileUpdateJson?.UserErrorMessage || 'Unknown')
+            }
+          }
         } catch (err) {
           console.error('Summit file fields update error:', err)
         }
@@ -562,9 +565,7 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------------------------------------
     // 9. Return success
     // -----------------------------------------------------------------------
-    // @ts-expect-error — temporary debug field
-    const _fileDebug = globalThis.__intakeFileDebug || 'block not reached'
-    return NextResponse.json({ ok: true, entityId: entityId ?? null, _debug: { fileResults: fileResults.length, entityIdType: typeof entityId, entityIdValue: entityId, fileUpdateResult: _fileDebug } })
+    return NextResponse.json({ ok: true, entityId: entityId ?? null })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error('Intake submission error:', message)
