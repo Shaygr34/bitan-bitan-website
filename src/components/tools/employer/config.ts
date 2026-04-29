@@ -1,56 +1,55 @@
 /**
  * Employer Cost Calculator — Configuration (2026 values)
- * All values confirmed by Ron Bitan, April 6, 2026
- * V2: Added pension credit config, service credit rules, travel allowance
+ * Tax data imported from shared tax-tables-2026.ts.
+ * Updatable via Sanity CMS (taxConfig singleton) or by editing tax tables.
  */
 
 import type { EmployerCalcConfig } from './types'
+import {
+  TAX_BRACKETS_2026,
+  NII_2026,
+  VEHICLE_TAX_2026,
+  SALARY_CAPS_2026,
+  CREDIT_POINTS_2026,
+  GENERAL_2026,
+} from '@/lib/tax-tables-2026'
 
 export const DEFAULT_EMPLOYER_CONFIG: EmployerCalcConfig = {
-  // Israeli income tax brackets 2026 (monthly)
-  taxBrackets: [
-    { upTo: 7_010, rate: 0.10 },
-    { upTo: 10_060, rate: 0.14 },
-    { upTo: 19_000, rate: 0.20 },
-    { upTo: 25_100, rate: 0.31 },
-    { upTo: 46_690, rate: 0.35 },
-    { upTo: 60_129, rate: 0.47 },
-    { upTo: Infinity, rate: 0.50 }, // includes מס יסף
-  ],
+  // Israeli income tax brackets 2026 (monthly) — derived from annual shared tables
+  taxBrackets: TAX_BRACKETS_2026.monthly.map(b => ({ upTo: b.upTo, rate: b.rate })),
 
-  // Credit point value (2026)
-  creditPointValue: 2_904, // ₪/year per point
+  creditPointValue: CREDIT_POINTS_2026.valuePerYear,
 
   // National Insurance (ביטוח לאומי) 2026
-  niiLowThreshold: 7_703,
-  niiHighThreshold: 51_910,
-  niiEmployeeLow: 0.0427,
-  niiEmployeeHigh: 0.1217,
-  niiEmployerLow: 0.0451,
-  niiEmployerHigh: 0.076,
+  niiLowThreshold: NII_2026.lowThreshold,
+  niiHighThreshold: NII_2026.highThreshold,
+  niiEmployeeLow: NII_2026.employeeLow,
+  niiEmployeeHigh: NII_2026.employeeHigh,
+  niiEmployerLow: NII_2026.employerLow,
+  niiEmployerHigh: NII_2026.employerHigh,
 
   // Pension/severance/education caps
-  avgSalary: 13_769, // שכר ממוצע במשק 2026
-  severanceCap: 34_900, // תקרת פיצויים
-  educationFundCap: 15_712, // תקרת קרן השתלמות
+  avgSalary: SALARY_CAPS_2026.averageSalary,
+  severanceCap: SALARY_CAPS_2026.severanceCap,
+  educationFundCap: SALARY_CAPS_2026.educationFundCap,
 
   // Vehicle שווי שימוש
-  vehicleTaxRate: 0.0248, // 2.48%
-  manufacturerPriceCap: 596_860,
-  electricReduction: 1_350,
-  plugInReduction: 1_130,
-  hybridReduction: 560,
+  vehicleTaxRate: VEHICLE_TAX_2026.benefitRate,
+  manufacturerPriceCap: VEHICLE_TAX_2026.manufacturerPriceCap,
+  electricReduction: VEHICLE_TAX_2026.reductions.electric,
+  plugInReduction: VEHICLE_TAX_2026.reductions.plugIn,
+  hybridReduction: VEHICLE_TAX_2026.reductions.hybrid,
 
   // מס יסף threshold (monthly)
-  surchargeThreshold: 60_130,
+  surchargeThreshold: GENERAL_2026.surchargeThreshold,
 
   // Pension credit (employee-specific)
-  pensionCreditSalaryCap: 9_700,
-  pensionCreditRate: 0.07,
-  pensionCreditTaxRate: 0.35,
+  pensionCreditSalaryCap: SALARY_CAPS_2026.pensionCredit.salaryCap,
+  pensionCreditRate: SALARY_CAPS_2026.pensionCredit.rate,
+  pensionCreditTaxRate: SALARY_CAPS_2026.pensionCredit.taxRate,
 
   // Travel allowance default
-  defaultTravelAllowance: 315,
+  defaultTravelAllowance: GENERAL_2026.defaultTravelAllowance,
 }
 
 /* ─── Presets for UI ─── */

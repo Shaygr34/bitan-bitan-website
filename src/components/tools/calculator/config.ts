@@ -1,17 +1,23 @@
 /**
  * Leasing Calculator V2 — Configuration & Constants
- * All values from Ron's spec. Updatable via Sanity (primeRate, vatRate)
- * or by editing this file (presets, defaults).
+ * Tax data imported from shared tax-tables-2026.ts.
+ * Updatable via Sanity CMS (taxConfig singleton) or by editing tax tables.
  */
 
 import type { CalculatorConfig, VehicleType } from './types'
+import {
+  TAX_BRACKETS_2026,
+  NII_2026,
+  VEHICLE_TAX_2026,
+  GENERAL_2026,
+} from '@/lib/tax-tables-2026'
 
 /* ─── Default Config (overridden by Sanity) ─── */
 
 export const DEFAULT_CONFIG: CalculatorConfig = {
-  primeRate: 5.5,
-  vatRate: 0.18,
-  updatedAt: '2026-04-05',
+  primeRate: GENERAL_2026.primeRate,
+  vatRate: GENERAL_2026.vatRate,
+  updatedAt: '2026-04-29',
 }
 
 /* ─── Car Price Presets ─── */
@@ -35,39 +41,30 @@ export function getResidualCarValue(carPrice: number, periodMonths = 60): number
 /* ─── Depreciation Rate ─── */
 
 export function getDepreciationRate(vehicleType: VehicleType): number {
-  // Electric: 20%, Petrol: 15% (Ron's spec)
-  return vehicleType.includes('Electric') ? 0.20 : 0.15
+  return vehicleType.includes('Electric')
+    ? VEHICLE_TAX_2026.depreciation.electric
+    : VEHICLE_TAX_2026.depreciation.petrol
 }
 
 /* ─── VAT Recovery Rate ─── */
 
-// Private vehicles: 67% of VAT on fuel + maintenance
-// Commercial vehicles: 100% of VAT
 export function getVatRecoveryRate(vehicleType: VehicleType): number {
-  return vehicleType.startsWith('commercial') ? 1.0 : 0.67
+  return vehicleType.startsWith('commercial')
+    ? VEHICLE_TAX_2026.vatRecovery.commercial
+    : VEHICLE_TAX_2026.vatRecovery.private
 }
 
 /* ─── Tax Deduction Multiplier ─── */
 
-// Private: 45% of deductible expenses count toward tax
-// Commercial: 100%
 export function getTaxDeductionMultiplier(vehicleType: VehicleType): number {
-  return vehicleType.startsWith('commercial') ? 1.0 : 0.45
+  return vehicleType.startsWith('commercial')
+    ? VEHICLE_TAX_2026.deductionMultiplier.commercial
+    : VEHICLE_TAX_2026.deductionMultiplier.private
 }
 
-/* ─── Israeli Marginal Tax Brackets (2026) ─── */
+/* ─── Israeli Marginal Tax Brackets (from shared tax tables) ─── */
 
-// 2026 brackets — expanded per budget law (ריווח מדרגות מס)
-// Source: כל-זכות, malam-payroll, CWS Israel (April 2026)
-const TAX_BRACKETS_ANNUAL = [
-  { ceiling: 84_120, rate: 0.10 },
-  { ceiling: 120_720, rate: 0.14 },
-  { ceiling: 228_000, rate: 0.20 },  // expanded from 193,800 in 2025
-  { ceiling: 301_200, rate: 0.31 },  // expanded from 269,280 in 2025
-  { ceiling: 560_280, rate: 0.35 },
-  { ceiling: 721_560, rate: 0.47 },
-  { ceiling: Infinity, rate: 0.50 },
-]
+const TAX_BRACKETS_ANNUAL = TAX_BRACKETS_2026.annual
 
 /** Top marginal rate for a given monthly income — used for display only */
 export function getMarginalTaxRate(monthlyIncome: number): number {
@@ -103,27 +100,27 @@ export function calculateTaxSavings(monthlyIncome: number, annualDeduction: numb
 
 /* ─── National Insurance (ביטוח לאומי) Savings Rate ─── */
 
-// Ron's formula: above 7,700/mo → 18%, below → 7.7%
 export function getNiiSavingsRate(monthlyIncome: number): number {
-  return monthlyIncome > 7700 ? 0.18 : 0.077
+  return monthlyIncome > NII_2026.lowThreshold
+    ? NII_2026.selfEmployedSavingsRateAboveThreshold
+    : NII_2026.selfEmployedSavingsRateBelowThreshold
 }
 
-/* ─── Company: שווי שימוש Constants ─── */
+/* ─── Company: שווי שימוש Constants (from shared tax tables) ─── */
 
-export const VEHICLE_TAX_BENEFIT_RATE = 0.0248 // 2.48% of manufacturer price
-export const MANUFACTURER_PRICE_CAP_2026 = 596_860 // תקרת שווי רכב יצרן 2026
-export const COMPANY_TAX_RATE = 0.23 // מס חברות 23%
-export const NII_EMPLOYER_RATE_HIGH = 0.076 // ביטוח לאומי מעביד above threshold
-export const NII_SALARY_THRESHOLD = 7703 // מדרגה נמוכה ביטוח לאומי
-export const NII_EMPLOYEE_RATE_LOW = 0.0427  // ביטוח לאומי עובד — מדרגה נמוכה
-export const NII_EMPLOYEE_RATE_HIGH = 0.1217  // ביטוח לאומי עובד — מדרגה גבוהה
+export const VEHICLE_TAX_BENEFIT_RATE = VEHICLE_TAX_2026.benefitRate
+export const MANUFACTURER_PRICE_CAP_2026 = VEHICLE_TAX_2026.manufacturerPriceCap
+export const COMPANY_TAX_RATE = GENERAL_2026.companyTaxRate
+export const NII_EMPLOYER_RATE_HIGH = NII_2026.employerHigh
+export const NII_SALARY_THRESHOLD = NII_2026.lowThreshold
+export const NII_EMPLOYEE_RATE_LOW = NII_2026.employeeLow
+export const NII_EMPLOYEE_RATE_HIGH = NII_2026.employeeHigh
 
-// Electric/hybrid שווי מס reductions (monthly)
 export const VEHICLE_TAX_REDUCTIONS: Record<string, number> = {
-  privatePetrol: 0,
-  privateElectric: 1350,
-  commercialPetrol: 0,
-  commercialElectric: 0,
+  privatePetrol: VEHICLE_TAX_2026.reductions.petrol,
+  privateElectric: VEHICLE_TAX_2026.reductions.electric,
+  commercialPetrol: VEHICLE_TAX_2026.reductions.commercial,
+  commercialElectric: VEHICLE_TAX_2026.reductions.commercial,
 }
 
 export function calculateVehicleTaxBenefit(
