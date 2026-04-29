@@ -802,11 +802,16 @@ Full audit logged in memory: `bitan-codebase-audit-2026-04-28.md`
 - Employer calculator now accepts optional `config` prop (was hardcoded only)
 - **Fallback safety**: if no taxConfig document published, hardcoded defaults used — zero risk
 
+### 6. Tax Data Consolidation
+- Both `calculator/config.ts` and `employer/config.ts` now **import** from `src/lib/tax-tables-2026.ts` — zero hardcoded tax values remain in either engine
+- Yearly tax update = edit one file + `npm test` (32 assertions verify identical outputs)
+- Previously: same values hardcoded independently in 3 files across ~75 constants
+
 ### Key Files
 - `.github/workflows/smoke-test.yml` — daily site health check
 - `.github/workflows/dependency-audit.yml` — weekly dep audit
-- `src/lib/tax-tables-2026.ts` — canonical tax reference
-- `src/sanity/schemas/taxConfig.ts` — CMS tax config singleton
-- `src/components/tools/calculator/__tests__/engine.test.ts` — leasing regression tests
-- `src/components/tools/employer/__tests__/engine.test.ts` — employer regression tests
+- `src/lib/tax-tables-2026.ts` — **SINGLE SOURCE OF TRUTH** for all Israeli tax constants (both engines import from here)
+- `src/sanity/schemas/taxConfig.ts` — CMS tax config singleton ("הגדרות מחשבונים")
+- `src/components/tools/calculator/__tests__/engine.test.ts` — leasing regression tests (20)
+- `src/components/tools/employer/__tests__/engine.test.ts` — employer regression tests (12)
 - `docs/superpowers/specs/2026-04-28-tax-tables-and-regression-tests.md` — design spec
