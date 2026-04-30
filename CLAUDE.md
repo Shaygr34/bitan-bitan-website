@@ -90,7 +90,7 @@ CMS: Sanity project ul4uwnp7, dataset production
 - **Background scan**: `?scan=start` triggers async fetch, dashboard polls every 15s
 - **Rate limiting**: 500ms/call, 50-batch with 10s pause, 65s backoff on 403, in-memory cache 1h TTL
 - **Generate update links**: Pre-fills form with Summit data, creates `mode: 'update'` intakeToken
-- **Summit API limitation**: Cannot upload files to File-type fields (JSON-only). Files stored in Sanity CDN with structured `clientDocument` index. Feature request sent to Summit April 2026.
+- **Summit API file upload WORKS**: File-type fields accept `"Filename;Base64Value"` format. Files now uploaded natively to Summit + Sanity CDN backup. Previous "can't upload" assumption was FALSE (April 29, 2026).
 
 ### Schema Changes (V3.8)
 - **`tool` document type**: title, slug, toolType, configJson, introBody, disclaimer, SEO fields
@@ -271,7 +271,7 @@ Content Factory is a SEPARATE repo (apps/os-hub) — not this project
 ## Key Gotchas (discovered in production)
 - **React useEffect race condition** (IntakeForm): Auto-save effect on mount captures EMPTY_FORM in closure before restore populates state. Fix: `isFirstSaveRender` ref skips first save invocation.
 - **SliderInput node positioning**: Absolute positioning clusters nodes at low values when presets are unevenly distributed. Fix: flexbox `justify-between`.
-- **Summit API cannot upload files**: JSON-only, no multipart/form-data. Files → Sanity CDN, structured index in `clientDocument` schema.
+- **Summit API file upload WORKS**: File-type fields accept `"Filename;Base64Value"` in Properties. NOT "can't upload" — the error message said exactly how. Files now uploaded natively + Sanity CDN backup.
 - **Summit entity references**: Fields like סוג לקוח and מנהל תיק return entity IDs, not labels. Must map via lookup constants.
 - **Employee vs self-employed pension credit**: Employee = min(salary, 9700) × 7% × 35%. Self-employed = avgSalary × 5% × 35%. DIFFERENT formulas — reason the employer calc is a separate tool.
 - **Children age sentinel (-1)**: Using -1 as "empty" in childrenAges array causes silent credit point miscalculation. Clean to 0 at calculation boundary.
