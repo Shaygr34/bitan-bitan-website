@@ -293,6 +293,7 @@ Content Factory is a SEPARATE repo (apps/os-hub) — not this project
 - April 5-11, 2026: Calculator V2 + company mode, employer calc V1, onboarding V2 (3 phases), Summit MCP v2.3.0
 - April 13, 2026: שכיר calc path, employer calc V2 (Ron's 11 items + QA), onboarding persistence + soft docs, Summit error surfacing, data completion dashboard, contact form email fix
 - April 23, 2026: Leasing calc 6 sprint fixes (Ron), employer calc pension/education toggles (Avi/Ron), client logo conveyor belt live + CMS migration (21 Sanity docs)
+- April 28, 2026: Conveyor belt logo fix (10 image logos restored to Sanity + CSS filter + labels for בית חנה/תפוז), intelligence monitor +2 sources (CapiTax + רונן מיסים אונליין, 9 total, live email sent)
 
 ## Session: March 22, 2026 — Economics + Analytics + Infrastructure Separation
 
@@ -414,8 +415,8 @@ Started with "I want a weekly performance brief for the website" → ended with 
 
 ### 4. Professional Intelligence Monitor (SHIPPED — autonomous, Phase 1+2)
 - **Workflow**: `.github/workflows/intelligence-monitor.yml` — Tue + Thu 07:00 Israel
-- **Script**: `scripts/intelligence-monitor/main.py` + `sources/` (7 scrapers)
-- **7 sources**:
+- **Script**: `scripts/intelligence-monitor/main.py` + `sources/` (9 scrapers)
+- **9 sources**:
   1. Deloitte Israel tax alerts (PDF scrape)
   2. Tax Authority Telegram (`t.me/taxes_il`)
   3. Globes RSS (keyword-filtered for tax)
@@ -423,6 +424,8 @@ Started with "I want a weekly performance brief for the website" → ended with 
   5. ביטוח לאומי RSS
   6. Bank of Israel interest rate API
   7. OS Experts + EY Israel circulars
+  8. CapiTax — שפירא ושות' (RSS feed, professional tax articles)
+  9. רונן מיסים אונליין (recent documents — rulings, legislation, articles. Metadata only, content paywalled)
 - **Sanity schema**: `intelligenceItem` (stores seen items for dedup)
 - Sends digest email only when there's something new
 - **Phase 3** (open): Email inbox parsing for כל מס / רונן / לשכה newsletters
