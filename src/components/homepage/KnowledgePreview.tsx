@@ -14,6 +14,7 @@ import {
 } from '@/components/ui'
 import type { ArticleCard } from '@/sanity/types'
 import { urlFor } from '@/sanity/image'
+import { formatRelativeHebrew } from '@/lib/format-date'
 
 const FALLBACK_ARTICLES = [
   { tag: 'מס הכנסה', title: 'מדריך להגשת דוח שנתי למס הכנסה', excerpt: 'כל מה שצריך לדעת על הגשת הדוח השנתי — לוחות זמנים, מסמכים נדרשים וטיפים לחיסכון.' },
@@ -23,6 +24,7 @@ const FALLBACK_ARTICLES = [
 
 function ArticlePreviewCard({ article }: { article: ArticleCard }) {
   const imgUrl = urlFor(article.mainImage, 400)
+  const dateLabel = formatRelativeHebrew(article.publishedAt)
   return (
     <Link href={`/knowledge/${article.slug?.current ?? ''}`}>
       <Card className={imgUrl ? '!p-0 overflow-hidden' : ''}>
@@ -38,9 +40,19 @@ function ArticlePreviewCard({ article }: { article: ArticleCard }) {
           </div>
         )}
         <CardHeader className={imgUrl ? 'px-space-5 pt-space-4' : ''}>
-          <span className="inline-block px-3 py-1 text-caption font-medium bg-primary/10 text-primary rounded-full">
-            {article.categories?.[0]?.title ?? 'כללי'}
-          </span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="inline-block px-3 py-1 text-caption font-medium bg-primary/10 text-primary rounded-full">
+              {article.categories?.[0]?.title ?? 'כללי'}
+            </span>
+            {dateLabel && (
+              <time
+                dateTime={article.publishedAt}
+                className="text-caption text-text-secondary tabular-nums"
+              >
+                {dateLabel}
+              </time>
+            )}
+          </div>
         </CardHeader>
         <CardBody className={imgUrl ? 'px-space-5' : ''}>
           <h3 className="text-h4 font-semibold text-primary">{article.title}</h3>
@@ -66,16 +78,13 @@ export function KnowledgePreview({ articles }: Props) {
   const displayArticles = hasData ? articles.slice(0, 3) : null
 
   return (
-    <RevealSection className="bg-surface py-space-9 px-6">
+    <RevealSection className="bg-surface py-space-7 px-6 border-t border-gold/10">
       <div className="max-w-content mx-auto">
-        <SectionHeader
-          centered
-          subtitle="מאמרים, מדריכים ומידע מקצועי שיעזרו לכם לקבל החלטות פיננסיות נכונות."
-        >
-          מרכז ידע
+        <SectionHeader centered>
+          מאמרים אחרונים
         </SectionHeader>
 
-        <RevealGroup className="grid md:grid-cols-3 gap-space-5 mt-space-8">
+        <RevealGroup className="grid md:grid-cols-3 gap-space-5 mt-space-6">
           {displayArticles
             ? displayArticles.map((article) => (
                 <RevealItem key={article._id}>
@@ -104,10 +113,10 @@ export function KnowledgePreview({ articles }: Props) {
               ))}
         </RevealGroup>
 
-        <div className="text-center mt-space-7">
+        <div className="text-center mt-space-6">
           <Link
             href="/knowledge"
-            className="inline-flex items-center text-nav font-medium text-gold hover:text-gold-hover transition-colors duration-fast"
+            className="inline-flex items-center text-body-sm font-medium text-gold hover:text-gold-hover transition-colors duration-fast"
           >
             לכל המאמרים ←
           </Link>

@@ -43,6 +43,7 @@ export default async function Home() {
       />
       <TrustBar trustPoints={homePage?.trustPoints} />
       <ClientLogosSection logos={clientLogos} />
+      <KnowledgePreview articles={articles} />
       <ServicesSection services={services} />
       <AboutSection
         heading={homePage?.aboutHeading}
@@ -51,7 +52,6 @@ export default async function Home() {
         differentiators={homePage?.aboutDifferentiators}
       />
       <TestimonialsSection />
-      <KnowledgePreview articles={articles} />
       <TrustModule showProcess={false} showPrepare={false} showCTA={false} />
       <CTASection />
       <FAQSection faqs={faqs} />
