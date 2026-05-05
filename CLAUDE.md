@@ -877,3 +877,22 @@ Implementation pass on Ron's April 30, 2026 docx feedback for the employer cost 
 - 2 commits pushed to main this session
 - Railway deployment confirmed live on bitancpa.com
 - Lint fix unblocked the deploy chain (5min hash polling caught the stuck build)
+
+## Session: May 5, 2026 — Homepage Recent Articles Relocation (Avi)
+
+### Shipped
+- **Recent Articles relocated**: moved between ClientLogosSection and ServicesSection (was buried after testimonials). Per Avi's feedback — visitors should feel firm liveness *before* reaching the conversion ask.
+- **Section heading**: "מרכז ידע" → "מאמרים אחרונים" (freshness signal)
+- **Date badge** on each card (top-end, paired with category pill): smart-relative Hebrew (היום / אתמול / לפני יומיים / לפני N ימים / לפני שבוע / לפני שבועיים / לפני N שבועות / לפני חודש / absolute date past 60 days)
+- **Visual tightening**: dropped the "מאמרים, מדריכים..." subtitle line, reduced section vertical padding (py-space-9 → py-space-7), gold/10 top border for separation, smaller "לכל המאמרים" link
+
+### New Util — `src/lib/format-date.ts`
+- `formatRelativeHebrew(iso, now?)` — pure function, fully tested
+- DST-safe: normalizes both dates to UTC-midnight before computing day diff (otherwise Israel's spring-forward inflates 60 calendar days to 59 millisecond-days)
+- 11 TDD tests in `src/lib/__tests__/format-date.test.ts`. Test glob in `package.json` extended: `src/components/tools/*/__tests__/*.test.ts src/lib/__tests__/*.test.ts`. Total 120 tests passing.
+
+### Sanity Note
+- `publishedAt` field already existed on article schema and on type definition. All ~72 articles already had it populated — zero backfill needed.
+
+### Pending (Avi's #2 — exploring, not built)
+- Live updates feed — like the conveyor belt but for tax/regulatory updates with source links. Backend mostly already exists (`intelligenceItem` schema + Tue/Thu monitor). Surface depends on editorial commitment from Avi/Ron — needs ≥1 update/week to feel "alive" rather than stale.
