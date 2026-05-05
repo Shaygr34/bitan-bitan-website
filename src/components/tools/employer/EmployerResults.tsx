@@ -24,7 +24,15 @@ function fmt(n: number): string {
 }
 
 export function EmployerResults({ result, inputs, onRestart, onCompare, comparisonResult, comparisonInputs, onRemoveComparison, onEditPrimary, onEditComparison }: Props) {
-  const { employee: emp, employer: empr, hasShvuiMas } = result
+  // activeIdx selects which scenario the breakdown sections below render.
+  // 0 = primary (תרחיש א׳), 1 = comparison (תרחיש ב׳). Card click flips this;
+  // ערוך link still routes to the wizard via onEditPrimary/onEditComparison.
+  const [activeIdx, setActiveIdx] = useState(0)
+  const isCompareMode = !!(comparisonResult && comparisonInputs)
+  const activeResult = isCompareMode && activeIdx === 1 ? (comparisonResult as EmployerCalcResult) : result
+  const activeInputs = isCompareMode && activeIdx === 1 ? (comparisonInputs as EmployerInputs) : inputs
+
+  const { employee: emp, employer: empr, hasShvuiMas } = activeResult
   const creditBreakdown = emp.creditPointsBreakdown
 
   const handlePrint = useCallback(() => {
@@ -64,31 +72,35 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
       <h2 className="text-h3 font-bold text-primary text-center mb-space-2">תוצאות חישוב עלות מעסיק</h2>
       <p className="text-body text-text-muted text-center mb-space-6">סכומים חודשיים</p>
 
-      {/* Print watermark — diagonal, faded, centered (Ron spec May 2026).
-          Single fixed element with dedicated class to avoid conflicts with
-          .print-only / body font-size !important rules. */}
-      <div aria-hidden="true" className="ec-watermark" suppressHydrationWarning>להמחשה בלבד</div>
+      {/* Print watermark — rendered via html::before in print CSS so the fixed
+          containing block is the viewport (repeats on every page). The previous
+          .ec-watermark div was trapped inside a transformed/animated ancestor
+          and only painted on whichever page it landed in document order. */}
 
       {/* Comparison Table — CENTER STAGE when comparing.
-          Scenario buttons are click-to-edit (Ron May 5 2026):
-          tapping תרחיש א׳/ב׳ reloads its inputs into the wizard. */}
-      {comparisonResult && comparisonInputs && (
+          Card click selects which scenario the breakdown below shows;
+          the small "✏ ערוך" rubric inside each card routes to the wizard. */}
+      {isCompareMode && (
         <ComparisonBlock
           primary={{ result, inputs }}
-          comparison={{ result: comparisonResult, inputs: comparisonInputs }}
+          comparison={{ result: comparisonResult as EmployerCalcResult, inputs: comparisonInputs as EmployerInputs }}
           onRemove={onRemoveComparison}
           onEditPrimary={onEditPrimary}
           onEditComparison={onEditComparison}
+          activeIdx={activeIdx}
+          onSelect={setActiveIdx}
         />
       )}
 
-      {/* Scenario heading — labels the per-scenario detail block when in compare mode.
-          Without this, it's unclear which scenario the breakdown sections refer to. */}
-      {comparisonResult && comparisonInputs && (
+      {/* Scenario heading — labels which scenario the breakdown sections below refer to.
+          Toggles between א׳/ב׳ as the user selects different cards above. */}
+      {isCompareMode && (
         <div className="mb-space-4 flex items-center justify-between gap-3 px-1">
-          <h3 className="text-h4 font-bold text-primary">תרחיש א׳ — פירוט מלא</h3>
+          <h3 className="text-h4 font-bold text-primary">
+            {activeIdx === 0 ? 'תרחיש א׳ — פירוט מלא' : 'תרחיש ב׳ — פירוט מלא'}
+          </h3>
           <span className="text-caption text-text-muted">
-            לפירוט תרחיש ב׳ — לחצו על הכפתור למעלה
+            {activeIdx === 0 ? 'לפירוט תרחיש ב׳ — לחצו עליו למעלה' : 'לפירוט תרחיש א׳ — לחצו עליו למעלה'}
           </span>
         </div>
       )}
@@ -159,14 +171,14 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             {/* Row 1: ביטוח לאומי — clickable */}
             {(() => {
               const cfg = DEFAULT_EMPLOYER_CONFIG
-              const rates = getNIIRatesV2(inputs.niiCategoryV2, inputs.niiCalcType)
+              const rates = getNIIRatesV2(activeInputs.niiCategoryV2, activeInputs.niiCalcType)
               const niiBase = emp.totalTaxableIncome
               const lowAmount = Math.min(niiBase, cfg.niiLowThreshold)
               const highAmount = Math.max(niiBase - cfg.niiLowThreshold, 0)
               const lowNii = Math.round(lowAmount * rates.employeeLow)
               const highNii = Math.round(highAmount * rates.employeeHigh)
-              const catLabel = NII_CATEGORY_V2_LABELS[inputs.niiCategoryV2]
-              const calcLabel = NII_CALCTYPE_LABELS[inputs.niiCalcType]
+              const catLabel = NII_CATEGORY_V2_LABELS[activeInputs.niiCategoryV2]
+              const calcLabel = NII_CALCTYPE_LABELS[activeInputs.niiCalcType]
               return (
                 <details className="group border-b border-border-light">
                   <summary className="flex justify-between items-center py-2 px-2 text-body-sm cursor-pointer hover:bg-surface/40 list-none [&::-webkit-details-marker]:hidden">
@@ -358,9 +370,6 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
 
       {/* Print CSS — compact one-pager */}
       <style jsx global>{`
-        /* Watermark hidden on screen */
-        .ec-watermark { display: none; }
-
         @media print {
           /* Hide everything except results */
           nav, footer, header, .no-print,
@@ -368,10 +377,12 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
           [class*="WhatsApp"], [class*="whatsapp"] { display: none !important; }
           .print-only { display: block !important; }
 
-          /* Watermark — fixed, centered, diagonal, faded.
-             Uses !important to beat body { font-size: 10px !important } below. */
-          .ec-watermark {
-            display: block !important;
+          /* Watermark — anchored to <html> so the fixed containing block is the
+             viewport. Chrome/Safari/Firefox repeat fixed elements on every page
+             only when no ancestor creates a new containing block (transform,
+             filter, will-change). <html> has no ancestors → reliable repeat. */
+          html::before {
+            content: 'להמחשה בלבד';
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
@@ -437,21 +448,37 @@ type Scenario = { result: EmployerCalcResult; inputs: EmployerInputs }
 function ScenarioCard({
   label,
   scenario,
+  onSelect,
   onEdit,
   cheaper,
+  active,
 }: {
   label: string
   scenario: Scenario
+  onSelect: () => void
   onEdit: () => void
   cheaper: boolean
+  active: boolean
 }) {
+  // Outer = display (selects which scenario the breakdown below shows).
+  // Inner ערוך button stops propagation and routes to the wizard for editing.
+  // Using a div+role rather than nested <button>s to keep semantics valid.
   return (
-    <button
-      type="button"
-      onClick={onEdit}
-      aria-label={`ערוך ${label}`}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect()
+        }
+      }}
+      aria-pressed={active}
+      aria-label={`הצג ${label}`}
       className={[
         'group text-start rounded-xl border-2 p-space-3 transition-all cursor-pointer no-print',
+        active ? 'ring-2 ring-gold-dark shadow-md' : '',
         cheaper
           ? 'border-gold bg-gold/5 hover:bg-gold/10'
           : 'border-border bg-white hover:border-gold/60 hover:bg-surface/40',
@@ -461,10 +488,19 @@ function ScenarioCard({
         <span className="text-caption text-text-muted font-medium flex items-center gap-1.5">
           <BarChart3 className="h-3.5 w-3.5" />
           {label}
+          {active && <span className="text-caption text-gold-dark font-bold">• מוצג</span>}
         </span>
-        <span className="text-caption text-gold-dark font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onEdit()
+          }}
+          className="text-caption text-gold-dark font-bold underline-offset-2 hover:underline cursor-pointer transition-opacity"
+          aria-label={`ערוך ${label}`}
+        >
           ✏ ערוך
-        </span>
+        </button>
       </div>
       <div className="text-body font-bold text-primary">{'ברוטו '}{fmt(scenario.inputs.grossSalary)} ₪</div>
       <div className="text-caption text-text-muted mt-0.5">
@@ -473,7 +509,7 @@ function ScenarioCard({
       <div className="text-caption text-text-muted">
         {'נטו עובד: '}{fmt(scenario.result.employee.netWithShvui)} ₪
       </div>
-    </button>
+    </div>
   )
 }
 
@@ -483,12 +519,16 @@ function ComparisonBlock({
   onRemove,
   onEditPrimary,
   onEditComparison,
+  activeIdx,
+  onSelect,
 }: {
   primary: Scenario
   comparison: Scenario
   onRemove: () => void
   onEditPrimary: () => void
   onEditComparison: () => void
+  activeIdx: number
+  onSelect: (idx: number) => void
 }) {
   // Always show A on the left, B on the right (no activeIdx swap — click = edit).
   const colA = primary
@@ -512,13 +552,27 @@ function ComparisonBlock({
         </button>
       </div>
 
-      {/* Scenario cards — click any to reload its inputs into the wizard for editing. */}
+      {/* Scenario cards — outer click selects the scenario shown below; ערוך → wizard. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-space-3 no-print">
-        <ScenarioCard label="תרחיש א׳" scenario={primary} onEdit={onEditPrimary} cheaper={cheaperA} />
-        <ScenarioCard label="תרחיש ב׳" scenario={comparison} onEdit={onEditComparison} cheaper={!cheaperA} />
+        <ScenarioCard
+          label="תרחיש א׳"
+          scenario={primary}
+          onSelect={() => onSelect(0)}
+          onEdit={onEditPrimary}
+          cheaper={cheaperA}
+          active={activeIdx === 0}
+        />
+        <ScenarioCard
+          label="תרחיש ב׳"
+          scenario={comparison}
+          onSelect={() => onSelect(1)}
+          onEdit={onEditComparison}
+          cheaper={!cheaperA}
+          active={activeIdx === 1}
+        />
       </div>
       <p className="text-caption text-text-muted text-center mb-space-3 no-print">
-        לחצו על תרחיש כדי לחזור ולשנות את הנתונים שלו
+        לחצו על תרחיש להצגתו | ✏ ערוך — לשינוי הנתונים
       </p>
 
       <div className="bg-white rounded-2xl border border-border shadow-md overflow-hidden">

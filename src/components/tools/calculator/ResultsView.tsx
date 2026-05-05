@@ -120,9 +120,10 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
         כל הסכומים שנתיים אלא אם צוין אחרת
       </p>
 
-      {/* Print watermark — diagonal, faded, centered (Ron spec May 2026).
-          Single fixed element with dedicated class to avoid conflicts. */}
-      <div aria-hidden="true" className="lc-watermark" suppressHydrationWarning>להמחשה בלבד</div>
+      {/* Print watermark — rendered via html::before in print CSS so the fixed
+          containing block is the viewport (repeats on every page). The previous
+          .lc-watermark div was trapped inside a transformed/animated ancestor
+          and only painted on whichever page it landed in document order. */}
 
       {/* Result Cards / Comparison */}
       {hasComparison ? (
@@ -199,18 +200,17 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
 
       {/* Print CSS — compact one-pager (matches employer calc) */}
       <style jsx global>{`
-        /* Watermark hidden on screen */
-        .lc-watermark { display: none; }
-
         @media print {
           /* Hide non-content elements */
           nav, footer, header, .no-print,
           [class*="WhatsApp"], [class*="whatsapp"] { display: none !important; }
 
-          /* Watermark — fixed, centered, diagonal, faded.
-             Uses !important to beat body { font-size: 10px !important } below. */
-          .lc-watermark {
-            display: block !important;
+          /* Watermark — anchored to <html> so the fixed containing block is the
+             viewport. Chrome/Safari/Firefox repeat fixed elements on every page
+             only when no ancestor creates a new containing block (transform,
+             filter, will-change). <html> has no ancestors → reliable repeat. */
+          html::before {
+            content: 'להמחשה בלבד';
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
