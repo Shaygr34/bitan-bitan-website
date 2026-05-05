@@ -67,7 +67,10 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
     // navigator.share is unavailable or rejects with a non-cancel error.
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
-        await navigator.share({ title: text, text, url: shareUrl })
+        // Drop redundant `text` (was duplicate of title) — when sharing to mail,
+        // body = text + url; omitting text keeps the body short = mail client
+        // (Gmail/Apple Mail) opens instantly instead of stalling on a bloated body.
+        await navigator.share({ title: text, url: shareUrl })
         return
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return

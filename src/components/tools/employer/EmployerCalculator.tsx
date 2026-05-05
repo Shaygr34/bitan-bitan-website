@@ -804,20 +804,34 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                       onChange={e => {
                         const y = Number(e.target.value)
                         const next = [...inputs.degrees]
-                        const nextYear = Number.isFinite(y) ? y : 0
-                        // phdDirect: single year input drives both windows.
-                        // Keep phdYear in sync with year so the engine's dual
-                        // window logic still applies without exposing two inputs.
-                        next[i] = deg.type === 'phdDirect'
-                          ? { ...deg, year: nextYear, phdYear: nextYear }
-                          : { ...deg, year: nextYear }
+                        next[i] = { ...deg, year: Number.isFinite(y) ? y : 0 }
                         update({ degrees: next })
                       }}
-                      placeholder="שנת סיום"
+                      placeholder={deg.type === 'phdDirect' ? 'שנת זכאות תואר ראשון' : 'שנת סיום'}
                       className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
-                      aria-label="שנת סיום"
+                      aria-label={deg.type === 'phdDirect' ? 'שנת זכאות תואר ראשון' : 'שנת סיום'}
                     />
                   </div>
+
+                  {deg.type === 'phdDirect' && (
+                    <div className="mt-2">
+                      <input
+                        type="number"
+                        min={2000}
+                        max={2040}
+                        value={deg.phdYear ?? ''}
+                        onChange={e => {
+                          const py = Number(e.target.value)
+                          const next = [...inputs.degrees]
+                          next[i] = { ...deg, phdYear: Number.isFinite(py) ? py : undefined }
+                          update({ degrees: next })
+                        }}
+                        placeholder="שנת זכאות תואר שלישי"
+                        className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+                        aria-label="שנת זכאות תואר שלישי"
+                      />
+                    </div>
+                  )}
 
                   {(deg.type === 'bachelor' || deg.type === 'phdRegular') && (
                     <label className="mt-2 flex items-center gap-2 text-caption text-text-muted">
