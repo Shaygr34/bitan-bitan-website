@@ -588,14 +588,14 @@ function RunningCosts({
         <>
           <SliderInput
             label="אחזקת רכב (לשנה, כולל מע״מ)"
-            min={3000}
+            min={1000}
             max={15000}
             step={500}
             value={(inputs.maintenanceYearly as number) ?? DEFAULT_MAINTENANCE_YEARLY}
             onChange={(v) => onChange({ maintenanceYearly: v })}
             nodes={[
+              { value: 1000, label: '1K' },
               { value: 5000, label: '5K' },
-              { value: 7000, label: '7K' },
               { value: 10000, label: '10K' },
               { value: 13000, label: '13K' },
             ]}
