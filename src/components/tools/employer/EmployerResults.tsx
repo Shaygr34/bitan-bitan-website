@@ -66,14 +66,17 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
       <h2 className="text-h3 font-bold text-primary text-center mb-space-2">תוצאות חישוב עלות מעסיק</h2>
       <p className="text-body text-text-muted text-center mb-space-6">סכומים חודשיים</p>
 
-      {/* Print watermark — diagonal, faded, large (Ron spec May 2026) */}
+      {/* Print watermark — diagonal, faded, centered (Ron spec May 2026) */}
       <div
         aria-hidden="true"
-        className="print-only hidden fixed inset-0 pointer-events-none z-50 select-none items-center justify-center"
+        className="print-only hidden fixed inset-0 pointer-events-none z-50 select-none"
       >
         <div
           style={{
-            transform: 'rotate(-30deg)',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) rotate(-30deg)',
             opacity: 0.12,
             fontSize: '120px',
             fontWeight: 700,

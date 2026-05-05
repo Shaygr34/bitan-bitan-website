@@ -56,14 +56,17 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
         כל הסכומים שנתיים אלא אם צוין אחרת
       </p>
 
-      {/* Print watermark — diagonal, faded, large (Ron spec May 2026) */}
+      {/* Print watermark — diagonal, faded, centered (Ron spec May 2026) */}
       <div
         aria-hidden="true"
-        className="print-only hidden fixed inset-0 pointer-events-none z-50 select-none items-center justify-center"
+        className="print-only hidden fixed inset-0 pointer-events-none z-50 select-none"
       >
         <div
           style={{
-            transform: 'rotate(-30deg)',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) rotate(-30deg)',
             opacity: 0.12,
             fontSize: '120px',
             fontWeight: 700,

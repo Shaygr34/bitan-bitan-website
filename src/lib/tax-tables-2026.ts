@@ -80,7 +80,6 @@ export type NIICategory =
   | 'controllingShareholder' // טור 2 — בעל שליטה בחברת מעטים
   | 'retiree'               // טור 3 — מקבל קצבה לאחר גיל פרישה (קצבת זקנה)
   | 'foreignResident'       // תושב זר (עובד זר)
-  | 'territoriesResident'   // תושב שטחים
 
 export type NIIRates = {
   employeeLow: number
@@ -124,12 +123,6 @@ export const NII_TABLE_2026: Record<NIICategory, NIIRates> = {
     employerLow: 0.0059,
     employerHigh: 0.0259,
   },
-  territoriesResident: {
-    employeeLow: 0.0078,
-    employeeHigh: 0.0310,
-    employerLow: 0.0051,
-    employerHigh: 0.0231,
-  },
 } as const
 
 /** UI labels (Hebrew) for each NII category. */
@@ -138,7 +131,6 @@ export const NII_CATEGORY_LABELS: Record<NIICategory, string> = {
   controllingShareholder: 'בעל שליטה בחברת מעטים',
   retiree: 'פנסיונר (לאחר גיל פרישה)',
   foreignResident: 'תושב זר / עובד זר',
-  territoriesResident: 'תושב שטחים',
 }
 
 // ─── Credit Points ─────────────────────────────────────────────────────────
