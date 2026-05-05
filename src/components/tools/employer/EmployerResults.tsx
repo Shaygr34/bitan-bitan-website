@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2, BarChart3 } from 'lucide-react'
 import type { EmployerCalcResult, EmployerInputs } from './types'
 import { DEFAULT_EMPLOYER_CONFIG } from './config'
+import { encodeEmployerParams } from './EmployerCalculator'
 import { getNIIRatesV2, NII_CATEGORY_V2_LABELS, NII_CALCTYPE_LABELS } from '@/lib/tax-tables-2026'
 
 type Props = {
@@ -30,40 +31,20 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
 
   const [shareMsg, setShareMsg] = useState('')
   const handleShare = useCallback(async () => {
-    // Build share URL with encoded inputs
-    const params = new URLSearchParams()
-    params.set('gs', String(inputs.grossSalary))
-    params.set('ta', String(inputs.travelAllowance))
-    if (inputs.hasVehicle) { params.set('v', '1'); params.set('vf', inputs.vehicleFuelType); params.set('mp', String(inputs.manufacturerPrice)) }
-    if (inputs.hasMealBenefit) params.set('ml', String(inputs.mealBenefitAmount))
-    if (inputs.hasOtherBenefit) params.set('ob', String(inputs.otherBenefitAmount))
-    params.set('pe', String(inputs.employeePensionRate))
-    params.set('pp', String(inputs.employerPensionRate))
-    params.set('sv', String(inputs.severanceRate))
-    params.set('ee', String(inputs.employerEducationRate))
-    params.set('g', inputs.gender[0])
-    params.set('ms', inputs.maritalStatus)
-    if (inputs.childrenAges.length > 0) params.set('ca', inputs.childrenAges.join(','))
-    if (inputs.childAllowanceRecipient === 'employee') params.set('cr', 'e')
-    if (inputs.disabledChildrenCount > 0) params.set('dc', String(inputs.disabledChildrenCount))
-    if (inputs.serviceType !== 'none') {
-      params.set('st', inputs.serviceType); params.set('sl', inputs.serviceLevel)
-      if (inputs.serviceEndDate) params.set('se', `${inputs.serviceEndDate.month}-${inputs.serviceEndDate.year}`)
-    }
-    if (inputs.reserveDays > 0) params.set('rd', String(inputs.reserveDays))
-    const today = new Date()
-    if (inputs.evaluationDate.month !== today.getMonth() + 1 || inputs.evaluationDate.year !== today.getFullYear()) {
-      params.set('ed', `${inputs.evaluationDate.month}-${inputs.evaluationDate.year}`)
-    }
-    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+    // Encode primary + comparison (if present) — comparison preserved across share
+    const qs = encodeEmployerParams(inputs, comparisonInputs)
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${qs}`
 
-    // Ron spec (May 2026): "ביטן את ביטן רו"ח - סימולציה עלות מעסיק / עובד מיום DD/MM/YY"
     const d = new Date()
     const dd = String(d.getDate()).padStart(2, '0')
     const mm = String(d.getMonth() + 1).padStart(2, '0')
     const yy = String(d.getFullYear() % 100).padStart(2, '0')
     const text = `ביטן את ביטן רו"ח - סימולציה עלות מעסיק / עובד מיום ${dd}/${mm}/${yy}`
-    if (navigator.share) {
+
+    // Mobile: native share sheet (WhatsApp/etc). Desktop: clipboard only —
+    // navigator.share on desktop falls through to mailto/Gmail compose which freezes.
+    const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+    if (isMobile && navigator.share) {
       try {
         await navigator.share({ title: text, text, url: shareUrl })
       } catch {
@@ -74,7 +55,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
       setShareMsg('הקישור הועתק!')
       setTimeout(() => setShareMsg(''), 2000)
     }
-  }, [inputs])
+  }, [inputs, comparisonInputs])
 
   return (
     <div className="print-area">

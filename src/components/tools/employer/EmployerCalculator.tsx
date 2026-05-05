@@ -34,92 +34,101 @@ function fmt(n: number): string {
 }
 
 // ── URL param helpers ──
-function encodeEmployerParams(inp: EmployerInputs): string {
-  const p = new URLSearchParams()
-  p.set('gs', String(inp.grossSalary))
-  p.set('ta', String(inp.travelAllowance))
-  if (inp.hasVehicle) { p.set('v', '1'); p.set('vf', inp.vehicleFuelType); p.set('mp', String(inp.manufacturerPrice)) }
-  if (inp.hasMealBenefit) { p.set('ml', String(inp.mealBenefitAmount)) }
-  if (inp.hasOtherBenefit) { p.set('ob', String(inp.otherBenefitAmount)) }
-  if (!inp.hasPension) p.set('np', '1')
-  if (inp.hasPension && inp.pensionSalary !== inp.grossSalary) p.set('ps', String(inp.pensionSalary))
-  p.set('pe', String(inp.employeePensionRate))
-  p.set('pp', String(inp.employerPensionRate))
-  p.set('sv', String(inp.severanceRate))
-  if (inp.hasEducationFund) p.set('he', '1')
-  if (inp.hasEducationFund) p.set('es', String(inp.educationFundSalary))
-  p.set('ee', String(inp.employerEducationRate))
-  p.set('g', inp.gender[0]) // m/f
-  p.set('ms', inp.maritalStatus)
-  if (inp.childrenAges.length > 0) p.set('ca', inp.childrenAges.join(','))
-  if (inp.childAllowanceRecipient === 'employee') p.set('cr', 'e')
-  if (inp.disabledChildrenCount > 0) p.set('dc', String(inp.disabledChildrenCount))
+// Writes all encodable fields of `inp` into `p` with optional key prefix.
+// Comparison scenarios share the same encoder with prefix `b_` (matches leasing pattern).
+function writeInputsTo(p: URLSearchParams, inp: EmployerInputs, prefix = ''): void {
+  const k = (key: string) => `${prefix}${key}`
+  p.set(k('gs'), String(inp.grossSalary))
+  p.set(k('ta'), String(inp.travelAllowance))
+  if (inp.hasVehicle) { p.set(k('v'), '1'); p.set(k('vf'), inp.vehicleFuelType); p.set(k('mp'), String(inp.manufacturerPrice)) }
+  if (inp.hasMealBenefit) { p.set(k('ml'), String(inp.mealBenefitAmount)) }
+  if (inp.hasOtherBenefit) { p.set(k('ob'), String(inp.otherBenefitAmount)) }
+  if (!inp.hasPension) p.set(k('np'), '1')
+  if (inp.hasPension && inp.pensionSalary !== inp.grossSalary) p.set(k('ps'), String(inp.pensionSalary))
+  p.set(k('pe'), String(inp.employeePensionRate))
+  p.set(k('pp'), String(inp.employerPensionRate))
+  p.set(k('sv'), String(inp.severanceRate))
+  if (inp.hasEducationFund) p.set(k('he'), '1')
+  if (inp.hasEducationFund) p.set(k('es'), String(inp.educationFundSalary))
+  p.set(k('ee'), String(inp.employerEducationRate))
+  p.set(k('g'), inp.gender[0])
+  p.set(k('ms'), inp.maritalStatus)
+  if (inp.childrenAges.length > 0) p.set(k('ca'), inp.childrenAges.join(','))
+  if (inp.childAllowanceRecipient === 'employee') p.set(k('cr'), 'e')
+  if (inp.disabledChildrenCount > 0) p.set(k('dc'), String(inp.disabledChildrenCount))
   if (inp.serviceType !== 'none') {
-    p.set('st', inp.serviceType); p.set('sl', inp.serviceLevel)
-    if (inp.serviceEndDate) p.set('se', `${inp.serviceEndDate.month}-${inp.serviceEndDate.year}`)
+    p.set(k('st'), inp.serviceType); p.set(k('sl'), inp.serviceLevel)
+    if (inp.serviceEndDate) p.set(k('se'), `${inp.serviceEndDate.month}-${inp.serviceEndDate.year}`)
   }
-  if (inp.reserveDays > 0) p.set('rd', String(inp.reserveDays))
-  if (inp.niiCategoryV2 !== '18-retirement') p.set('nc2', inp.niiCategoryV2)
-  if (inp.niiCalcType !== 'regular') p.set('nct', inp.niiCalcType)
-  if (inp.yishuvName) p.set('yn', inp.yishuvName)
+  if (inp.reserveDays > 0) p.set(k('rd'), String(inp.reserveDays))
+  if (inp.niiCategoryV2 !== '18-retirement') p.set(k('nc2'), inp.niiCategoryV2)
+  if (inp.niiCalcType !== 'regular') p.set(k('nct'), inp.niiCalcType)
+  if (inp.yishuvName) p.set(k('yn'), inp.yishuvName)
   if (inp.degrees && inp.degrees.length > 0) {
-    // Compact encoding: type:year[:phdYear][:d] joined by ','
-    p.set('dg', inp.degrees.map(d => {
+    p.set(k('dg'), inp.degrees.map(d => {
       const parts = [d.type, String(d.year)]
       if (d.type === 'phdDirect' && typeof d.phdYear === 'number') parts.push(String(d.phdYear))
       else if (d.deferred) parts.push('d')
       return parts.join(':')
     }).join(','))
   }
-  // evalDate format: "MM-YYYY" (only set when user overrode default)
   const today = new Date()
   if (inp.evaluationDate.month !== today.getMonth() + 1 || inp.evaluationDate.year !== today.getFullYear()) {
-    p.set('ed', `${inp.evaluationDate.month}-${inp.evaluationDate.year}`)
+    p.set(k('ed'), `${inp.evaluationDate.month}-${inp.evaluationDate.year}`)
+  }
+}
+
+export function encodeEmployerParams(inp: EmployerInputs, comparison?: EmployerInputs | null): string {
+  const p = new URLSearchParams()
+  writeInputsTo(p, inp)
+  if (comparison) {
+    p.set('cmp', '1')
+    writeInputsTo(p, comparison, 'b_')
   }
   return p.toString()
 }
 
-function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAULT_EMPLOYER_CONFIG): EmployerInputs | null {
-  const p = new URLSearchParams(search)
-  if (!p.has('gs')) return null
+function readInputsFrom(p: URLSearchParams, prefix: string, config: EmployerCalcConfig): EmployerInputs | null {
+  const k = (key: string) => `${prefix}${key}`
+  if (!p.has(k('gs'))) return null
   const defaults = getDefaultEmployerInputs()
-  const gs = Number(p.get('gs')) || defaults.grossSalary
+  const gs = Number(p.get(k('gs'))) || defaults.grossSalary
   return {
     ...defaults,
     grossSalary: gs,
-    travelAllowance: Number(p.get('ta')) || defaults.travelAllowance,
-    hasVehicle: p.get('v') === '1',
-    vehicleFuelType: (p.get('vf') as EmployerInputs['vehicleFuelType']) || defaults.vehicleFuelType,
-    manufacturerPrice: Number(p.get('mp')) || defaults.manufacturerPrice,
-    hasMealBenefit: p.has('ml'),
-    mealBenefitAmount: Number(p.get('ml')) || defaults.mealBenefitAmount,
-    hasOtherBenefit: p.has('ob'),
-    otherBenefitAmount: Number(p.get('ob')) || defaults.otherBenefitAmount,
-    hasPension: p.get('np') !== '1',
-    pensionSalary: Number(p.get('ps')) || gs,
-    employeePensionRate: Number(p.get('pe')) || defaults.employeePensionRate,
-    employerPensionRate: Number(p.get('pp')) || defaults.employerPensionRate,
-    severanceRate: Number(p.get('sv')) || defaults.severanceRate,
-    hasEducationFund: p.get('he') === '1',
-    employerEducationRate: Number(p.get('ee')) || defaults.employerEducationRate,
-    educationFundSalary: Number(p.get('es')) || Math.min(gs, config.educationFundCap),
-    gender: p.get('g') === 'f' ? 'female' : 'male',
-    maritalStatus: (p.get('ms') as EmployerInputs['maritalStatus']) || defaults.maritalStatus,
-    childrenAges: p.has('ca') ? p.get('ca')!.split(',').map(Number) : [],
-    childAllowanceRecipient: p.get('cr') === 'e' ? 'employee' : 'spouse',
-    disabledChildrenCount: Number(p.get('dc')) || 0,
-    serviceType: (p.get('st') as EmployerInputs['serviceType']) || 'none',
-    serviceLevel: (p.get('sl') as EmployerInputs['serviceLevel']) || 'none',
+    travelAllowance: Number(p.get(k('ta'))) || defaults.travelAllowance,
+    hasVehicle: p.get(k('v')) === '1',
+    vehicleFuelType: (p.get(k('vf')) as EmployerInputs['vehicleFuelType']) || defaults.vehicleFuelType,
+    manufacturerPrice: Number(p.get(k('mp'))) || defaults.manufacturerPrice,
+    hasMealBenefit: p.has(k('ml')),
+    mealBenefitAmount: Number(p.get(k('ml'))) || defaults.mealBenefitAmount,
+    hasOtherBenefit: p.has(k('ob')),
+    otherBenefitAmount: Number(p.get(k('ob'))) || defaults.otherBenefitAmount,
+    hasPension: p.get(k('np')) !== '1',
+    pensionSalary: Number(p.get(k('ps'))) || gs,
+    employeePensionRate: Number(p.get(k('pe'))) || defaults.employeePensionRate,
+    employerPensionRate: Number(p.get(k('pp'))) || defaults.employerPensionRate,
+    severanceRate: Number(p.get(k('sv'))) || defaults.severanceRate,
+    hasEducationFund: p.get(k('he')) === '1',
+    employerEducationRate: Number(p.get(k('ee'))) || defaults.employerEducationRate,
+    educationFundSalary: Number(p.get(k('es'))) || Math.min(gs, config.educationFundCap),
+    gender: p.get(k('g')) === 'f' ? 'female' : 'male',
+    maritalStatus: (p.get(k('ms')) as EmployerInputs['maritalStatus']) || defaults.maritalStatus,
+    childrenAges: p.has(k('ca')) ? p.get(k('ca'))!.split(',').map(Number) : [],
+    childAllowanceRecipient: p.get(k('cr')) === 'e' ? 'employee' : 'spouse',
+    disabledChildrenCount: Number(p.get(k('dc'))) || 0,
+    serviceType: (p.get(k('st')) as EmployerInputs['serviceType']) || 'none',
+    serviceLevel: (p.get(k('sl')) as EmployerInputs['serviceLevel']) || 'none',
     serviceEndDate: (() => {
-      const se = p.get('se')
+      const se = p.get(k('se'))
       if (!se) return null
       const [m, y] = se.split('-').map(Number)
       if (m >= 1 && m <= 12 && y >= 2010 && y <= 2040) return { month: m, year: y }
       return null
     })(),
-    reserveDays: Number(p.get('rd')) || 0,
+    reserveDays: Number(p.get(k('rd'))) || 0,
     evaluationDate: (() => {
-      const ed = p.get('ed')
+      const ed = p.get(k('ed'))
       if (ed) {
         const [m, y] = ed.split('-').map(Number)
         if (m >= 1 && m <= 12 && y >= 2024 && y <= 2040) return { month: m, year: y }
@@ -127,12 +136,12 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
       return defaults.evaluationDate
     })(),
     pensionCreditSalary: defaults.pensionCreditSalary,
-    niiCategory: (p.get('nc') as NIICategory) || 'standard',
-    niiCategoryV2: (p.get('nc2') as EmployerInputs['niiCategoryV2']) || defaults.niiCategoryV2,
-    niiCalcType: (p.get('nct') as EmployerInputs['niiCalcType']) || defaults.niiCalcType,
-    yishuvName: p.get('yn') || null,
+    niiCategory: (p.get(k('nc')) as NIICategory) || 'standard',
+    niiCategoryV2: (p.get(k('nc2')) as EmployerInputs['niiCategoryV2']) || defaults.niiCategoryV2,
+    niiCalcType: (p.get(k('nct')) as EmployerInputs['niiCalcType']) || defaults.niiCalcType,
+    yishuvName: p.get(k('yn')) || null,
     degrees: (() => {
-      const dg = p.get('dg')
+      const dg = p.get(k('dg'))
       if (!dg) return []
       const validTypes = new Set(['bachelor', 'master', 'phdRegular', 'phdDirect', 'phdMedicine', 'professional'])
       return dg.split(',').map(token => {
@@ -153,6 +162,14 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
   }
 }
 
+function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAULT_EMPLOYER_CONFIG): { inputs: EmployerInputs; comparison: EmployerInputs | null } | null {
+  const p = new URLSearchParams(search)
+  const inputs = readInputsFrom(p, '', config)
+  if (!inputs) return null
+  const comparison = p.get('cmp') === '1' ? readInputsFrom(p, 'b_', config) : null
+  return { inputs, comparison }
+}
+
 export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProps = {}) {
   // Merge CMS overrides with hardcoded defaults
   const effectiveConfig: EmployerCalcConfig = { ...DEFAULT_EMPLOYER_CONFIG, ...cmsConfig }
@@ -167,13 +184,20 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
 
   const phaseIndex = PHASE_ORDER.indexOf(phase)
 
-  // Auto-calculate from URL params on mount
+  // Auto-calculate from URL params on mount (also restores comparison if shared)
   useEffect(() => {
     const restored = decodeEmployerParams(window.location.search, effectiveConfig)
     if (restored) {
-      setInputs(restored)
-      const res = calculateEmployerCost(restored, effectiveConfig)
+      setInputs(restored.inputs)
+      const res = calculateEmployerCost(restored.inputs, effectiveConfig)
       setResult(res)
+      if (restored.comparison) {
+        const cmpRes = calculateEmployerCost(restored.comparison, effectiveConfig)
+        setComparisonInputs(restored.comparison)
+        setComparisonResult(cmpRes)
+        setPrimaryInputs(restored.inputs)
+        setPrimaryResult(res)
+      }
       setPhase('results')
     }
   }, []) // eslint-disable-line
@@ -449,10 +473,11 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               {inputs.hasMealBenefit && (
                 <SliderInput
                   label="שווי ארוחות חודשי"
-                  min={500} max={2000} step={50}
+                  min={0} max={2000} step={50}
                   value={inputs.mealBenefitAmount}
                   onChange={v => update({ mealBenefitAmount: v })}
                   nodes={[
+                    { value: 0, label: '0' },
                     { value: 500, label: '500' },
                     { value: 1000, label: '1,000' },
                     { value: 1500, label: '1,500' },
@@ -473,11 +498,11 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               {inputs.hasOtherBenefit && (
                 <SliderInput
                   label="שווי מס נוסף חודשי"
-                  min={500} max={3000} step={50}
+                  min={0} max={3000} step={50}
                   value={inputs.otherBenefitAmount}
                   onChange={v => update({ otherBenefitAmount: v })}
                   nodes={[
-                    { value: 500, label: '500' },
+                    { value: 0, label: '0' },
                     { value: 1000, label: '1,000' },
                     { value: 2000, label: '2,000' },
                     { value: 3000, label: '3,000' },
@@ -661,7 +686,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                 </select>
               </div>
               <p className="text-caption text-text-muted mt-1">
-                לפי טבלאות חוזר מעסיקים 1522 (ינואר 2026). ברירת מחדל: 18 - גיל פרישה / חישוב רגיל.
+                לפי טבלאות חוזר מעסיקים 1522 (ינואר 2026). ברירת מחדל: מגיל 18 עד גיל פרישה / חישוב רגיל.
               </p>
             </div>
 
@@ -702,60 +727,70 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                 <p className="text-caption text-text-muted mb-2">אין תואר/מקצוע. לחץ להוספה.</p>
               )}
               {inputs.degrees.map((deg, i) => (
-                <div key={i} className="bg-surface rounded-lg p-space-3 mb-space-2 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
-                  <select
-                    value={deg.type}
-                    onChange={e => {
-                      const newType = e.target.value as import('./degree-credits').DegreeType
-                      const next = [...inputs.degrees]
-                      next[i] = { ...deg, type: newType }
-                      // phdDirect needs phdYear, others don't
-                      if (newType === 'phdDirect' && typeof next[i].phdYear !== 'number') next[i].phdYear = deg.year
-                      if (newType !== 'phdDirect') delete next[i].phdYear
-                      // deferred only for bachelor / phdRegular
-                      if (newType !== 'bachelor' && newType !== 'phdRegular') delete next[i].deferred
-                      update({ degrees: next })
-                    }}
-                    className="rounded-lg border border-border px-3 py-2 text-body bg-white focus:border-gold focus:outline-none"
-                  >
-                    <option value="bachelor">תואר ראשון (1 נ.ז × 3 שנים)</option>
-                    <option value="master">תואר שני (0.5 נ.ז × שנה אחת)</option>
-                    <option value="phdRegular">דוקטורט רגיל (0.5 נ.ז × 3 שנים)</option>
-                    <option value="phdMedicine">דוקטורט ברפואה (1+0.5 נ.ז × 2 שנים)</option>
-                    <option value="phdDirect">מסלול ישיר לדוקטורט</option>
-                    <option value="professional">מקצוע (שמאי וכד׳ — 1 נ.ז × שנה אחת)</option>
-                  </select>
-                  <input
-                    type="number"
-                    min={2000}
-                    max={2040}
-                    value={deg.year || ''}
-                    onChange={e => {
-                      const y = Number(e.target.value)
-                      const next = [...inputs.degrees]
-                      next[i] = { ...deg, year: Number.isFinite(y) ? y : 0 }
-                      update({ degrees: next })
-                    }}
-                    placeholder="שנת סיום"
-                    className="rounded-lg border border-border px-3 py-2 text-body bg-white w-28 focus:border-gold focus:outline-none"
-                  />
-                  {deg.type === 'phdDirect' ? (
+                <div key={i} className="bg-surface rounded-lg p-space-3 mb-space-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <select
+                      value={deg.type}
+                      onChange={e => {
+                        const newType = e.target.value as import('./degree-credits').DegreeType
+                        const next = [...inputs.degrees]
+                        next[i] = { ...deg, type: newType }
+                        // phdDirect needs phdYear, others don't
+                        if (newType === 'phdDirect' && typeof next[i].phdYear !== 'number') next[i].phdYear = deg.year
+                        if (newType !== 'phdDirect') delete next[i].phdYear
+                        // deferred only for bachelor / phdRegular
+                        if (newType !== 'bachelor' && newType !== 'phdRegular') delete next[i].deferred
+                        update({ degrees: next })
+                      }}
+                      className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+                      aria-label="סוג תואר / מקצוע"
+                    >
+                      <option value="bachelor">תואר ראשון (1 נ.ז × 3 שנים)</option>
+                      <option value="master">תואר שני (0.5 נ.ז × שנה אחת)</option>
+                      <option value="phdRegular">דוקטורט רגיל (0.5 נ.ז × 3 שנים)</option>
+                      <option value="phdMedicine">דוקטורט ברפואה (1+0.5 נ.ז × 2 שנים)</option>
+                      <option value="phdDirect">מסלול ישיר לדוקטורט</option>
+                      <option value="professional">מקצוע (שמאי וכד׳ — 1 נ.ז × שנה אחת)</option>
+                    </select>
                     <input
                       type="number"
                       min={2000}
                       max={2040}
-                      value={deg.phdYear ?? ''}
+                      value={deg.year || ''}
                       onChange={e => {
-                        const py = Number(e.target.value)
+                        const y = Number(e.target.value)
                         const next = [...inputs.degrees]
-                        next[i] = { ...deg, phdYear: Number.isFinite(py) ? py : undefined }
+                        next[i] = { ...deg, year: Number.isFinite(y) ? y : 0 }
                         update({ degrees: next })
                       }}
-                      placeholder="שנת דוק׳"
-                      className="rounded-lg border border-border px-3 py-2 text-body bg-white w-28 focus:border-gold focus:outline-none"
+                      placeholder="שנת סיום"
+                      className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+                      aria-label="שנת סיום"
                     />
-                  ) : (deg.type === 'bachelor' || deg.type === 'phdRegular') ? (
-                    <label className="text-caption text-text-muted flex items-center gap-1 whitespace-nowrap">
+                  </div>
+
+                  {deg.type === 'phdDirect' && (
+                    <div className="mt-2">
+                      <input
+                        type="number"
+                        min={2000}
+                        max={2040}
+                        value={deg.phdYear ?? ''}
+                        onChange={e => {
+                          const py = Number(e.target.value)
+                          const next = [...inputs.degrees]
+                          next[i] = { ...deg, phdYear: Number.isFinite(py) ? py : undefined }
+                          update({ degrees: next })
+                        }}
+                        placeholder="שנת התחלת דוקטורט"
+                        className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+                        aria-label="שנת התחלת דוקטורט"
+                      />
+                    </div>
+                  )}
+
+                  {(deg.type === 'bachelor' || deg.type === 'phdRegular') && (
+                    <label className="mt-2 flex items-center gap-2 text-caption text-text-muted">
                       <input
                         type="checkbox"
                         checked={!!deg.deferred}
@@ -767,16 +802,17 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                       />
                       דחיית הזיכוי בשנה
                     </label>
-                  ) : (
-                    <span />
                   )}
-                  <button
-                    type="button"
-                    onClick={() => update({ degrees: inputs.degrees.filter((_, j) => j !== i) })}
-                    className="text-body-sm text-red-600 hover:text-red-700 px-2 py-1"
-                  >
-                    הסר
-                  </button>
+
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => update({ degrees: inputs.degrees.filter((_, j) => j !== i) })}
+                      className="text-body-sm text-red-600 hover:text-red-700 px-2 py-1"
+                    >
+                      הסר
+                    </button>
+                  </div>
                 </div>
               ))}
               <button
@@ -796,8 +832,8 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
             <ToggleGroup
               label="סטטוס משפחתי"
               options={[
-                { value: 'married', label: 'נשוי/ה' },
                 { value: 'single', label: 'רווק/ה' },
+                { value: 'married', label: 'נשוי/ה' },
                 { value: 'divorced', label: 'גרוש/ה' },
                 { value: 'widowed', label: 'אלמן/ה' },
                 { value: 'singleParent', label: 'הורה יחיד/ה' },
@@ -916,21 +952,36 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
             <div className="bg-surface rounded-xl p-space-4 mb-space-5">
               <h3 className="text-body font-bold text-primary mb-space-3">שירות צבאי / לאומי</h3>
               <ToggleGroup
-                label="סוג שירות"
+                label="האם בוצע שירות צבאי / לאומי ב-3 השנים האחרונות?"
                 options={[
-                  { value: 'none', label: 'ללא שירות' },
-                  { value: 'military', label: 'שירות צבאי' },
-                  { value: 'national', label: 'שירות לאומי' },
+                  { value: 'no', label: 'לא' },
+                  { value: 'yes', label: 'כן' },
                 ]}
-                value={inputs.serviceType}
+                value={inputs.serviceType === 'none' ? 'no' : 'yes'}
                 onChange={v => {
-                  const serviceType = v as 'military' | 'national' | 'none'
-                  update({
-                    serviceType,
-                    serviceLevel: serviceType === 'none' ? 'none' : inputs.serviceLevel === 'none' ? 'full' : inputs.serviceLevel,
-                  })
+                  if (v === 'no') {
+                    update({ serviceType: 'none', serviceLevel: 'none' })
+                  } else {
+                    // Turning on → default to military + full if previously none
+                    update({
+                      serviceType: inputs.serviceType === 'none' ? 'military' : inputs.serviceType,
+                      serviceLevel: inputs.serviceLevel === 'none' ? 'full' : inputs.serviceLevel,
+                    })
+                  }
                 }}
               />
+
+              {inputs.serviceType !== 'none' && (
+                <ToggleGroup
+                  label="סוג שירות"
+                  options={[
+                    { value: 'military', label: 'שירות צבאי' },
+                    { value: 'national', label: 'שירות לאומי' },
+                  ]}
+                  value={inputs.serviceType}
+                  onChange={v => update({ serviceType: v as 'military' | 'national' })}
+                />
+              )}
 
               {inputs.serviceType !== 'none' && serviceThresholds && (
                 <>
@@ -960,8 +1011,21 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                         })}
                         className="rounded-lg border border-border px-3 py-2 text-body-sm focus:border-gold focus:outline-none"
                       >
-                        {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                          <option key={m} value={m}>חודש {String(m).padStart(2, '0')}</option>
+                        {[
+                          { m: 1, label: 'ינואר' },
+                          { m: 2, label: 'פברואר' },
+                          { m: 3, label: 'מרץ' },
+                          { m: 4, label: 'אפריל' },
+                          { m: 5, label: 'מאי' },
+                          { m: 6, label: 'יוני' },
+                          { m: 7, label: 'יולי' },
+                          { m: 8, label: 'אוגוסט' },
+                          { m: 9, label: 'ספטמבר' },
+                          { m: 10, label: 'אוקטובר' },
+                          { m: 11, label: 'נובמבר' },
+                          { m: 12, label: 'דצמבר' },
+                        ].map(({ m, label }) => (
+                          <option key={m} value={m}>{label}</option>
                         ))}
                       </select>
                       <select
@@ -974,8 +1038,9 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                         })}
                         className="rounded-lg border border-border px-3 py-2 text-body-sm focus:border-gold focus:outline-none"
                       >
-                        {Array.from({ length: 30 }, (_, i) => 2010 + i).map(y => (
-                          <option key={y} value={y}>שנת {y}</option>
+                        {/* Only last 3 years — service eligibility is 36-mo window */}
+                        {Array.from({ length: 3 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                          <option key={y} value={y}>{y}</option>
                         ))}
                       </select>
                     </div>
@@ -989,7 +1054,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
 
             {/* Reservist days (זיכוי מילואים) — Ron May 2026 */}
             <div className="bg-surface rounded-xl p-space-4 mb-space-5">
-              <h3 className="text-body font-bold text-primary mb-space-3">ימי מילואים בשנת המס הקודמת</h3>
+              <h3 className="text-body font-bold text-primary mb-space-3">ימי מילואים בשנת המס הקודמת (לוחם)</h3>
               <ToggleGroup
                 label="טווח ימי מילואים"
                 options={[
