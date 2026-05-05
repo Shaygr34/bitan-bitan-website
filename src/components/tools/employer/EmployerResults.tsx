@@ -1,9 +1,10 @@
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
-import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2, BarChart3 } from 'lucide-react'
+import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2, BarChart3, ChevronDown } from 'lucide-react'
 import type { EmployerCalcResult, EmployerInputs } from './types'
 import { DEFAULT_EMPLOYER_CONFIG } from './config'
+import { encodeEmployerParams } from './EmployerCalculator'
 import { getNIIRatesV2, NII_CATEGORY_V2_LABELS, NII_CALCTYPE_LABELS } from '@/lib/tax-tables-2026'
 
 type Props = {
@@ -30,40 +31,20 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
 
   const [shareMsg, setShareMsg] = useState('')
   const handleShare = useCallback(async () => {
-    // Build share URL with encoded inputs
-    const params = new URLSearchParams()
-    params.set('gs', String(inputs.grossSalary))
-    params.set('ta', String(inputs.travelAllowance))
-    if (inputs.hasVehicle) { params.set('v', '1'); params.set('vf', inputs.vehicleFuelType); params.set('mp', String(inputs.manufacturerPrice)) }
-    if (inputs.hasMealBenefit) params.set('ml', String(inputs.mealBenefitAmount))
-    if (inputs.hasOtherBenefit) params.set('ob', String(inputs.otherBenefitAmount))
-    params.set('pe', String(inputs.employeePensionRate))
-    params.set('pp', String(inputs.employerPensionRate))
-    params.set('sv', String(inputs.severanceRate))
-    params.set('ee', String(inputs.employerEducationRate))
-    params.set('g', inputs.gender[0])
-    params.set('ms', inputs.maritalStatus)
-    if (inputs.childrenAges.length > 0) params.set('ca', inputs.childrenAges.join(','))
-    if (inputs.childAllowanceRecipient === 'employee') params.set('cr', 'e')
-    if (inputs.disabledChildrenCount > 0) params.set('dc', String(inputs.disabledChildrenCount))
-    if (inputs.serviceType !== 'none') {
-      params.set('st', inputs.serviceType); params.set('sl', inputs.serviceLevel)
-      if (inputs.serviceEndDate) params.set('se', `${inputs.serviceEndDate.month}-${inputs.serviceEndDate.year}`)
-    }
-    if (inputs.reserveDays > 0) params.set('rd', String(inputs.reserveDays))
-    const today = new Date()
-    if (inputs.evaluationDate.month !== today.getMonth() + 1 || inputs.evaluationDate.year !== today.getFullYear()) {
-      params.set('ed', `${inputs.evaluationDate.month}-${inputs.evaluationDate.year}`)
-    }
-    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+    // Encode primary + comparison (if present) — comparison preserved across share
+    const qs = encodeEmployerParams(inputs, comparisonInputs)
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${qs}`
 
-    // Ron spec (May 2026): "ביטן את ביטן רו"ח - סימולציה עלות מעסיק / עובד מיום DD/MM/YY"
     const d = new Date()
     const dd = String(d.getDate()).padStart(2, '0')
     const mm = String(d.getMonth() + 1).padStart(2, '0')
     const yy = String(d.getFullYear() % 100).padStart(2, '0')
     const text = `ביטן את ביטן רו"ח - סימולציה עלות מעסיק / עובד מיום ${dd}/${mm}/${yy}`
-    if (navigator.share) {
+
+    // Mobile: native share sheet (WhatsApp/etc). Desktop: clipboard only —
+    // navigator.share on desktop falls through to mailto/Gmail compose which freezes.
+    const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+    if (isMobile && navigator.share) {
       try {
         await navigator.share({ title: text, text, url: shareUrl })
       } catch {
@@ -74,7 +55,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
       setShareMsg('הקישור הועתק!')
       setTimeout(() => setShareMsg(''), 2000)
     }
-  }, [inputs])
+  }, [inputs, comparisonInputs])
 
   return (
     <div className="print-area">
@@ -152,80 +133,97 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             { label: 'סה"כ שכר עבודה חייב במס', value: `${fmt(emp.totalTaxableIncome)} ₪`, bold: true },
           ]} />
 
-          <Section title="ניכויים" rows={[
-            { label: 'ביטוח לאומי', value: `${fmt(emp.niiEmployee)} ₪` },
-            { label: 'מס הכנסה', value: `${fmt(emp.incomeTax)} ₪` },
-            { label: 'פנסיה עובד', value: `${fmt(emp.pensionEmployee)} ₪` },
-            { label: 'קרן השתלמות עובד', value: `${fmt(emp.educationFundEmployee)} ₪` },
-            { label: 'סה"כ ניכויים', value: `${fmt(emp.totalDeductions)} ₪`, bold: true },
-          ]} />
+          {/* ניכויים — ביטוח לאומי + מס הכנסה rows are themselves the disclosures.
+              No separate dropdowns below: the breakdown opens in-row on click,
+              eliminating the duplicate "סה"כ" line that used to appear underneath. */}
+          <div className="mb-space-3">
+            <h4 className="text-body-sm font-bold text-primary bg-surface/60 px-2 py-1.5 rounded mb-0">ניכויים</h4>
 
-          {/* NII bracket breakdown — Ron May 2026 #45 + v2 (May 5) full pair display.
-              Sprint update: SUM shown in collapsed summary (Ron — "show the sum"). */}
-          {(() => {
-            const cfg = DEFAULT_EMPLOYER_CONFIG
-            const rates = getNIIRatesV2(inputs.niiCategoryV2, inputs.niiCalcType)
-            // niiBase: travel is already inside totalTaxableIncome (sprint update).
-            const niiBase = emp.totalTaxableIncome
-            const lowAmount = Math.min(niiBase, cfg.niiLowThreshold)
-            const highAmount = Math.max(niiBase - cfg.niiLowThreshold, 0)
-            const lowNii = Math.round(lowAmount * rates.employeeLow)
-            const highNii = Math.round(highAmount * rates.employeeHigh)
-            const catLabel = NII_CATEGORY_V2_LABELS[inputs.niiCategoryV2]
-            const calcLabel = NII_CALCTYPE_LABELS[inputs.niiCalcType]
-            return (
-              <details className="mb-space-3 -mt-space-2">
-                <summary className="cursor-pointer text-caption text-text-muted hover:text-primary px-2 py-1 flex items-center justify-between gap-2">
-                  <span>📐 פירוט חישוב ביטוח לאומי</span>
-                  <span className="font-bold text-primary">{fmt(emp.niiEmployee)} ₪</span>
-                </summary>
-                <div className="text-caption text-text-muted bg-surface/40 rounded-lg p-space-3 mt-1 space-y-0.5">
-                  <div>סיווג: {catLabel} / {calcLabel}</div>
-                  <div>בסיס חישוב: {fmt(niiBase)} ₪</div>
-                  <div>מתחת לתקרה ({fmt(cfg.niiLowThreshold)} ₪) × {(rates.employeeLow * 100).toFixed(2)}% = {fmt(lowNii)} ₪</div>
-                  {highAmount > 0 && (
-                    <div>מעל לתקרה ({fmt(highAmount)} ₪) × {(rates.employeeHigh * 100).toFixed(2)}% = {fmt(highNii)} ₪</div>
-                  )}
-                  <div className="font-bold pt-1 border-t border-border/30">{'סה"כ ביטוח לאומי עובד: '}{fmt(emp.niiEmployee)} ₪</div>
-                </div>
-              </details>
-            )
-          })()}
-
-          {/* Credit points display — Ron May 2026: separate lines per credit type */}
-          <div className="mb-space-3 bg-surface/40 rounded-lg p-space-3">
+            {/* Row 1: ביטוח לאומי — clickable */}
             {(() => {
-              // Separate base nz from degree nz per Ron's display template
+              const cfg = DEFAULT_EMPLOYER_CONFIG
+              const rates = getNIIRatesV2(inputs.niiCategoryV2, inputs.niiCalcType)
+              const niiBase = emp.totalTaxableIncome
+              const lowAmount = Math.min(niiBase, cfg.niiLowThreshold)
+              const highAmount = Math.max(niiBase - cfg.niiLowThreshold, 0)
+              const lowNii = Math.round(lowAmount * rates.employeeLow)
+              const highNii = Math.round(highAmount * rates.employeeHigh)
+              const catLabel = NII_CATEGORY_V2_LABELS[inputs.niiCategoryV2]
+              const calcLabel = NII_CALCTYPE_LABELS[inputs.niiCalcType]
+              return (
+                <details className="group border-b border-border-light">
+                  <summary className="flex justify-between items-center py-2 px-2 text-body-sm cursor-pointer hover:bg-surface/40 list-none [&::-webkit-details-marker]:hidden">
+                    <span className="text-text-muted flex items-center gap-1.5">
+                      <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180 text-text-muted/70" />
+                      ביטוח לאומי
+                    </span>
+                    <span className="text-text-secondary font-medium">{fmt(emp.niiEmployee)} ₪</span>
+                  </summary>
+                  <div className="text-caption text-text-muted bg-surface/40 px-3 py-2 space-y-0.5">
+                    <div>סיווג: {catLabel} / {calcLabel}</div>
+                    <div>בסיס חישוב: {fmt(niiBase)} ₪</div>
+                    <div>מתחת לתקרה ({fmt(cfg.niiLowThreshold)} ₪) × {(rates.employeeLow * 100).toFixed(2)}% = {fmt(lowNii)} ₪</div>
+                    {highAmount > 0 && (
+                      <div>מעל לתקרה ({fmt(highAmount)} ₪) × {(rates.employeeHigh * 100).toFixed(2)}% = {fmt(highNii)} ₪</div>
+                    )}
+                  </div>
+                </details>
+              )
+            })()}
+
+            {/* Row 2: מס הכנסה — clickable, expands to credit-points breakdown */}
+            {(() => {
               const baseNz = creditBreakdown.total - creditBreakdown.degree
               const baseValue = Math.round(baseNz * (creditBreakdown.monthlyValue / Math.max(creditBreakdown.total, 0.0001)))
               const degreeValue = Math.round(creditBreakdown.degree * (creditBreakdown.monthlyValue / Math.max(creditBreakdown.total, 0.0001)))
               const totalCredit = creditBreakdown.monthlyValue + creditBreakdown.pensionCredit + creditBreakdown.yishuvCredit
               return (
-                <div className="text-body-sm text-primary space-y-1">
-                  <p>
-                    <span className="font-bold">{baseNz.toFixed(2)}</span> נ&quot;ז ({fmt(baseValue)} ₪/חודש)
-                    {creditBreakdown.reservist > 0 && (
-                      <> · כולל {creditBreakdown.reservist.toFixed(2)} נ&quot;ז מילואים</>
-                    )}
-                  </p>
-                  {creditBreakdown.degree > 0 && (
+                <details className="group border-b border-border-light bg-surface/30">
+                  <summary className="flex justify-between items-center py-2 px-2 text-body-sm cursor-pointer hover:bg-surface/50 list-none [&::-webkit-details-marker]:hidden">
+                    <span className="text-text-muted flex items-center gap-1.5">
+                      <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180 text-text-muted/70" />
+                      מס הכנסה
+                    </span>
+                    <span className="text-text-secondary font-medium">{fmt(emp.incomeTax)} ₪</span>
+                  </summary>
+                  <div className="text-caption text-text-muted bg-surface/40 px-3 py-2 space-y-1">
                     <p>
-                      + נ&quot;ז תואר/מקצוע: <span className="font-bold">{creditBreakdown.degree.toFixed(2)}</span> נ&quot;ז ({fmt(degreeValue)} ₪/חודש)
+                      <span className="font-bold">{baseNz.toFixed(2)}</span> {'נ"ז'} ({fmt(baseValue)} ₪/חודש)
+                      {creditBreakdown.reservist > 0 && (
+                        <> · כולל {creditBreakdown.reservist.toFixed(2)} {'נ"ז'} מילואים</>
+                      )}
                     </p>
-                  )}
-                  {creditBreakdown.pensionCredit > 0 && (
-                    <p>+ זיכוי פנסיה: <span className="font-bold">{fmt(creditBreakdown.pensionCredit)} ₪</span></p>
-                  )}
-                  {creditBreakdown.yishuvCredit > 0 && (
-                    <p>+ זיכוי יישוב מוטב: <span className="font-bold">{fmt(creditBreakdown.yishuvCredit)} ₪</span></p>
-                  )}
-                  <p className="pt-1 border-t border-border/50 mt-1">
-                    סה&quot;כ זיכוי מס:{' '}
-                    <span className="font-bold text-gold-dark">{fmt(totalCredit)} ₪/חודש</span>
-                  </p>
-                </div>
+                    {creditBreakdown.degree > 0 && (
+                      <p>+ {'נ"ז'} תואר/מקצוע: <span className="font-bold">{creditBreakdown.degree.toFixed(2)}</span> {'נ"ז'} ({fmt(degreeValue)} ₪/חודש)</p>
+                    )}
+                    {creditBreakdown.pensionCredit > 0 && (
+                      <p>+ זיכוי פנסיה: <span className="font-bold">{fmt(creditBreakdown.pensionCredit)} ₪</span></p>
+                    )}
+                    {creditBreakdown.yishuvCredit > 0 && (
+                      <p>+ זיכוי יישוב מוטב: <span className="font-bold">{fmt(creditBreakdown.yishuvCredit)} ₪</span></p>
+                    )}
+                    <p className="pt-1 border-t border-border/50 mt-1">
+                      {'סה"כ זיכוי מס: '}
+                      <span className="font-bold text-gold-dark">{fmt(totalCredit)} ₪/חודש</span>
+                    </p>
+                  </div>
+                </details>
               )
             })()}
+
+            {/* Static rows */}
+            <div className="flex justify-between py-2 px-2 text-body-sm border-b border-border-light">
+              <span className="text-text-muted">פנסיה עובד</span>
+              <span className="text-text-secondary font-medium">{fmt(emp.pensionEmployee)} ₪</span>
+            </div>
+            <div className="flex justify-between py-2 px-2 text-body-sm border-b border-border-light bg-surface/30">
+              <span className="text-text-muted">קרן השתלמות עובד</span>
+              <span className="text-text-secondary font-medium">{fmt(emp.educationFundEmployee)} ₪</span>
+            </div>
+            <div className="flex justify-between py-2 px-2 text-body-sm">
+              <span className="text-text-muted">{'סה"כ ניכויים'}</span>
+              <span className="text-primary font-bold">{fmt(emp.totalDeductions)} ₪</span>
+            </div>
           </div>
 
           {/* Net Summary — employee */}

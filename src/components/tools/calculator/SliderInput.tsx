@@ -117,7 +117,9 @@ export function SliderInput({
         />
       </div>
 
-      {/* Node points — evenly distributed labels */}
+      {/* Node points — evenly distributed labels.
+          Uniform font-weight (medium) prevents layout shift when active node
+          changes during drag — only color swaps, widths stay stable. */}
       {nodes && nodes.length > 0 && (
         <div className="flex justify-between mt-space-1 px-1">
           {nodes.map((node) => {
@@ -129,9 +131,9 @@ export function SliderInput({
                 type="button"
                 onClick={() => handleNodeClick(node.value)}
                 className={[
-                  'text-caption px-1 py-0.5 rounded transition-all cursor-pointer whitespace-nowrap',
+                  'text-caption font-medium px-1 py-0.5 rounded transition-colors cursor-pointer whitespace-nowrap',
                   isActive || isClose
-                    ? 'text-gold font-bold'
+                    ? 'text-gold'
                     : 'text-text-muted hover:text-primary',
                 ].join(' ')}
               >

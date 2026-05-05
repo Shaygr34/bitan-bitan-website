@@ -523,7 +523,7 @@ export function getDefaultEmployerInputs(): EmployerInputs {
     employeeEducationRate: 2.5,
     employerEducationRate: 7.5,
     gender: 'male',
-    maritalStatus: 'married',
+    maritalStatus: 'single',
     childAllowanceRecipient: 'spouse',
     childrenAges: [],
     disabledChildrenCount: 0,

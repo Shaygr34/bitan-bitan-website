@@ -94,7 +94,11 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
 
   const handleShare = useCallback(async () => {
     const url = shareUrl || window.location.href
-    if (navigator.share) {
+    // Mobile: use native share sheet (WhatsApp/Telegram/Mail). Desktop: clipboard
+    // only — falling through to navigator.share on desktop opens mailto/Gmail
+    // compose which freezes on send (April 14 fix re-applied after PR #54 unification).
+    const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+    if (isMobile && navigator.share) {
       try {
         await navigator.share({ title: emailSubject, text: emailSubject, url })
       } catch {

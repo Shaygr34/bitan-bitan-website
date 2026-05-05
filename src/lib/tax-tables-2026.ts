@@ -158,7 +158,7 @@ export type NIICalcType =
   | 'age-67-70'    // נשים וגברים בין 67 ל-70 (only for non-pensioner)
 
 export const NII_CATEGORY_V2_LABELS: Record<NIICategoryV2, string> = {
-  '18-retirement': '18 - גיל פרישה',
+  '18-retirement': 'מגיל 18 עד גיל פרישה',
   'pensioner': 'מקבל קצבת אזרח ותיק',
   'non-pensioner': 'לא מקבל קצבת אזרח ותיק',
   'disability': 'מקבל קצבת נכות עבודה / נכות כללית',

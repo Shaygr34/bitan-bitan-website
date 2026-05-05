@@ -29,11 +29,11 @@ export type EmployerInputs = {
 
   // Meal benefit (שווי ארוחות)
   hasMealBenefit: boolean
-  mealBenefitAmount: number // 500-2000, default 1000
+  mealBenefitAmount: number // 0-2000, default 1000
 
   // Other benefit (שווי מס נוסף)
   hasOtherBenefit: boolean
-  otherBenefitAmount: number // 500-3000, default 1000
+  otherBenefitAmount: number // 0-3000, default 1000
 
   // Pension toggle + rates
   hasPension: boolean // כן/לא — default true
