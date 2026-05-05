@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2, BarChart3 } from 'lucide-react'
 import type { EmployerCalcResult, EmployerInputs } from './types'
 import { DEFAULT_EMPLOYER_CONFIG } from './config'
-import { NII_TABLE_2026 } from '@/lib/tax-tables-2026'
+import { getNIIRatesV2, NII_CATEGORY_V2_LABELS, NII_CALCTYPE_LABELS } from '@/lib/tax-tables-2026'
 
 type Props = {
   result: EmployerCalcResult
@@ -161,27 +161,30 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             { label: 'סה"כ ניכויים', value: `${fmt(emp.totalDeductions)} ₪`, bold: true },
           ]} />
 
-          {/* NII bracket breakdown — Ron May 2026 #45 */}
+          {/* NII bracket breakdown — Ron May 2026 #45 + v2 (May 5) full pair display */}
           {(() => {
             const cfg = DEFAULT_EMPLOYER_CONFIG
-            const rates = NII_TABLE_2026[inputs.niiCategory] ?? NII_TABLE_2026.standard
+            const rates = getNIIRatesV2(inputs.niiCategoryV2, inputs.niiCalcType)
             const niiBase = emp.totalTaxableIncome + inputs.travelAllowance
             const lowAmount = Math.min(niiBase, cfg.niiLowThreshold)
             const highAmount = Math.max(niiBase - cfg.niiLowThreshold, 0)
             const lowNii = Math.round(lowAmount * rates.employeeLow)
             const highNii = Math.round(highAmount * rates.employeeHigh)
+            const catLabel = NII_CATEGORY_V2_LABELS[inputs.niiCategoryV2]
+            const calcLabel = NII_CALCTYPE_LABELS[inputs.niiCalcType]
             return (
               <details className="mb-space-3 -mt-space-2">
                 <summary className="cursor-pointer text-caption text-text-muted hover:text-primary px-2 py-1">
                   📐 פירוט חישוב ביטוח לאומי
                 </summary>
                 <div className="text-caption text-text-muted bg-surface/40 rounded-lg p-space-3 mt-1 space-y-0.5">
+                  <div>סיווג: {catLabel} / {calcLabel}</div>
                   <div>בסיס חישוב (כולל נסיעות): {fmt(niiBase)} ₪</div>
                   <div>מתחת לתקרה ({fmt(cfg.niiLowThreshold)} ₪) × {(rates.employeeLow * 100).toFixed(2)}% = {fmt(lowNii)} ₪</div>
                   {highAmount > 0 && (
                     <div>מעל לתקרה ({fmt(highAmount)} ₪) × {(rates.employeeHigh * 100).toFixed(2)}% = {fmt(highNii)} ₪</div>
                   )}
-                  <div className="font-bold pt-1 border-t border-border/30">סה&quot;כ ביטוח לאומי עובד: {fmt(emp.niiEmployee)} ₪</div>
+                  <div className="font-bold pt-1 border-t border-border/30">{'סה"כ ביטוח לאומי עובד: '}{fmt(emp.niiEmployee)} ₪</div>
                 </div>
               </details>
             )

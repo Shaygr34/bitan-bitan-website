@@ -818,3 +818,60 @@ Full audit logged in memory: `bitan-codebase-audit-2026-04-28.md`
 - `src/components/tools/calculator/__tests__/engine.test.ts` — leasing regression tests (20)
 - `src/components/tools/employer/__tests__/engine.test.ts` — employer regression tests (12)
 - `docs/superpowers/specs/2026-04-28-tax-tables-and-regression-tests.md` — design spec
+
+## Session: May 5, 2026 — Ron V3 Phase 2 Employer Feedback (Sub-Phases A–G except D)
+
+Implementation pass on Ron's April 30, 2026 docx feedback for the employer cost calculator. Sub-Phases A, B, C, E, F, G shipped to live bitancpa.com. **Sub-Phase D (NII 6-category × calc-type table) is the only remaining item** — data is in Drive, just needs extraction.
+
+### Shipped This Session
+- **Sub-Phase A (#34) — Yishuv Mutav** (יישוב מוטב preferred-settlement credit): full 488-entry list in `src/components/tools/employer/yishuv-mutav-2026.json`. Loader/lookup in `yishuv-mutav.ts`. UI: searchable HTML datalist on Personal step. Engine adds `yishuvCredit` (₪/month) to `CreditPointsBreakdown`.
+- **Sub-Phase B (#35) — Degree credits** (תואר/מקצוע נ.ז): `degree-credits.ts` with type definitions + window logic. Types: `bachelor`, `master`, `phdRegular`, `phdDirect`, `phdMedicine`, `professional`. Each has its own eligibility window relative to `evaluationDate` (Ron May 2026). `phdDirect` adds extra `phdYear` (PhD start year). `bachelor`/`phdRegular` allow `deferred: true` (1-year deferral). Engine adds `degree` (annual nz, displayed as monthly value) to breakdown.
+- **Sub-Phase C (#36) — Service end-date 36-mo eligibility**: `serviceEndDate: { month, year } | null` on `EmployerInputs`. Engine zeros service credit when evaluation date is past 36 months from end date. `null` = legacy eligible (backwards compat).
+- **Sub-Phase E (#39) — Reservist credit (זיכוי מילואים)**: `reserveDays: number` field. Tier table per BTL. Adds `reservist` line to breakdown.
+- **Sub-Phase F (#40) — Personal step UI**: Dynamic multi-row degree selector (type select, year input, conditional `phdYear` input for phdDirect, "דחיית הזיכוי בשנה" checkbox for bachelor/phdRegular, remove button, "+ הוסף תואר/מקצוע" button). Yishuv datalist. Service end-date pickers. Child-age guard: button disabled with red warning panel "⚠ יש להזין גיל לכל ילד לפני חישוב" when any age is < 0.
+- **Sub-Phase G (#41) — Results display restructure**: Multi-line credit breakdown in `EmployerResults.tsx`. Shows: main nz row, degree nz row (if present), pension credit ₪, yishuv credit ₪, total. Added NII bracket breakdown `<details>` (low bracket × `niiEmployeeLow` + high bracket × `niiEmployeeHigh`) using `DEFAULT_EMPLOYER_CONFIG` + `NII_TABLE_2026[niiCategory]`.
+
+### Test Coverage
+- `src/components/tools/employer/__tests__/engine.test.ts` grew from 32 → **94 tests**. New tests cover yishuv lookup edge cases (missing/empty/canonical names), degree window math (phdDirect requires both years, bachelor deferred shifts window, professional has no deferral), service 36-mo cutoff, reservist tiers, multi-credit composition.
+- All 94 pass. Run via `npm test`.
+
+### URL Share Params (Expanded)
+- `yn` — yishuv name (URL-encoded Hebrew string, single value)
+- `dg` — comma-separated compact degree tokens, format `type:year[:phdYear|d]`. Example: `dg=bachelor:2024,master:2026:d,phdDirect:2022:2024`
+- Decoder validates type whitelist + numeric coercion; invalid tokens dropped.
+
+### Lint Trap Learned (react/no-unescaped-entities)
+- `next build` runs ESLint **after** `tsc --noEmit`. The lint phase catches `react/no-unescaped-entities` for Hebrew JSX text containing literal `"` (very common in Hebrew: `סה"כ`, `שכ"ע`, `ת"ז`).
+- `tsc --noEmit` does NOT catch this — local typecheck passes while Railway build fails silently for ~5+ minutes per attempt.
+- **Fix pattern**: wrap text in JSX expression: `<p>{'* נסיעות אינן נכללות בסה"כ שכר...'}</p>`. Already applied at `EmployerResults.tsx:154`.
+- **Always run `npm run build` locally** before pushing changes that touch JSX with Hebrew text containing quotes.
+
+### Type/Schema Changes
+- `EmployerInputs` new fields: `yishuvName: string | null`, `degrees: Degree[]`, `serviceEndDate: { month, year } | null`, `reserveDays: number`, `evaluationDate: { month, year }`
+- `CreditPointsBreakdown` new fields: `yishuvCredit` (₪/month), `degree` (nz, annualized), `reservist`
+- `getDefaultEmployerInputs()` initializes `yishuvName: null, degrees: [], serviceEndDate: null, reserveDays: 0, evaluationDate: { month: 5, year: 2026 }`
+
+### Ron Source Files (located in Drive — for Sub-Phase D + future Ron feedback)
+**Drive path**: `/Users/shay/Library/CloudStorage/GoogleDrive-shaygriever34@gmail.com/My Drive/Ventures_04/Bitan & Bitan/Tools/`
+- `תיקון מחשבון עלות מעסיק 30.04.2026.docx` (461KB) — employer feedback. Full text extracted to `/tmp/ron_docx/employer_unzipped/` and saved to a tool-results file (~34KB).
+- `תיקון מחשבון ליסינג 02.05.2026.docx` (420KB) — leasing feedback (NOT yet read; separate work)
+- `attachments/generalInformation_income-tax-monthly-deductions-booklet_monthly-deductions-booklet-2026.pdf` (1.38MB) — **BTL Circular 1522** (authoritative NII rate source for Sub-Phase D)
+- `attachments/שני תרחישים הדפסה.pdf` (182KB) — sample print output
+
+### Sub-Phase D (#38) — REMAINING
+**Goal**: Replace single-axis `niiCategory` with full 6-category × calc-type matrix.
+- Source: 13-row NII table in Ron's docx (or BTL Circular 1522 PDF)
+- Need: build `NII_TABLE_V2_2026: Record<{cat, calcType}, NIIRates>` in `src/lib/tax-tables-2026.ts`
+- UI: cascading dropdowns on Personal step (category → calcType)
+- Engine: map old single `niiCategory` → new pair (migration shim for share-link backward compat)
+- Tests: extend `engine.test.ts` to cover each cell
+
+### New Key Files
+- `src/components/tools/employer/yishuv-mutav.ts` — loader + lookup helpers
+- `src/components/tools/employer/yishuv-mutav-2026.json` — 488-entry list (name, credit %)
+- `src/components/tools/employer/degree-credits.ts` — Degree types + window logic + nz tables
+
+### Live Verification
+- 2 commits pushed to main this session
+- Railway deployment confirmed live on bitancpa.com
+- Lint fix unblocked the deploy chain (5min hash polling caught the stuck build)

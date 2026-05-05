@@ -4,7 +4,7 @@
  * disabled children, pension credit fix, travel allowance.
  */
 
-import type { NIICategory } from '@/lib/tax-tables-2026'
+import type { NIICategory, NIICategoryV2, NIICalcType } from '@/lib/tax-tables-2026'
 
 export type VehicleFuelType = 'petrol' | 'electric' | 'plugIn' | 'hybrid' | 'commercial'
 
@@ -68,8 +68,14 @@ export type EmployerInputs = {
   // Reservist days (מילואים) in prior tax year — drives זיכוי מילואים tier
   reserveDays: number
 
-  // NII category (BTL circular 1522, 2026) — defaults to 'standard' (טור 1)
+  // NII category (BTL circular 1522, 2026) — legacy single-axis (4 entries).
+  // Kept for share-URL backwards compat. Engine prefers niiCategoryV2 + niiCalcType.
   niiCategory: NIICategory
+
+  // NII v2 (Ron May 5, 2026) — full 6×N matrix per BTL Circular 1522.
+  // When set, takes precedence over legacy niiCategory.
+  niiCategoryV2: NIICategoryV2
+  niiCalcType: NIICalcType
 
   // Backstage evaluation date (Ron May 2026)
   // Used for service eligibility (36-mo window) and degree credit windows.

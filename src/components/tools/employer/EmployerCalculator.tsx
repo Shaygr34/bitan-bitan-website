@@ -7,7 +7,12 @@ import { calculateEmployerCost, getDefaultEmployerInputs } from './engine'
 import { DEFAULT_EMPLOYER_CONFIG, SALARY_PRESETS, PENSION_EMPLOYEE_RATES, PENSION_EMPLOYER_RATES, SEVERANCE_RATES, EDUCATION_EMPLOYER_RATES, VEHICLE_FUEL_OPTIONS, getServiceThresholds } from './config'
 import { EmployerResults } from './EmployerResults'
 import type { EmployerInputs, EmployerCalcResult, EmployerCalcConfig, VehicleFuelType, Gender, MaritalStatus } from './types'
-import { type NIICategory, NII_CATEGORY_LABELS } from '@/lib/tax-tables-2026'
+import {
+  type NIICategory,
+  NII_CATEGORY_V2_LABELS,
+  NII_CALCTYPE_LABELS,
+  NII_CALCTYPES_BY_CATEGORY,
+} from '@/lib/tax-tables-2026'
 import { YISHUV_MUTAV_LIST } from './yishuv-mutav'
 
 type EmployerCalculatorProps = {
@@ -54,7 +59,8 @@ function encodeEmployerParams(inp: EmployerInputs): string {
     if (inp.serviceEndDate) p.set('se', `${inp.serviceEndDate.month}-${inp.serviceEndDate.year}`)
   }
   if (inp.reserveDays > 0) p.set('rd', String(inp.reserveDays))
-  if (inp.niiCategory !== 'standard') p.set('nc', inp.niiCategory)
+  if (inp.niiCategoryV2 !== '18-retirement') p.set('nc2', inp.niiCategoryV2)
+  if (inp.niiCalcType !== 'regular') p.set('nct', inp.niiCalcType)
   if (inp.yishuvName) p.set('yn', inp.yishuvName)
   if (inp.degrees && inp.degrees.length > 0) {
     // Compact encoding: type:year[:phdYear][:d] joined by ','
@@ -122,6 +128,8 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
     })(),
     pensionCreditSalary: defaults.pensionCreditSalary,
     niiCategory: (p.get('nc') as NIICategory) || 'standard',
+    niiCategoryV2: (p.get('nc2') as EmployerInputs['niiCategoryV2']) || defaults.niiCategoryV2,
+    niiCalcType: (p.get('nct') as EmployerInputs['niiCalcType']) || defaults.niiCalcType,
     yishuvName: p.get('yn') || null,
     degrees: (() => {
       const dg = p.get('dg')
@@ -584,19 +592,40 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               <label className="block text-body font-semibold text-primary mb-space-2">
                 סיווג ביטוח לאומי
               </label>
-              <select
-                value={inputs.niiCategory}
-                onChange={e => update({ niiCategory: e.target.value as NIICategory })}
-                className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
-              >
-                {(Object.keys(NII_CATEGORY_LABELS) as NIICategory[]).map(cat => (
-                  <option key={cat} value={cat}>
-                    {NII_CATEGORY_LABELS[cat]}
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <select
+                  value={inputs.niiCategoryV2}
+                  onChange={e => {
+                    const cat = e.target.value as EmployerInputs['niiCategoryV2']
+                    const allowed = NII_CALCTYPES_BY_CATEGORY[cat]
+                    // Reset calcType to first allowed value when category changes
+                    const calcType = allowed.includes(inputs.niiCalcType) ? inputs.niiCalcType : allowed[0]
+                    update({ niiCategoryV2: cat, niiCalcType: calcType })
+                  }}
+                  className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+                  aria-label="קטגוריית ביטוח לאומי"
+                >
+                  {(Object.keys(NII_CATEGORY_V2_LABELS) as Array<EmployerInputs['niiCategoryV2']>).map(cat => (
+                    <option key={cat} value={cat}>
+                      {NII_CATEGORY_V2_LABELS[cat]}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={inputs.niiCalcType}
+                  onChange={e => update({ niiCalcType: e.target.value as EmployerInputs['niiCalcType'] })}
+                  className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+                  aria-label="סוג חישוב ביטוח לאומי"
+                >
+                  {NII_CALCTYPES_BY_CATEGORY[inputs.niiCategoryV2].map(ct => (
+                    <option key={ct} value={ct}>
+                      {NII_CALCTYPE_LABELS[ct]}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <p className="text-caption text-text-muted mt-1">
-                לפי טבלאות חוזר מעסיקים 1522 (ינואר 2026). ברירת מחדל: תושב ישראל.
+                לפי טבלאות חוזר מעסיקים 1522 (ינואר 2026). ברירת מחדל: 18 - גיל פרישה / חישוב רגיל.
               </p>
             </div>
 

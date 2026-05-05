@@ -18,7 +18,15 @@ import type {
   ChildAge,
 } from './types'
 import { DEFAULT_EMPLOYER_CONFIG, CHILD_AGE_CREDITS, CHILD_ALLOWANCE_BONUS_AGES, getServiceCreditPoints } from './config'
-import { MAS_YASAF_2026, NII_TABLE_2026, type NIICategory } from '@/lib/tax-tables-2026'
+import {
+  MAS_YASAF_2026,
+  NII_TABLE_2026,
+  type NIICategory,
+  type NIICategoryV2,
+  type NIICalcType,
+  getNIIRatesV2,
+  migrateLegacyNIICategory,
+} from '@/lib/tax-tables-2026'
 import { calculateYishuvCredit } from './yishuv-mutav'
 import { calculateDegreeCredit } from './degree-credits'
 
@@ -206,17 +214,19 @@ function calculateNII(
   taxableIncome: number,
   isEmployee: boolean,
   config: EmployerCalcConfig,
-  category: NIICategory = 'standard',
+  categoryV2: NIICategoryV2 = '18-retirement',
+  calcType: NIICalcType = 'regular',
 ): number {
-  // Look up rates for the category. If category is 'standard' AND the config
-  // has explicit overrides (Sanity-driven), prefer config — preserves CMS control.
-  const useConfigOverride = category === 'standard'
-  const rates = NII_TABLE_2026[category] ?? NII_TABLE_2026.standard
+  // Look up rates for the (category, calcType) pair from BTL Circular 1522.
+  // For the default pair (18-retirement::regular) prefer config overrides
+  // — preserves Sanity CMS control over the standard rates.
+  const isDefaultPair = categoryV2 === '18-retirement' && calcType === 'regular'
+  const rates = getNIIRatesV2(categoryV2, calcType)
 
-  const lowRate = useConfigOverride
+  const lowRate = isDefaultPair
     ? (isEmployee ? config.niiEmployeeLow : config.niiEmployerLow)
     : (isEmployee ? rates.employeeLow : rates.employerLow)
-  const highRate = useConfigOverride
+  const highRate = isDefaultPair
     ? (isEmployee ? config.niiEmployeeHigh : config.niiEmployerHigh)
     : (isEmployee ? rates.employeeHigh : rates.employerHigh)
 
@@ -311,7 +321,20 @@ export function calculateEmployerCost(
     pensionCreditSalary,
   } = inputs
   const reserveDays = inputs.reserveDays ?? 0
-  const niiCategory: NIICategory = inputs.niiCategory ?? 'standard'
+
+  // NII v2 (Ron May 5, 2026): prefer the (category, calcType) pair.
+  // For share-URL backwards-compat: if legacy `niiCategory` is non-default but v2
+  // is still at default, migrate the legacy value to the new pair.
+  const v2AtDefault = (inputs.niiCategoryV2 ?? '18-retirement') === '18-retirement'
+    && (inputs.niiCalcType ?? 'regular') === 'regular'
+  const legacyNonDefault = (inputs.niiCategory ?? 'standard') !== 'standard'
+  const useLegacy = v2AtDefault && legacyNonDefault
+  const niiCategoryV2: NIICategoryV2 = useLegacy
+    ? migrateLegacyNIICategory(inputs.niiCategory!).category
+    : (inputs.niiCategoryV2 ?? '18-retirement')
+  const niiCalcType: NIICalcType = useLegacy
+    ? migrateLegacyNIICategory(inputs.niiCategory!).calcType
+    : (inputs.niiCalcType ?? 'regular')
 
   // Zero out rates when pension/education fund is disabled
   const employeePensionRate = hasPension ? inputs.employeePensionRate : 0
@@ -399,7 +422,7 @@ export function calculateEmployerCost(
   }
 
   // ─── Employee Deductions WITH שווי מס ───
-  const niiEmployeeWith = calculateNII(taxCalcBaseWith, true, config, niiCategory)
+  const niiEmployeeWith = calculateNII(taxCalcBaseWith, true, config, niiCategoryV2, niiCalcType)
   const incomeTaxWith = calculateIncomeTax(
     taxCalcBaseWith, creditPointsMonthly,
     pensionTax.pensionDeduction, pensionTax.pensionCredit, config,
@@ -411,7 +434,7 @@ export function calculateEmployerCost(
   const netWithShvui = grossSalary - totalDeductionsWith
 
   // ─── Employee Deductions WITHOUT שווי מס ───
-  const niiEmployeeWithout = calculateNII(taxCalcBaseWithout, true, config, niiCategory)
+  const niiEmployeeWithout = calculateNII(taxCalcBaseWithout, true, config, niiCategoryV2, niiCalcType)
   const incomeTaxWithout = calculateIncomeTax(
     taxCalcBaseWithout, creditPointsMonthly,
     pensionTax.pensionDeduction, pensionTax.pensionCredit, config,
@@ -426,8 +449,8 @@ export function calculateEmployerCost(
   const educationEmployer = Math.round(educationFundSalary * (employerEducationRate / 100))
 
   // NII employer — on tax calc base (Ron #14: includes travel + שווי מס)
-  const niiEmployerWith = calculateNII(taxCalcBaseWith, false, config, niiCategory)
-  const niiEmployerWithout = calculateNII(taxCalcBaseWithout, false, config, niiCategory)
+  const niiEmployerWith = calculateNII(taxCalcBaseWith, false, config, niiCategoryV2, niiCalcType)
+  const niiEmployerWithout = calculateNII(taxCalcBaseWithout, false, config, niiCategoryV2, niiCalcType)
 
   // Employer total includes travel allowance
   const totalAdditionalCost = pensionEmployer + severanceEmployer + educationEmployer + niiEmployerWith
@@ -510,6 +533,8 @@ export function getDefaultEmployerInputs(): EmployerInputs {
     reserveDays: 0,
     pensionCreditSalary: 9_700,
     niiCategory: 'standard',
+    niiCategoryV2: '18-retirement',
+    niiCalcType: 'regular',
     evaluationDate: (() => {
       const now = new Date()
       return { month: now.getMonth() + 1, year: now.getFullYear() }

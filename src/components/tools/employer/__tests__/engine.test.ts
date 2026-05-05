@@ -271,14 +271,16 @@ describe('calculateEmployerCost', () => {
     assert.equal(r.employee.niiEmployee, 3032)
   })
 
-  it("NII category: foreignResident — gross 30,000 + travel 315 → 861 (much lower)", () => {
-    // 7,703 × 0.85% = 65.48 + 22,612 × 3.52% = 795.94 → 861.42 → 861
+  it("NII category: legacy foreignResident migrates to soldier-foreign::regular → 1,663", () => {
+    // Ron May 2026: legacy foreignResident no longer matches a BTL row exactly;
+    // migrateLegacyNIICategory maps it to soldier-foreign::regular per Circular 1522.
+    // 7,703 × 1.04% = 80.11 + 22,612 × 7.00% = 1,582.84 → 1,662.95 → 1,663
     const r = calculateEmployerCost(makeInputs({
       grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
       niiCategory: 'foreignResident',
     }))
-    assert.equal(r.employee.niiEmployee, 861)
+    assert.equal(r.employee.niiEmployee, 1663)
   })
 
   it("NII category: default 'standard' matches Ron's snapshot — gross 30,000 + travel 315 → 3,081", () => {
@@ -288,6 +290,150 @@ describe('calculateEmployerCost', () => {
       niiCategory: 'standard',
     }))
     assert.equal(r.employee.niiEmployee, 3081)
+  })
+
+  // ─── NII v2 (Ron May 5, 2026) — full 6×N matrix per BTL Circular 1522 ─────
+  // Every cell tested at gross 30,000 + travel 315 (NII base = 30,315).
+  // Formula: 7,703 × empLow + (30,315 − 7,703) × empHigh, rounded.
+
+  it("NII v2: 18-retirement::regular — 3,081 (matches legacy 'standard')", () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: '18-retirement', niiCalcType: 'regular',
+    }))
+    assert.equal(r.employee.niiEmployee, 3081)
+  })
+
+  it("NII v2: 18-retirement::controlling — gross 30,000 + travel 315 → 3,032", () => {
+    // 7,703 × 4.25% = 327.38 + 22,612 × 11.96% = 2,704.40 → 3,031.78 → 3,032
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: '18-retirement', niiCalcType: 'controlling',
+    }))
+    assert.equal(r.employee.niiEmployee, 3032)
+  })
+
+  it("NII v2: pensioner::regular — 0 (no employee NII for old-age pensioner)", () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'pensioner', niiCalcType: 'regular',
+    }))
+    assert.equal(r.employee.niiEmployee, 0)
+  })
+
+  it("NII v2: pensioner::controlling — 0 (no employee NII)", () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'pensioner', niiCalcType: 'controlling',
+    }))
+    assert.equal(r.employee.niiEmployee, 0)
+  })
+
+  it("NII v2: non-pensioner::female-67 — gross 30,000 + travel 315 → 3,047", () => {
+    // 7,703 × 9.50% = 731.79 + 22,612 × 10.24% = 2,315.47 → 3,047.26 → 3,047
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'non-pensioner', niiCalcType: 'female-67',
+    }))
+    assert.equal(r.employee.niiEmployee, 3047)
+  })
+
+  it("NII v2: non-pensioner::age-67-70 — gross 30,000 + travel 315 → 2,571", () => {
+    // 7,703 × 3.93% = 302.73 + 22,612 × 10.03% = 2,267.98 → 2,570.71 → 2,571
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'non-pensioner', niiCalcType: 'age-67-70',
+    }))
+    assert.equal(r.employee.niiEmployee, 2571)
+  })
+
+  it("NII v2: non-pensioner::controlling — gross 30,000 + travel 315 → 2,571", () => {
+    // identical to age-67-70 for employee column (0.0393/0.1003)
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'non-pensioner', niiCalcType: 'controlling',
+    }))
+    assert.equal(r.employee.niiEmployee, 2571)
+  })
+
+  it("NII v2: disability::regular — gross 30,000 + travel 315 → 1,418", () => {
+    // 7,703 × 3.23% = 248.81 + 22,612 × 5.17% = 1,169.04 → 1,417.85 → 1,418
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'disability', niiCalcType: 'regular',
+    }))
+    assert.equal(r.employee.niiEmployee, 1418)
+  })
+
+  it("NII v2: disability::controlling — gross 30,000 + travel 315 → 1,418", () => {
+    // identical employee rates (0.0323/0.0517)
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'disability', niiCalcType: 'controlling',
+    }))
+    assert.equal(r.employee.niiEmployee, 1418)
+  })
+
+  it("NII v2: under-18::regular — 0 (minors exempt)", () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'under-18', niiCalcType: 'regular',
+    }))
+    assert.equal(r.employee.niiEmployee, 0)
+  })
+
+  it("NII v2: under-18::controlling — 0", () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'under-18', niiCalcType: 'controlling',
+    }))
+    assert.equal(r.employee.niiEmployee, 0)
+  })
+
+  it("NII v2: soldier-foreign::regular — gross 30,000 + travel 315 → 1,663", () => {
+    // 7,703 × 1.04% = 80.11 + 22,612 × 7.00% = 1,582.84 → 1,662.95 → 1,663
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'soldier-foreign', niiCalcType: 'regular',
+    }))
+    assert.equal(r.employee.niiEmployee, 1663)
+  })
+
+  it("NII v2: soldier-foreign::controlling — gross 30,000 + travel 315 → 1,614", () => {
+    // 7,703 × 1.02% = 78.57 + 22,612 × 6.79% = 1,535.36 → 1,613.93 → 1,614
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategoryV2: 'soldier-foreign', niiCalcType: 'controlling',
+    }))
+    assert.equal(r.employee.niiEmployee, 1614)
+  })
+
+  // Migration: legacy niiCategory should resolve to v2 pair when v2 not set.
+  it("NII v2 migration: legacy 'controllingShareholder' → 18-retirement::controlling", async () => {
+    const { migrateLegacyNIICategory } = await import('@/lib/tax-tables-2026')
+    const m = migrateLegacyNIICategory('controllingShareholder')
+    assert.equal(m.category, '18-retirement')
+    assert.equal(m.calcType, 'controlling')
+  })
+
+  it("NII v2 migration: legacy 'retiree' → pensioner::regular", async () => {
+    const { migrateLegacyNIICategory } = await import('@/lib/tax-tables-2026')
+    const m = migrateLegacyNIICategory('retiree')
+    assert.equal(m.category, 'pensioner')
+    assert.equal(m.calcType, 'regular')
   })
 
   // Ron May 2026: education fund שווי מס for excess above 15,712.

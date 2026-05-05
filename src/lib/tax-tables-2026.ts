@@ -138,6 +138,100 @@ export const NII_CATEGORY_LABELS: Record<NIICategory, string> = {
   foreignResident: 'תושב זר/אמנת מס',
 }
 
+// ─── NII v2 (Ron May 5, 2026) — Full 6-category × calc-type table ──────────
+// Source: Ron's docx (April 30, 2026, item 19) + BTL Circular 1522.
+// Replaces the 4-entry NII_TABLE_2026 with the full 13-row authoritative matrix.
+// UI: cascading dropdowns (category → calc-type). Engine: rates lookup by pair.
+
+export type NIICategoryV2 =
+  | '18-retirement'    // 18 - גיל פרישה
+  | 'pensioner'        // מקבל קצבת אזרח ותיק
+  | 'non-pensioner'    // לא מקבל קצבת אזרח ותיק
+  | 'disability'       // מקבל קצבת נכות עבודה / נכות כללית
+  | 'under-18'         // מתחת לגיל 18
+  | 'soldier-foreign'  // חייל סדיר / תושב זר מדינת אמנה
+
+export type NIICalcType =
+  | 'regular'      // חישוב רגיל
+  | 'controlling'  // בעל שליטה
+  | 'female-67'    // אישה בין גיל פרישה לגבר (only for non-pensioner)
+  | 'age-67-70'    // נשים וגברים בין 67 ל-70 (only for non-pensioner)
+
+export const NII_CATEGORY_V2_LABELS: Record<NIICategoryV2, string> = {
+  '18-retirement': '18 - גיל פרישה',
+  'pensioner': 'מקבל קצבת אזרח ותיק',
+  'non-pensioner': 'לא מקבל קצבת אזרח ותיק',
+  'disability': 'מקבל קצבת נכות עבודה / נכות כללית',
+  'under-18': 'מתחת לגיל 18',
+  'soldier-foreign': 'חייל סדיר / תושב זר מדינת אמנה',
+}
+
+export const NII_CALCTYPE_LABELS: Record<NIICalcType, string> = {
+  'regular': 'חישוב רגיל',
+  'controlling': 'בעל שליטה',
+  'female-67': 'אישה גיל פרישה - 67',
+  'age-67-70': 'גיל 67 - 70',
+}
+
+/**
+ * Allowed calc-types per category. UI second dropdown filters by this.
+ */
+export const NII_CALCTYPES_BY_CATEGORY: Record<NIICategoryV2, NIICalcType[]> = {
+  '18-retirement': ['regular', 'controlling'],
+  'pensioner': ['regular', 'controlling'],
+  'non-pensioner': ['female-67', 'age-67-70', 'controlling'],
+  'disability': ['regular', 'controlling'],
+  'under-18': ['regular', 'controlling'],
+  'soldier-foreign': ['regular', 'controlling'],
+}
+
+/**
+ * Full NII rate matrix (Ron's docx, item 19; BTL Circular 1522).
+ * Key format: `${category}::${calcType}`. Values are decimal rates (0.0427 = 4.27%).
+ */
+export const NII_TABLE_V2_2026: Record<string, NIIRates> = {
+  '18-retirement::regular':      { employeeLow: 0.0427, employeeHigh: 0.1217, employerLow: 0.0451, employerHigh: 0.0760 },
+  '18-retirement::controlling':  { employeeLow: 0.0425, employeeHigh: 0.1196, employerLow: 0.0460, employerHigh: 0.0738 },
+
+  'pensioner::regular':          { employeeLow: 0.0000, employeeHigh: 0.0000, employerLow: 0.0061, employerHigh: 0.0212 },
+  'pensioner::controlling':      { employeeLow: 0.0000, employeeHigh: 0.0000, employerLow: 0.0060, employerHigh: 0.0206 },
+
+  'non-pensioner::female-67':    { employeeLow: 0.0950, employeeHigh: 0.1024, employerLow: 0.0417, employerHigh: 0.0712 },
+  'non-pensioner::age-67-70':    { employeeLow: 0.0393, employeeHigh: 0.1003, employerLow: 0.0413, employerHigh: 0.0696 },
+  'non-pensioner::controlling':  { employeeLow: 0.0393, employeeHigh: 0.1003, employerLow: 0.0412, employerHigh: 0.0690 },
+
+  'disability::regular':         { employeeLow: 0.0323, employeeHigh: 0.0517, employerLow: 0.0061, employerHigh: 0.0212 },
+  'disability::controlling':     { employeeLow: 0.0323, employeeHigh: 0.0517, employerLow: 0.0060, employerHigh: 0.0206 },
+
+  'under-18::regular':           { employeeLow: 0.0000, employeeHigh: 0.0000, employerLow: 0.0061, employerHigh: 0.0212 },
+  'under-18::controlling':       { employeeLow: 0.0000, employeeHigh: 0.0000, employerLow: 0.0060, employerHigh: 0.0206 },
+
+  'soldier-foreign::regular':     { employeeLow: 0.0104, employeeHigh: 0.0700, employerLow: 0.0451, employerHigh: 0.0760 },
+  'soldier-foreign::controlling': { employeeLow: 0.0102, employeeHigh: 0.0679, employerLow: 0.0446, employerHigh: 0.0738 },
+}
+
+/**
+ * Helper: lookup NII rates by (category, calcType) pair.
+ * Falls back to '18-retirement::regular' if pair is unknown (defensive).
+ */
+export function getNIIRatesV2(category: NIICategoryV2, calcType: NIICalcType): NIIRates {
+  const key = `${category}::${calcType}`
+  return NII_TABLE_V2_2026[key] ?? NII_TABLE_V2_2026['18-retirement::regular']
+}
+
+/**
+ * Migration: map legacy 4-value `niiCategory` to new (category, calcType) pair.
+ * Used for backwards compat with old share-URLs.
+ */
+export function migrateLegacyNIICategory(legacy: NIICategory): { category: NIICategoryV2; calcType: NIICalcType } {
+  switch (legacy) {
+    case 'standard':                return { category: '18-retirement', calcType: 'regular' }
+    case 'controllingShareholder': return { category: '18-retirement', calcType: 'controlling' }
+    case 'retiree':                 return { category: 'pensioner', calcType: 'regular' }
+    case 'foreignResident':         return { category: 'soldier-foreign', calcType: 'regular' }
+  }
+}
+
 // ─── Credit Points ─────────────────────────────────────────────────────────
 
 export const CREDIT_POINTS_2026 = {
