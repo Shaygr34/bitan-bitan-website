@@ -7,6 +7,7 @@ import { calculateEmployerCost, getDefaultEmployerInputs } from './engine'
 import { DEFAULT_EMPLOYER_CONFIG, SALARY_PRESETS, PENSION_EMPLOYEE_RATES, PENSION_EMPLOYER_RATES, SEVERANCE_RATES, EDUCATION_EMPLOYER_RATES, VEHICLE_FUEL_OPTIONS, getServiceThresholds } from './config'
 import { EmployerResults } from './EmployerResults'
 import type { EmployerInputs, EmployerCalcResult, EmployerCalcConfig, VehicleFuelType, Gender, MaritalStatus } from './types'
+import { type NIICategory, NII_CATEGORY_LABELS } from '@/lib/tax-tables-2026'
 
 type EmployerCalculatorProps = {
   config?: Partial<EmployerCalcConfig>
@@ -46,6 +47,7 @@ function encodeEmployerParams(inp: EmployerInputs): string {
   if (inp.childAllowanceRecipient === 'employee') p.set('cr', 'e')
   if (inp.disabledChildrenCount > 0) p.set('dc', String(inp.disabledChildrenCount))
   if (inp.serviceType !== 'none') { p.set('st', inp.serviceType); p.set('sl', inp.serviceLevel) }
+  if (inp.niiCategory !== 'standard') p.set('nc', inp.niiCategory)
   return p.toString()
 }
 
@@ -81,6 +83,7 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
     serviceType: (p.get('st') as EmployerInputs['serviceType']) || 'none',
     serviceLevel: (p.get('sl') as EmployerInputs['serviceLevel']) || 'none',
     pensionCreditSalary: defaults.pensionCreditSalary,
+    niiCategory: (p.get('nc') as NIICategory) || 'standard',
   }
 }
 
@@ -478,6 +481,26 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               value={inputs.gender}
               onChange={v => update({ gender: v as Gender })}
             />
+
+            <div className="mb-space-5">
+              <label className="block text-body font-semibold text-primary mb-space-2">
+                סיווג ביטוח לאומי
+              </label>
+              <select
+                value={inputs.niiCategory}
+                onChange={e => update({ niiCategory: e.target.value as NIICategory })}
+                className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+              >
+                {(Object.keys(NII_CATEGORY_LABELS) as NIICategory[]).map(cat => (
+                  <option key={cat} value={cat}>
+                    {NII_CATEGORY_LABELS[cat]}
+                  </option>
+                ))}
+              </select>
+              <p className="text-caption text-text-muted mt-1">
+                לפי טבלאות חוזר מעסיקים 1522 (ינואר 2026). ברירת מחדל: תושב ישראל.
+              </p>
+            </div>
 
             <ToggleGroup
               label="סטטוס משפחתי"

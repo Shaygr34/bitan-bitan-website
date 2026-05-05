@@ -50,17 +50,19 @@ export const MAS_YASAF_2026 = {
 } as const
 
 // ─── National Insurance (ביטוח לאומי) ──────────────────────────────────────
+// Source: BTL Circular 1522 (חוזר מעסיקים), January 1, 2026.
+// Rates are %; lowThreshold/highThreshold are monthly ₪ ceilings.
 
 export const NII_2026 = {
   // Thresholds (monthly)
   lowThreshold: 7_703,
   highThreshold: 51_910,
 
-  // Employee rates
+  // Employee rates — default category (standard / טור 1)
   employeeLow: 0.0427,
   employeeHigh: 0.1217,
 
-  // Employer rates
+  // Employer rates — default category (standard / טור 1)
   employerLow: 0.0451,
   employerHigh: 0.076,
 
@@ -68,6 +70,76 @@ export const NII_2026 = {
   selfEmployedSavingsRateAboveThreshold: 0.18,
   selfEmployedSavingsRateBelowThreshold: 0.077,
 } as const
+
+/**
+ * NII category — determines which BTL rate column applies.
+ * 'standard' is טור 1 (resident 18-retirement age, the default for ~95% of cases).
+ */
+export type NIICategory =
+  | 'standard'              // טור 1 — תושב ישראל בגיל העבודה (default)
+  | 'controllingShareholder' // טור 2 — בעל שליטה בחברת מעטים
+  | 'retiree'               // טור 3 — מקבל קצבה לאחר גיל פרישה (קצבת זקנה)
+  | 'foreignResident'       // תושב זר (עובד זר)
+  | 'territoriesResident'   // תושב שטחים
+
+export type NIIRates = {
+  employeeLow: number
+  employeeHigh: number
+  employerLow: number
+  employerHigh: number
+}
+
+/**
+ * NII rate table — each category maps to (employee, employer) × (low, high) rates.
+ * Source: BTL Circular 1522 (January 2026), pages 5-8.
+ *
+ * Notes:
+ * - 'retiree' uses טור 3 ages 67-70 row (5.97% high) as a representative rate.
+ *   Real implementation may need finer age sub-categories.
+ * - 'foreignResident' and 'territoriesResident' rates are flat across the
+ *   threshold in BTL tables but follow the same low/high split structure here.
+ */
+export const NII_TABLE_2026: Record<NIICategory, NIIRates> = {
+  standard: {
+    employeeLow: 0.0427,
+    employeeHigh: 0.1217,
+    employerLow: 0.0451,
+    employerHigh: 0.076,
+  },
+  controllingShareholder: {
+    employeeLow: 0.0425,
+    employeeHigh: 0.1196,
+    employerLow: 0.0446,
+    employerHigh: 0.0738,
+  },
+  retiree: {
+    employeeLow: 0.0517,
+    employeeHigh: 0.0597,
+    employerLow: 0.0451,
+    employerHigh: 0.076,
+  },
+  foreignResident: {
+    employeeLow: 0.0085,
+    employeeHigh: 0.0352,
+    employerLow: 0.0059,
+    employerHigh: 0.0259,
+  },
+  territoriesResident: {
+    employeeLow: 0.0078,
+    employeeHigh: 0.0310,
+    employerLow: 0.0051,
+    employerHigh: 0.0231,
+  },
+} as const
+
+/** UI labels (Hebrew) for each NII category. */
+export const NII_CATEGORY_LABELS: Record<NIICategory, string> = {
+  standard: 'תושב ישראל (ברירת מחדל)',
+  controllingShareholder: 'בעל שליטה בחברת מעטים',
+  retiree: 'פנסיונר (לאחר גיל פרישה)',
+  foreignResident: 'תושב זר / עובד זר',
+  territoriesResident: 'תושב שטחים',
+}
 
 // ─── Credit Points ─────────────────────────────────────────────────────────
 

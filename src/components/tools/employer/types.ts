@@ -4,6 +4,8 @@
  * disabled children, pension credit fix, travel allowance.
  */
 
+import type { NIICategory } from '@/lib/tax-tables-2026'
+
 export type VehicleFuelType = 'petrol' | 'electric' | 'plugIn' | 'hybrid' | 'commercial'
 
 export type Gender = 'male' | 'female'
@@ -59,6 +61,9 @@ export type EmployerInputs = {
   // Service (שירות צבאי/לאומי)
   serviceType: 'military' | 'national' | 'none'
   serviceLevel: 'full' | 'partial' | 'none'
+
+  // NII category (BTL circular 1522, 2026) — defaults to 'standard' (טור 1)
+  niiCategory: NIICategory
 }
 
 /* ─── Results ─── */

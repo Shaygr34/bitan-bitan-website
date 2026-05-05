@@ -134,6 +134,38 @@ describe('calculateEmployerCost', () => {
       `expected ~13,375, got ${r.employee.incomeTax}`)
   })
 
+  // ─── NII Categories (BTL Circular 1522, January 2026) ───────────────────────
+
+  it("NII category: controllingShareholder (טור 2) — salary 30,315 → 3,032", () => {
+    // 7,703 × 4.25% = 327.38 + 22,612 × 11.96% = 2,704.40 → 3,031.78 → 3,032
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30315, pensionSalary: 30315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategory: 'controllingShareholder',
+    }))
+    assert.equal(r.employee.niiEmployee, 3032)
+  })
+
+  it("NII category: foreignResident — salary 30,315 → 861 (much lower)", () => {
+    // 7,703 × 0.85% = 65.48 + 22,612 × 3.52% = 795.94 → 861.42 → 861
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30315, pensionSalary: 30315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategory: 'foreignResident',
+    }))
+    assert.equal(r.employee.niiEmployee, 861)
+  })
+
+  it("NII category: default 'standard' matches Ron's snapshot — 30,315 → 3,081", () => {
+    // Same input as the 'Ron — salary 30,315' test above, using explicit category.
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30315, pensionSalary: 30315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      niiCategory: 'standard',
+    }))
+    assert.equal(r.employee.niiEmployee, 3081)
+  })
+
   it('20K with NO pension, NO education fund', () => {
     const r = calculateEmployerCost(makeInputs({
       grossSalary: 20000, pensionSalary: 20000,
