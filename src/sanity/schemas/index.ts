@@ -18,6 +18,7 @@ import newsletterSubscriber from './newsletterSubscriber'
 import intakeToken from './intakeToken'
 import clientDocument from './clientDocument'
 import onboardingRecord from './onboardingRecord'
+import signingTemplate from './signingTemplate'
 import weeklyMetrics from './weeklyMetrics'
 import contentOpportunity from './contentOpportunity'
 import intelligenceItem from './intelligenceItem'
@@ -59,6 +60,7 @@ export const schemaTypes = [
   intakeToken,
   clientDocument,
   onboardingRecord,
+  signingTemplate,
 
   // Analytics
   weeklyMetrics,
