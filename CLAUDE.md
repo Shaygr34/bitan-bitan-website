@@ -64,6 +64,8 @@ CMS: Sanity project ul4uwnp7, dataset production
   - Print/PDF with watermark disclaimer "נתוני שכר להמחשה בלבד"
   - QA audit done: 7 issues fixed (age sentinel, comparison state, service defaults, etc.)
   - **Pension/education fund optional** (April 23): Yes/no toggles at step 2. Default=yes. Engine zeros rates when disabled.
+  - **Ron V3 Phase 2** (May 5): yishuv mutav credit (488-entry list), degree credits (6 types with type-specific eligibility windows), service end-date 36-mo gating, reservist credit, NII v2 matrix (13 rows × 6 categories per BTL Circular 1522), cascading category/calc-type dropdowns. Tests: 94 → 109.
+  - **Ron Sprint Final 5** (May 5): travel INCLUDED in displayed taxable wage (was excluded), NII details show total in collapsed summary, year hardlocked to 2026, advanced-settings panel moved to bottom of step 1, reservist slider cap → 110, "טאבון" dropped from professional degree label. **Total: 114 tests, 0 failures.**
 - **Planned tools**: סימולטור מענקי שאגת הארי (research done: `docs/superpowers/research/`)
 
 ### Client Onboarding (V3 — April 13, 2026)
