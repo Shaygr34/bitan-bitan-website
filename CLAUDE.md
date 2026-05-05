@@ -896,3 +896,16 @@ Implementation pass on Ron's April 30, 2026 docx feedback for the employer cost 
 
 ### Pending (Avi's #2 — exploring, not built)
 - Live updates feed — like the conveyor belt but for tax/regulatory updates with source links. Backend mostly already exists (`intelligenceItem` schema + Tue/Thu monitor). Surface depends on editorial commitment from Avi/Ron — needs ≥1 update/week to feel "alive" rather than stale.
+
+## Session: May 5, 2026 — Ron Sprint Final 5 (Employer Calc)
+
+Tail-end polish on the employer calculator, all five Ron-requested:
+
+1. **Travel allowance INCLUDED in displayed taxable wage row** (was excluded with `*` muted style + footnote per old Ron #15). Engine math unchanged — `taxCalcBaseWith === totalTaxableWithShvui` post-sprint. Tests flipped: `Ron #15 EXCLUDES → Ron May 5 INCLUDES`.
+2. **NII details — sum visible in collapsed summary**: `<details>` was already default-collapsed; sprint added the total `niiEmployee` value to the right side of the summary line ("📐 פירוט חישוב ביטוח לאומי ... 1,255 ₪"). Inline `niiBase` calc dropped the `+ travelAllowance` (already in totalTaxableIncome).
+3. **Year hardlocked to 2026**: advanced-settings panel year dropdown replaced with read-only `<input value={2026}>`. `getDefaultEmployerInputs().evaluationDate` returns `{ month: now.getMonth()+1, year: 2026 }`. Test updated: `defaults to current month/year` → `current month with year hardlocked to 2026`.
+4. **Advanced settings panel relocated**: from end of personal step (step 3) to bottom of salary step (step 1) — visible on the entry screen so user knows the calc reference frame upfront.
+5. **Reservist days slider cap → 110** (was 150). Removed the 130 node; relabeled `'110 (תקרה)'` → `'110'`.
+6. **Degree dropdown**: dropped "טאבון" — `מקצוע (טאבון / שמאי וכד׳ ...)` → `מקצוע (שמאי וכד׳ ...)`.
+
+Tests: 114 total, 0 failures. Build clean. Deploy verified live on bitancpa.com (poll detected new chunk hash `page-78cc834f...` carrying only new label).
