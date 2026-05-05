@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Calculator, CreditCard, TrendingDown, Receipt, Wallet, Info, Printer, Share2, Car, Banknote, Wrench } from 'lucide-react'
 import type { CalculationResult, OptionType } from './types'
 
@@ -76,6 +76,17 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
 
   const handlePrint = useCallback(() => { window.print() }, [])
   const [shareMsg, setShareMsg] = useState('')
+
+  // Inject creation date onto <html data-print-date="…"> so the print-only
+  // html::after pseudo-element can render it in the top-left of every page.
+  useEffect(() => {
+    const d = new Date()
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yyyy = d.getFullYear()
+    document.documentElement.setAttribute('data-print-date', `${dd}/${mm}/${yyyy}`)
+    return () => { document.documentElement.removeAttribute('data-print-date') }
+  }, [])
 
   // Ron spec (May 2026): email subject = "ביטן את ביטן רו"ח - סימולציה <type> מיום DD/MM/YY"
   // Type label adapts: purchase only → "רכישת רכב"; leasing only → "ליסינג";
@@ -227,6 +238,23 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
             white-space: nowrap !important;
             letter-spacing: 0.05em !important;
             line-height: 1 !important;
+          }
+
+          /* Print creation date — top-left, repeats per page (same fixed-on-html
+             trick as the watermark). attr() pulls the value injected via the
+             useEffect on <html>. */
+          html::after {
+            content: 'הופק: ' attr(data-print-date);
+            position: fixed !important;
+            top: 5mm !important;
+            left: 5mm !important;
+            font-size: 9px !important;
+            font-weight: 500 !important;
+            color: #6B7280 !important;
+            letter-spacing: 0.02em !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            z-index: 9999 !important;
           }
 
           /* Page setup */

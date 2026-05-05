@@ -451,7 +451,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               {inputs.hasEducationFund && (
                 <SliderInput
                   label="שכר לקרן השתלמות"
-                  subtitle={`תקרה לזיכוי ממס: ${fmt(effectiveConfig.educationFundCap)}`}
+                  subtitle={`תקרה להטבת מס: ${fmt(effectiveConfig.educationFundCap)}`}
                   min={0} max={inputs.grossSalary} step={500}
                   value={Math.min(inputs.educationFundSalary, inputs.grossSalary)}
                   onChange={v => update({ educationFundSalary: v })}
@@ -804,7 +804,13 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                       onChange={e => {
                         const y = Number(e.target.value)
                         const next = [...inputs.degrees]
-                        next[i] = { ...deg, year: Number.isFinite(y) ? y : 0 }
+                        const nextYear = Number.isFinite(y) ? y : 0
+                        // phdDirect: single year input drives both windows.
+                        // Keep phdYear in sync with year so the engine's dual
+                        // window logic still applies without exposing two inputs.
+                        next[i] = deg.type === 'phdDirect'
+                          ? { ...deg, year: nextYear, phdYear: nextYear }
+                          : { ...deg, year: nextYear }
                         update({ degrees: next })
                       }}
                       placeholder="שנת סיום"
@@ -812,26 +818,6 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                       aria-label="שנת סיום"
                     />
                   </div>
-
-                  {deg.type === 'phdDirect' && (
-                    <div className="mt-2">
-                      <input
-                        type="number"
-                        min={2000}
-                        max={2040}
-                        value={deg.phdYear ?? ''}
-                        onChange={e => {
-                          const py = Number(e.target.value)
-                          const next = [...inputs.degrees]
-                          next[i] = { ...deg, phdYear: Number.isFinite(py) ? py : undefined }
-                          update({ degrees: next })
-                        }}
-                        placeholder="שנת התחלת דוקטורט"
-                        className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
-                        aria-label="שנת התחלת דוקטורט"
-                      />
-                    </div>
-                  )}
 
                   {(deg.type === 'bachelor' || deg.type === 'phdRegular') && (
                     <label className="mt-2 flex items-center gap-2 text-caption text-text-muted">

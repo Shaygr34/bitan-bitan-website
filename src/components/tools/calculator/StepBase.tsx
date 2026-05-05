@@ -164,21 +164,22 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         )}
       </div>
 
-      {/* Car Price — Slider */}
+      {/* Car Price — Slider. Range 50K → 596,860 (2026 vehicle benefit cap).
+          50K node anchors the bar minimum on the right (RTL), 596K on the left. */}
       <SliderInput
         label="מחיר הרכב"
         subtitle="כולל מע״מ"
         min={50000}
-        max={600000}
+        max={596860}
         step={5000}
         value={values.carPrice || 150000}
         onChange={(v) => onChange({ carPrice: v })}
         nodes={[
-          { value: 100000, label: '100K' },
-          { value: 200000, label: '200K' },
+          { value: 50000, label: '50K' },
+          { value: 150000, label: '150K' },
           { value: 300000, label: '300K' },
-          { value: 400000, label: '400K' },
-          { value: 500000, label: '500K' },
+          { value: 450000, label: '450K' },
+          { value: 596860, label: '596K' },
         ]}
         format={formatCurrency}
       />
@@ -212,15 +213,16 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
           label="שווי רכב חדש מהיצרן"
           subtitle="לצורך חישוב שווי מס רכב — מחירון היצרן, לא מחיר הרכישה"
           min={50000}
-          max={600000}
+          max={596860}
           step={5000}
           value={values.manufacturerPrice || 200000}
           onChange={(v) => onChange({ manufacturerPrice: v })}
           nodes={[
-            { value: 100000, label: '100K' },
-            { value: 200000, label: '200K' },
+            { value: 50000, label: '50K' },
+            { value: 150000, label: '150K' },
             { value: 300000, label: '300K' },
-            { value: 500000, label: '500K' },
+            { value: 450000, label: '450K' },
+            { value: 596860, label: '596K' },
           ]}
           format={formatCurrency}
         />
