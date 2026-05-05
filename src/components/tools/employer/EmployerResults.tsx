@@ -151,7 +151,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             ...(emp.imputedSeverance > 0 ? [{ label: 'שווי זקופות פיצויים', value: `${fmt(emp.imputedSeverance)} ₪` }] : []),
             { label: 'סה"כ שכר עבודה חייב במס', value: `${fmt(emp.totalTaxableIncome)} ₪`, bold: true },
           ]} />
-          <p className="text-caption text-text-muted -mt-space-2 mb-space-3 px-2">* נסיעות אינן נכללות בסה"כ שכר עבודה חייב במס</p>
+          <p className="text-caption text-text-muted -mt-space-2 mb-space-3 px-2">{'* נסיעות אינן נכללות בסה"כ שכר עבודה חייב במס'}</p>
 
           <Section title="ניכויים" rows={[
             { label: 'ביטוח לאומי', value: `${fmt(emp.niiEmployee)} ₪` },
