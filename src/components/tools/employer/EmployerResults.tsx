@@ -462,8 +462,17 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
           .shadow-md { box-shadow: none !important; }
           .grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
 
-          /* Force page to start immediately */
-          @page { margin: 10mm; }
+          /* Page-break safety — prevent cards/sections/grids from splitting
+             across pages (which caused the cut-off top/bottom Ron flagged).
+             Headings stay glued to their following content. */
+          .rounded-2xl, .rounded-xl, .bg-primary, .bg-surface, .grid,
+          details, .border-t { break-inside: avoid !important; page-break-inside: avoid !important; }
+          h2, h3, h4 { break-after: avoid !important; page-break-after: avoid !important; }
+          tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+
+          /* Page margins — top extra room so the print-date stamp at 5mm
+             never collides with content; bottom extra room for clean break. */
+          @page { margin: 14mm 10mm 12mm 10mm; }
         }
       `}</style>
     </div>
