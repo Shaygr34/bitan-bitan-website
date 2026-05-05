@@ -3,6 +3,8 @@
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2, BarChart3 } from 'lucide-react'
 import type { EmployerCalcResult, EmployerInputs } from './types'
+import { DEFAULT_EMPLOYER_CONFIG } from './config'
+import { NII_TABLE_2026 } from '@/lib/tax-tables-2026'
 
 type Props = {
   result: EmployerCalcResult
@@ -159,21 +161,66 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             { label: 'סה"כ ניכויים', value: `${fmt(emp.totalDeductions)} ₪`, bold: true },
           ]} />
 
-          {/* Credit points display */}
+          {/* NII bracket breakdown — Ron May 2026 #45 */}
+          {(() => {
+            const cfg = DEFAULT_EMPLOYER_CONFIG
+            const rates = NII_TABLE_2026[inputs.niiCategory] ?? NII_TABLE_2026.standard
+            const niiBase = emp.totalTaxableIncome + inputs.travelAllowance
+            const lowAmount = Math.min(niiBase, cfg.niiLowThreshold)
+            const highAmount = Math.max(niiBase - cfg.niiLowThreshold, 0)
+            const lowNii = Math.round(lowAmount * rates.employeeLow)
+            const highNii = Math.round(highAmount * rates.employeeHigh)
+            return (
+              <details className="mb-space-3 -mt-space-2">
+                <summary className="cursor-pointer text-caption text-text-muted hover:text-primary px-2 py-1">
+                  📐 פירוט חישוב ביטוח לאומי
+                </summary>
+                <div className="text-caption text-text-muted bg-surface/40 rounded-lg p-space-3 mt-1 space-y-0.5">
+                  <div>בסיס חישוב (כולל נסיעות): {fmt(niiBase)} ₪</div>
+                  <div>מתחת לתקרה ({fmt(cfg.niiLowThreshold)} ₪) × {(rates.employeeLow * 100).toFixed(2)}% = {fmt(lowNii)} ₪</div>
+                  {highAmount > 0 && (
+                    <div>מעל לתקרה ({fmt(highAmount)} ₪) × {(rates.employeeHigh * 100).toFixed(2)}% = {fmt(highNii)} ₪</div>
+                  )}
+                  <div className="font-bold pt-1 border-t border-border/30">סה&quot;כ ביטוח לאומי עובד: {fmt(emp.niiEmployee)} ₪</div>
+                </div>
+              </details>
+            )
+          })()}
+
+          {/* Credit points display — Ron May 2026: separate lines per credit type */}
           <div className="mb-space-3 bg-surface/40 rounded-lg p-space-3">
-            <p className="text-body-sm text-primary">
-              <span className="font-bold">{creditBreakdown.total.toFixed(2)}</span>{' '}
-              נקודות זיכוי ({fmt(creditBreakdown.monthlyValue)} ₪/חודש)
-              {creditBreakdown.reservist > 0 && (
-                <> · כולל {creditBreakdown.reservist.toFixed(2)} נ&quot;ז מילואים</>
-              )}
-              {creditBreakdown.pensionCredit > 0 && (
-                <> + זיכוי פנסיה {fmt(creditBreakdown.pensionCredit)} ₪</>
-              )}
-              {', '}
-              סה&quot;כ זיכוי מס:{' '}
-              <span className="font-bold">{fmt(creditBreakdown.monthlyValue + creditBreakdown.pensionCredit)} ₪</span>
-            </p>
+            {(() => {
+              // Separate base nz from degree nz per Ron's display template
+              const baseNz = creditBreakdown.total - creditBreakdown.degree
+              const baseValue = Math.round(baseNz * (creditBreakdown.monthlyValue / Math.max(creditBreakdown.total, 0.0001)))
+              const degreeValue = Math.round(creditBreakdown.degree * (creditBreakdown.monthlyValue / Math.max(creditBreakdown.total, 0.0001)))
+              const totalCredit = creditBreakdown.monthlyValue + creditBreakdown.pensionCredit + creditBreakdown.yishuvCredit
+              return (
+                <div className="text-body-sm text-primary space-y-1">
+                  <p>
+                    <span className="font-bold">{baseNz.toFixed(2)}</span> נ&quot;ז ({fmt(baseValue)} ₪/חודש)
+                    {creditBreakdown.reservist > 0 && (
+                      <> · כולל {creditBreakdown.reservist.toFixed(2)} נ&quot;ז מילואים</>
+                    )}
+                  </p>
+                  {creditBreakdown.degree > 0 && (
+                    <p>
+                      + נ&quot;ז תואר/מקצוע: <span className="font-bold">{creditBreakdown.degree.toFixed(2)}</span> נ&quot;ז ({fmt(degreeValue)} ₪/חודש)
+                    </p>
+                  )}
+                  {creditBreakdown.pensionCredit > 0 && (
+                    <p>+ זיכוי פנסיה: <span className="font-bold">{fmt(creditBreakdown.pensionCredit)} ₪</span></p>
+                  )}
+                  {creditBreakdown.yishuvCredit > 0 && (
+                    <p>+ זיכוי יישוב מוטב: <span className="font-bold">{fmt(creditBreakdown.yishuvCredit)} ₪</span></p>
+                  )}
+                  <p className="pt-1 border-t border-border/50 mt-1">
+                    סה&quot;כ זיכוי מס:{' '}
+                    <span className="font-bold text-gold-dark">{fmt(totalCredit)} ₪/חודש</span>
+                  </p>
+                </div>
+              )
+            })()}
           </div>
 
           {/* Net Summary — employee */}

@@ -1011,10 +1011,32 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
             </details>
 
             <div className="mt-space-7 text-center">
-              <button type="button" onClick={next}
-                className="rounded-xl px-10 py-3.5 text-body-lg font-bold bg-gold text-white hover:bg-gold-hover cursor-pointer shadow-lg transition-all animate-pulse">
-                {isCompareMode ? '✓ חשב תרחיש להשוואה' : '✓ חשב עלות מעסיק'}
-              </button>
+              {(() => {
+                // Ron May 2026 #16: child ages must be entered when children > 0
+                const missingAges = inputs.childrenAges.some(a => a < 0)
+                return (
+                  <>
+                    {missingAges && (
+                      <div className="mb-3 inline-block bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+                        <p className="text-body-sm text-red-700">
+                          ⚠ יש להזין גיל לכל ילד לפני חישוב
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <button type="button" onClick={next} disabled={missingAges}
+                        className={[
+                          'rounded-xl px-10 py-3.5 text-body-lg font-bold shadow-lg transition-all',
+                          missingAges
+                            ? 'bg-text-muted text-white opacity-60 cursor-not-allowed'
+                            : 'bg-gold text-white hover:bg-gold-hover cursor-pointer animate-pulse',
+                        ].join(' ')}>
+                        {isCompareMode ? '✓ חשב תרחיש להשוואה' : '✓ חשב עלות מעסיק'}
+                      </button>
+                    </div>
+                  </>
+                )
+              })()}
             </div>
           </div>
         )}
