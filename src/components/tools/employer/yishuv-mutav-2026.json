@@ -1,0 +1,2442 @@
+[
+  {
+    "name": "אבו סנאן",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "אבו קורינאת (יישוב)",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אבו תלול",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אביבים",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "אביגיל",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "אבירים",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אבן מנחם",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אבן שמואל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אבני איתן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אבנת",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אבשלום",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "אדורה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אדוריים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אדמית",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "אודם",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אוהד",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "אום בטין",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אופקים",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "אור הגנוז",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אור הנר",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "אורטל",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אורים",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "אחוזם",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אחיהוד",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "איבים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "איילת השחר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אילון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אילות",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "איתן",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אל -רום",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אל סייד",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אלומות",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אלוני הבשן",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "אלי-עד",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אליאב",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אליפז",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אליפלט",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אלמגור",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אלקוש",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אמירים",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "אמנון",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אמציה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אניעם",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אספר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אפיק",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אפיקים",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ארגמן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ארז",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "אשבול",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אשבל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אשדות יעקב (איחוד)",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "אשחר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אשכולות",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אשל הנשיא",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אשלים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אשקלון",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "אשרת",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "באר אורה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "באר מילכה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "בארי",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "בוסתן הגליל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "בוקעאתא",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "בטחה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "ביר הדאג'",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "בירייה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "בית ג'ן",
+    "ratePct": 14,
+    "annualCap": 259920
+  },
+  {
+    "name": "בית הגדי",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "בית הלל",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "בית העמק",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "בית הערבה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "בית זרע",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "בית חוגלה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "בית יוסף",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "בית קמה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "בית שאן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "בן עמי",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "בני דקלים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "בני יהודה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "בני נצרים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "בענה",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "בצת",
+    "ratePct": 12,
+    "annualCap": 186600
+  },
+  {
+    "name": "בר יוחאי",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ברור חיל",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "ברוש",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "ברעם",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "בתרון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ג'דיידה-מכר",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "ג'ולס",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "ג'ש (גוש חלב)",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "גבולות",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "גבים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "גבעולים",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "גבעות בר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "גבעת יואב",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "גברעם",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "גדות",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "גונן",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "גורן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "גורנות הגליל",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "גילון",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "גילת",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "גינוסר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "גיתה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "געתון",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "גרופית",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "גשור",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "גשר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "גשר הזיו",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "דביר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "דגניה א'",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "דגניה ב'",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "דוב\"ב",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "דורות",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "דייר אל-אסד",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "דייר חנא",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "דימונה",
+    "ratePct": 18,
+    "annualCap": 245400
+  },
+  {
+    "name": "דישון",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "דלתון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "דן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "דפנה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "דקל",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "דריג'את",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "האון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "הגושרים",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "הילה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "הר עמשא",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "הררית",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "זיקים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "זמרת",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "זרועה",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "חגי",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "חד-נס",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "חולית",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "חולתה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "חוסן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "חוסנייה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "חוקוק",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "חורה",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "חורפיש",
+    "ratePct": 14,
+    "annualCap": 259920
+  },
+  {
+    "name": "חזון",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "חלוץ",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "חלץ",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "חמדיה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "חמדת",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "חניתה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "חספין",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "חצבה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "חצור הגלילית",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "חצרים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "חרשים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "טבריה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "טובא-זנגרייה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "טירת צבי",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "טל-אל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "טללים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "טמרה",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "טנא",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "טפחות",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "יאנוח-ג'ת",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "יבול",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "יד מרדכי",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "יהל",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "יובל",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "יובלים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "יונדב",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "יונתן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "יושיביה",
+    "ratePct": 14,
+    "annualCap": 213240
+  },
+  {
+    "name": "יחיעם",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "יטבתה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "יכיני",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "יסוד המעלה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "יסעור",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "יעד",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "יערה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "יפית",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "יפתח",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "יראון",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "ירדנה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ירוחם",
+    "ratePct": 18,
+    "annualCap": 245400
+  },
+  {
+    "name": "ירכא",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ישע",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "יתד",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "כאבול",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "כברי",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "כדיתה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כורזים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כחל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כחלה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כיסופים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "כישור",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כליל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כלנית",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "כמאנה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כמהין",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כמון",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כנף",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כנרת (מושבה)",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כנרת (קבוצה)",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כסיפה",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "כסרא-סמיע",
+    "ratePct": 14,
+    "annualCap": 259920
+  },
+  {
+    "name": "כפר בלום",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כפר גלעדי",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כפר הנשיא",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כפר חושן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כפר חנניה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "כפר חרוב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כפר יאסיף",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כפר מימון",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "כפר מסריק",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כפר סאלד",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כפר עזה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "כפר ראש הנקרה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "כפר רופין",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כפר שמאי",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "כרכום",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כרם בן זמרה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "כרם שלום",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "כרמי קטיף",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כרמיאל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כרמייה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "כרמים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "כרמל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "לבון",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "לבנים",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "להב",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "להבות הבשן",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "לוחמי הגיטאות",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "לוטם",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "לוטן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "לימן",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "לפידות",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "לקיה",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "מבוא חמה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מבועים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מבטחים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "מבקיעים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "מג'ד אל-כרום",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "מג'דל שמס",
+    "ratePct": 20,
+    "annualCap": 259920
+  },
+  {
+    "name": "מגאר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מגדל",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "מגן",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "מדרשת בן גוריון",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מולדה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מורן",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מזרעה",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "מחולה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מחנה טלי",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מחנה יוכבד",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "מחנה יפה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מחנה יתיר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מחניים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מטולה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "מיצר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מירון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מכחול",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מכמנים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מלילות",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "מלכייה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "מנוף",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מנות",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מנחמיה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מנרה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "מסדה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מסלול",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "מסעדה",
+    "ratePct": 14,
+    "annualCap": 259920
+  },
+  {
+    "name": "מעגלים",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "מעגן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מעוז חיים",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מעון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מעונה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מעיין ברוך",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "מעיליא",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "מעלה גמלא",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מעלות-תרשיחא",
+    "ratePct": 14,
+    "annualCap": 259920
+  },
+  {
+    "name": "מפלסים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "מצדות יהודה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "מצובה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "מצפה רמון",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "מצפה שלם",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מרגליות",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "מרום גולן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "מרחב עם",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "משאבי שדה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "משגב עם",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "משואה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "משכיות",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "משמר הירדן",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "משמר הנגב",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "מתת",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "נאות גולן",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "נאות הכיכר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נאות מרדכי",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נאות סמדר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נבטים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "נגוהות",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "נהרייה",
+    "ratePct": 12,
+    "annualCap": 226560
+  },
+  {
+    "name": "נוב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נווה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "נווה אור",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נווה אטי\"ב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נווה איתן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נווה זוהר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "נווה זיו",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נווה חריף",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נועם",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "נוף הגליל",
+    "ratePct": 12,
+    "annualCap": 226560
+  },
+  {
+    "name": "נחל עוז",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "נחף",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נטועה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "נטור",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נטע",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "ניצנה (קהילת חינוך)",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ניצני סיני",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ניר יצחק",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "ניר משה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "ניר עוז",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "ניר עם",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "ניר עקיבא",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "נירים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "נמרוד",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נס עמים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "נעמ\"ה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "נתיב העשרה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "נתיב השיירה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "נתיבות",
+    "ratePct": 16,
+    "annualCap": 226560
+  },
+  {
+    "name": "סאג'ור",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "סאסא",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "סוסיה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "סופה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "סח'נין",
+    "ratePct": 12,
+    "annualCap": 186000
+  },
+  {
+    "name": "סלמה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "סמר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "סנסנה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "סעד",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "סער",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "ספיר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ע'ג'ר",
+    "ratePct": 20,
+    "annualCap": 259920
+  },
+  {
+    "name": "עבדון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עברון",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "עזוז",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עידן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עין אל-אסד",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עין גב",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "עין גדי",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "עין הבשור",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "עין המפרץ",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "עין הנצי\"ב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עין השלושה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "עין זיוון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עין חצבה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עין יהב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עין יעקב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עין קנייא",
+    "ratePct": 14,
+    "annualCap": 259920
+  },
+  {
+    "name": "עין תמר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עיר אובות",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "עכו",
+    "ratePct": 12,
+    "annualCap": 226560
+  },
+  {
+    "name": "עלומים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "עלמה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עמוקה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "עמיעד",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "עמיעוז",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "עמיר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עמקה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "עצמון שגב",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "עראבה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "עראמשה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "ערב אל נעים",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ערד",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "ערערה-בנגב",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "עשהאל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "עתניאל",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "פארן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "פדויים",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "פורייה  -כפר עבודה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "פורייה  -נווה עובד",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "פורייה עילית",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "פטיש",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "פלך",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "פני חבר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "פסוטה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "פעמי תש\"ז",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "פצאל",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "פקיעין (בוקייעה)",
+    "ratePct": 14,
+    "annualCap": 259920
+  },
+  {
+    "name": "פקיעין חדשה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "פרוד",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "פרי גן",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "צאלים",
+    "ratePct": 14,
+    "annualCap": 213240
+  },
+  {
+    "name": "צביה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "צבעון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "צוחר",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "צופר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "צוקים",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "צוריאל",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "צורית",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "צפת",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "קדם ערבה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "קדמת צבי",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "קדרים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "קורנית",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "קטורה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "קלחים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "קליה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "קלע",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "קצר א-סר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "קצרין",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "קריית ארבע",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "קריית שמונה",
+    "ratePct": 20,
+    "annualCap": 259920
+  },
+  {
+    "name": "קשת",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ראמה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "ראס אל-עין",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ראש פינה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "רביבים",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "רביד",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "רגבה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "רהט",
+    "ratePct": 16,
+    "annualCap": 226560
+  },
+  {
+    "name": "רוח מדבר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "רוחמה",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "רועי",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "רותם",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "רחוב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "ריחאנייה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "רמות",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "רמות נפתלי",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "רמת טראמפ",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "רמת מגשימים",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "רנן",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "רעים",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "רקפת",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "רתמים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שאר ישוב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שבי דרום",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שבי ציון",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שגב-שלום",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "שדה אליהו",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שדה אליעזר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שדה בוקר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שדה דוד",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שדה נחום",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שדה נחמיה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שדה ניצן",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "שדה צבי",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שדי אברהם",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "שדי תרומות",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שדמות מחולה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שדרות",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "שובה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "שובל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שומרה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "שומרייה",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שוקדה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "שורשים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שזור",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "שחרות",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "שיבולים",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "שיזף",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שיטים",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "שייח' דנון",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שכניה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שלווה",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שלווה במדבר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שלומי",
+    "ratePct": 20,
+    "annualCap": 259920
+  },
+  {
+    "name": "שלומית",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "שמיר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שמעה",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "שמרת",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שני (ליבנה)",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שניר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שעב",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שעל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שער הגולן",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "שפר",
+    "ratePct": 10,
+    "annualCap": 180000
+  },
+  {
+    "name": "שקף",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "שרשרת",
+    "ratePct": 14,
+    "annualCap": 180000
+  },
+  {
+    "name": "שתולה",
+    "ratePct": 14,
+    "annualCap": 219960
+  },
+  {
+    "name": "תאשור",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "תדהר",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "תובל",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "תושייה",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "תל קציר",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "תל שבע",
+    "ratePct": 18,
+    "annualCap": 259920
+  },
+  {
+    "name": "תל תאומים",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "תלם",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "תלמי אליהו",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "תלמי ביל\"ו",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "תלמי יוסף",
+    "ratePct": 20,
+    "annualCap": 267840
+  },
+  {
+    "name": "תלמים",
+    "ratePct": 7,
+    "annualCap": 146640
+  },
+  {
+    "name": "תפרח",
+    "ratePct": 12,
+    "annualCap": 213240
+  },
+  {
+    "name": "תקומה",
+    "ratePct": 20,
+    "annualCap": 267840
+  }
+]

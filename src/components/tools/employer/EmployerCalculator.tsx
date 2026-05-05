@@ -8,6 +8,7 @@ import { DEFAULT_EMPLOYER_CONFIG, SALARY_PRESETS, PENSION_EMPLOYEE_RATES, PENSIO
 import { EmployerResults } from './EmployerResults'
 import type { EmployerInputs, EmployerCalcResult, EmployerCalcConfig, VehicleFuelType, Gender, MaritalStatus } from './types'
 import { type NIICategory, NII_CATEGORY_LABELS } from '@/lib/tax-tables-2026'
+import { YISHUV_MUTAV_LIST } from './yishuv-mutav'
 
 type EmployerCalculatorProps = {
   config?: Partial<EmployerCalcConfig>
@@ -54,6 +55,7 @@ function encodeEmployerParams(inp: EmployerInputs): string {
   }
   if (inp.reserveDays > 0) p.set('rd', String(inp.reserveDays))
   if (inp.niiCategory !== 'standard') p.set('nc', inp.niiCategory)
+  if (inp.yishuvName) p.set('yn', inp.yishuvName)
   // evalDate format: "MM-YYYY" (only set when user overrode default)
   const today = new Date()
   if (inp.evaluationDate.month !== today.getMonth() + 1 || inp.evaluationDate.year !== today.getFullYear()) {
@@ -111,6 +113,7 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
     })(),
     pensionCreditSalary: defaults.pensionCreditSalary,
     niiCategory: (p.get('nc') as NIICategory) || 'standard',
+    yishuvName: p.get('yn') || null,
   }
 }
 
@@ -566,6 +569,34 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               </select>
               <p className="text-caption text-text-muted mt-1">
                 לפי טבלאות חוזר מעסיקים 1522 (ינואר 2026). ברירת מחדל: תושב ישראל.
+              </p>
+            </div>
+
+            <div className="mb-space-5">
+              <label className="block text-body font-semibold text-primary mb-space-2">
+                יישוב מוטב (זיכוי מס)
+              </label>
+              <input
+                list="yishuv-mutav-list"
+                value={inputs.yishuvName ?? ''}
+                onChange={e => {
+                  const val = e.target.value.trim()
+                  // Only commit if exact match in list, else null (prevents typos)
+                  const matched = YISHUV_MUTAV_LIST.find(y => y.name === val)
+                  update({ yishuvName: matched ? val : (val === '' ? null : val) })
+                }}
+                placeholder="ללא יישוב מוטב"
+                className="w-full rounded-lg border border-border px-3 py-2.5 text-body bg-white focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+              />
+              <datalist id="yishuv-mutav-list">
+                {YISHUV_MUTAV_LIST.map(y => (
+                  <option key={y.name} value={y.name}>
+                    {y.ratePct}% (תקרה שנתית {y.annualCap.toLocaleString('he-IL')} ₪)
+                  </option>
+                ))}
+              </datalist>
+              <p className="text-caption text-text-muted mt-1">
+                הקלד שם יישוב לחיפוש (488 יישובים, לוח 2026). השאר ריק אם אין.
               </p>
             </div>
 

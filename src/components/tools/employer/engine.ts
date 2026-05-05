@@ -19,6 +19,7 @@ import type {
 } from './types'
 import { DEFAULT_EMPLOYER_CONFIG, CHILD_AGE_CREDITS, CHILD_ALLOWANCE_BONUS_AGES, getServiceCreditPoints } from './config'
 import { MAS_YASAF_2026, NII_TABLE_2026, type NIICategory } from '@/lib/tax-tables-2026'
+import { calculateYishuvCredit } from './yishuv-mutav'
 
 /* ═══════════════════════════════════════════════
    Vehicle Tax Benefit (שווי מס רכב)
@@ -163,6 +164,7 @@ function calculateIncomeTax(
   pensionDeduction: number,
   pensionCredit: number,
   config: EmployerCalcConfig,
+  yishuvCredit: number = 0,
 ): number {
   // Taxable income reduced by pension deduction
   const adjustedIncome = Math.max(0, taxableIncome - pensionDeduction)
@@ -185,8 +187,9 @@ function calculateIncomeTax(
     prevUpTo = bracket.upTo
   }
 
-  // Credits offset regular bracket tax only (cannot reduce below 0)
-  const taxAfterCredits = Math.max(0, tax - creditPointsMonthly - pensionCredit)
+  // Credits offset regular bracket tax only (cannot reduce below 0).
+  // Yishuv mutav credit (Ron May 2026) is a tax credit — joins same offset.
+  const taxAfterCredits = Math.max(0, tax - creditPointsMonthly - pensionCredit - yishuvCredit)
 
   // Mas Yasaf (3%) added on top — not offset by credits
   const masYasaf = calculateMasYasaf(adjustedIncome)
@@ -369,7 +372,11 @@ export function calculateEmployerCost(
     ? calculatePensionTaxBenefits(pensionSalary, pensionCreditSalary, config)
     : { pensionDeduction: 0, pensionCredit: 0 }
 
-  // Build full credit points breakdown with pension credit
+  // ─── Yishuv Mutav Credit (Ron May 2026) ───
+  // Calculated on grossSalary (Ron's spec — not on tax calc base).
+  const yishuvCredit = calculateYishuvCredit(grossSalary, inputs.yishuvName)
+
+  // Build full credit points breakdown with pension + yishuv credits
   const creditPointsBreakdownFull: CreditPointsBreakdown = {
     base: creditBreakdown.base,
     marital: creditBreakdown.marital,
@@ -378,6 +385,7 @@ export function calculateEmployerCost(
     service: creditBreakdown.service,
     reservist: creditBreakdown.reservist,
     pensionCredit: pensionTax.pensionCredit,
+    yishuvCredit,
     total: creditBreakdown.total,
     monthlyValue: creditPointsMonthly,
   }
@@ -386,7 +394,8 @@ export function calculateEmployerCost(
   const niiEmployeeWith = calculateNII(taxCalcBaseWith, true, config, niiCategory)
   const incomeTaxWith = calculateIncomeTax(
     taxCalcBaseWith, creditPointsMonthly,
-    pensionTax.pensionDeduction, pensionTax.pensionCredit, config
+    pensionTax.pensionDeduction, pensionTax.pensionCredit, config,
+    yishuvCredit,
   )
   const pensionEmployeeAmount = Math.round(pensionSalary * (employeePensionRate / 100))
   const educationEmployeeAmount = Math.round(educationFundSalary * (employeeEducationRate / 100))
@@ -397,7 +406,8 @@ export function calculateEmployerCost(
   const niiEmployeeWithout = calculateNII(taxCalcBaseWithout, true, config, niiCategory)
   const incomeTaxWithout = calculateIncomeTax(
     taxCalcBaseWithout, creditPointsMonthly,
-    pensionTax.pensionDeduction, pensionTax.pensionCredit, config
+    pensionTax.pensionDeduction, pensionTax.pensionCredit, config,
+    yishuvCredit,
   )
   const totalDeductionsWithout = niiEmployeeWithout + incomeTaxWithout + pensionEmployeeAmount + educationEmployeeAmount
   const netWithoutShvui = grossSalary - totalDeductionsWithout
@@ -496,5 +506,6 @@ export function getDefaultEmployerInputs(): EmployerInputs {
       const now = new Date()
       return { month: now.getMonth() + 1, year: now.getFullYear() }
     })(),
+    yishuvName: null,
   }
 }

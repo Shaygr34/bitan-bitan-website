@@ -367,6 +367,73 @@ describe('calculateEmployerCost', () => {
   })
 })
 
+// ─── Yishuv Mutav (יישוב מוטב) ───────────────────────────────────────────────
+// Ron May 2026: 488 settlements. monthlyCap = annualCap/12;
+// eligibleSalary = min(salary, monthlyCap); credit = eligibleSalary × ratePct%
+
+describe('calculateYishuvCredit (Ron May 2026)', () => {
+  it('אשקלון (7%, cap 146,640) — salary 30K → 855 ₪/mo', async () => {
+    const { calculateYishuvCredit } = await import('../yishuv-mutav')
+    // monthlyCap = 12,220; eligibleSalary = 12,220; credit = 12,220 × 7% = 855.40 → 855
+    assert.equal(calculateYishuvCredit(30000, 'אשקלון'), 855)
+  })
+
+  it('אשקלון — salary 10K (below cap) → 700 ₪/mo', async () => {
+    const { calculateYishuvCredit } = await import('../yishuv-mutav')
+    // eligibleSalary = 10,000 (< cap 12,220); credit = 10,000 × 7% = 700
+    assert.equal(calculateYishuvCredit(10000, 'אשקלון'), 700)
+  })
+
+  it('null/empty yishuv → 0', async () => {
+    const { calculateYishuvCredit } = await import('../yishuv-mutav')
+    assert.equal(calculateYishuvCredit(30000, null), 0)
+    assert.equal(calculateYishuvCredit(30000, ''), 0)
+    assert.equal(calculateYishuvCredit(30000, undefined), 0)
+  })
+
+  it('unknown yishuv name → 0 (graceful)', async () => {
+    const { calculateYishuvCredit } = await import('../yishuv-mutav')
+    assert.equal(calculateYishuvCredit(30000, 'לא קיים'), 0)
+  })
+
+  it('high-rate yishuv (20%): caps at monthlyCap × 20%', async () => {
+    const { calculateYishuvCredit, findYishuv, YISHUV_MUTAV_LIST } = await import('../yishuv-mutav')
+    // Pick first yishuv with rate 20%
+    const y20 = YISHUV_MUTAV_LIST.find(y => y.ratePct === 20)
+    assert.ok(y20, 'expected at least one 20% yishuv in list')
+    const expected = Math.round((y20!.annualCap / 12) * 0.20)
+    // Salary above cap → credit = monthlyCap × 20%
+    assert.equal(calculateYishuvCredit(100000, y20!.name), expected)
+    assert.ok(findYishuv(y20!.name)?.ratePct === 20)
+  })
+
+  it('list has 488 entries (Ron May 2026 booklet)', async () => {
+    const { YISHUV_MUTAV_LIST } = await import('../yishuv-mutav')
+    assert.equal(YISHUV_MUTAV_LIST.length, 488)
+  })
+})
+
+// Engine integration: yishuv credit reduces income tax
+describe('engine: yishuv credit integration', () => {
+  it('Ron — gross 30K + travel 315 + אשקלון → income tax = 6,087 - 855 = 5,232', () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      yishuvName: 'אשקלון',
+    }))
+    assert.equal(r.employee.incomeTax, 5232)
+  })
+
+  it('null yishuv: income tax matches non-yishuv base case', () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      yishuvName: null,
+    }))
+    assert.equal(r.employee.incomeTax, 6087)
+  })
+})
+
 // ─── Vehicle Tax Benefit ─────────────────────────────────────────────────────
 
 describe('calculateVehicleBenefit', () => {

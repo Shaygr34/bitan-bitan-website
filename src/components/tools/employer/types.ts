@@ -74,6 +74,10 @@ export type EmployerInputs = {
   // Backstage evaluation date (Ron May 2026)
   // Used for service eligibility (36-mo window) and degree credit windows.
   evaluationDate: { month: number /* 1-12 */; year: number }
+
+  // Yishuv Mutav (יישוב מוטב) — preferred settlement tax credit.
+  // null = no credit. See yishuv-mutav.ts for full 488-entry list.
+  yishuvName: string | null
 }
 
 /* ─── Results ─── */
@@ -86,7 +90,8 @@ export type CreditPointsBreakdown = {
   service: number
   reservist: number // זיכוי מילואים (Ron May 2026)
   pensionCredit: number // pension tax credit (₪/month)
-  total: number // total credit points (not including pension credit)
+  yishuvCredit: number // זיכוי יישוב מוטב (₪/month, Ron May 2026)
+  total: number // total credit points (not including pension/yishuv credit ₪)
   monthlyValue: number // total credit points × creditPointValue / 12
 }
 
