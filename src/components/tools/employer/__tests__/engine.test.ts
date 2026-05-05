@@ -75,12 +75,63 @@ describe('calculateEmployerCost', () => {
       pensionCreditSalary: 9700,
     }))
 
-    assert.equal(r.employee.netWithShvui, 19065)
+    assert.equal(r.employee.netWithShvui, 19265)
     assert.equal(r.employer.totalWithShvui, 51717)
     assert.equal(r.vehicleTaxBenefit, 11050)
     assert.equal(r.totalShvuiMas, 14550)
     assert.equal(r.employee.totalCreditPoints, 16.75)
-    assert.equal(r.employee.incomeTax, 12033)
+    assert.equal(r.employee.incomeTax, 11833)
+  })
+
+  // ─── Ron's exact numeric examples (April 30, 2026 feedback) ──────────────────
+
+  it("Ron — salary 30,315 → NII employee = 3,081 (7,703×4.27% + 22,612×12.17%)", () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30315, pensionSalary: 30315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+    }))
+    assert.equal(r.employee.niiEmployee, 3081)
+  })
+
+  it("Ron — salary 70,000 → NII employee = 5,709 (capped at 51,910)", () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 70000, pensionSalary: 70000,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+    }))
+    assert.equal(r.employee.niiEmployee, 5709)
+  })
+
+  it("Ron — severance cap 45,600: 50K × 6% < cap → no imputed", () => {
+    // Cap = 45,600 × 8.33% = 3,798. Actual = 50K × 6% = 3,000. 3,000 < 3,798 ⇒ 0
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 50000, pensionSalary: 50000,
+      employerPensionRate: 6.5, severanceRate: 6,
+      maritalStatus: 'single', childrenAges: [],
+    }))
+    assert.equal(r.employee.imputedSeverance, 0)
+  })
+
+  it("Ron — Mas Yasaf: 100K salary applies 3% surtax above 60,130", () => {
+    // Regular brackets to 60,130 = 18,680.3; above = 39,870 × 47% = 18,738.9
+    // Mas Yasaf = 39,870 × 3% = 1,196.1; credits = 2.25 × 2904/12 = 544.5
+    // Total = 18,680.3 + 18,738.9 - 544.5 + 1,196.1 ≈ 38,070
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 100000, pensionSalary: 100000,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+    }))
+    assert.equal(r.employee.incomeTax, 38070)
+  })
+
+  it("Ron — Mas Yasaf zero impact at salary ≤ 60,130", () => {
+    // Salary 50K: regular brackets only, no 3% surtax
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 50000, pensionSalary: 50000,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+    }))
+    // At exactly 50K: brackets = 701 + 427 + 1,788 + 1,891 + 7,556.5 + (3,310×0.47=1,555.7) = 13,919.2
+    // - credits 544.5 ≈ 13,375 (no Mas Yasaf since 50K < 60,130)
+    assert.ok(r.employee.incomeTax > 13000 && r.employee.incomeTax < 13500,
+      `expected ~13,375, got ${r.employee.incomeTax}`)
   })
 
   it('20K with NO pension, NO education fund', () => {

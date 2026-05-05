@@ -18,6 +18,7 @@ import type {
   ChildAge,
 } from './types'
 import { DEFAULT_EMPLOYER_CONFIG, CHILD_AGE_CREDITS, CHILD_ALLOWANCE_BONUS_AGES, getServiceCreditPoints } from './config'
+import { MAS_YASAF_2026 } from '@/lib/tax-tables-2026'
 
 /* ═══════════════════════════════════════════════
    Vehicle Tax Benefit (שווי מס רכב)
@@ -93,6 +94,17 @@ export function calculateCreditPoints(
    Income Tax (מס הכנסה)
    ═══════════════════════════════════════════════ */
 
+/**
+ * Mas Yasaf (3% surtax) — applied separately on monthly income above threshold.
+ * Per Ron's spec (April 30, 2026): credits offset regular brackets only, Mas Yasaf
+ * is added on top after credits.
+ */
+function calculateMasYasaf(taxableIncome: number): number {
+  const { threshold, rate } = MAS_YASAF_2026.monthly
+  if (taxableIncome <= threshold) return 0
+  return (taxableIncome - threshold) * rate
+}
+
 function calculateIncomeTax(
   taxableIncome: number,
   creditPointsMonthly: number,
@@ -121,10 +133,13 @@ function calculateIncomeTax(
     prevUpTo = bracket.upTo
   }
 
-  // Subtract credit points value + pension credit
-  tax = Math.max(0, tax - creditPointsMonthly - pensionCredit)
+  // Credits offset regular bracket tax only (cannot reduce below 0)
+  const taxAfterCredits = Math.max(0, tax - creditPointsMonthly - pensionCredit)
 
-  return Math.round(tax)
+  // Mas Yasaf (3%) added on top — not offset by credits
+  const masYasaf = calculateMasYasaf(adjustedIncome)
+
+  return Math.round(taxAfterCredits + masYasaf)
 }
 
 /* ═══════════════════════════════════════════════

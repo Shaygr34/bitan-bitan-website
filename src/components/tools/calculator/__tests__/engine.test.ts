@@ -39,11 +39,11 @@ describe('calculatePurchase', () => {
     const r = calculatePurchase(base, inputs, config)
 
     assert.equal(r.totalAnnualExpenses, 65220)
-    assert.equal(r.totalTaxSavings, 13862)
-    assert.equal(r.annualTaxSavings, 8770)
-    assert.equal(r.niiSavings, 5092)
-    assert.equal(r.vatRecoverable, 2351)
-    assert.equal(r.deductibleExpenses, 28291)
+    assert.equal(r.totalTaxSavings, 13865)
+    assert.equal(r.annualTaxSavings, 8772)
+    assert.equal(r.niiSavings, 5093)
+    assert.equal(r.vatRecoverable, 2339)
+    assert.equal(r.deductibleExpenses, 28296)
     assert.equal(r.monthlyCashflow, 5435)
     assert.equal(r.depreciation, 30000)
   })
@@ -54,7 +54,7 @@ describe('calculatePurchase', () => {
     const r = calculatePurchase(base, inputs, config)
 
     assert.equal(r.totalAnnualExpenses, 81948)
-    assert.equal(r.totalTaxSavings, 22)
+    assert.equal(r.totalTaxSavings, 23)
     assert.equal(r.vehicleTaxBenefit, 7330)
     assert.equal(r.employerNii, 6685)
     assert.equal(r.grossIncludingVehicle, 37330)
@@ -65,7 +65,7 @@ describe('calculatePurchase', () => {
     const inputs: PurchaseInputs = { equityPercent: 50, interestSpread: 1, periodMonths: 36, fuelMonthly: 1200, maintenanceYearly: 4000, insuranceYearly: 6000 }
     const r = calculatePurchase(base, inputs, config)
 
-    assert.equal(r.totalAnnualExpenses, 51984)
+    assert.equal(r.totalAnnualExpenses, 51988)
     assert.equal(r.totalTaxSavings, -20415)
     assert.equal(r.vehicleTaxBenefit, 4960)
     assert.equal(r.vatRecoverable, 0, 'employee should have zero VAT recovery')
@@ -84,8 +84,8 @@ describe('calculateFinancialLeasing', () => {
     }
     const r = calculateFinancialLeasing(base, inputs, config)
 
-    assert.equal(r.totalAnnualExpenses, 70404)
-    assert.equal(r.totalTaxSavings, 19336)
+    assert.equal(r.totalAnnualExpenses, 70400)
+    assert.equal(r.totalTaxSavings, 19339)
     assert.equal(r.monthlyCashflow, 5867)
     assert.ok(r.computedEffectiveRate !== null, 'should compute effective rate')
     assert.ok(Math.abs(r.computedEffectiveRate! - 10.93) < 0.1, `effective rate should be ~10.93%, got ${r.computedEffectiveRate}`)
@@ -106,6 +106,17 @@ describe('calculateOperationalLeasing', () => {
     assert.equal(r.deductibleExpenses, 58983)
   })
 
+  // ─── Ron's exact numeric examples (May 2, 2026 feedback) ─────────────────────
+
+  it("Ron — VAT recovery uses exact 2/3 (not 0.67) on private fuel", () => {
+    // 1,500/mo fuel = 18,000/yr. VAT = 18000 - 18000/1.18 = 2,745.76
+    // Recovery (2/3) = 1,830.51 → rounds to 1,831
+    const base: BaseInputs = { userType: 'selfEmployed', vehicleType: 'privatePetrol', carPrice: 200000, monthlyIncome: 25000 }
+    const inputs: OperationalLeasingInputs = { downPaymentPercent: 5, monthlyLeasingPayment: 3800, fuelMonthly: 1500, kmPerMonth: 1500 }
+    const r = calculateOperationalLeasing(base, inputs, config)
+    assert.equal(r.vatRecoverable, 1831)
+  })
+
   it('employee, private petrol — no deductions, negative savings', () => {
     const base: BaseInputs = { userType: 'employee', vehicleType: 'privatePetrol', carPrice: 200000, monthlyIncome: 20000, manufacturerPrice: 250000 }
     const inputs: OperationalLeasingInputs = { downPaymentPercent: 5, monthlyLeasingPayment: 4000, fuelMonthly: 1500, kmPerMonth: 1500 }
@@ -119,6 +130,25 @@ describe('calculateOperationalLeasing', () => {
 })
 
 // ─── Amortization ────────────────────────────────────────────────────────────
+
+// ─── Ron's commercial pre-VAT examples (May 2, 2026) ─────────────────────────
+
+describe('Ron commercial pre-VAT', () => {
+  it('commercial 150K, 25% down → loan principal = 89,619 (uses pre-VAT)', () => {
+    // 150,000 / 1.18 = 127,118.64; equity = 37,500; loan = 89,619
+    const base: BaseInputs = { userType: 'selfEmployed', vehicleType: 'commercialPetrol', carPrice: 150000, monthlyIncome: 25000 }
+    const inputs: PurchaseInputs = { equityPercent: 25, interestSpread: 1, periodMonths: 60, fuelMonthly: 1500, maintenanceYearly: 5000, insuranceYearly: 7000 }
+    const r = calculatePurchase(base, inputs, config)
+    assert.equal(r.loan?.amount, 89619)
+  })
+
+  it('commercial 150K → depreciation = 19,068/yr (15% × pre-VAT 127,118.64)', () => {
+    const base: BaseInputs = { userType: 'selfEmployed', vehicleType: 'commercialPetrol', carPrice: 150000, monthlyIncome: 25000 }
+    const inputs: PurchaseInputs = { equityPercent: 25, interestSpread: 1, periodMonths: 60, fuelMonthly: 1500, maintenanceYearly: 5000, insuranceYearly: 7000 }
+    const r = calculatePurchase(base, inputs, config)
+    assert.equal(r.depreciation, 19068)
+  })
+})
 
 describe('calculateAmortization', () => {
   it('standard loan: 150K at 6.5% for 60 months', () => {

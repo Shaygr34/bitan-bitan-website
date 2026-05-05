@@ -56,9 +56,24 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
         כל הסכומים שנתיים אלא אם צוין אחרת
       </p>
 
-      {/* Print watermark (hidden on screen) */}
-      <div className="print-only hidden text-center text-text-muted text-caption mb-4">
-        להמחשה בלבד — אינו מהווה ייעוץ מקצועי
+      {/* Print watermark — diagonal, faded, large (Ron spec May 2026) */}
+      <div
+        aria-hidden="true"
+        className="print-only hidden fixed inset-0 pointer-events-none z-50 select-none items-center justify-center"
+      >
+        <div
+          style={{
+            transform: 'rotate(-30deg)',
+            opacity: 0.12,
+            fontSize: '120px',
+            fontWeight: 700,
+            color: '#1F2937',
+            whiteSpace: 'nowrap',
+            letterSpacing: '0.05em',
+          }}
+        >
+          להמחשה בלבד
+        </div>
       </div>
 
       {/* Result Cards / Comparison */}
@@ -352,7 +367,7 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
           label: 'ירידת ערך — פחת', value: `${fmtCurrency(Math.round(r.depreciation / 12))} / חודש | ${fmtCurrency(r.depreciation)} / שנה`,
         }] : []),
         ...(r.loanInterestTotal > 0 ? [
-          { label: 'ריבית הלוואה', value: `${fmtCurrency(Math.round(avgAnnualInterest / 12))} / חודש | ${fmtCurrency(avgAnnualInterest)} / שנה` },
+          { label: 'ריבית הלוואה ממוצעת', value: `${fmtCurrency(Math.round(avgAnnualInterest / 12))} / חודש | ${fmtCurrency(avgAnnualInterest)} / שנה` },
         ] : []),
         ...(r.vehicleTaxBenefit > 0 ? [
           { label: 'שווי מס רכב', value: `${fmtCurrency(r.vehicleTaxBenefit)} / חודש | ${fmtCurrency(r.vehicleTaxBenefit * 12)} / שנה` },

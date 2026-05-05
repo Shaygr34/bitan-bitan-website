@@ -562,7 +562,7 @@ function RunningCosts({
           />
 
           <SliderInput
-            label="ביטוחים + רישיון (לשנה, כולל מע״מ)"
+            label="ביטוחים + רישיון (לשנה)"
             min={4000}
             max={15000}
             step={500}

@@ -245,15 +245,20 @@ export function calculatePurchase(
   const { carPrice, vehicleType, monthlyIncome } = base
   const { equityPercent, interestSpread, periodMonths, fuelMonthly, maintenanceYearly, insuranceYearly } = inputs
 
+  // Commercial vehicles: VAT is recoverable, so loan principal & depreciation use pre-VAT price
+  // (Ron's spec May 2, 2026: 150K/1.18 - 37,500 = 89,619; 150K/1.18 × 0.15 = 19,068/yr)
+  const isCommercialVehicle = vehicleType.startsWith('commercial')
+  const carPriceForLoan = isCommercialVehicle ? carPrice / (1 + config.vatRate) : carPrice
+
   const equity = Math.round(carPrice * (equityPercent / 100))
-  const loanPrincipal = carPrice - equity
+  const loanPrincipal = Math.round(Math.max(0, carPriceForLoan - equity))
   const annualRate = config.primeRate + interestSpread
 
   const amort = calculateAmortization(loanPrincipal, annualRate, periodMonths)
 
-  // Depreciation (annual)
+  // Depreciation (annual) — pre-VAT for commercial
   const depRate = getDepreciationRate(vehicleType)
-  const depreciation = Math.round(carPrice * depRate)
+  const depreciation = Math.round(carPriceForLoan * depRate)
 
   // VAT recovery (annual) — on fuel + maintenance at recovery rate
   const vatRecoveryRate = getVatRecoveryRate(vehicleType)
@@ -263,8 +268,7 @@ export function calculatePurchase(
 
   // Purchase: VAT on car purchase is NOT deductible for private vehicles
   // For commercial: full VAT deductible
-  const isCommercial = vehicleType.startsWith('commercial')
-  const vatOnPurchase = isCommercial ? Math.round(extractVat(carPrice, config.vatRate)) : null
+  const vatOnPurchase = isCommercialVehicle ? Math.round(extractVat(carPrice, config.vatRate)) : null
 
   // Deductible expenses (annual) — Ron's spec section (ג)
   // = (maintenance + fuel + insurance + depreciation + loan interest) annualized, minus recovered VAT, × multiplier
@@ -318,12 +322,10 @@ export function calculatePurchase(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Total annual expenses — CASHFLOW based (loan payment, not depreciation)
-  // Ron's formula: fuel + maintenance + insurance + loan payment (principal+interest)
-  const monthlyCashflow = Math.round(
-    amort.monthlyPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
-  )
-  const totalAnnualExpenses = monthlyCashflow * 12
+  // Total annual expenses — CASHFLOW based, computed from raw yearly values to avoid
+  // monthly-rounded × 12 leakage (Ron's spec May 2, 2026)
+  const totalAnnualExpenses = amort.monthlyPayment * 12 + fuelMonthly * 12 + maintenanceYearly + insuranceYearly
+  const monthlyCashflow = Math.round(totalAnnualExpenses / 12)
 
   // Net-of-VAT display amounts (R18) — employee sees full price (no VAT recovery)
   const fuelMonthlyNetVat = isEmployee
@@ -386,12 +388,16 @@ export function calculateFinancialLeasing(
     monthlyLeasingPayment, periodMonths, fuelMonthly, maintenanceYearly, insuranceYearly,
   } = inputs
 
+  // Commercial vehicles: VAT is recoverable, so loan principal & depreciation use pre-VAT price
+  const isCommercial = vehicleType.startsWith('commercial')
+  const carPriceForLoan = isCommercial ? carPrice / (1 + config.vatRate) : carPrice
+
   const downPayment = Math.round(carPrice * (downPaymentPercent / 100))
   const residualPayment = Math.round(carPrice * (residualPercent / 100))
   const tradeInValue = tradeIn ? tradeInAmount : 0
 
-  // Total financed = car price - down payment - trade-in (balloon stays as end-of-term obligation)
-  const financedAmount = Math.max(0, carPrice - downPayment - tradeInValue)
+  // Total financed = pre-VAT car price - down payment - trade-in (balloon stays as end-of-term obligation)
+  const financedAmount = Math.max(0, Math.round(carPriceForLoan - downPayment - tradeInValue))
 
   // Compute effective annual rate via IRR from the cash flows
   const computedRate = solveEffectiveRate(financedAmount, monthlyLeasingPayment, residualPayment, periodMonths)
@@ -400,13 +406,12 @@ export function calculateFinancialLeasing(
   const amort = calculateAmortizationWithBalloon(financedAmount, monthlyLeasingPayment, periodMonths, computedRate)
   const annualRate = computedRate
 
-  // Depreciation
+  // Depreciation — pre-VAT for commercial
   const depRate = getDepreciationRate(vehicleType)
-  const depreciation = Math.round(carPrice * depRate)
+  const depreciation = Math.round(carPriceForLoan * depRate)
 
   // VAT recovery
   const vatRecoveryRate = getVatRecoveryRate(vehicleType)
-  const isCommercial = vehicleType.startsWith('commercial')
 
   const fuelVatAnnual = extractVat(fuelMonthly * 12, config.vatRate) * vatRecoveryRate
   const maintVatAnnual = extractVat(maintenanceYearly, config.vatRate) * vatRecoveryRate
@@ -468,11 +473,9 @@ export function calculateFinancialLeasing(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Cashflow-based expenses (leasing payment + running costs)
-  const monthlyCashflow = Math.round(
-    monthlyLeasingPayment + fuelMonthly + maintenanceYearly / 12 + insuranceYearly / 12
-  )
-  const totalAnnualExpenses = monthlyCashflow * 12
+  // Cashflow-based expenses — raw yearly sum (Ron's spec May 2, 2026)
+  const totalAnnualExpenses = monthlyLeasingPayment * 12 + fuelMonthly * 12 + maintenanceYearly + insuranceYearly
+  const monthlyCashflow = Math.round(totalAnnualExpenses / 12)
 
   // Net-of-VAT display amounts (R18) — employee sees full price (no VAT recovery)
   const fuelMonthlyNetVat = isEmployee

@@ -66,9 +66,24 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
       <h2 className="text-h3 font-bold text-primary text-center mb-space-2">תוצאות חישוב עלות מעסיק</h2>
       <p className="text-body text-text-muted text-center mb-space-6">סכומים חודשיים</p>
 
-      {/* Print watermark (hidden on screen) */}
-      <div className="print-only hidden text-center text-text-muted text-caption mb-4">
-        נתוני שכר להמחשה בלבד
+      {/* Print watermark — diagonal, faded, large (Ron spec May 2026) */}
+      <div
+        aria-hidden="true"
+        className="print-only hidden fixed inset-0 pointer-events-none z-50 select-none items-center justify-center"
+      >
+        <div
+          style={{
+            transform: 'rotate(-30deg)',
+            opacity: 0.12,
+            fontSize: '120px',
+            fontWeight: 700,
+            color: '#1F2937',
+            whiteSpace: 'nowrap',
+            letterSpacing: '0.05em',
+          }}
+        >
+          להמחשה בלבד
+        </div>
       </div>
 
       {/* Comparison Table — CENTER STAGE when comparing */}

@@ -225,6 +225,11 @@
     display: block !important;
   }
 
+  /* Print-only elements (e.g. diagonal watermark) — flip from hidden to flex */
+  .print-only {
+    display: flex !important;
+  }
+
   /* Expand all accordions for print */
   details[open] > summary,
   [data-accordion-content] {

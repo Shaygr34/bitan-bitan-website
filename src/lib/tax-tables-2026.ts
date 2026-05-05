@@ -19,7 +19,9 @@
  * - Ron Bitan confirmation: April 6, 2026
  */
 
-// ─── Income Tax Brackets (7 brackets) ───────────────────────────────────────
+// ─── Income Tax Brackets (6 brackets) ───────────────────────────────────────
+// Ron's spec (April 30, 2026): regular brackets cap at 47%. Mas Yasaf (3% surtax)
+// is calculated SEPARATELY and added on top — see MAS_YASAF_2026 below.
 
 export const TAX_BRACKETS_2026 = {
   annual: [
@@ -28,8 +30,7 @@ export const TAX_BRACKETS_2026 = {
     { ceiling: 228_000, rate: 0.20 },  // expanded from 193,800 in 2025
     { ceiling: 301_200, rate: 0.31 },  // expanded from 269,280 in 2025
     { ceiling: 560_280, rate: 0.35 },
-    { ceiling: 721_560, rate: 0.47 },
-    { ceiling: Infinity, rate: 0.50 },  // includes מס יסף
+    { ceiling: Infinity, rate: 0.47 },
   ],
   monthly: [
     { upTo:  7_010, rate: 0.10 },
@@ -37,9 +38,15 @@ export const TAX_BRACKETS_2026 = {
     { upTo: 19_000, rate: 0.20 },
     { upTo: 25_100, rate: 0.31 },
     { upTo: 46_690, rate: 0.35 },
-    { upTo: 60_129, rate: 0.47 },
-    { upTo: Infinity, rate: 0.50 },
+    { upTo: Infinity, rate: 0.47 },
   ],
+} as const
+
+// ─── מס יסף (Mas Yasaf — 3% surtax above threshold) ─────────────────────────
+
+export const MAS_YASAF_2026 = {
+  monthly: { threshold: 60_130, rate: 0.03 },
+  annual:  { threshold: 721_560, rate: 0.03 },
 } as const
 
 // ─── National Insurance (ביטוח לאומי) ──────────────────────────────────────
@@ -95,7 +102,7 @@ export const CREDIT_POINTS_2026 = {
 
 export const SALARY_CAPS_2026 = {
   averageSalary: 13_769,        // שכר ממוצע במשק
-  severanceCap: 34_900,         // תקרת פיצויים
+  severanceCap: 45_600,         // תקרת פיצויים (Ron: April 30, 2026 — was 34,900)
   educationFundCap: 15_712,     // תקרת קרן השתלמות
 
   pensionCredit: {
@@ -128,7 +135,7 @@ export const VEHICLE_TAX_2026 = {
 
   // VAT recovery rates
   vatRecovery: {
-    private: 0.67,              // 67% of VAT on fuel + maintenance
+    private: 2 / 3,             // 2/3 exact (Ron: April 30, 2026 — was 0.67 approx)
     commercial: 1.0,            // 100%
   },
 
