@@ -819,9 +819,9 @@ Full audit logged in memory: `bitan-codebase-audit-2026-04-28.md`
 - `src/components/tools/employer/__tests__/engine.test.ts` — employer regression tests (12)
 - `docs/superpowers/specs/2026-04-28-tax-tables-and-regression-tests.md` — design spec
 
-## Session: May 5, 2026 — Ron V3 Phase 2 Employer Feedback (Sub-Phases A–G except D)
+## Session: May 5, 2026 — Ron V3 Phase 2 Employer Feedback (Sub-Phases A–G COMPLETE)
 
-Implementation pass on Ron's April 30, 2026 docx feedback for the employer cost calculator. Sub-Phases A, B, C, E, F, G shipped to live bitancpa.com. **Sub-Phase D (NII 6-category × calc-type table) is the only remaining item** — data is in Drive, just needs extraction.
+Implementation pass on Ron's April 30, 2026 docx feedback for the employer cost calculator. **All seven sub-phases shipped** (A, B, C, D, E, F, G).
 
 ### Shipped This Session
 - **Sub-Phase A (#34) — Yishuv Mutav** (יישוב מוטב preferred-settlement credit): full 488-entry list in `src/components/tools/employer/yishuv-mutav-2026.json`. Loader/lookup in `yishuv-mutav.ts`. UI: searchable HTML datalist on Personal step. Engine adds `yishuvCredit` (₪/month) to `CreditPointsBreakdown`.
@@ -858,13 +858,15 @@ Implementation pass on Ron's April 30, 2026 docx feedback for the employer cost 
 - `attachments/generalInformation_income-tax-monthly-deductions-booklet_monthly-deductions-booklet-2026.pdf` (1.38MB) — **BTL Circular 1522** (authoritative NII rate source for Sub-Phase D)
 - `attachments/שני תרחישים הדפסה.pdf` (182KB) — sample print output
 
-### Sub-Phase D (#38) — REMAINING
-**Goal**: Replace single-axis `niiCategory` with full 6-category × calc-type matrix.
-- Source: 13-row NII table in Ron's docx (or BTL Circular 1522 PDF)
-- Need: build `NII_TABLE_V2_2026: Record<{cat, calcType}, NIIRates>` in `src/lib/tax-tables-2026.ts`
-- UI: cascading dropdowns on Personal step (category → calcType)
-- Engine: map old single `niiCategory` → new pair (migration shim for share-link backward compat)
-- Tests: extend `engine.test.ts` to cover each cell
+### Sub-Phase D (#38) — SHIPPED
+- `NII_TABLE_V2_2026` in `src/lib/tax-tables-2026.ts`: full 13-row matrix from Ron's docx (BTL Circular 1522). 6 categories: 18-retirement, pensioner, non-pensioner, disability, under-18, soldier-foreign. Up to 4 calc-types per category.
+- Helper `getNIIRatesV2(category, calcType)` for engine lookup. `migrateLegacyNIICategory()` maps old 4-entry to new pair.
+- `EmployerInputs.niiCategoryV2` + `niiCalcType` (defaults: 18-retirement, regular). Legacy `niiCategory` retained for share-URL backwards compat.
+- Engine: when v2 is default but legacy is non-default, prefers legacy migration (preserves old share-URLs).
+- UI: cascading dropdowns on Personal step. Calc-type list filtered by `NII_CALCTYPES_BY_CATEGORY[category]`. Auto-resets calc-type to first allowed when category changes.
+- Results: NII bracket `<details>` now shows full "סיווג: {category} / {calcType}" label.
+- URL share: new params `nc2` (category) + `nct` (calc-type).
+- Tests: 14 new (every cell + 2 migration). 109 total pass.
 
 ### New Key Files
 - `src/components/tools/employer/yishuv-mutav.ts` — loader + lookup helpers
