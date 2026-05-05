@@ -11,7 +11,7 @@
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const EMAIL_TO = process.env.CONTACT_EMAIL_TO
-const EMAIL_FROM = process.env.CONTACT_EMAIL_FROM ?? 'אתר ביטן את ביטן <noreply@bitancpa.co.il>'
+const EMAIL_FROM = process.env.CONTACT_EMAIL_FROM ?? 'אתר ביטן את ביטן <noreply@bitancpa.com>'
 
 type ContactLead = {
   name: string
