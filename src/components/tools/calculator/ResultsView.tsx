@@ -94,21 +94,22 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
 
   const handleShare = useCallback(async () => {
     const url = shareUrl || window.location.href
-    // Mobile: use native share sheet (WhatsApp/Telegram/Mail). Desktop: clipboard
-    // only — falling through to navigator.share on desktop opens mailto/Gmail
-    // compose which freezes on send (April 14 fix re-applied after PR #54 unification).
-    const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
-    if (isMobile && navigator.share) {
+    // Always attempt the native share sheet first (WhatsApp/Mail/Telegram on mobile,
+    // OS share picker on Chromium desktop). Fall back to clipboard copy only when
+    // navigator.share is unavailable or rejects with a non-cancel error.
+    if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({ title: emailSubject, text: emailSubject, url })
-      } catch {
-        // user cancelled
+        return
+      } catch (err) {
+        // AbortError = user cancelled — don't fall back, don't surface a message
+        if (err instanceof Error && err.name === 'AbortError') return
+        // any other error → fall through to clipboard
       }
-    } else {
-      await navigator.clipboard.writeText(url)
-      setShareMsg('הקישור הועתק!')
-      setTimeout(() => setShareMsg(''), 2000)
     }
+    await navigator.clipboard.writeText(url)
+    setShareMsg('הקישור הועתק!')
+    setTimeout(() => setShareMsg(''), 2000)
   }, [shareUrl, emailSubject])
 
   return (

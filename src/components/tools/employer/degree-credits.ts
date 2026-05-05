@@ -10,7 +10,7 @@
  *   master        — 0.5 nz, year only (1-year window)
  *   phdRegular    — 0.5 nz, 3-year window starting `year`
  *                   (deferred=true → window starts year+1)
- *   phdMedicine   — 2-year window. Year 1 → 1 nz. Year 2 → 0.5 nz.
+ *   phdMedicine   — 1-year window, 1 nz (year only)
  *   phdDirect     — combined: bachelor portion (year..year+2 → 1 nz)
  *                   + phd portion (phdYear..phdYear+1 → 0.5 nz)
  *   professional  — 1 nz, year only (mutex w/ bachelor/master same year — UI)
@@ -48,11 +48,8 @@ function creditForDegree(d: Degree, evalYear: number): number {
       const start = d.deferred ? d.year + 1 : d.year
       return evalYear >= start && evalYear <= start + 2 ? 0.5 : 0
     }
-    case 'phdMedicine': {
-      if (evalYear === d.year) return 1
-      if (evalYear === d.year + 1) return 0.5
-      return 0
-    }
+    case 'phdMedicine':
+      return evalYear === d.year ? 1 : 0
     case 'phdDirect': {
       // Bachelor portion: 3-year window from `year`, 1 nz
       const inBachelor = evalYear >= d.year && evalYear <= d.year + 2
