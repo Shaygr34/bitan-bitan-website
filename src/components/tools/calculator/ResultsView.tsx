@@ -257,8 +257,9 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
             z-index: 9999 !important;
           }
 
-          /* Page setup */
-          @page { margin: 10mm; }
+          /* Page setup — top extra room so the print-date stamp at 5mm never
+             collides with content; bottom room for clean break. */
+          @page { margin: 14mm 10mm 12mm 10mm; }
           main, article, section { padding: 0 !important; }
 
           /* Compact typography */
