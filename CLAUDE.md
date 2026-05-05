@@ -883,7 +883,7 @@ Implementation pass on Ron's April 30, 2026 docx feedback for the employer cost 
 ### Shipped
 - **Recent Articles relocated**: moved between ClientLogosSection and ServicesSection (was buried after testimonials). Per Avi's feedback — visitors should feel firm liveness *before* reaching the conversion ask.
 - **Section heading**: "מרכז ידע" → "מאמרים אחרונים" (freshness signal)
-- **Date badge** on each card (top-end, paired with category pill): smart-relative Hebrew (היום / אתמול / לפני יומיים / לפני N ימים / לפני שבוע / לפני שבועיים / לפני N שבועות / לפני חודש / absolute date past 60 days)
+- **Date badge** on each card (top-end, paired with category pill): absolute Hebrew date format ("23 באפריל 2026"). Per Avi — relative dates ("לפני שבוע") felt less professional for a CPA firm. The smart-relative formatter was tried first then replaced.
 - **Visual tightening**: dropped the "מאמרים, מדריכים..." subtitle line, reduced section vertical padding (py-space-9 → py-space-7), gold/10 top border for separation, smaller "לכל המאמרים" link
 
 ### New Util — `src/lib/format-date.ts`
