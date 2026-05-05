@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import { ArrowRight, Calculator, CreditCard, TrendingDown, Receipt, Wallet, Info, Printer, Share2 } from 'lucide-react'
+import { useCallback, useMemo, useState } from 'react'
+import { ArrowRight, Calculator, CreditCard, TrendingDown, Receipt, Wallet, Info, Printer, Share2, Car, Banknote, Wrench } from 'lucide-react'
 import type { CalculationResult, OptionType } from './types'
 
 type ResultsViewProps = {
@@ -18,6 +18,35 @@ const OPTION_NAMES: Record<OptionType, string> = {
   operationalLeasing: 'ליסינג תפעולי',
 }
 
+const OPTION_ICONS: Record<OptionType, React.ComponentType<{ className?: string }>> = {
+  purchase: Car,
+  financialLeasing: Banknote,
+  operationalLeasing: Wrench,
+}
+
+// Determine which scenario "wins" using same metrics as Verdict.
+// Returns 0 (primary), 1 (comparison), or null (tie).
+function pickPreferredIndex(a: CalculationResult, b: CalculationResult): number | null {
+  let aWins = 0
+  let bWins = 0
+  // Lower cashflow better
+  if (a.monthlyCashflow < b.monthlyCashflow) aWins++
+  else if (b.monthlyCashflow < a.monthlyCashflow) bWins++
+  // Lower annual better
+  if (a.totalAnnualExpenses < b.totalAnnualExpenses) aWins++
+  else if (b.totalAnnualExpenses < a.totalAnnualExpenses) bWins++
+  // Higher tax savings better
+  if (a.annualTaxSavings > b.annualTaxSavings) aWins++
+  else if (b.annualTaxSavings > a.annualTaxSavings) bWins++
+  // Lower end-of-term better
+  const endA = a.residualPayment ?? 0
+  const endB = b.residualPayment ?? 0
+  if (endA < endB) aWins++
+  else if (endB < endA) bWins++
+  if (aWins === bWins) return null
+  return aWins > bWins ? 0 : 1
+}
+
 function fmt(n: number | null | undefined): string {
   if (n === null || n === undefined) return '—'
   return n.toLocaleString('he-IL')
@@ -29,23 +58,52 @@ function fmtCurrency(n: number | null | undefined): string {
 }
 
 export function ResultsView({ primary, comparison, onCompare, onRestart, shareUrl }: ResultsViewProps) {
-  const results = comparison ? [primary, comparison] : [primary]
   const hasComparison = !!comparison
+
+  // Default the "active" tab to the preferred (winner) scenario. User can click
+  // the other tab to swap which one appears on top. (Ron May 2026: preferred-first)
+  const preferredIdx = useMemo(
+    () => (comparison ? pickPreferredIndex(primary, comparison) ?? 0 : 0),
+    [primary, comparison]
+  )
+  const [activeIdx, setActiveIdx] = useState(preferredIdx)
+
+  // Reorder so the active scenario displays first (and prints first)
+  const orderedResults = useMemo(() => {
+    if (!comparison) return [primary]
+    return activeIdx === 0 ? [primary, comparison] : [comparison, primary]
+  }, [primary, comparison, activeIdx])
 
   const handlePrint = useCallback(() => { window.print() }, [])
   const [shareMsg, setShareMsg] = useState('')
+
+  // Ron spec (May 2026): email subject = "ביטן את ביטן רו"ח - סימולציה <type> מיום DD/MM/YY"
+  // Type label adapts: purchase only → "רכישת רכב"; leasing only → "ליסינג";
+  // mix of purchase + leasing → "רכישת רכב / ליסינג".
+  const emailSubject = (() => {
+    const types = new Set<'purchase' | 'leasing'>()
+    types.add(primary.optionType === 'purchase' ? 'purchase' : 'leasing')
+    if (comparison) types.add(comparison.optionType === 'purchase' ? 'purchase' : 'leasing')
+    const label = types.size === 2 ? 'רכישת רכב / ליסינג' : (types.has('purchase') ? 'רכישת רכב' : 'ליסינג')
+    const d = new Date()
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yy = String(d.getFullYear() % 100).padStart(2, '0')
+    return `ביטן את ביטן רו"ח - סימולציה ${label} מיום ${dd}/${mm}/${yy}`
+  })()
+
   const handleShare = useCallback(async () => {
     const url = shareUrl || window.location.href
     // Use navigator.share only on mobile (touch devices), clipboard on desktop
     const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
     if (isMobile && navigator.share) {
-      try { await navigator.share({ title: 'סימולטור ליסינג/רכישה — ביטן את ביטן', url }) } catch { /* cancelled */ }
+      try { await navigator.share({ title: emailSubject, text: emailSubject, url }) } catch { /* cancelled */ }
     } else {
       await navigator.clipboard.writeText(url)
       setShareMsg('הקישור הועתק!')
       setTimeout(() => setShareMsg(''), 2000)
     }
-  }, [shareUrl])
+  }, [shareUrl, emailSubject])
 
   return (
     <div>
@@ -56,34 +114,21 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
         כל הסכומים שנתיים אלא אם צוין אחרת
       </p>
 
-      {/* Print watermark — diagonal, faded, centered (Ron spec May 2026) */}
-      <div
-        aria-hidden="true"
-        className="print-only hidden fixed inset-0 pointer-events-none z-50 select-none"
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%) rotate(-30deg)',
-            opacity: 0.12,
-            fontSize: '120px',
-            fontWeight: 700,
-            color: '#1F2937',
-            whiteSpace: 'nowrap',
-            letterSpacing: '0.05em',
-          }}
-        >
-          להמחשה בלבד
-        </div>
-      </div>
+      {/* Print watermark — diagonal, faded, centered (Ron spec May 2026).
+          Single fixed element with dedicated class to avoid conflicts. */}
+      <div aria-hidden="true" className="lc-watermark" suppressHydrationWarning>להמחשה בלבד</div>
 
       {/* Result Cards / Comparison */}
       {hasComparison ? (
         <>
+          <ScenarioTabs
+            primaryType={primary.optionType}
+            comparisonType={comparison!.optionType}
+            activeIdx={activeIdx}
+            onSelect={setActiveIdx}
+          />
           <Verdict primary={primary} comparison={comparison!} />
-          <ComparisonTable results={results} />
+          <ComparisonTable results={orderedResults} />
         </>
       ) : (
         <SingleResult result={primary} />
@@ -148,10 +193,34 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
 
       {/* Print CSS — compact one-pager (matches employer calc) */}
       <style jsx global>{`
+        /* Watermark hidden on screen */
+        .lc-watermark { display: none; }
+
         @media print {
           /* Hide non-content elements */
           nav, footer, header, .no-print,
           [class*="WhatsApp"], [class*="whatsapp"] { display: none !important; }
+
+          /* Watermark — fixed, centered, diagonal, faded.
+             Uses !important to beat body { font-size: 10px !important } below. */
+          .lc-watermark {
+            display: block !important;
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) rotate(-30deg) !important;
+            transform-origin: center center !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            z-index: 9999 !important;
+            opacity: 0.12 !important;
+            font-size: 90px !important;
+            font-weight: 700 !important;
+            color: #1F2937 !important;
+            white-space: nowrap !important;
+            letter-spacing: 0.05em !important;
+            line-height: 1 !important;
+          }
 
           /* Page setup */
           @page { margin: 10mm; }
@@ -184,6 +253,10 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
           .rounded-2xl, .bg-primary, .grid { break-inside: avoid !important; page-break-inside: avoid !important; }
           h4 { break-after: avoid !important; page-break-after: avoid !important; }
 
+          /* Ron May 2026 #31: 2-page comparison — page 1 = preferred (verdict + winner),
+             page 2 = lesser scenario. The lesser card has class lc-print-break. */
+          .lc-print-break { break-before: page !important; page-break-before: always !important; }
+
           /* Show print-only elements */
           .print\\:block { display: block !important; }
           .print-only { display: block !important; }
@@ -208,58 +281,176 @@ function SingleResult({ result }: { result: CalculationResult }) {
         </h3>
       </div>
 
-      {/* Key Metrics */}
+      {/* Key Metrics — Ron May 2026 #27: 2-column dual-value cards.
+          Right col (RTL: visually first) = תזרים + מס.
+          Left col = רכב + הלוואה. */}
       <div className="p-space-5">
-        <div className="grid grid-cols-2 gap-3 mb-space-5">
-          <MetricCard
-            icon={<Wallet className="h-4 w-4 text-gold" />}
-            label="תשלום חודשי ממוצע"
-            value={fmtCurrency(result.monthlyCashflow)}
-            highlight
-          />
-          <MetricCard
-            icon={<Receipt className="h-4 w-4 text-gold" />}
-            label="סה״כ הוצאות שנתי"
-            value={fmtCurrency(result.totalAnnualExpenses)}
-          />
-          <MetricCard
-            icon={<TrendingDown className="h-4 w-4 text-gold" />}
-            label={result.totalTaxSavings < 0 ? 'עלות מס נוספת (שווי שימוש)' : 'חיסכון מס שנתי'}
-            value={fmtCurrency(Math.abs(result.totalTaxSavings))}
-          />
-          {result.monthlyLeasingPayment !== null && (
-            <MetricCard
-              icon={<CreditCard className="h-4 w-4 text-gold" />}
-              label="סכום ליסינג חודשי"
-              value={fmtCurrency(result.monthlyLeasingPayment)}
-            />
-          )}
-          {result.residualCarValue !== null && (
-            <MetricCard
-              icon={<Info className="h-4 w-4 text-gold" />}
-              label={`שווי רכב לאחר ${result.loan ? Math.ceil(result.loan.periodMonths / 12) : 5} שנים`}
-              value={fmtCurrency(result.residualCarValue)}
-            />
-          )}
-          {result.vehicleTaxBenefit > 0 && (
-            <MetricCard
-              icon={<Calculator className="h-4 w-4 text-gold" />}
-              label="שווי מס רכב (חודשי)"
-              value={fmtCurrency(result.vehicleTaxBenefit)}
-            />
-          )}
-          {result.grossIncludingVehicle > 0 && result.vehicleTaxBenefit > 0 && (
-            <MetricCard
-              icon={<Receipt className="h-4 w-4 text-gold" />}
-              label="שכר ברוטו כולל שווי רכב"
-              value={fmtCurrency(result.grossIncludingVehicle)}
-            />
-          )}
-        </div>
+        <KeyMetrics result={result} />
 
         {/* Full breakdown */}
         <ResultBreakdown result={result} />
       </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   Key Metrics — paired-value cards (Ron May 2026 #27)
+   ═══════════════════════════════════════════════ */
+
+function KeyMetrics({ result }: { result: CalculationResult }) {
+  const years = result.loan ? Math.ceil(result.loan.periodMonths / 12) : 5
+  const loanEndBalance = result.loanYearlyBreakdown.length > 0
+    ? result.loanYearlyBreakdown[result.loanYearlyBreakdown.length - 1].endBalance
+    : 0
+  const monthlyLoanPayment = result.loan
+    ? Math.round((result.loan.amount + result.loanInterestTotal - (result.residualPayment ?? 0)) / result.loan.periodMonths)
+    : 0
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-space-5">
+      {/* Right column (RTL: appears first) — cashflow + tax */}
+      <DualMetricCard
+        icon={<Wallet className="h-4 w-4 text-gold" />}
+        title="תזרים"
+        rows={[
+          { label: 'תשלום חודשי ממוצע', value: fmtCurrency(result.monthlyCashflow) },
+          { label: 'סה"כ הוצאות שנתי', value: fmtCurrency(result.totalAnnualExpenses) },
+        ]}
+        highlight
+      />
+      <DualMetricCard
+        icon={<TrendingDown className="h-4 w-4 text-gold" />}
+        title={result.totalTaxSavings < 0 ? 'מס (שווי שימוש)' : 'מס'}
+        rows={[
+          { label: 'הוצאות מוכרות (שנתי)', value: fmtCurrency(result.deductibleExpenses) },
+          {
+            label: result.totalTaxSavings < 0 ? 'עלות מס נוספת' : 'חיסכון מס שנתי',
+            value: fmtCurrency(Math.abs(result.totalTaxSavings)),
+          },
+        ]}
+      />
+
+      {/* Left column — vehicle + loan */}
+      <DualMetricCard
+        icon={<Info className="h-4 w-4 text-gold" />}
+        title="רכב"
+        rows={[
+          { label: 'עלות רכב חדש', value: fmtCurrency(result.carPrice) },
+          ...(result.residualCarValue !== null
+            ? [{ label: `שווי משוער לאחר ${years} שנים`, value: fmtCurrency(result.residualCarValue) }]
+            : []),
+        ]}
+      />
+      {(result.loan || result.monthlyLeasingPayment !== null) && (
+        <DualMetricCard
+          icon={<CreditCard className="h-4 w-4 text-gold" />}
+          title={result.monthlyLeasingPayment !== null ? 'ליסינג' : 'הלוואה'}
+          rows={[
+            ...(result.monthlyLeasingPayment !== null
+              ? [{ label: 'תשלום ליסינג חודשי', value: fmtCurrency(result.monthlyLeasingPayment) }]
+              : [{ label: 'חיוב חודשי הלוואה', value: fmtCurrency(monthlyLoanPayment) }]),
+            ...(result.residualPayment !== null
+              ? [{ label: 'בלון בסוף תקופה', value: fmtCurrency(result.residualPayment) }]
+              : loanEndBalance > 0
+                ? [{ label: 'יתרת הלוואה בסוף תקופה', value: fmtCurrency(loanEndBalance) }]
+                : []),
+          ]}
+        />
+      )}
+
+      {/* Vehicle benefit row — shown only when relevant (company/employee) */}
+      {result.vehicleTaxBenefit > 0 && (
+        <DualMetricCard
+          icon={<Calculator className="h-4 w-4 text-gold" />}
+          title="שווי רכב"
+          rows={[
+            { label: 'שווי מס חודשי', value: fmtCurrency(result.vehicleTaxBenefit) },
+            ...(result.grossIncludingVehicle > 0
+              ? [{ label: 'ברוטו כולל שווי רכב', value: fmtCurrency(result.grossIncludingVehicle) }]
+              : []),
+          ]}
+        />
+      )}
+    </div>
+  )
+}
+
+function DualMetricCard({
+  icon,
+  title,
+  rows,
+  highlight,
+}: {
+  icon: React.ReactNode
+  title: string
+  rows: { label: string; value: string }[]
+  highlight?: boolean
+}) {
+  return (
+    <div className={[
+      'rounded-lg p-space-3 border',
+      highlight ? 'border-gold bg-gold/5' : 'border-border-light bg-surface/50',
+    ].join(' ')}>
+      <div className="flex items-center gap-1.5 mb-2">
+        {icon}
+        <span className={['text-caption font-bold', highlight ? 'text-gold-dark' : 'text-text-muted'].join(' ')}>{title}</span>
+      </div>
+      <div className="space-y-1.5">
+        {rows.map((row) => (
+          <div key={row.label} className="flex justify-between items-baseline gap-2">
+            <span className="text-caption text-text-muted">{row.label}</span>
+            <span className={['text-body-sm font-bold', highlight ? 'text-gold' : 'text-primary'].join(' ')}>{row.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   Scenario Tabs (icon switch — Ron May 2026 #28)
+   ═══════════════════════════════════════════════ */
+
+function ScenarioTabs({
+  primaryType,
+  comparisonType,
+  activeIdx,
+  onSelect,
+}: {
+  primaryType: OptionType
+  comparisonType: OptionType
+  activeIdx: number
+  onSelect: (idx: number) => void
+}) {
+  const tabs: { idx: 0 | 1; type: OptionType }[] = [
+    { idx: 0, type: primaryType },
+    { idx: 1, type: comparisonType },
+  ]
+  return (
+    <div className="flex justify-center gap-2 mb-space-5 no-print" role="tablist" aria-label="תרחישים">
+      {tabs.map(({ idx, type }) => {
+        const Icon = OPTION_ICONS[type]
+        const active = idx === activeIdx
+        return (
+          <button
+            key={idx}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onSelect(idx)}
+            className={[
+              'inline-flex items-center gap-2 rounded-xl px-4 py-2 text-body-sm font-bold border-2 transition-all cursor-pointer',
+              active
+                ? 'border-gold bg-gold/10 text-gold scale-105 shadow-sm'
+                : 'border-border bg-white text-text-muted hover:bg-surface',
+            ].join(' ')}
+          >
+            <Icon className="h-4 w-4" />
+            {OPTION_NAMES[type]}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -272,7 +463,9 @@ function ComparisonTable({ results }: { results: CalculationResult[] }) {
   return (
     <div className="space-y-space-5">
       {results.map((r, i) => (
-        <SingleResult key={`${r.optionType}-${i}`} result={r} />
+        <div key={`${r.optionType}-${i}`} className={i === 1 ? 'lc-print-break' : undefined}>
+          <SingleResult result={r} />
+        </div>
       ))}
     </div>
   )
@@ -327,6 +520,13 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
           label: 'יתרת תשלום סוף תקופה (בלון)',
           value: fmtCurrency(r.residualPayment),
           bold: true,
+        }] : []),
+        // Ron May 2026: explicit amortizing principal when balloon exists
+        // (helps user see how much actually gets paid off during the term)
+        ...(r.loan && r.residualPayment !== null && r.residualPayment > 0 ? [{
+          label: 'קרן מתאזנת במהלך התקופה',
+          value: fmtCurrency(r.loan.amount - r.residualPayment),
+          muted: true,
         }] : []),
         // שווי רכב prominent display for company/employee — Ron's feedback
         ...(r.vehicleTaxBenefit > 0 ? [{
@@ -387,6 +587,11 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
         ...(isCommercial ? [] : [
           { label: 'סה"כ הוצאות לפני התאמה למס', value: fmtCurrency(r.totalExpensesBeforeTax), muted: true },
         ]),
+        // Ron May 2026: company net deductible (after subtracting שווי רכב).
+        // employerNii > 0 is a clean company-mode signal (employee/self-employed = 0).
+        ...(r.employerNii > 0 && !isCommercial && r.vehicleTaxBenefit > 0 ? [
+          { label: 'סה"כ הוצאות מוכרות לפני מס בנטרול שווי רכב עובד', value: fmtCurrency(r.totalExpensesBeforeTax - r.vehicleTaxBenefit * 12), muted: true },
+        ] : []),
         // Hide VAT and deductible rows when they're 0 (employee mode)
         ...(r.vatRecoverable === 0 && r.deductibleExpenses === 0 && r.totalTaxSavings < 0 ? [] : [
           { label: 'מע"מ מוכר (שנתי)', value: fmtCurrency(r.vatRecoverable) },
@@ -461,44 +666,6 @@ function ResultBreakdown({ result }: { result: CalculationResult }) {
     </div>
   )
 }
-
-/* ═══════════════════════════════════════════════
-   Metric Card
-   ═══════════════════════════════════════════════ */
-
-function MetricCard({
-  icon,
-  label,
-  value,
-  highlight,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  highlight?: boolean
-}) {
-  return (
-    <div className={[
-      'rounded-lg p-space-3 border',
-      highlight ? 'border-gold bg-gold/5' : 'border-border-light bg-surface/50',
-    ].join(' ')}>
-      <div className="flex items-center gap-1.5 mb-1">
-        {icon}
-        <span className="text-caption text-text-muted">{label}</span>
-      </div>
-      <span className={[
-        'text-body font-bold block',
-        highlight ? 'text-gold' : 'text-primary',
-      ].join(' ')}>
-        {value}
-      </span>
-    </div>
-  )
-}
-
-/* ═══════════════════════════════════════════════
-   Comparison Row Definitions
-   ═══════════════════════════════════════════════ */
 
 /* ═══════════════════════════════════════════════
    Verdict — "What's better?"

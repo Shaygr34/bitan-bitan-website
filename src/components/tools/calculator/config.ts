@@ -106,6 +106,28 @@ export function getNiiSavingsRate(monthlyIncome: number): number {
     : NII_2026.selfEmployedSavingsRateBelowThreshold
 }
 
+/**
+ * Ron's quarterly NII back-calc (May 2026): given a target net effect y over
+ * a quarter (×3 months), returns gross x needed once the deduction crosses
+ * the NII threshold m. Accounts for 52% NII deduction credit for self-employed.
+ *
+ * Formula: x = (y + m × 3 × 0.52 × (t2 − t1)) / (1 + t2 × 0.52)
+ * - m = 7,703 ₪/mo (NII low threshold 2026)
+ * - t1 = 4.47% (rate below threshold)
+ * - t2 = 12.83% (rate above threshold)
+ * - 0.52 = NII deduction multiplier
+ *
+ * Useful for advance-payment planning when a deduction shifts income across
+ * the threshold. Not yet wired into the main tax-savings calc.
+ */
+export function computeQuarterlyNiiBackCalc(y: number): number {
+  const m = NII_2026.lowThreshold
+  const t1 = NII_2026.selfEmployedRateBelowThreshold
+  const t2 = NII_2026.selfEmployedRateAboveThreshold
+  const niiDeductionMultiplier = 0.52
+  return (y + m * 3 * niiDeductionMultiplier * (t2 - t1)) / (1 + t2 * niiDeductionMultiplier)
+}
+
 /* ─── Company: שווי שימוש Constants (from shared tax tables) ─── */
 
 export const VEHICLE_TAX_BENEFIT_RATE = VEHICLE_TAX_2026.benefitRate

@@ -436,24 +436,45 @@ function OperationalFields({
         </p>
 
         {isElectric ? (
-          <SliderInput
-            label='נסיעה ק"מ ממוצע בחודש'
-            min={500}
-            max={3000}
-            step={100}
-            value={inputs.kmPerMonth ?? 1500}
-            onChange={(km) => {
-              const match = ELECTRIC_KM_PRESETS.find((e) => e.km === km)
-              onChange({
-                kmPerMonth: km,
-                fuelMonthly: match ? match.cost : Math.round(km * 0.13),
-              })
-            }}
-            nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.km, label: `${(e.km / 1000).toFixed(1)}K` }))}
-            format={(v) => v.toLocaleString('he-IL')}
-            suffix='ק"מ'
-            compact
-          />
+          <>
+            <SliderInput
+              label='נסיעה ק"מ ממוצע בחודש'
+              min={500}
+              max={3000}
+              step={100}
+              value={inputs.kmPerMonth ?? 1500}
+              onChange={(km) => {
+                const match = ELECTRIC_KM_PRESETS.find((e) => e.km === km)
+                onChange({
+                  kmPerMonth: km,
+                  fuelMonthly: match ? match.cost : Math.round(km * 0.1333),
+                })
+              }}
+              nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.km, label: `${(e.km / 1000).toFixed(1)}K` }))}
+              format={(v) => v.toLocaleString('he-IL')}
+              suffix='ק"מ'
+              compact
+            />
+            <SliderInput
+              label="עלות חשמל לחודש"
+              subtitle='היחס: כ-200 ₪ ל-1,500 ק"מ'
+              min={50}
+              max={500}
+              step={10}
+              value={(inputs.fuelMonthly as number) ?? 200}
+              onChange={(cost) => {
+                const match = ELECTRIC_KM_PRESETS.find((e) => e.cost === cost)
+                onChange({
+                  fuelMonthly: cost,
+                  kmPerMonth: match ? match.km : Math.round(cost / 0.1333 / 100) * 100,
+                })
+              }}
+              nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.cost, label: `${e.cost}` }))}
+              format={(v) => v.toLocaleString('he-IL')}
+              suffix='₪'
+              compact
+            />
+          </>
         ) : (
           <SliderInput
             label="דלק (לחודש)"
@@ -503,24 +524,45 @@ function RunningCosts({
       <h3 className="text-body font-bold text-primary mb-space-3">הוצאות שוטפות</h3>
 
       {isElectric ? (
-        <SliderInput
-          label='נסיעה ק"מ ממוצע בחודש'
-          min={500}
-          max={3000}
-          step={100}
-          value={(inputs.kmPerMonth as number) ?? 1500}
-          onChange={(km) => {
-            const match = ELECTRIC_KM_PRESETS.find((e) => e.km === km)
-            onChange({
-              kmPerMonth: km,
-              fuelMonthly: match ? match.cost : Math.round(km * 0.13),
-            })
-          }}
-          nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.km, label: `${(e.km / 1000).toFixed(1)}K` }))}
-          format={(v) => v.toLocaleString('he-IL')}
-          suffix='ק"מ'
-          compact
-        />
+        <>
+          <SliderInput
+            label='נסיעה ק"מ ממוצע בחודש'
+            min={500}
+            max={3000}
+            step={100}
+            value={(inputs.kmPerMonth as number) ?? 1500}
+            onChange={(km) => {
+              const match = ELECTRIC_KM_PRESETS.find((e) => e.km === km)
+              onChange({
+                kmPerMonth: km,
+                fuelMonthly: match ? match.cost : Math.round(km * 0.1333),
+              })
+            }}
+            nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.km, label: `${(e.km / 1000).toFixed(1)}K` }))}
+            format={(v) => v.toLocaleString('he-IL')}
+            suffix='ק"מ'
+            compact
+          />
+          <SliderInput
+            label="עלות חשמל לחודש"
+            subtitle='היחס: כ-200 ₪ ל-1,500 ק"מ'
+            min={50}
+            max={500}
+            step={10}
+            value={(inputs.fuelMonthly as number) ?? 200}
+            onChange={(cost) => {
+              const match = ELECTRIC_KM_PRESETS.find((e) => e.cost === cost)
+              onChange({
+                fuelMonthly: cost,
+                kmPerMonth: match ? match.km : Math.round(cost / 0.1333 / 100) * 100,
+              })
+            }}
+            nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.cost, label: `${e.cost}` }))}
+            format={(v) => v.toLocaleString('he-IL')}
+            suffix='₪'
+            compact
+          />
+        </>
       ) : (
         <SliderInput
           label="דלק (לחודש)"

@@ -300,9 +300,14 @@ export function calculatePurchase(
   let niiSavings: number
   let totalTaxSavings: number
 
+  // Ron's May 2026 spec (company P&L): the company's "expenses before tax adjustment"
+  // must include employerNii (a real P&L cost). It's added to the deductibleBase here
+  // and propagates into both totalExpensesBeforeTax (display) and the tax-savings calc.
+  const companyTotalBeforeTax = deductibleBase + companyFields.employerNii
+
   if (isCompany) {
-    // Company: deductible = total expenses (100%), tax = 23% minus שווי מס impact
-    const companyDeductible = totalAnnualBeforeVat - vatRecoverable - (companyFields.vehicleTaxBenefit * 12)
+    // Company: deductible = total expenses (incl. employerNii) net of vehicle benefit; tax 23%
+    const companyDeductible = companyTotalBeforeTax - (companyFields.vehicleTaxBenefit * 12)
     annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings // NII is a COST for company, not savings
@@ -322,10 +327,11 @@ export function calculatePurchase(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Total annual expenses — CASHFLOW based, computed from raw yearly values to avoid
-  // monthly-rounded × 12 leakage (Ron's spec May 2, 2026)
-  const totalAnnualExpenses = amort.monthlyPayment * 12 + fuelMonthly * 12 + maintenanceYearly + insuranceYearly
-  const monthlyCashflow = Math.round(totalAnnualExpenses / 12)
+  // Total annual expenses — Ron's May 2026 fix: round monthly first, then annual = monthly × 12.
+  // Ensures the displayed annual value is consistent with displayed monthly × 12 (no agorot drift).
+  const totalAnnualRaw = amort.monthlyPayment * 12 + fuelMonthly * 12 + maintenanceYearly + insuranceYearly
+  const monthlyCashflow = Math.round(totalAnnualRaw / 12)
+  const totalAnnualExpenses = monthlyCashflow * 12
 
   // Net-of-VAT display amounts (R18) — employee sees full price (no VAT recovery)
   const fuelMonthlyNetVat = isEmployee
@@ -364,7 +370,9 @@ export function calculatePurchase(
     totalTaxSavings,
     fuelMonthlyNetVat,
     maintenanceYearlyNetVat,
-    totalExpensesBeforeTax: Math.round(deductibleBase),
+    // For company, totalExpensesBeforeTax includes employerNii (Ron May 2026).
+    // For self-employed/employee, employerNii is 0 so this is a no-op.
+    totalExpensesBeforeTax: Math.round(isCompany ? companyTotalBeforeTax : deductibleBase),
     vehicleTaxBenefit: companyFields.vehicleTaxBenefit,
     grossIncludingVehicle: companyFields.grossIncludingVehicle,
     employerNii: companyFields.employerNii,
@@ -455,8 +463,11 @@ export function calculateFinancialLeasing(
   let niiSavings: number
   let totalTaxSavings: number
 
+  // Ron May 2026: company's pre-tax expense base must include employerNii (P&L cost)
+  const companyTotalBeforeTax = deductibleBase + companyFields.employerNii
+
   if (isCompanyMode) {
-    const companyDeductible = totalAnnualBeforeVat - vatRecoverable - (companyFields.vehicleTaxBenefit * 12)
+    const companyDeductible = companyTotalBeforeTax - (companyFields.vehicleTaxBenefit * 12)
     annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings
@@ -473,9 +484,10 @@ export function calculateFinancialLeasing(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Cashflow-based expenses — raw yearly sum (Ron's spec May 2, 2026)
-  const totalAnnualExpenses = monthlyLeasingPayment * 12 + fuelMonthly * 12 + maintenanceYearly + insuranceYearly
-  const monthlyCashflow = Math.round(totalAnnualExpenses / 12)
+  // Total annual — Ron May 2026: monthly first (rounded), annual = monthly × 12
+  const totalAnnualRaw = monthlyLeasingPayment * 12 + fuelMonthly * 12 + maintenanceYearly + insuranceYearly
+  const monthlyCashflow = Math.round(totalAnnualRaw / 12)
+  const totalAnnualExpenses = monthlyCashflow * 12
 
   // Net-of-VAT display amounts (R18) — employee sees full price (no VAT recovery)
   const fuelMonthlyNetVat = isEmployee
@@ -514,7 +526,7 @@ export function calculateFinancialLeasing(
     totalTaxSavings,
     fuelMonthlyNetVat,
     maintenanceYearlyNetVat,
-    totalExpensesBeforeTax: Math.round(deductibleBase),
+    totalExpensesBeforeTax: Math.round(isCompanyMode ? companyTotalBeforeTax : deductibleBase),
     vehicleTaxBenefit: companyFields.vehicleTaxBenefit,
     grossIncludingVehicle: companyFields.grossIncludingVehicle,
     employerNii: companyFields.employerNii,
@@ -579,8 +591,11 @@ export function calculateOperationalLeasing(
   let niiSavings: number
   let totalTaxSavings: number
 
+  // Ron May 2026: company P&L base includes employerNii
+  const companyTotalBeforeTax = deductibleBase + companyFields.employerNii
+
   if (isCompanyMode) {
-    const companyDeductible = totalAnnualBeforeVat - vatRecoverable - (companyFields.vehicleTaxBenefit * 12)
+    const companyDeductible = companyTotalBeforeTax - (companyFields.vehicleTaxBenefit * 12)
     annualTaxSavings = Math.round(companyDeductible * COMPANY_TAX_RATE)
     niiSavings = companyFields.employerNii
     totalTaxSavings = annualTaxSavings
@@ -597,7 +612,7 @@ export function calculateOperationalLeasing(
     totalTaxSavings = annualTaxSavings + niiSavings
   }
 
-  // Cashflow-based expenses (pure out-of-pocket — VAT recovery is in tax section)
+  // Cashflow — pure out-of-pocket. monthly first, then annual = monthly × 12
   const monthlyCashflow = Math.round(monthlyLeasingPayment + fuelMonthly)
   const totalAnnualExpenses = monthlyCashflow * 12
 

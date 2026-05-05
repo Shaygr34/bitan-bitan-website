@@ -206,8 +206,8 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         format={formatCurrency}
       />
 
-      {/* Manufacturer Price — company only */}
-      {(values.userType === 'company' || values.userType === 'employee') && (
+      {/* Manufacturer Price — company/employee only, AND not commercial (no שווי שימוש on commercial) */}
+      {(values.userType === 'company' || values.userType === 'employee') && !values.vehicleType?.startsWith('commercial') && (
         <SliderInput
           label="שווי רכב חדש מהיצרן"
           subtitle="לצורך חישוב שווי מס רכב — מחירון היצרן, לא מחיר הרכישה"

@@ -69,6 +69,11 @@ export const NII_2026 = {
   // Self-employed simplified (leasing calc uses these)
   selfEmployedSavingsRateAboveThreshold: 0.18,
   selfEmployedSavingsRateBelowThreshold: 0.077,
+
+  // Self-employed actual NII rates paid (used for back-calc helpers).
+  // 4.47% below threshold, 12.83% above. Source: BTL 2026.
+  selfEmployedRateBelowThreshold: 0.0447,
+  selfEmployedRateAboveThreshold: 0.1283,
 } as const
 
 /**
@@ -130,7 +135,7 @@ export const NII_CATEGORY_LABELS: Record<NIICategory, string> = {
   standard: 'תושב ישראל (ברירת מחדל)',
   controllingShareholder: 'בעל שליטה בחברת מעטים',
   retiree: 'פנסיונר (לאחר גיל פרישה)',
-  foreignResident: 'תושב זר / עובד זר',
+  foreignResident: 'תושב זר/אמנת מס',
 }
 
 // ─── Credit Points ─────────────────────────────────────────────────────────

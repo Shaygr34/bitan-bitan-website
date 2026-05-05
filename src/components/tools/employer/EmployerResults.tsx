@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2 } from 'lucide-react'
+import { useCallback, useMemo, useState } from 'react'
+import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2, BarChart3 } from 'lucide-react'
 import type { EmployerCalcResult, EmployerInputs } from './types'
 
 type Props = {
@@ -44,13 +44,26 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
     if (inputs.childrenAges.length > 0) params.set('ca', inputs.childrenAges.join(','))
     if (inputs.childAllowanceRecipient === 'employee') params.set('cr', 'e')
     if (inputs.disabledChildrenCount > 0) params.set('dc', String(inputs.disabledChildrenCount))
-    if (inputs.serviceType !== 'none') { params.set('st', inputs.serviceType); params.set('sl', inputs.serviceLevel) }
+    if (inputs.serviceType !== 'none') {
+      params.set('st', inputs.serviceType); params.set('sl', inputs.serviceLevel)
+      if (inputs.serviceEndDate) params.set('se', `${inputs.serviceEndDate.month}-${inputs.serviceEndDate.year}`)
+    }
+    if (inputs.reserveDays > 0) params.set('rd', String(inputs.reserveDays))
+    const today = new Date()
+    if (inputs.evaluationDate.month !== today.getMonth() + 1 || inputs.evaluationDate.year !== today.getFullYear()) {
+      params.set('ed', `${inputs.evaluationDate.month}-${inputs.evaluationDate.year}`)
+    }
     const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`
 
-    const text = `מחשבון עלות מעסיק — ביטן את ביטן`
+    // Ron spec (May 2026): "ביטן את ביטן רו"ח - סימולציה עלות מעסיק / עובד מיום DD/MM/YY"
+    const d = new Date()
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yy = String(d.getFullYear() % 100).padStart(2, '0')
+    const text = `ביטן את ביטן רו"ח - סימולציה עלות מעסיק / עובד מיום ${dd}/${mm}/${yy}`
     if (navigator.share) {
       try {
-        await navigator.share({ title: text, url: shareUrl })
+        await navigator.share({ title: text, text, url: shareUrl })
       } catch {
         // user cancelled
       }
@@ -66,99 +79,18 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
       <h2 className="text-h3 font-bold text-primary text-center mb-space-2">תוצאות חישוב עלות מעסיק</h2>
       <p className="text-body text-text-muted text-center mb-space-6">סכומים חודשיים</p>
 
-      {/* Print watermark — diagonal, faded, centered (Ron spec May 2026) */}
-      <div
-        aria-hidden="true"
-        className="print-only hidden fixed inset-0 pointer-events-none z-50 select-none"
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%) rotate(-30deg)',
-            opacity: 0.12,
-            fontSize: '120px',
-            fontWeight: 700,
-            color: '#1F2937',
-            whiteSpace: 'nowrap',
-            letterSpacing: '0.05em',
-          }}
-        >
-          להמחשה בלבד
-        </div>
-      </div>
+      {/* Print watermark — diagonal, faded, centered (Ron spec May 2026).
+          Single fixed element with dedicated class to avoid conflicts with
+          .print-only / body font-size !important rules. */}
+      <div aria-hidden="true" className="ec-watermark" suppressHydrationWarning>להמחשה בלבד</div>
 
       {/* Comparison Table — CENTER STAGE when comparing */}
       {comparisonResult && comparisonInputs && (
-        <div className="mb-space-6">
-          <div className="flex items-center justify-between mb-space-3">
-            <h3 className="text-h4 font-bold text-primary">השוואת תרחישים</h3>
-            <button type="button" onClick={onRemoveComparison}
-              className="text-body-sm text-red-500 hover:text-red-700 cursor-pointer transition-colors no-print">
-              הסר השוואה
-            </button>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-border shadow-md overflow-hidden">
-            <table className="w-full text-body-sm" dir="rtl">
-              <thead>
-                <tr className="bg-primary text-white">
-                  <th className="py-2.5 px-4 text-start font-semibold"></th>
-                  <th className="py-2.5 px-4 text-center font-bold border-x border-white/20">תרחיש א׳</th>
-                  <th className="py-2.5 px-4 text-center font-bold">תרחיש ב׳</th>
-                  <th className="py-2.5 px-4 text-center font-bold border-r border-white/20">הפרש</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-border-light">
-                  <td className="py-2 px-4 text-text-muted font-medium">ברוטו</td>
-                  <td className="py-2 px-4 text-center font-medium">{fmt(inputs.grossSalary)} ₪</td>
-                  <td className="py-2 px-4 text-center font-medium">{fmt(comparisonInputs.grossSalary)} ₪</td>
-                  <td className="py-2 px-4 text-center text-text-muted">{fmt(Math.abs(inputs.grossSalary - comparisonInputs.grossSalary))} ₪</td>
-                </tr>
-                <tr className="border-b border-border-light bg-surface/30">
-                  <td className="py-2 px-4 text-text-muted font-medium">עלות מעסיק</td>
-                  <td className="py-2 px-4 text-center font-bold text-gold-dark">{fmt(result.employer.totalWithShvui)} ₪</td>
-                  <td className="py-2 px-4 text-center font-bold text-primary">{fmt(comparisonResult.employer.totalWithShvui)} ₪</td>
-                  <td className="py-2 px-4 text-center font-bold text-primary">{fmt(Math.abs(result.employer.totalWithShvui - comparisonResult.employer.totalWithShvui))} ₪</td>
-                </tr>
-                <tr className="border-b border-border-light">
-                  <td className="py-2 px-4 text-text-muted font-medium">נטו עובד</td>
-                  <td className="py-2 px-4 text-center font-bold text-gold-dark">{fmt(result.employee.netWithShvui)} ₪</td>
-                  <td className="py-2 px-4 text-center font-bold text-primary">{fmt(comparisonResult.employee.netWithShvui)} ₪</td>
-                  <td className="py-2 px-4 text-center font-bold text-primary">{fmt(Math.abs(result.employee.netWithShvui - comparisonResult.employee.netWithShvui))} ₪</td>
-                </tr>
-                {(result.hasShvuiMas || comparisonResult.hasShvuiMas) && (
-                  <tr className="bg-surface/30">
-                    <td className="py-2 px-4 text-text-muted font-medium">שווי מס</td>
-                    <td className="py-2 px-4 text-center">{fmt(result.totalShvuiMas)} ₪</td>
-                    <td className="py-2 px-4 text-center">{fmt(comparisonResult.totalShvuiMas)} ₪</td>
-                    <td className="py-2 px-4 text-center">{fmt(Math.abs(result.totalShvuiMas - comparisonResult.totalShvuiMas))} ₪</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Verdict */}
-          <div className="mt-space-3 bg-gold/5 border border-gold rounded-xl p-space-3 text-center">
-            <p className="text-body font-bold text-primary">
-              {result.employer.totalWithShvui < comparisonResult.employer.totalWithShvui
-                ? `תרחיש א׳ זול יותר למעסיק ב-${fmt(comparisonResult.employer.totalWithShvui - result.employer.totalWithShvui)} ₪`
-                : result.employer.totalWithShvui > comparisonResult.employer.totalWithShvui
-                  ? `תרחיש ב׳ זול יותר למעסיק ב-${fmt(result.employer.totalWithShvui - comparisonResult.employer.totalWithShvui)} ₪`
-                  : 'עלות מעסיק שווה בשני התרחישים'}
-            </p>
-            <p className="text-body-sm text-text-muted mt-1">
-              {result.employee.netWithShvui > comparisonResult.employee.netWithShvui
-                ? `נטו עובד גבוה יותר בתרחיש א׳ ב-${fmt(result.employee.netWithShvui - comparisonResult.employee.netWithShvui)} ₪`
-                : result.employee.netWithShvui < comparisonResult.employee.netWithShvui
-                  ? `נטו עובד גבוה יותר בתרחיש ב׳ ב-${fmt(comparisonResult.employee.netWithShvui - result.employee.netWithShvui)} ₪`
-                  : 'נטו עובד שווה בשני התרחישים'}
-            </p>
-          </div>
-        </div>
+        <ComparisonBlock
+          primary={{ result, inputs }}
+          comparison={{ result: comparisonResult, inputs: comparisonInputs }}
+          onRemove={onRemoveComparison}
+        />
       )}
 
       {/* Key Metrics — Top Summary */}
@@ -207,7 +139,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
         <div className="p-space-4">
           <Section title="נתונים לחישוב שכר" rows={[
             { label: 'שכר ברוטו', value: `${fmt(emp.grossSalary)} ₪` },
-            { label: 'נסיעות', value: `${fmt(emp.travelAllowance)} ₪` },
+            { label: 'נסיעות *', value: `${fmt(emp.travelAllowance)} ₪`, muted: true },
             ...(emp.vehicleTaxBenefit > 0 ? [{ label: 'שווי רכב', value: `${fmt(emp.vehicleTaxBenefit)} ₪` }] : []),
             ...(emp.mealBenefit > 0 ? [{ label: 'שווי ארוחות', value: `${fmt(emp.mealBenefit)} ₪` }] : []),
             ...(emp.otherBenefit > 0 ? [{ label: 'שווי מס נוסף', value: `${fmt(emp.otherBenefit)} ₪` }] : []),
@@ -217,6 +149,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             ...(emp.imputedSeverance > 0 ? [{ label: 'שווי זקופות פיצויים', value: `${fmt(emp.imputedSeverance)} ₪` }] : []),
             { label: 'סה"כ שכר עבודה חייב במס', value: `${fmt(emp.totalTaxableIncome)} ₪`, bold: true },
           ]} />
+          <p className="text-caption text-text-muted -mt-space-2 mb-space-3 px-2">* נסיעות אינן נכללות בסה"כ שכר עבודה חייב במס</p>
 
           <Section title="ניכויים" rows={[
             { label: 'ביטוח לאומי', value: `${fmt(emp.niiEmployee)} ₪` },
@@ -231,8 +164,11 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             <p className="text-body-sm text-primary">
               <span className="font-bold">{creditBreakdown.total.toFixed(2)}</span>{' '}
               נקודות זיכוי ({fmt(creditBreakdown.monthlyValue)} ₪/חודש)
+              {creditBreakdown.reservist > 0 && (
+                <> · כולל {creditBreakdown.reservist.toFixed(2)} נ&quot;ז מילואים</>
+              )}
               {creditBreakdown.pensionCredit > 0 && (
-                <> + זיכויים נוספים {fmt(creditBreakdown.pensionCredit)} ₪</>
+                <> + זיכוי פנסיה {fmt(creditBreakdown.pensionCredit)} ₪</>
               )}
               {', '}
               סה&quot;כ זיכוי מס:{' '}
@@ -355,6 +291,9 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
 
       {/* Print CSS — compact one-pager */}
       <style jsx global>{`
+        /* Watermark hidden on screen */
+        .ec-watermark { display: none; }
+
         @media print {
           /* Hide everything except results */
           nav, footer, header, .no-print,
@@ -362,10 +301,32 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
           [class*="WhatsApp"], [class*="whatsapp"] { display: none !important; }
           .print-only { display: block !important; }
 
+          /* Watermark — fixed, centered, diagonal, faded.
+             Uses !important to beat body { font-size: 10px !important } below. */
+          .ec-watermark {
+            display: block !important;
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) rotate(-30deg) !important;
+            transform-origin: center center !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            z-index: 9999 !important;
+            opacity: 0.12 !important;
+            font-size: 90px !important;
+            font-weight: 700 !important;
+            color: #1F2937 !important;
+            white-space: nowrap !important;
+            letter-spacing: 0.05em !important;
+            line-height: 1 !important;
+          }
+
           /* The tool page wrapper often has large padding/margins — kill them */
           main, article, section { padding: 0 !important; }
           .print-area {
             max-width: 100% !important;
+            width: 100% !important;
             padding: 0 !important;
             margin: 0 !important;
           }
@@ -398,6 +359,129 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
           @page { margin: 10mm; }
         }
       `}</style>
+    </div>
+  )
+}
+
+/* ─── Comparison Block (Ron May 2026 #47): tabs + swap A/B + verdict ─── */
+
+type Scenario = { result: EmployerCalcResult; inputs: EmployerInputs }
+
+function ComparisonBlock({
+  primary,
+  comparison,
+  onRemove,
+}: {
+  primary: Scenario
+  comparison: Scenario
+  onRemove: () => void
+}) {
+  // Default activeIdx = scenario with lower employer cost (preferred-first parity).
+  const preferredIdx = useMemo<0 | 1>(() => {
+    return primary.result.employer.totalWithShvui <= comparison.result.employer.totalWithShvui ? 0 : 1
+  }, [primary, comparison])
+  const [activeIdx, setActiveIdx] = useState<0 | 1>(preferredIdx)
+
+  // Reorder so the active scenario is column A
+  const colA = activeIdx === 0 ? primary : comparison
+  const colB = activeIdx === 0 ? comparison : primary
+
+  const cheaperLabel = colA.result.employer.totalWithShvui < colB.result.employer.totalWithShvui ? "תרחיש א׳"
+    : colA.result.employer.totalWithShvui > colB.result.employer.totalWithShvui ? "תרחיש ב׳" : null
+
+  const higherNetLabel = colA.result.employee.netWithShvui > colB.result.employee.netWithShvui ? "תרחיש א׳"
+    : colA.result.employee.netWithShvui < colB.result.employee.netWithShvui ? "תרחיש ב׳" : null
+
+  return (
+    <div className="mb-space-6">
+      <div className="flex items-center justify-between mb-space-3">
+        <h3 className="text-h4 font-bold text-primary">השוואת תרחישים</h3>
+        <button type="button" onClick={onRemove}
+          className="text-body-sm text-red-500 hover:text-red-700 cursor-pointer transition-colors no-print">
+          הסר השוואה
+        </button>
+      </div>
+
+      {/* Scenario tabs (icon parity with leasing #28) */}
+      <div className="flex justify-center gap-2 mb-space-3 no-print" role="tablist" aria-label="תרחישים">
+        {([0, 1] as const).map((idx) => {
+          const scen = idx === 0 ? primary : comparison
+          const active = idx === activeIdx
+          return (
+            <button
+              key={idx}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setActiveIdx(idx)}
+              className={[
+                'inline-flex items-center gap-2 rounded-xl px-4 py-2 text-body-sm font-bold border-2 transition-all cursor-pointer',
+                active
+                  ? 'border-gold bg-gold/10 text-gold scale-105 shadow-sm'
+                  : 'border-border bg-white text-text-muted hover:bg-surface',
+              ].join(' ')}
+            >
+              <BarChart3 className="h-4 w-4" />
+              ברוטו {fmt(scen.inputs.grossSalary)} ₪
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="bg-white rounded-2xl border border-border shadow-md overflow-hidden">
+        <table className="w-full text-body-sm" dir="rtl">
+          <thead>
+            <tr className="bg-primary text-white">
+              <th className="py-2.5 px-4 text-start font-semibold"></th>
+              <th className="py-2.5 px-4 text-center font-bold border-x border-white/20">תרחיש א׳</th>
+              <th className="py-2.5 px-4 text-center font-bold">תרחיש ב׳</th>
+              <th className="py-2.5 px-4 text-center font-bold border-r border-white/20">הפרש</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b border-border-light">
+              <td className="py-2 px-4 text-text-muted font-medium">ברוטו</td>
+              <td className="py-2 px-4 text-center font-medium">{fmt(colA.inputs.grossSalary)} ₪</td>
+              <td className="py-2 px-4 text-center font-medium">{fmt(colB.inputs.grossSalary)} ₪</td>
+              <td className="py-2 px-4 text-center text-text-muted">{fmt(Math.abs(colA.inputs.grossSalary - colB.inputs.grossSalary))} ₪</td>
+            </tr>
+            <tr className="border-b border-border-light bg-surface/30">
+              <td className="py-2 px-4 text-text-muted font-medium">עלות מעסיק</td>
+              <td className="py-2 px-4 text-center font-bold text-gold-dark">{fmt(colA.result.employer.totalWithShvui)} ₪</td>
+              <td className="py-2 px-4 text-center font-bold text-primary">{fmt(colB.result.employer.totalWithShvui)} ₪</td>
+              <td className="py-2 px-4 text-center font-bold text-primary">{fmt(Math.abs(colA.result.employer.totalWithShvui - colB.result.employer.totalWithShvui))} ₪</td>
+            </tr>
+            <tr className="border-b border-border-light">
+              <td className="py-2 px-4 text-text-muted font-medium">נטו עובד</td>
+              <td className="py-2 px-4 text-center font-bold text-gold-dark">{fmt(colA.result.employee.netWithShvui)} ₪</td>
+              <td className="py-2 px-4 text-center font-bold text-primary">{fmt(colB.result.employee.netWithShvui)} ₪</td>
+              <td className="py-2 px-4 text-center font-bold text-primary">{fmt(Math.abs(colA.result.employee.netWithShvui - colB.result.employee.netWithShvui))} ₪</td>
+            </tr>
+            {(colA.result.hasShvuiMas || colB.result.hasShvuiMas) && (
+              <tr className="bg-surface/30">
+                <td className="py-2 px-4 text-text-muted font-medium">שווי מס</td>
+                <td className="py-2 px-4 text-center">{fmt(colA.result.totalShvuiMas)} ₪</td>
+                <td className="py-2 px-4 text-center">{fmt(colB.result.totalShvuiMas)} ₪</td>
+                <td className="py-2 px-4 text-center">{fmt(Math.abs(colA.result.totalShvuiMas - colB.result.totalShvuiMas))} ₪</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Verdict */}
+      <div className="mt-space-3 bg-gold/5 border border-gold rounded-xl p-space-3 text-center">
+        <p className="text-body font-bold text-primary">
+          {cheaperLabel
+            ? `${cheaperLabel} זול יותר למעסיק ב-${fmt(Math.abs(colA.result.employer.totalWithShvui - colB.result.employer.totalWithShvui))} ₪`
+            : 'עלות מעסיק שווה בשני התרחישים'}
+        </p>
+        <p className="text-body-sm text-text-muted mt-1">
+          {higherNetLabel
+            ? `נטו עובד גבוה יותר ב${higherNetLabel} ב-${fmt(Math.abs(colA.result.employee.netWithShvui - colB.result.employee.netWithShvui))} ₪`
+            : 'נטו עובד שווה בשני התרחישים'}
+        </p>
+      </div>
     </div>
   )
 }

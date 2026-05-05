@@ -45,6 +45,54 @@ export function calculateVehicleBenefit(
 }
 
 /* ═══════════════════════════════════════════════
+   Service Eligibility (חייל משוחרר — 36-mo window)
+   ═══════════════════════════════════════════════ */
+
+type YM = { month: number; year: number }
+
+/**
+ * Ron May 2026: military/national service credits apply for 36 months
+ * starting the month AFTER service ended.
+ * Example: service ended 1/2025 → eligibility 2/2025 - 1/2028 inclusive.
+ * Eval date inside this window → eligible. Otherwise → not eligible.
+ */
+export function isServiceEligibleForCredit(serviceEnd: YM, evalDate: YM): boolean {
+  // Window starts the month after service end
+  let startMonth = serviceEnd.month + 1
+  let startYear = serviceEnd.year
+  if (startMonth > 12) { startMonth = 1; startYear += 1 }
+
+  // Window ends 36 months later (inclusive of last month).
+  // Last month = start + 35 months.
+  const endTotal = startYear * 12 + (startMonth - 1) + 35
+  const endYear = Math.floor(endTotal / 12)
+  const endMonth = (endTotal % 12) + 1
+
+  const evalKey = evalDate.year * 12 + evalDate.month
+  const startKey = startYear * 12 + startMonth
+  const endKey = endYear * 12 + endMonth
+
+  return evalKey >= startKey && evalKey <= endKey
+}
+
+/* ═══════════════════════════════════════════════
+   Reservist Credit (זיכוי מילואים)
+   ═══════════════════════════════════════════════ */
+
+/**
+ * Ron May 2026 spec: reservist credit tiers (לוחם, prior tax year days).
+ * - <30 days: 0 | 30-39: 0.5 | 40-49: 0.75 | ≥50: 1.0 + 0.25 per add'l 5 days
+ * - Capped at 4.0 points (reached at 110 days). Beyond 110 days: stays 4.0.
+ */
+export function calculateReservistCredit(days: number): number {
+  if (days < 30) return 0
+  if (days < 40) return 0.5
+  if (days < 50) return 0.75
+  const extraSteps = Math.floor((days - 50) / 5)
+  return Math.min(1.0 + extraSteps * 0.25, 4.0)
+}
+
+/* ═══════════════════════════════════════════════
    Credit Points (נקודות זיכוי) — returns breakdown
    ═══════════════════════════════════════════════ */
 
@@ -56,7 +104,8 @@ export function calculateCreditPoints(
   disabledChildrenCount: number,
   serviceType: 'military' | 'national' | 'none',
   serviceLevel: 'full' | 'partial' | 'none',
-): { base: number; marital: number; children: number; disabledChildren: number; service: number; total: number } {
+  reserveDays: number = 0,
+): { base: number; marital: number; children: number; disabledChildren: number; service: number; reservist: number; total: number } {
   // Base: male 2.25, female 2.75
   const base = gender === 'female' ? 2.75 : 2.25
 
@@ -85,9 +134,12 @@ export function calculateCreditPoints(
   // Service
   const service = getServiceCreditPoints(gender, serviceType, serviceLevel)
 
-  const total = base + marital + children + disabledChildren + service
+  // Reservist (זיכוי מילואים) — Ron May 2026
+  const reservist = calculateReservistCredit(reserveDays)
 
-  return { base, marital, children, disabledChildren, service, total }
+  const total = base + marital + children + disabledChildren + service + reservist
+
+  return { base, marital, children, disabledChildren, service, reservist, total }
 }
 
 /* ═══════════════════════════════════════════════
@@ -254,6 +306,7 @@ export function calculateEmployerCost(
     disabledChildrenCount, serviceType, serviceLevel,
     pensionCreditSalary,
   } = inputs
+  const reserveDays = inputs.reserveDays ?? 0
   const niiCategory: NIICategory = inputs.niiCategory ?? 'standard'
 
   // Zero out rates when pension/education fund is disabled
@@ -289,9 +342,19 @@ export function calculateEmployerCost(
 
   // ─── Credit Points (with breakdown) ───
   const employeeGetsAllowance = childAllowanceRecipient === 'employee'
+
+  // Ron May 2026: gate service credits by 36-month window from end of service.
+  // If serviceEndDate provided AND eval date is outside window → suppress service.
+  // If null → backwards-compat (apply credits as before).
+  const eligibleForService = inputs.serviceEndDate === null || inputs.serviceEndDate === undefined
+    ? true
+    : isServiceEligibleForCredit(inputs.serviceEndDate, inputs.evaluationDate)
+  const effectiveServiceType = eligibleForService ? serviceType : 'none'
+  const effectiveServiceLevel = eligibleForService ? serviceLevel : 'none'
+
   const creditBreakdown = calculateCreditPoints(
     gender, maritalStatus, childrenAges, employeeGetsAllowance,
-    disabledChildrenCount, serviceType, serviceLevel,
+    disabledChildrenCount, effectiveServiceType, effectiveServiceLevel, reserveDays,
   )
   const creditPointsMonthly = Math.round((creditBreakdown.total * config.creditPointValue) / 12)
 
@@ -307,6 +370,7 @@ export function calculateEmployerCost(
     children: creditBreakdown.children,
     disabledChildren: creditBreakdown.disabledChildren,
     service: creditBreakdown.service,
+    reservist: creditBreakdown.reservist,
     pensionCredit: pensionTax.pensionCredit,
     total: creditBreakdown.total,
     monthlyValue: creditPointsMonthly,
@@ -407,7 +471,7 @@ export function getDefaultEmployerInputs(): EmployerInputs {
     employerPensionRate: 6.5,
     severanceRate: 6,
     disabilityRate: 0,
-    hasEducationFund: true,
+    hasEducationFund: false,
     educationFundSalary: 15_000,
     employeeEducationRate: 2.5,
     employerEducationRate: 7.5,
@@ -418,7 +482,13 @@ export function getDefaultEmployerInputs(): EmployerInputs {
     disabledChildrenCount: 0,
     serviceType: 'none',
     serviceLevel: 'none',
+    serviceEndDate: null,
+    reserveDays: 0,
     pensionCreditSalary: 9_700,
     niiCategory: 'standard',
+    evaluationDate: (() => {
+      const now = new Date()
+      return { month: now.getMonth() + 1, year: now.getFullYear() }
+    })(),
   }
 }

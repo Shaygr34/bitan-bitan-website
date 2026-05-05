@@ -36,18 +36,29 @@ function encodeEmployerParams(inp: EmployerInputs): string {
   if (inp.hasMealBenefit) { p.set('ml', String(inp.mealBenefitAmount)) }
   if (inp.hasOtherBenefit) { p.set('ob', String(inp.otherBenefitAmount)) }
   if (!inp.hasPension) p.set('np', '1')
+  if (inp.hasPension && inp.pensionSalary !== inp.grossSalary) p.set('ps', String(inp.pensionSalary))
   p.set('pe', String(inp.employeePensionRate))
   p.set('pp', String(inp.employerPensionRate))
   p.set('sv', String(inp.severanceRate))
-  if (!inp.hasEducationFund) p.set('ne', '1')
+  if (inp.hasEducationFund) p.set('he', '1')
+  if (inp.hasEducationFund) p.set('es', String(inp.educationFundSalary))
   p.set('ee', String(inp.employerEducationRate))
   p.set('g', inp.gender[0]) // m/f
   p.set('ms', inp.maritalStatus)
   if (inp.childrenAges.length > 0) p.set('ca', inp.childrenAges.join(','))
   if (inp.childAllowanceRecipient === 'employee') p.set('cr', 'e')
   if (inp.disabledChildrenCount > 0) p.set('dc', String(inp.disabledChildrenCount))
-  if (inp.serviceType !== 'none') { p.set('st', inp.serviceType); p.set('sl', inp.serviceLevel) }
+  if (inp.serviceType !== 'none') {
+    p.set('st', inp.serviceType); p.set('sl', inp.serviceLevel)
+    if (inp.serviceEndDate) p.set('se', `${inp.serviceEndDate.month}-${inp.serviceEndDate.year}`)
+  }
+  if (inp.reserveDays > 0) p.set('rd', String(inp.reserveDays))
   if (inp.niiCategory !== 'standard') p.set('nc', inp.niiCategory)
+  // evalDate format: "MM-YYYY" (only set when user overrode default)
+  const today = new Date()
+  if (inp.evaluationDate.month !== today.getMonth() + 1 || inp.evaluationDate.year !== today.getFullYear()) {
+    p.set('ed', `${inp.evaluationDate.month}-${inp.evaluationDate.year}`)
+  }
   return p.toString()
 }
 
@@ -59,7 +70,6 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
   return {
     ...defaults,
     grossSalary: gs,
-    pensionSalary: gs,
     travelAllowance: Number(p.get('ta')) || defaults.travelAllowance,
     hasVehicle: p.get('v') === '1',
     vehicleFuelType: (p.get('vf') as EmployerInputs['vehicleFuelType']) || defaults.vehicleFuelType,
@@ -69,12 +79,13 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
     hasOtherBenefit: p.has('ob'),
     otherBenefitAmount: Number(p.get('ob')) || defaults.otherBenefitAmount,
     hasPension: p.get('np') !== '1',
+    pensionSalary: Number(p.get('ps')) || gs,
     employeePensionRate: Number(p.get('pe')) || defaults.employeePensionRate,
     employerPensionRate: Number(p.get('pp')) || defaults.employerPensionRate,
     severanceRate: Number(p.get('sv')) || defaults.severanceRate,
-    hasEducationFund: p.get('ne') !== '1',
+    hasEducationFund: p.get('he') === '1',
     employerEducationRate: Number(p.get('ee')) || defaults.employerEducationRate,
-    educationFundSalary: Math.min(gs, config.educationFundCap),
+    educationFundSalary: Number(p.get('es')) || Math.min(gs, config.educationFundCap),
     gender: p.get('g') === 'f' ? 'female' : 'male',
     maritalStatus: (p.get('ms') as EmployerInputs['maritalStatus']) || defaults.maritalStatus,
     childrenAges: p.has('ca') ? p.get('ca')!.split(',').map(Number) : [],
@@ -82,6 +93,22 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
     disabledChildrenCount: Number(p.get('dc')) || 0,
     serviceType: (p.get('st') as EmployerInputs['serviceType']) || 'none',
     serviceLevel: (p.get('sl') as EmployerInputs['serviceLevel']) || 'none',
+    serviceEndDate: (() => {
+      const se = p.get('se')
+      if (!se) return null
+      const [m, y] = se.split('-').map(Number)
+      if (m >= 1 && m <= 12 && y >= 2010 && y <= 2040) return { month: m, year: y }
+      return null
+    })(),
+    reserveDays: Number(p.get('rd')) || 0,
+    evaluationDate: (() => {
+      const ed = p.get('ed')
+      if (ed) {
+        const [m, y] = ed.split('-').map(Number)
+        if (m >= 1 && m <= 12 && y >= 2024 && y <= 2040) return { month: m, year: y }
+      }
+      return defaults.evaluationDate
+    })(),
     pensionCreditSalary: defaults.pensionCreditSalary,
     niiCategory: (p.get('nc') as NIICategory) || 'standard',
   }
@@ -129,6 +156,11 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
 
   const next = useCallback(() => {
     const idx = PHASE_ORDER.indexOf(phase)
+    // Ron May 2026: skip pension phase entirely when both toggles are off
+    if (phase === 'salary' && !inputs.hasPension && !inputs.hasEducationFund) {
+      setPhase('personal')
+      return
+    }
     if (idx < PHASE_ORDER.length - 2) {
       setPhase(PHASE_ORDER[idx + 1])
     } else if (phase === 'personal') {
@@ -153,8 +185,13 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
 
   const back = useCallback(() => {
     const idx = PHASE_ORDER.indexOf(phase)
+    // Ron May 2026: skip pension phase entirely when both toggles are off
+    if (phase === 'personal' && !inputs.hasPension && !inputs.hasEducationFund) {
+      setPhase('salary')
+      return
+    }
     if (idx > 0) setPhase(PHASE_ORDER[idx - 1])
-  }, [phase])
+  }, [phase, inputs.hasPension, inputs.hasEducationFund])
 
   const restart = useCallback(() => {
     setInputs(getDefaultEmployerInputs())
@@ -251,7 +288,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
 
             <SliderInput
               label="שכר ברוטו חודשי (ללא נסיעות)"
-              min={5000} max={60000} step={500}
+              min={5000} max={100000} step={500}
               value={inputs.grossSalary}
               onChange={v => update({ grossSalary: v, pensionSalary: v, educationFundSalary: Math.min(v, effectiveConfig.educationFundCap) })}
               nodes={SALARY_PRESETS.map(s => ({ value: s, label: `${fmt(s)}` }))}
@@ -272,6 +309,54 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               ]}
               format={fmt}
             />
+
+            {/* Pension toggle (Ron May 2026: moved from step 2) */}
+            <div className="bg-surface rounded-xl p-space-4 mb-space-5">
+              <YesNoToggle
+                label="הפרשה לקרן פנסיה?"
+                value={inputs.hasPension}
+                onChange={v => update({ hasPension: v, pensionSalary: v ? inputs.grossSalary : 0 })}
+              />
+              {inputs.hasPension && (
+                <SliderInput
+                  label="שכר לפנסיה"
+                  subtitle="ברירת מחדל: שכר ברוטו"
+                  min={0} max={inputs.grossSalary} step={500}
+                  value={Math.min(inputs.pensionSalary, inputs.grossSalary)}
+                  onChange={v => update({ pensionSalary: v })}
+                  nodes={[
+                    { value: 0, label: '0' },
+                    { value: Math.round(inputs.grossSalary / 2), label: fmt(Math.round(inputs.grossSalary / 2)) },
+                    { value: inputs.grossSalary, label: fmt(inputs.grossSalary) },
+                  ]}
+                  format={fmt}
+                />
+              )}
+            </div>
+
+            {/* Education fund toggle (Ron May 2026: moved from step 2, default NO) */}
+            <div className="bg-surface rounded-xl p-space-4 mb-space-5">
+              <YesNoToggle
+                label="הפרשה לקרן השתלמות?"
+                value={inputs.hasEducationFund}
+                onChange={v => update({ hasEducationFund: v, educationFundSalary: v ? Math.min(inputs.grossSalary, effectiveConfig.educationFundCap) : 0 })}
+              />
+              {inputs.hasEducationFund && (
+                <SliderInput
+                  label="שכר לקרן השתלמות"
+                  subtitle={`תקרה לזיכוי ממס: ${fmt(effectiveConfig.educationFundCap)}`}
+                  min={0} max={inputs.grossSalary} step={500}
+                  value={Math.min(inputs.educationFundSalary, inputs.grossSalary)}
+                  onChange={v => update({ educationFundSalary: v })}
+                  nodes={[
+                    { value: 0, label: '0' },
+                    { value: Math.min(effectiveConfig.educationFundCap, inputs.grossSalary), label: fmt(Math.min(effectiveConfig.educationFundCap, inputs.grossSalary)) },
+                    { value: inputs.grossSalary, label: fmt(inputs.grossSalary) },
+                  ]}
+                  format={fmt}
+                />
+              )}
+            </div>
 
             {/* Vehicle toggle */}
             <div className="bg-surface rounded-xl p-space-4 mb-space-5">
@@ -370,26 +455,8 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
         {/* Phase 2: Pension & Benefits */}
         {phase === 'pension' && (
           <div>
-            <h2 className="text-h3 font-bold text-primary text-center mb-space-2">פנסיה / ביטוח מנהלים וקרן השתלמות</h2>
-            <p className="text-body text-text-muted text-center mb-space-6">סמנו מה רלוונטי — ברירת מחדל לפי חוק</p>
-
-            {/* Toggle questions — Ron's solution */}
-            <div className="grid grid-cols-2 gap-3 mb-space-5">
-              <div className="bg-surface rounded-xl p-space-4">
-                <YesNoToggle
-                  label="קרן פנסיה?"
-                  value={inputs.hasPension}
-                  onChange={v => update({ hasPension: v })}
-                />
-              </div>
-              <div className="bg-surface rounded-xl p-space-4">
-                <YesNoToggle
-                  label="קרן השתלמות?"
-                  value={inputs.hasEducationFund}
-                  onChange={v => update({ hasEducationFund: v })}
-                />
-              </div>
-            </div>
+            <h2 className="text-h3 font-bold text-primary text-center mb-space-2">שיעורי הפרשה</h2>
+            <p className="text-body text-text-muted text-center mb-space-6">ברירת מחדל לפי חוק</p>
 
             {inputs.hasPension && (
               <div className="bg-surface rounded-xl p-space-4 mb-space-5" style={{ animation: 'fadeIn 200ms ease-out' }}>
@@ -642,17 +709,147 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               />
 
               {inputs.serviceType !== 'none' && serviceThresholds && (
-                <ToggleGroup
-                  label="היקף שירות"
-                  options={[
-                    { value: 'full', label: `שירות מלא (${serviceThresholds.full})` },
-                    { value: 'partial', label: `שירות חלקי (${serviceThresholds.partial})` },
-                  ]}
-                  value={inputs.serviceLevel}
-                  onChange={v => update({ serviceLevel: v as 'full' | 'partial' })}
-                />
+                <>
+                  <ToggleGroup
+                    label="היקף שירות"
+                    options={[
+                      { value: 'full', label: `שירות מלא (${serviceThresholds.full})` },
+                      { value: 'partial', label: `שירות חלקי (${serviceThresholds.partial})` },
+                    ]}
+                    value={inputs.serviceLevel}
+                    onChange={v => update({ serviceLevel: v as 'full' | 'partial' })}
+                  />
+
+                  {/* Service end date — Ron May 2026: drives 36-month eligibility window */}
+                  <div className="mt-space-3">
+                    <label className="block text-body-sm font-medium text-primary mb-2">
+                      חודש/שנה סיום שירות
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <select
+                        value={inputs.serviceEndDate?.month ?? new Date().getMonth() + 1}
+                        onChange={e => update({
+                          serviceEndDate: {
+                            month: parseInt(e.target.value, 10),
+                            year: inputs.serviceEndDate?.year ?? new Date().getFullYear(),
+                          },
+                        })}
+                        className="rounded-lg border border-border px-3 py-2 text-body-sm focus:border-gold focus:outline-none"
+                      >
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                          <option key={m} value={m}>חודש {String(m).padStart(2, '0')}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={inputs.serviceEndDate?.year ?? new Date().getFullYear()}
+                        onChange={e => update({
+                          serviceEndDate: {
+                            month: inputs.serviceEndDate?.month ?? new Date().getMonth() + 1,
+                            year: parseInt(e.target.value, 10),
+                          },
+                        })}
+                        className="rounded-lg border border-border px-3 py-2 text-body-sm focus:border-gold focus:outline-none"
+                      >
+                        {Array.from({ length: 30 }, (_, i) => 2010 + i).map(y => (
+                          <option key={y} value={y}>שנת {y}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <p className="text-caption text-text-muted mt-1 italic">
+                      הטבת מס ניתנת ל-36 חודשים מהחודש שלאחר סיום השירות.
+                    </p>
+                  </div>
+                </>
               )}
             </div>
+
+            {/* Reservist days (זיכוי מילואים) — Ron May 2026 */}
+            <div className="bg-surface rounded-xl p-space-4 mb-space-5">
+              <h3 className="text-body font-bold text-primary mb-space-3">ימי מילואים בשנת המס הקודמת</h3>
+              <ToggleGroup
+                label="טווח ימי מילואים"
+                options={[
+                  { value: '0', label: 'ללא' },
+                  { value: '30', label: '30-39 ימים' },
+                  { value: '40', label: '40-49 ימים' },
+                  { value: '50', label: '50+ ימים' },
+                ]}
+                value={
+                  inputs.reserveDays >= 50 ? '50'
+                  : inputs.reserveDays >= 40 ? '40'
+                  : inputs.reserveDays >= 30 ? '30'
+                  : '0'
+                }
+                onChange={v => update({ reserveDays: parseInt(v, 10) })}
+              />
+              {inputs.reserveDays >= 50 && (
+                <SliderInput
+                  label="מספר ימי מילואים"
+                  value={inputs.reserveDays}
+                  onChange={v => update({ reserveDays: v })}
+                  min={50}
+                  max={150}
+                  step={5}
+                  nodes={[
+                    { value: 50, label: '50' },
+                    { value: 70, label: '70' },
+                    { value: 90, label: '90' },
+                    { value: 110, label: '110 (תקרה)' },
+                    { value: 130, label: '130' },
+                  ]}
+                  suffix=" ימים"
+                />
+              )}
+              {inputs.reserveDays > 0 && (
+                <div className="text-caption text-secondary mt-space-2">
+                  זיכוי מילואים: {(() => {
+                    const d = inputs.reserveDays
+                    if (d < 30) return 0
+                    if (d < 40) return 0.5
+                    if (d < 50) return 0.75
+                    return Math.min(1.0 + Math.floor((d - 50) / 5) * 0.25, 4.0)
+                  })()} נקודות זיכוי
+                </div>
+              )}
+            </div>
+
+            {/* Backstage evaluation date (Ron May 2026) — sets reference month/year for
+                service eligibility (36-mo window) and degree credit windows. Hidden by
+                default; user can override (e.g. for retroactive simulations). */}
+            <details className="mt-space-4 text-caption text-text-muted">
+              <summary className="cursor-pointer select-none hover:text-primary">
+                ⚙️ הגדרות מתקדמות — תאריך חישוב: {String(inputs.evaluationDate.month).padStart(2, '0')}/{inputs.evaluationDate.year}
+              </summary>
+              <div className="mt-space-2 bg-surface/40 rounded-lg p-space-3 grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-caption text-text-muted mb-1">חודש בדיקה</label>
+                  <select
+                    value={inputs.evaluationDate.month}
+                    onChange={e => update({ evaluationDate: { ...inputs.evaluationDate, month: parseInt(e.target.value, 10) } })}
+                    className="w-full rounded-lg border border-border px-2 py-1.5 text-body-sm focus:border-gold focus:outline-none"
+                  >
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                      <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-caption text-text-muted mb-1">שנת בדיקה</label>
+                  <select
+                    value={inputs.evaluationDate.year}
+                    onChange={e => update({ evaluationDate: { ...inputs.evaluationDate, year: parseInt(e.target.value, 10) } })}
+                    className="w-full rounded-lg border border-border px-2 py-1.5 text-body-sm focus:border-gold focus:outline-none"
+                  >
+                    {Array.from({ length: 5 }, (_, i) => 2024 + i).map(y => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+                <p className="col-span-2 text-caption text-text-muted/80 italic">
+                  ברירת מחדל — חודש/שנה נוכחיים. רלוונטי לזכאות שירות צבאי (חלון 36 חודשים) ולנקודות זיכוי תואר.
+                </p>
+              </div>
+            </details>
 
             <div className="mt-space-7 text-center">
               <button type="button" onClick={next}

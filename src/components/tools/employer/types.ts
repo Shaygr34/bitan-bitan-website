@@ -61,9 +61,19 @@ export type EmployerInputs = {
   // Service (שירות צבאי/לאומי)
   serviceType: 'military' | 'national' | 'none'
   serviceLevel: 'full' | 'partial' | 'none'
+  // Service end date (Ron May 2026) — drives 36-month eligibility window.
+  // null = legacy/unknown (treated as eligible for backwards compat).
+  serviceEndDate: { month: number; year: number } | null
+
+  // Reservist days (מילואים) in prior tax year — drives זיכוי מילואים tier
+  reserveDays: number
 
   // NII category (BTL circular 1522, 2026) — defaults to 'standard' (טור 1)
   niiCategory: NIICategory
+
+  // Backstage evaluation date (Ron May 2026)
+  // Used for service eligibility (36-mo window) and degree credit windows.
+  evaluationDate: { month: number /* 1-12 */; year: number }
 }
 
 /* ─── Results ─── */
@@ -74,6 +84,7 @@ export type CreditPointsBreakdown = {
   children: number
   disabledChildren: number
   service: number
+  reservist: number // זיכוי מילואים (Ron May 2026)
   pensionCredit: number // pension tax credit (₪/month)
   total: number // total credit points (not including pension credit)
   monthlyValue: number // total credit points × creditPointValue / 12

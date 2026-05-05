@@ -32,7 +32,14 @@ const PHASE_LABELS: Record<WizardPhase, string> = {
 const PHASE_ORDER: WizardPhase[] = ['base', 'pickOption', 'details', 'results']
 
 // ── URL param helpers for shareable links ──
-function encodeLeasingParams(b: Partial<BaseInputs>, opt: OptionType, inp: Record<string, unknown>): string {
+const NUM_OPTION_FIELDS = ['equityPercent', 'interestSpread', 'periodMonths', 'fuelMonthly', 'maintenanceYearly', 'insuranceYearly', 'downPaymentPercent', 'residualPercent', 'tradeInAmount', 'monthlyLeasingPayment', 'kmPerMonth']
+
+function encodeLeasingParams(
+  b: Partial<BaseInputs>,
+  opt: OptionType,
+  inp: Record<string, unknown>,
+  cmp?: { option: OptionType; inputs: Record<string, unknown> } | null,
+): string {
   const p = new URLSearchParams()
   if (b.userType) p.set('ut', b.userType)
   if (b.vehicleType) p.set('vt', b.vehicleType)
@@ -40,14 +47,26 @@ function encodeLeasingParams(b: Partial<BaseInputs>, opt: OptionType, inp: Recor
   if (b.monthlyIncome) p.set('mi', String(b.monthlyIncome))
   if (b.manufacturerPrice) p.set('mfp', String(b.manufacturerPrice))
   p.set('opt', opt)
-  // Encode option-specific inputs
+  // Encode primary option-specific inputs
   for (const [k, v] of Object.entries(inp)) {
     if (v !== undefined && v !== null && v !== '') p.set(k, String(v))
+  }
+  // Encode comparison scenario (b_ prefix to namespace)
+  if (cmp && cmp.option) {
+    p.set('opt2', cmp.option)
+    for (const [k, v] of Object.entries(cmp.inputs)) {
+      if (v !== undefined && v !== null && v !== '') p.set(`b_${k}`, String(v))
+    }
   }
   return p.toString()
 }
 
-function decodeLeasingParams(search: string): { base: Partial<BaseInputs>; option: OptionType; inputs: Record<string, unknown> } | null {
+function decodeLeasingParams(search: string): {
+  base: Partial<BaseInputs>
+  option: OptionType
+  inputs: Record<string, unknown>
+  comparison: { option: OptionType; inputs: Record<string, unknown> } | null
+} | null {
   const p = new URLSearchParams(search)
   if (!p.has('opt')) return null
   const base: Partial<BaseInputs> = {
@@ -59,13 +78,21 @@ function decodeLeasingParams(search: string): { base: Partial<BaseInputs>; optio
   if (p.has('mfp')) base.manufacturerPrice = Number(p.get('mfp'))
   const option = p.get('opt') as OptionType
   const inputs: Record<string, unknown> = {}
-  // Parse known numeric/boolean option fields
-  const numFields = ['equityPercent', 'interestSpread', 'periodMonths', 'fuelMonthly', 'maintenanceYearly', 'insuranceYearly', 'downPaymentPercent', 'residualPercent', 'tradeInAmount', 'monthlyLeasingPayment', 'kmPerMonth']
-  for (const k of numFields) {
+  for (const k of NUM_OPTION_FIELDS) {
     if (p.has(k)) inputs[k] = Number(p.get(k))
   }
   if (p.has('tradeIn')) inputs.tradeIn = p.get('tradeIn') === 'true'
-  return { base, option, inputs }
+  // Decode comparison scenario if present
+  let comparison: { option: OptionType; inputs: Record<string, unknown> } | null = null
+  if (p.has('opt2')) {
+    const cmpInputs: Record<string, unknown> = {}
+    for (const k of NUM_OPTION_FIELDS) {
+      if (p.has(`b_${k}`)) cmpInputs[k] = Number(p.get(`b_${k}`))
+    }
+    if (p.has('b_tradeIn')) cmpInputs.tradeIn = p.get('b_tradeIn') === 'true'
+    comparison = { option: p.get('opt2') as OptionType, inputs: cmpInputs }
+  }
+  return { base, option, inputs, comparison }
 }
 
 export function LeasingCalculator({ config: configOverride }: LeasingCalculatorProps) {
@@ -106,6 +133,18 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
         config
       )
       setPrimaryResult(result)
+      // Restore comparison scenario if present
+      if (restored.comparison) {
+        setComparisonOption(restored.comparison.option)
+        setComparisonInputs(restored.comparison.inputs)
+        const cmpResult = calculateOption(
+          restored.comparison.option,
+          restored.base as BaseInputs,
+          restored.comparison.inputs as PurchaseInputs | FinancialLeasingInputs | OperationalLeasingInputs,
+          config
+        )
+        setComparisonResult(cmpResult)
+      }
       setPhase('results')
     }
   }, []) // eslint-disable-line
@@ -301,7 +340,7 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
             comparison={comparisonResult}
             onCompare={handleCompare}
             onRestart={handleRestart}
-            shareUrl={`${typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''}?${encodeLeasingParams(base, primaryOption, primaryInputs)}`}
+            shareUrl={`${typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''}?${encodeLeasingParams(base, primaryOption, primaryInputs, comparisonResult && comparisonOption ? { option: comparisonOption, inputs: comparisonInputs } : null)}`}
           />
         )}
       </div>

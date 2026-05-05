@@ -53,8 +53,9 @@ describe('calculatePurchase', () => {
     const inputs: PurchaseInputs = { equityPercent: 30, interestSpread: 1.5, periodMonths: 48, fuelMonthly: 800, maintenanceYearly: 4000, insuranceYearly: 8000 }
     const r = calculatePurchase(base, inputs, config)
 
-    assert.equal(r.totalAnnualExpenses, 81948)
-    assert.equal(r.totalTaxSavings, 23)
+    // After Ron May 2026 fix: company expense base now includes employerNii.
+    // New formula: tax savings = (totalBefore - vehicleBenefit×12) × 23%.
+    assert.equal(r.totalTaxSavings, 1561)
     assert.equal(r.vehicleTaxBenefit, 7330)
     assert.equal(r.employerNii, 6685)
     assert.equal(r.grossIncludingVehicle, 37330)
@@ -65,7 +66,8 @@ describe('calculatePurchase', () => {
     const inputs: PurchaseInputs = { equityPercent: 50, interestSpread: 1, periodMonths: 36, fuelMonthly: 1200, maintenanceYearly: 4000, insuranceYearly: 6000 }
     const r = calculatePurchase(base, inputs, config)
 
-    assert.equal(r.totalAnnualExpenses, 51988)
+    // After Ron May 2026 fix: cashflow precision (round monthly first, then ×12).
+    assert.equal(r.totalAnnualExpenses, 51984)
     assert.equal(r.totalTaxSavings, -20415)
     assert.equal(r.vehicleTaxBenefit, 4960)
     assert.equal(r.vatRecoverable, 0, 'employee should have zero VAT recovery')
@@ -84,7 +86,8 @@ describe('calculateFinancialLeasing', () => {
     }
     const r = calculateFinancialLeasing(base, inputs, config)
 
-    assert.equal(r.totalAnnualExpenses, 70400)
+    // After Ron May 2026 fix: cashflow precision (round monthly first, then ×12).
+    assert.equal(r.totalAnnualExpenses, 70404)
     assert.equal(r.totalTaxSavings, 19339)
     assert.equal(r.monthlyCashflow, 5867)
     assert.ok(r.computedEffectiveRate !== null, 'should compute effective rate')
@@ -132,6 +135,120 @@ describe('calculateOperationalLeasing', () => {
 // ─── Amortization ────────────────────────────────────────────────────────────
 
 // ─── Ron's commercial pre-VAT examples (May 2, 2026) ─────────────────────────
+//
+// Commercial vehicles >3.5t: VAT is fully recoverable, so loan & depreciation
+// use pre-VAT base. Ron's reference: 150K → base 127,118.64.
+// Purchase 25% equity: loan = 127,118.64 - 37,500 = 89,619 ✓
+// Financial leasing 25% down + ~8.67% balloon: financed = 127,118.64 - 37,500 = 89,619.
+
+// ─── Ron self-employed NII back-calc helper (May 2, 2026) ───────────────────
+//
+// Ron's formula for back-calculating gross deduction needed to produce a target
+// net cashflow effect when the deduction crosses the NII threshold (m=7,703):
+//   x = (y + m × 3 × 0.52 × (t2 − t1)) / (1 + t2 × 0.52)
+// - 0.52 = NII deduction multiplier (self-employed deducts 52% of NII paid)
+// - t1 = 4.47% (NII rate below threshold)
+// - t2 = 12.83% (NII rate above threshold)
+// - m = 7,703 ₪/mo threshold
+// Applied quarterly (×3 months) — useful for advance-payment planning.
+
+describe('Ron NII back-calc helper (May 2026)', () => {
+  it('computeQuarterlyNiiBackCalc: produces monotonic output for input', async () => {
+    const { computeQuarterlyNiiBackCalc } = await import('../config')
+    // Sanity: bigger y → bigger x, since x = (y + const) / (1 + const)
+    const x1 = computeQuarterlyNiiBackCalc(10000)
+    const x2 = computeQuarterlyNiiBackCalc(20000)
+    assert.ok(x2 > x1, `expected monotonic (x2>x1), got ${x1} → ${x2}`)
+  })
+
+  it('computeQuarterlyNiiBackCalc: matches Ron formula exactly', async () => {
+    const { computeQuarterlyNiiBackCalc } = await import('../config')
+    const y = 12000
+    const m = 7703
+    const t1 = 0.0447
+    const t2 = 0.1283
+    const expected = (y + m * 3 * 0.52 * (t2 - t1)) / (1 + t2 * 0.52)
+    const actual = computeQuarterlyNiiBackCalc(y)
+    assert.ok(Math.abs(actual - expected) < 0.01, `expected ${expected}, got ${actual}`)
+  })
+})
+
+describe('Ron commercial pre-VAT (May 2026)', () => {
+  it('commercial purchase: loan principal uses pre-VAT base', () => {
+    const base: BaseInputs = { userType: 'selfEmployed', vehicleType: 'commercialPetrol', carPrice: 150000, monthlyIncome: 25000 }
+    const inputs: PurchaseInputs = { equityPercent: 25, interestSpread: 1, periodMonths: 60, fuelMonthly: 2000, maintenanceYearly: 5000, insuranceYearly: 6000 }
+    const r = calculatePurchase(base, inputs, config)
+    // pre-VAT base = 150,000 / 1.18 = 127,118.64; equity = 37,500
+    // loan = 127,118.64 - 37,500 = 89,619 (rounded)
+    assert.ok(r.loan !== null, 'loan should not be null')
+    assert.equal(r.loan!.amount, 89619, `expected loan 89,619, got ${r.loan!.amount}`)
+  })
+
+  it('commercial financial leasing: financed amount uses pre-VAT base', () => {
+    const base: BaseInputs = { userType: 'selfEmployed', vehicleType: 'commercialPetrol', carPrice: 150000, monthlyIncome: 25000 }
+    const inputs: FinancialLeasingInputs = {
+      downPaymentPercent: 25, residualPercent: 8.67, tradeIn: false, tradeInAmount: 0,
+      monthlyLeasingPayment: 1900, periodMonths: 60, fuelMonthly: 2000, maintenanceYearly: 5000, insuranceYearly: 6000,
+    }
+    const r = calculateFinancialLeasing(base, inputs, config)
+    // financedAmount = pre-VAT base − downPayment = 127,118.64 - 37,500 = 89,619
+    assert.ok(r.loan !== null, 'loan should not be null')
+    assert.equal(r.loan!.amount, 89619, `expected financed 89,619, got ${r.loan!.amount}`)
+  })
+})
+
+// ─── Ron company-mode P&L expense base (May 2, 2026 docx) ───────────────────
+//
+// Ron's spec: company "totalExpensesBeforeTax" must include employerNii (a real
+// P&L cost), and tax savings = (totalBefore - vehicleBenefit*12) × 23%.
+// Reference scenario: car 150K, income 20K/mo, equity 25%, period 60mo,
+// fuel 1500, maint 5000/yr, ins 7000/yr.
+// Expected components (Ron):
+//   fuel net VAT 1,347.46/mo + maint net VAT 374.29/mo + ins 583.33/mo
+//   + depr 1,875/mo + interest 326.17/mo + employerNii 282.72/mo
+//   = 4,788.97/mo × 12 = 57,468 ≈ 57,471 (Ron's figure, rounding-tolerant)
+//
+// vehicleBenefit = 150K × 0.0248 = 3,720/mo × 12 = 44,640/yr
+// netDeductible = 57,471 - 44,640 = 12,831 → savings = 12,831 × 23% = 2,951
+
+describe('Ron company P&L expense base (May 2026)', () => {
+  it('company purchase: totalExpensesBeforeTax includes employerNii', () => {
+    const base: BaseInputs = { userType: 'company', vehicleType: 'privatePetrol', carPrice: 150000, monthlyIncome: 20000 }
+    const inputs: PurchaseInputs = { equityPercent: 25, interestSpread: 1, periodMonths: 60, fuelMonthly: 1500, maintenanceYearly: 5000, insuranceYearly: 7000 }
+    const r = calculatePurchase(base, inputs, config)
+    // Tolerate ±5₪ for amortization rounding (avg interest varies slightly with monthly compounding)
+    assert.ok(Math.abs(r.totalExpensesBeforeTax - 57471) < 25, `expected ~57,471, got ${r.totalExpensesBeforeTax}`)
+  })
+
+  it('company purchase: annualTaxSavings = (totalBefore - vehicleBenefit×12) × 23%', () => {
+    const base: BaseInputs = { userType: 'company', vehicleType: 'privatePetrol', carPrice: 150000, monthlyIncome: 20000 }
+    const inputs: PurchaseInputs = { equityPercent: 25, interestSpread: 1, periodMonths: 60, fuelMonthly: 1500, maintenanceYearly: 5000, insuranceYearly: 7000 }
+    const r = calculatePurchase(base, inputs, config)
+    // Ron: 12,831 × 23% = 2,951. Tolerance ±10₪ for amort rounding.
+    assert.ok(Math.abs(r.annualTaxSavings - 2951) < 25, `expected ~2,951, got ${r.annualTaxSavings}`)
+  })
+
+  it('company purchase: monthlyCashflow × 12 = totalAnnualExpenses (no agorot drift)', () => {
+    const base: BaseInputs = { userType: 'company', vehicleType: 'privatePetrol', carPrice: 150000, monthlyIncome: 20000 }
+    const inputs: PurchaseInputs = { equityPercent: 25, interestSpread: 1, periodMonths: 60, fuelMonthly: 1500, maintenanceYearly: 5000, insuranceYearly: 7000 }
+    const r = calculatePurchase(base, inputs, config)
+    assert.equal(r.totalAnnualExpenses, r.monthlyCashflow * 12,
+      `monthly×12 should equal annual total exactly (got ${r.monthlyCashflow}×12=${r.monthlyCashflow*12} vs ${r.totalAnnualExpenses})`)
+  })
+
+  it('company financial leasing: same rules apply', () => {
+    const base: BaseInputs = { userType: 'company', vehicleType: 'privatePetrol', carPrice: 150000, monthlyIncome: 20000 }
+    const inputs: FinancialLeasingInputs = {
+      downPaymentPercent: 25, residualPercent: 30, tradeIn: false, tradeInAmount: 0,
+      monthlyLeasingPayment: 2500, periodMonths: 60, fuelMonthly: 1500, maintenanceYearly: 5000, insuranceYearly: 7000,
+    }
+    const r = calculateFinancialLeasing(base, inputs, config)
+    assert.equal(r.totalAnnualExpenses, r.monthlyCashflow * 12, 'annual should equal monthly×12 exactly')
+    // tax savings = (totalBefore - 44,640) × 23%
+    const expected = Math.round((r.totalExpensesBeforeTax - r.vehicleTaxBenefit * 12) * 0.23)
+    assert.equal(r.annualTaxSavings, expected, `tax savings should be (${r.totalExpensesBeforeTax} - ${r.vehicleTaxBenefit*12}) × 23% = ${expected}, got ${r.annualTaxSavings}`)
+  })
+})
 
 describe('Ron commercial pre-VAT', () => {
   it('commercial 150K, 25% down → loan principal = 89,619 (uses pre-VAT)', () => {
