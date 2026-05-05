@@ -178,7 +178,11 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
   const [result, setResult] = useState<EmployerCalcResult | null>(null)
   const [comparisonResult, setComparisonResult] = useState<EmployerCalcResult | null>(null)
   const [comparisonInputs, setComparisonInputs] = useState<EmployerInputs | null>(null)
+  // isCompareMode: true when wizard inputs map to scenario B (creating or editing it).
   const [isCompareMode, setIsCompareMode] = useState(false)
+  // editingPrimary: true when wizard inputs map to scenario A (re-editing it post-comparison).
+  // Mutually exclusive with isCompareMode.
+  const [editingPrimary, setEditingPrimary] = useState(false)
   const [primaryResult, setPrimaryResult] = useState<EmployerCalcResult | null>(null)
   const [primaryInputs, setPrimaryInputs] = useState<EmployerInputs | null>(null)
 
@@ -234,27 +238,43 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
       }
       const res = calculateEmployerCost(cleanedInputs, effectiveConfig)
       if (isCompareMode) {
+        // Save to scenario B; restore A as displayed primary.
         setComparisonResult(res)
         setComparisonInputs(cleanedInputs)
         setResult(primaryResult)
         setInputs(primaryInputs || cleanedInputs)
         setIsCompareMode(false)
+      } else if (editingPrimary) {
+        // Re-edit of scenario A — update primary slot, keep B intact.
+        setResult(res)
+        setInputs(cleanedInputs)
+        setPrimaryResult(res)
+        setPrimaryInputs(cleanedInputs)
+        setEditingPrimary(false)
       } else {
         setResult(res)
       }
       setPhase('results')
     }
-  }, [phase, inputs, isCompareMode, primaryResult])
+  }, [phase, inputs, isCompareMode, editingPrimary, primaryResult, primaryInputs])
 
   const back = useCallback(() => {
     const idx = PHASE_ORDER.indexOf(phase)
+    // Edit-mode escape from step 1 → return to comparison results without saving.
+    if (phase === 'salary' && (isCompareMode || editingPrimary)) {
+      if (primaryInputs) setInputs(primaryInputs)
+      setIsCompareMode(false)
+      setEditingPrimary(false)
+      setPhase('results')
+      return
+    }
     // Ron May 2026: skip pension phase entirely when both toggles are off
     if (phase === 'personal' && !inputs.hasPension && !inputs.hasEducationFund) {
       setPhase('salary')
       return
     }
     if (idx > 0) setPhase(PHASE_ORDER[idx - 1])
-  }, [phase, inputs.hasPension, inputs.hasEducationFund])
+  }, [phase, inputs.hasPension, inputs.hasEducationFund, isCompareMode, editingPrimary, primaryInputs])
 
   const restart = useCallback(() => {
     setInputs(getDefaultEmployerInputs())
@@ -264,6 +284,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
     setPrimaryResult(null)
     setPrimaryInputs(null)
     setIsCompareMode(false)
+    setEditingPrimary(false)
     setPhase('salary')
   }, [])
 
@@ -272,10 +293,31 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
     setPrimaryResult(result)
     setPrimaryInputs(inputs)
     setIsCompareMode(true)
+    setEditingPrimary(false)
     setComparisonResult(null)
     setComparisonInputs(null)
     setPhase('salary')
   }, [result, inputs])
+
+  // Edit scenario A — reload its inputs into the wizard, mark editingPrimary.
+  // Scenario B stays parked in comparisonInputs/comparisonResult.
+  const handleEditPrimary = useCallback(() => {
+    const target = primaryInputs ?? inputs
+    setInputs(target)
+    setEditingPrimary(true)
+    setIsCompareMode(false)
+    setPhase('salary')
+  }, [primaryInputs, inputs])
+
+  // Edit scenario B — reload its inputs, set isCompareMode so save-path lands in B.
+  // Scenario A stays in primaryInputs/primaryResult and is restored when save completes.
+  const handleEditComparison = useCallback(() => {
+    if (!comparisonInputs) return
+    setInputs(comparisonInputs)
+    setIsCompareMode(true)
+    setEditingPrimary(false)
+    setPhase('salary')
+  }, [comparisonInputs])
 
   const handleRemoveComparison = useCallback(() => {
     // Recalculate primary result to ensure inputs and result stay in sync
@@ -303,10 +345,10 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
       {/* Progress */}
       {phase !== 'results' && (
         <div className="mb-space-7">
-          {isCompareMode && (
+          {(isCompareMode || editingPrimary) && (
             <div className="text-center mb-space-3">
               <span className="inline-block bg-gold/10 border border-gold text-gold text-body-sm font-bold px-4 py-1.5 rounded-full">
-                תרחיש ב׳ — השוואה
+                {editingPrimary ? 'עריכת תרחיש א׳' : 'תרחיש ב׳ — השוואה'}
               </span>
             </div>
           )}
@@ -334,10 +376,12 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
       )}
 
       {/* Back */}
-      {phase !== 'salary' && (
+      {(phase !== 'salary' || isCompareMode || editingPrimary) && phase !== 'results' && (
         <div className="mb-space-4">
           <button type="button" onClick={back} className="text-gold-dark hover:text-gold text-body font-medium transition-colors cursor-pointer px-2 py-1">
-            ← חזרה לשלב הקודם
+            {phase === 'salary' && (isCompareMode || editingPrimary)
+              ? '← ביטול עריכה וחזרה להשוואה'
+              : '← חזרה לשלב הקודם'}
           </button>
         </div>
       )}
@@ -1142,6 +1186,8 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
             comparisonResult={comparisonResult}
             comparisonInputs={comparisonInputs}
             onRemoveComparison={handleRemoveComparison}
+            onEditPrimary={handleEditPrimary}
+            onEditComparison={handleEditComparison}
           />
         )}
       </div>
