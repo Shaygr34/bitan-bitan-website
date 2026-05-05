@@ -94,10 +94,12 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
 
   const handleShare = useCallback(async () => {
     const url = shareUrl || window.location.href
-    // Use navigator.share only on mobile (touch devices), clipboard on desktop
-    const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-    if (isMobile && navigator.share) {
-      try { await navigator.share({ title: emailSubject, text: emailSubject, url }) } catch { /* cancelled */ }
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: emailSubject, text: emailSubject, url })
+      } catch {
+        // user cancelled
+      }
     } else {
       await navigator.clipboard.writeText(url)
       setShareMsg('הקישור הועתק!')
