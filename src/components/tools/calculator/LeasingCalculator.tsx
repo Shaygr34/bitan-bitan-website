@@ -172,17 +172,18 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
   }, [])
 
   const handlePickOption = useCallback((option: OptionType) => {
+    const isElectric = base.vehicleType?.includes('Electric') ?? false
     if (isComparing) {
       setComparisonOption(option)
       // Pre-fill defaults for comparison option
-      setComparisonInputs(getDefaultInputsForOption(option, base.carPrice || 200000))
+      setComparisonInputs(getDefaultInputsForOption(option, base.carPrice || 200000, isElectric))
     } else {
       setPrimaryOption(option)
       // Pre-fill defaults
-      setPrimaryInputs(getDefaultInputsForOption(option, base.carPrice || 200000))
+      setPrimaryInputs(getDefaultInputsForOption(option, base.carPrice || 200000, isElectric))
     }
     setPhase('details')
-  }, [isComparing, base.carPrice])
+  }, [isComparing, base.carPrice, base.vehicleType])
 
   const handleDetailsChange = useCallback((updates: Record<string, unknown>) => {
     if (isComparing) {
@@ -358,18 +359,25 @@ export function LeasingCalculator({ config: configOverride }: LeasingCalculatorP
 
 /* ─── Helper: Default inputs per option ─── */
 
-function getDefaultInputsForOption(option: OptionType, carPrice: number): Record<string, unknown> {
+function getDefaultInputsForOption(
+  option: OptionType,
+  carPrice: number,
+  isElectric: boolean,
+): Record<string, unknown> {
+  // For electric vehicles, fuelMonthly represents electricity cost — typical 1,500 km ≈ 200 ₪.
+  // For petrol, the legacy default of 1,500 ₪/month stands.
+  const defaultFuel = isElectric ? 200 : 1500
   switch (option) {
     case 'purchase':
-      return { ...getDefaultPurchaseInputs() }
+      return { ...getDefaultPurchaseInputs(), fuelMonthly: defaultFuel }
     case 'financialLeasing':
-      return { ...getDefaultFinancialInputs(carPrice) }
+      return { ...getDefaultFinancialInputs(carPrice), fuelMonthly: defaultFuel }
     case 'operationalLeasing': {
       const bracket = getOperationalRateBracket(carPrice)
       return {
         downPaymentPercent: 5,
         monthlyLeasingPayment: bracket.defaultRate,
-        fuelMonthly: 1500,
+        fuelMonthly: defaultFuel,
         kmPerMonth: 1500,
       }
     }
