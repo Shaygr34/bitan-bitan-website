@@ -78,6 +78,11 @@ export type EmployerInputs = {
   // Yishuv Mutav (יישוב מוטב) — preferred settlement tax credit.
   // null = no credit. See yishuv-mutav.ts for full 488-entry list.
   yishuvName: string | null
+
+  // Degrees (תואר אקדמי / מקצוע) — extra credit points for the years
+  // immediately following completion. See degree-credits.ts for window rules.
+  // Default: empty array (no degree credit).
+  degrees: import('./degree-credits').Degree[]
 }
 
 /* ─── Results ─── */
@@ -91,7 +96,8 @@ export type CreditPointsBreakdown = {
   reservist: number // זיכוי מילואים (Ron May 2026)
   pensionCredit: number // pension tax credit (₪/month)
   yishuvCredit: number // זיכוי יישוב מוטב (₪/month, Ron May 2026)
-  total: number // total credit points (not including pension/yishuv credit ₪)
+  degree: number // נ.ז תואר/מקצוע (annual credit points, Ron May 2026)
+  total: number // total credit points incl degree (not pension/yishuv ₪)
   monthlyValue: number // total credit points × creditPointValue / 12
 }
 

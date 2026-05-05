@@ -20,6 +20,7 @@ import type {
 import { DEFAULT_EMPLOYER_CONFIG, CHILD_AGE_CREDITS, CHILD_ALLOWANCE_BONUS_AGES, getServiceCreditPoints } from './config'
 import { MAS_YASAF_2026, NII_TABLE_2026, type NIICategory } from '@/lib/tax-tables-2026'
 import { calculateYishuvCredit } from './yishuv-mutav'
+import { calculateDegreeCredit } from './degree-credits'
 
 /* ═══════════════════════════════════════════════
    Vehicle Tax Benefit (שווי מס רכב)
@@ -365,7 +366,13 @@ export function calculateEmployerCost(
     gender, maritalStatus, childrenAges, employeeGetsAllowance,
     disabledChildrenCount, effectiveServiceType, effectiveServiceLevel, reserveDays,
   )
-  const creditPointsMonthly = Math.round((creditBreakdown.total * config.creditPointValue) / 12)
+
+  // Ron May 2026: degree/profession credit points. Window rules per type
+  // (see degree-credits.ts). Joins the regular credit-point total.
+  const degreeCredit = calculateDegreeCredit(inputs.degrees ?? [], inputs.evaluationDate.year)
+  const totalCreditPoints = creditBreakdown.total + degreeCredit
+
+  const creditPointsMonthly = Math.round((totalCreditPoints * config.creditPointValue) / 12)
 
   // ─── Pension Tax Benefits (employee-specific) ───
   const pensionTax = hasPension
@@ -386,7 +393,8 @@ export function calculateEmployerCost(
     reservist: creditBreakdown.reservist,
     pensionCredit: pensionTax.pensionCredit,
     yishuvCredit,
-    total: creditBreakdown.total,
+    degree: degreeCredit,
+    total: totalCreditPoints,
     monthlyValue: creditPointsMonthly,
   }
 
@@ -447,7 +455,7 @@ export function calculateEmployerCost(
     netWithShvui,
     netWithoutShvui,
     netDifference: netWithoutShvui - netWithShvui,
-    totalCreditPoints: creditBreakdown.total,
+    totalCreditPoints,
     creditPointsValue: creditPointsMonthly,
     creditPointsBreakdown: creditPointsBreakdownFull,
   }
@@ -507,5 +515,6 @@ export function getDefaultEmployerInputs(): EmployerInputs {
       return { month: now.getMonth() + 1, year: now.getFullYear() }
     })(),
     yishuvName: null,
+    degrees: [],
   }
 }

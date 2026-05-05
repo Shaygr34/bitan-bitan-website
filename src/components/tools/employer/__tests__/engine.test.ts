@@ -367,6 +367,108 @@ describe('calculateEmployerCost', () => {
   })
 })
 
+// ─── Degree Credits (תואר אקדמי) ─────────────────────────────────────────────
+// Ron May 2026 spec:
+// - bachelor: 1 nz, 3-yr window from `year` (deferred → year+1)
+// - master: 0.5 nz, 1-yr window = `year` only
+// - phdRegular: 0.5 nz, 3-yr window from `year` (deferral → year+1)
+// - phdMedicine: 2-yr window. Year 1: 1 nz. Year 2: 0.5 nz.
+// - phdDirect: bachelor (3-yr → 1 nz) + phdYear (2-yr → 0.5 nz)
+// - professional: 1 nz, year only (mutex w/ bachelor/master same year — UI enforces)
+
+describe('calculateDegreeCredit (Ron May 2026)', () => {
+  it('empty degrees → 0', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    assert.equal(calculateDegreeCredit([], 2026), 0)
+  })
+
+  it('bachelor: 3-yr window from year, returns 1 nz inside', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    assert.equal(calculateDegreeCredit([{ type: 'bachelor', year: 2024 }], 2024), 1)
+    assert.equal(calculateDegreeCredit([{ type: 'bachelor', year: 2024 }], 2025), 1)
+    assert.equal(calculateDegreeCredit([{ type: 'bachelor', year: 2024 }], 2026), 1)
+    assert.equal(calculateDegreeCredit([{ type: 'bachelor', year: 2024 }], 2027), 0)
+  })
+
+  it('bachelor deferred: window starts year+1', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    assert.equal(calculateDegreeCredit([{ type: 'bachelor', year: 2024, deferred: true }], 2024), 0)
+    assert.equal(calculateDegreeCredit([{ type: 'bachelor', year: 2024, deferred: true }], 2025), 1)
+    assert.equal(calculateDegreeCredit([{ type: 'bachelor', year: 2024, deferred: true }], 2027), 1)
+    assert.equal(calculateDegreeCredit([{ type: 'bachelor', year: 2024, deferred: true }], 2028), 0)
+  })
+
+  it('master: only year, 0.5 nz', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    assert.equal(calculateDegreeCredit([{ type: 'master', year: 2026 }], 2026), 0.5)
+    assert.equal(calculateDegreeCredit([{ type: 'master', year: 2026 }], 2025), 0)
+    assert.equal(calculateDegreeCredit([{ type: 'master', year: 2026 }], 2027), 0)
+  })
+
+  it('phdRegular: 3-yr window, 0.5 nz', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    assert.equal(calculateDegreeCredit([{ type: 'phdRegular', year: 2024 }], 2024), 0.5)
+    assert.equal(calculateDegreeCredit([{ type: 'phdRegular', year: 2024 }], 2026), 0.5)
+    assert.equal(calculateDegreeCredit([{ type: 'phdRegular', year: 2024 }], 2027), 0)
+  })
+
+  it('phdMedicine: year 1 = 1 nz, year 2 = 0.5 nz', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    assert.equal(calculateDegreeCredit([{ type: 'phdMedicine', year: 2026 }], 2026), 1)
+    assert.equal(calculateDegreeCredit([{ type: 'phdMedicine', year: 2026 }], 2027), 0.5)
+    assert.equal(calculateDegreeCredit([{ type: 'phdMedicine', year: 2026 }], 2028), 0)
+  })
+
+  it('phdDirect: bachelor 3yr (1 nz) + phd 2yr (0.5 nz)', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    const d = [{ type: 'phdDirect' as const, year: 2024, phdYear: 2027 }]
+    // Bachelor window 2024-2026
+    assert.equal(calculateDegreeCredit(d, 2024), 1)
+    assert.equal(calculateDegreeCredit(d, 2026), 1)
+    // Phd window 2027-2028
+    assert.equal(calculateDegreeCredit(d, 2027), 0.5)
+    assert.equal(calculateDegreeCredit(d, 2028), 0.5)
+    // Outside both
+    assert.equal(calculateDegreeCredit(d, 2029), 0)
+  })
+
+  it('professional: year only, 1 nz', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    assert.equal(calculateDegreeCredit([{ type: 'professional', year: 2026 }], 2026), 1)
+    assert.equal(calculateDegreeCredit([{ type: 'professional', year: 2026 }], 2027), 0)
+  })
+
+  it('multiple degrees: sums (bachelor + master in same year)', async () => {
+    const { calculateDegreeCredit } = await import('../degree-credits')
+    const d = [
+      { type: 'bachelor' as const, year: 2024 },
+      { type: 'master' as const, year: 2026 },
+    ]
+    // 2026: bachelor still in window (1) + master year (0.5) = 1.5
+    assert.equal(calculateDegreeCredit(d, 2026), 1.5)
+  })
+})
+
+// Engine integration: degree credit flows into total credit points
+describe('engine: degree credit integration', () => {
+  it('Ron — adding bachelor degree (year=2026) bumps total credit points by 1', () => {
+    const base = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      evaluationDate: { month: 5, year: 2026 },
+    }))
+    const withDegree = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+      evaluationDate: { month: 5, year: 2026 },
+      degrees: [{ type: 'bachelor', year: 2026 }],
+    }))
+    assert.equal(withDegree.employee.totalCreditPoints - base.employee.totalCreditPoints, 1)
+    // 1 nz = 2904/12 = 242 ₪/mo lower tax
+    assert.ok(withDegree.employee.incomeTax < base.employee.incomeTax)
+  })
+})
+
 // ─── Yishuv Mutav (יישוב מוטב) ───────────────────────────────────────────────
 // Ron May 2026: 488 settlements. monthlyCap = annualCap/12;
 // eligibleSalary = min(salary, monthlyCap); credit = eligibleSalary × ratePct%

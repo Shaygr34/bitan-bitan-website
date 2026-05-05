@@ -56,6 +56,15 @@ function encodeEmployerParams(inp: EmployerInputs): string {
   if (inp.reserveDays > 0) p.set('rd', String(inp.reserveDays))
   if (inp.niiCategory !== 'standard') p.set('nc', inp.niiCategory)
   if (inp.yishuvName) p.set('yn', inp.yishuvName)
+  if (inp.degrees && inp.degrees.length > 0) {
+    // Compact encoding: type:year[:phdYear][:d] joined by ','
+    p.set('dg', inp.degrees.map(d => {
+      const parts = [d.type, String(d.year)]
+      if (d.type === 'phdDirect' && typeof d.phdYear === 'number') parts.push(String(d.phdYear))
+      else if (d.deferred) parts.push('d')
+      return parts.join(':')
+    }).join(','))
+  }
   // evalDate format: "MM-YYYY" (only set when user overrode default)
   const today = new Date()
   if (inp.evaluationDate.month !== today.getMonth() + 1 || inp.evaluationDate.year !== today.getFullYear()) {
@@ -114,6 +123,25 @@ function decodeEmployerParams(search: string, config: EmployerCalcConfig = DEFAU
     pensionCreditSalary: defaults.pensionCreditSalary,
     niiCategory: (p.get('nc') as NIICategory) || 'standard',
     yishuvName: p.get('yn') || null,
+    degrees: (() => {
+      const dg = p.get('dg')
+      if (!dg) return []
+      const validTypes = new Set(['bachelor', 'master', 'phdRegular', 'phdDirect', 'phdMedicine', 'professional'])
+      return dg.split(',').map(token => {
+        const parts = token.split(':')
+        const type = parts[0]
+        const year = Number(parts[1])
+        if (!validTypes.has(type) || !Number.isFinite(year)) return null
+        const d: import('./degree-credits').Degree = { type: type as import('./degree-credits').DegreeType, year }
+        if (type === 'phdDirect') {
+          const py = Number(parts[2])
+          if (Number.isFinite(py)) d.phdYear = py
+        } else if (parts[2] === 'd') {
+          d.deferred = true
+        }
+        return d
+      }).filter((d): d is import('./degree-credits').Degree => d !== null)
+    })(),
   }
 }
 
@@ -597,6 +625,106 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               </datalist>
               <p className="text-caption text-text-muted mt-1">
                 הקלד שם יישוב לחיפוש (488 יישובים, לוח 2026). השאר ריק אם אין.
+              </p>
+            </div>
+
+            {/* Degree credits (תואר אקדמי / מקצוע) — Ron May 2026 */}
+            <div className="mb-space-5">
+              <label className="block text-body font-semibold text-primary mb-space-2">
+                תואר אקדמי / מקצוע (נקודות זיכוי)
+              </label>
+              {inputs.degrees.length === 0 && (
+                <p className="text-caption text-text-muted mb-2">אין תואר/מקצוע. לחץ להוספה.</p>
+              )}
+              {inputs.degrees.map((deg, i) => (
+                <div key={i} className="bg-surface rounded-lg p-space-3 mb-space-2 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
+                  <select
+                    value={deg.type}
+                    onChange={e => {
+                      const newType = e.target.value as import('./degree-credits').DegreeType
+                      const next = [...inputs.degrees]
+                      next[i] = { ...deg, type: newType }
+                      // phdDirect needs phdYear, others don't
+                      if (newType === 'phdDirect' && typeof next[i].phdYear !== 'number') next[i].phdYear = deg.year
+                      if (newType !== 'phdDirect') delete next[i].phdYear
+                      // deferred only for bachelor / phdRegular
+                      if (newType !== 'bachelor' && newType !== 'phdRegular') delete next[i].deferred
+                      update({ degrees: next })
+                    }}
+                    className="rounded-lg border border-border px-3 py-2 text-body bg-white focus:border-gold focus:outline-none"
+                  >
+                    <option value="bachelor">תואר ראשון (1 נ.ז × 3 שנים)</option>
+                    <option value="master">תואר שני (0.5 נ.ז × שנה אחת)</option>
+                    <option value="phdRegular">דוקטורט רגיל (0.5 נ.ז × 3 שנים)</option>
+                    <option value="phdMedicine">דוקטורט ברפואה (1+0.5 נ.ז × 2 שנים)</option>
+                    <option value="phdDirect">מסלול ישיר לדוקטורט</option>
+                    <option value="professional">מקצוע (טאבון / שמאי וכד׳ — 1 נ.ז × שנה אחת)</option>
+                  </select>
+                  <input
+                    type="number"
+                    min={2000}
+                    max={2040}
+                    value={deg.year || ''}
+                    onChange={e => {
+                      const y = Number(e.target.value)
+                      const next = [...inputs.degrees]
+                      next[i] = { ...deg, year: Number.isFinite(y) ? y : 0 }
+                      update({ degrees: next })
+                    }}
+                    placeholder="שנת סיום"
+                    className="rounded-lg border border-border px-3 py-2 text-body bg-white w-28 focus:border-gold focus:outline-none"
+                  />
+                  {deg.type === 'phdDirect' ? (
+                    <input
+                      type="number"
+                      min={2000}
+                      max={2040}
+                      value={deg.phdYear ?? ''}
+                      onChange={e => {
+                        const py = Number(e.target.value)
+                        const next = [...inputs.degrees]
+                        next[i] = { ...deg, phdYear: Number.isFinite(py) ? py : undefined }
+                        update({ degrees: next })
+                      }}
+                      placeholder="שנת דוק׳"
+                      className="rounded-lg border border-border px-3 py-2 text-body bg-white w-28 focus:border-gold focus:outline-none"
+                    />
+                  ) : (deg.type === 'bachelor' || deg.type === 'phdRegular') ? (
+                    <label className="text-caption text-text-muted flex items-center gap-1 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={!!deg.deferred}
+                        onChange={e => {
+                          const next = [...inputs.degrees]
+                          next[i] = { ...deg, deferred: e.target.checked }
+                          update({ degrees: next })
+                        }}
+                      />
+                      דחיית הזיכוי בשנה
+                    </label>
+                  ) : (
+                    <span />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => update({ degrees: inputs.degrees.filter((_, j) => j !== i) })}
+                    className="text-body-sm text-red-600 hover:text-red-700 px-2 py-1"
+                  >
+                    הסר
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => update({
+                  degrees: [...inputs.degrees, { type: 'bachelor' as const, year: inputs.evaluationDate.year }],
+                })}
+                className="text-body-sm text-gold-dark hover:text-gold font-medium px-3 py-1.5 border border-gold/30 rounded-lg"
+              >
+                + הוסף תואר / מקצוע
+              </button>
+              <p className="text-caption text-text-muted mt-1">
+                נקודות זיכוי לפי הוראות פקיד שומה — חלון זכאות מתחיל בשנה שלאחר סיום הלימודים (ניתן לדחות לשנה).
               </p>
             </div>
 
