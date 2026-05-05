@@ -335,10 +335,16 @@ export function calculateEmployerCost(
   )
 
   // ─── Total Taxable Income ───
+  // Display value (Ron #15: travel allowance does NOT appear in this row).
   const totalTaxableWithShvui = grossSalary + totalShvuiMas +
     imputed.imputedEducation + imputed.imputedPension + imputed.imputedSeverance
   const totalTaxableWithoutShvui = grossSalary +
     imputed.imputedEducation + imputed.imputedPension + imputed.imputedSeverance
+
+  // Tax/NII calculation base (Ron #14: includes travel + שווי מס + שווי זקופות).
+  // Display value above keeps travel separate; engine math always adds it.
+  const taxCalcBaseWith = totalTaxableWithShvui + travelAllowance
+  const taxCalcBaseWithout = totalTaxableWithoutShvui + travelAllowance
 
   // ─── Credit Points (with breakdown) ───
   const employeeGetsAllowance = childAllowanceRecipient === 'employee'
@@ -377,9 +383,9 @@ export function calculateEmployerCost(
   }
 
   // ─── Employee Deductions WITH שווי מס ───
-  const niiEmployeeWith = calculateNII(totalTaxableWithShvui, true, config, niiCategory)
+  const niiEmployeeWith = calculateNII(taxCalcBaseWith, true, config, niiCategory)
   const incomeTaxWith = calculateIncomeTax(
-    totalTaxableWithShvui, creditPointsMonthly,
+    taxCalcBaseWith, creditPointsMonthly,
     pensionTax.pensionDeduction, pensionTax.pensionCredit, config
   )
   const pensionEmployeeAmount = Math.round(pensionSalary * (employeePensionRate / 100))
@@ -388,9 +394,9 @@ export function calculateEmployerCost(
   const netWithShvui = grossSalary - totalDeductionsWith
 
   // ─── Employee Deductions WITHOUT שווי מס ───
-  const niiEmployeeWithout = calculateNII(totalTaxableWithoutShvui, true, config, niiCategory)
+  const niiEmployeeWithout = calculateNII(taxCalcBaseWithout, true, config, niiCategory)
   const incomeTaxWithout = calculateIncomeTax(
-    totalTaxableWithoutShvui, creditPointsMonthly,
+    taxCalcBaseWithout, creditPointsMonthly,
     pensionTax.pensionDeduction, pensionTax.pensionCredit, config
   )
   const totalDeductionsWithout = niiEmployeeWithout + incomeTaxWithout + pensionEmployeeAmount + educationEmployeeAmount
@@ -401,9 +407,9 @@ export function calculateEmployerCost(
   const severanceEmployer = Math.round(pensionSalary * (severanceRate / 100))
   const educationEmployer = Math.round(educationFundSalary * (employerEducationRate / 100))
 
-  // NII employer — on taxable income (WITHOUT pension deduction per Ron's spec)
-  const niiEmployerWith = calculateNII(totalTaxableWithShvui, false, config, niiCategory)
-  const niiEmployerWithout = calculateNII(totalTaxableWithoutShvui, false, config, niiCategory)
+  // NII employer — on tax calc base (Ron #14: includes travel + שווי מס)
+  const niiEmployerWith = calculateNII(taxCalcBaseWith, false, config, niiCategory)
+  const niiEmployerWithout = calculateNII(taxCalcBaseWithout, false, config, niiCategory)
 
   // Employer total includes travel allowance
   const totalAdditionalCost = pensionEmployer + severanceEmployer + educationEmployer + niiEmployerWith

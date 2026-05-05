@@ -40,7 +40,7 @@ describe('evaluationDate (Ron May 2026)', () => {
       grossSalary: 15000, pensionSalary: 15000,
       hasEducationFund: true,
     }))
-    assert.equal(r.employee.netWithShvui, 11230) // matches base case snapshot
+    assert.equal(r.employee.netWithShvui, 11129) // matches base case snapshot (post Ron #14: travel in tax base)
   })
 })
 
@@ -104,13 +104,15 @@ describe('calculateEmployerCost', () => {
   it('basic 15K salary — male, married, no vehicle, no children', () => {
     const r = calculateEmployerCost(makeInputs({ hasEducationFund: true }))
 
-    assert.equal(r.employee.netWithShvui, 11230)
-    assert.equal(r.employee.netWithoutShvui, 11230)
-    assert.equal(r.employer.totalWithShvui, 19217)
-    assert.equal(r.employer.totalWithoutShvui, 19217)
-    assert.equal(r.employee.incomeTax, 1278)
-    assert.equal(r.employee.niiEmployee, 1217)
-    assert.equal(r.employer.niiEmployer, 902)
+    // Snapshot updated post Ron #14 (May 2026): travel allowance now included in
+    // tax/NII calc base (previously excluded). Default travel = 315.
+    assert.equal(r.employee.netWithShvui, 11129)
+    assert.equal(r.employee.netWithoutShvui, 11129)
+    assert.equal(r.employer.totalWithShvui, 19241)
+    assert.equal(r.employer.totalWithoutShvui, 19241)
+    assert.equal(r.employee.incomeTax, 1341)
+    assert.equal(r.employee.niiEmployee, 1255)
+    assert.equal(r.employer.niiEmployer, 926)
     assert.equal(r.employer.pensionEmployer, 975)
     assert.equal(r.employer.severanceEmployer, 900)
     assert.equal(r.hasShvuiMas, false)
@@ -126,9 +128,10 @@ describe('calculateEmployerCost', () => {
       serviceType: 'military', serviceLevel: 'full',
     }))
 
-    assert.equal(r.employee.netWithShvui, 14844)
-    assert.equal(r.employee.netWithoutShvui, 18338)
-    assert.equal(r.employer.totalWithShvui, 32428)
+    // Snapshot updated post Ron #14: travel 315 in tax/NII base.
+    assert.equal(r.employee.netWithShvui, 14695)
+    assert.equal(r.employee.netWithoutShvui, 18203)
+    assert.equal(r.employer.totalWithShvui, 32452)
     assert.equal(r.vehicleTaxBenefit, 7440)
     assert.equal(r.totalShvuiMas, 7440)
     assert.equal(r.employee.totalCreditPoints, 8.75)
@@ -148,30 +151,79 @@ describe('calculateEmployerCost', () => {
       pensionCreditSalary: 9700,
     }))
 
-    assert.equal(r.employee.netWithShvui, 19265)
+    // Snapshot updated post Ron #14: travel 500 in tax/NII base.
+    assert.equal(r.employee.netWithShvui, 19030)
     assert.equal(r.employer.totalWithShvui, 51717)
     assert.equal(r.vehicleTaxBenefit, 11050)
     assert.equal(r.totalShvuiMas, 14550)
     assert.equal(r.employee.totalCreditPoints, 16.75)
-    assert.equal(r.employee.incomeTax, 11833)
+    assert.equal(r.employee.incomeTax, 12068)
   })
 
   // ─── Ron's exact numeric examples (April 30, 2026 feedback) ──────────────────
+  // Per Ron #14-15: travel allowance IS in tax/NII calc base, but NOT shown in
+  // displayed totalTaxableIncome row. Tests pass grossSalary + travelAllowance
+  // separately; engine combines them for tax/NII calc only.
 
-  it("Ron — salary 30,315 → NII employee = 3,081 (7,703×4.27% + 22,612×12.17%)", () => {
+  it("Ron — gross 30,000 + travel 315 → NII employee = 3,081 (7,703×4.27% + 22,612×12.17%)", () => {
     const r = calculateEmployerCost(makeInputs({
-      grossSalary: 30315, pensionSalary: 30315,
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
     }))
     assert.equal(r.employee.niiEmployee, 3081)
   })
 
-  it("Ron — salary 70,000 → NII employee = 5,709 (capped at 51,910)", () => {
+  it("Ron — gross 30,000 + travel 315 → NII employer = 2,066", () => {
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+    }))
+    assert.equal(r.employer.niiEmployer, 2066)
+  })
+
+  it("Ron — gross 30,000 + travel 315, no pension → income tax = 6,087 (verifies bracket calc)", () => {
+    // Verifies the core spec: brackets calc on 30,315 (with travel), then credit subtraction.
+    // 7010@10% + 3050@14% + 8940@20% + 6100@31% + 5215@35% = 6,632.25
+    // minus 545 (rounded 2.25 nz × 2904/12) = 6,087.
+    // Ron's "5,850" example used pension credit (~238) which we test separately;
+    // the bracket+nz subset matches Ron's worked calc exactly.
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+    }))
+    assert.equal(r.employee.incomeTax, 6087)
+  })
+
+  it("Ron — gross 30,000 + travel 315 + pension 6/6.5/6 → income tax = 5,753", () => {
+    // Same as Ron's full example (pension on). Engine includes both pension
+    // DEDUCTION (sec 47 of פקודה, capped 275) and pension CREDIT (35% on min).
+    // Ron's 5,850 hand calc only used the credit. Engine: 5,753 (97 ₪ lower
+    // due to deduction's marginal-rate effect). Ron's spec matched within
+    // documented Israeli tax law.
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: true, hasEducationFund: false, childrenAges: [],
+      employeePensionRate: 6, employerPensionRate: 6.5, severanceRate: 6,
+    }))
+    assert.equal(r.employee.incomeTax, 5753)
+  })
+
+  it("Ron — gross 70,000 + default travel 315 → NII employee = 5,709 (capped at 51,910)", () => {
+    // Even with travel, the 51,910 cap means same answer: 328.91 + 44,207×12.17% = 5,709
     const r = calculateEmployerCost(makeInputs({
       grossSalary: 70000, pensionSalary: 70000,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
     }))
     assert.equal(r.employee.niiEmployee, 5709)
+  })
+
+  it("Ron — displayed totalTaxableIncome EXCLUDES travel (Ron #15)", () => {
+    // grossSalary 30,000 + travel 315: displayed taxable = 30,000 (no travel, no שווי)
+    const r = calculateEmployerCost(makeInputs({
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
+      maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
+    }))
+    assert.equal(r.employee.totalTaxableIncome, 30000)
   })
 
   it("Ron — severance cap 45,600: 50K × 6% < cap → no imputed", () => {
@@ -185,14 +237,14 @@ describe('calculateEmployerCost', () => {
   })
 
   it("Ron — Mas Yasaf: 100K salary applies 3% surtax above 60,130", () => {
-    // Regular brackets to 60,130 = 18,680.3; above = 39,870 × 47% = 18,738.9
-    // Mas Yasaf = 39,870 × 3% = 1,196.1; credits = 2.25 × 2904/12 = 544.5
-    // Total = 18,680.3 + 18,738.9 - 544.5 + 1,196.1 ≈ 38,070
+    // Regular brackets to 60,130; above = (40,185 - 60,130 component) × 47%
+    // Mas Yasaf = (taxBase - 60,130) × 3%; credits = 2.25 × 2904/12 = 544.5
+    // taxBase = 100,000 + travel 315 = 100,315 (Ron #14: travel in calc base)
     const r = calculateEmployerCost(makeInputs({
       grossSalary: 100000, pensionSalary: 100000,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
     }))
-    assert.equal(r.employee.incomeTax, 38070)
+    assert.equal(r.employee.incomeTax, 38228)
   })
 
   it("Ron — Mas Yasaf zero impact at salary ≤ 60,130", () => {
@@ -201,38 +253,37 @@ describe('calculateEmployerCost', () => {
       grossSalary: 50000, pensionSalary: 50000,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
     }))
-    // At exactly 50K: brackets = 701 + 427 + 1,788 + 1,891 + 7,556.5 + (3,310×0.47=1,555.7) = 13,919.2
-    // - credits 544.5 ≈ 13,375 (no Mas Yasaf since 50K < 60,130)
-    assert.ok(r.employee.incomeTax > 13000 && r.employee.incomeTax < 13500,
-      `expected ~13,375, got ${r.employee.incomeTax}`)
+    // At 50K + travel 315 = 50,315 taxBase: still below 60,130 cutoff.
+    // No Mas Yasaf surtax applied. Range allows for travel allowance variation.
+    assert.ok(r.employee.incomeTax > 13000 && r.employee.incomeTax < 13700,
+      `expected ~13,500, got ${r.employee.incomeTax}`)
   })
 
   // ─── NII Categories (BTL Circular 1522, January 2026) ───────────────────────
 
-  it("NII category: controllingShareholder (טור 2) — salary 30,315 → 3,032", () => {
+  it("NII category: controllingShareholder (טור 2) — gross 30,000 + travel 315 → 3,032", () => {
     // 7,703 × 4.25% = 327.38 + 22,612 × 11.96% = 2,704.40 → 3,031.78 → 3,032
     const r = calculateEmployerCost(makeInputs({
-      grossSalary: 30315, pensionSalary: 30315,
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
       niiCategory: 'controllingShareholder',
     }))
     assert.equal(r.employee.niiEmployee, 3032)
   })
 
-  it("NII category: foreignResident — salary 30,315 → 861 (much lower)", () => {
+  it("NII category: foreignResident — gross 30,000 + travel 315 → 861 (much lower)", () => {
     // 7,703 × 0.85% = 65.48 + 22,612 × 3.52% = 795.94 → 861.42 → 861
     const r = calculateEmployerCost(makeInputs({
-      grossSalary: 30315, pensionSalary: 30315,
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
       niiCategory: 'foreignResident',
     }))
     assert.equal(r.employee.niiEmployee, 861)
   })
 
-  it("NII category: default 'standard' matches Ron's snapshot — 30,315 → 3,081", () => {
-    // Same input as the 'Ron — salary 30,315' test above, using explicit category.
+  it("NII category: default 'standard' matches Ron's snapshot — gross 30,000 + travel 315 → 3,081", () => {
     const r = calculateEmployerCost(makeInputs({
-      grossSalary: 30315, pensionSalary: 30315,
+      grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
       niiCategory: 'standard',
     }))
@@ -308,8 +359,9 @@ describe('calculateEmployerCost', () => {
       maritalStatus: 'single',
     }))
 
-    assert.equal(r.employee.netWithShvui, 15494)
-    assert.equal(r.employer.totalWithShvui, 21597)
+    // Snapshot updated post Ron #14: travel 315 in tax/NII base.
+    assert.equal(r.employee.netWithShvui, 15357)
+    assert.equal(r.employer.totalWithShvui, 21621)
     assert.equal(r.employer.pensionEmployer, 0, 'pension disabled')
     assert.equal(r.employer.educationFundEmployer, 0, 'education fund disabled')
   })
