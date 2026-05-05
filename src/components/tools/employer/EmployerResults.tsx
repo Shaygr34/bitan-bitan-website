@@ -51,20 +51,21 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
     const yy = String(d.getFullYear() % 100).padStart(2, '0')
     const text = `ביטן את ביטן רו"ח - סימולציה עלות מעסיק / עובד מיום ${dd}/${mm}/${yy}`
 
-    // Mobile: native share sheet (WhatsApp/etc). Desktop: clipboard only —
-    // navigator.share on desktop falls through to mailto/Gmail compose which freezes.
-    const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
-    if (isMobile && navigator.share) {
+    // Always attempt the native share sheet first (WhatsApp/Mail/Telegram on mobile,
+    // OS share picker on Chromium desktop). Fall back to clipboard copy only when
+    // navigator.share is unavailable or rejects with a non-cancel error.
+    if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({ title: text, text, url: shareUrl })
-      } catch {
-        // user cancelled
+        return
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+        // any other error → fall through to clipboard
       }
-    } else {
-      await navigator.clipboard.writeText(shareUrl)
-      setShareMsg('הקישור הועתק!')
-      setTimeout(() => setShareMsg(''), 2000)
     }
+    await navigator.clipboard.writeText(shareUrl)
+    setShareMsg('הקישור הועתק!')
+    setTimeout(() => setShareMsg(''), 2000)
   }, [inputs, comparisonInputs])
 
   return (

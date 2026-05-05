@@ -792,7 +792,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                       <option value="bachelor">תואר ראשון (1 נ.ז × 3 שנים)</option>
                       <option value="master">תואר שני (0.5 נ.ז × שנה אחת)</option>
                       <option value="phdRegular">דוקטורט רגיל (0.5 נ.ז × 3 שנים)</option>
-                      <option value="phdMedicine">דוקטורט ברפואה (1+0.5 נ.ז × 2 שנים)</option>
+                      <option value="phdMedicine">דוקטורט ברפואה (1 נ.ז × שנה אחת)</option>
                       <option value="phdDirect">מסלול ישיר לדוקטורט</option>
                       <option value="professional">מקצוע (שמאי וכד׳ — 1 נ.ז × שנה אחת)</option>
                     </select>

@@ -517,7 +517,7 @@ describe('calculateEmployerCost', () => {
 // - bachelor: 1 nz, 3-yr window from `year` (deferred → year+1)
 // - master: 0.5 nz, 1-yr window = `year` only
 // - phdRegular: 0.5 nz, 3-yr window from `year` (deferral → year+1)
-// - phdMedicine: 2-yr window. Year 1: 1 nz. Year 2: 0.5 nz.
+// - phdMedicine: 1-yr window, 1 nz (year only).
 // - phdDirect: bachelor (3-yr → 1 nz) + phdYear (2-yr → 0.5 nz)
 // - professional: 1 nz, year only (mutex w/ bachelor/master same year — UI enforces)
 
@@ -557,11 +557,11 @@ describe('calculateDegreeCredit (Ron May 2026)', () => {
     assert.equal(calculateDegreeCredit([{ type: 'phdRegular', year: 2024 }], 2027), 0)
   })
 
-  it('phdMedicine: year 1 = 1 nz, year 2 = 0.5 nz', async () => {
+  it('phdMedicine: 1 nz for year only, 0 thereafter', async () => {
     const { calculateDegreeCredit } = await import('../degree-credits')
     assert.equal(calculateDegreeCredit([{ type: 'phdMedicine', year: 2026 }], 2026), 1)
-    assert.equal(calculateDegreeCredit([{ type: 'phdMedicine', year: 2026 }], 2027), 0.5)
-    assert.equal(calculateDegreeCredit([{ type: 'phdMedicine', year: 2026 }], 2028), 0)
+    assert.equal(calculateDegreeCredit([{ type: 'phdMedicine', year: 2026 }], 2027), 0)
+    assert.equal(calculateDegreeCredit([{ type: 'phdMedicine', year: 2026 }], 2025), 0)
   })
 
   it('phdDirect: bachelor 3yr (1 nz) + phd 2yr (0.5 nz)', async () => {
