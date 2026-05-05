@@ -911,3 +911,65 @@ Tail-end polish on the employer calculator, all five Ron-requested:
 6. **Degree dropdown**: dropped "טאבון" — `מקצוע (טאבון / שמאי וכד׳ ...)` → `מקצוע (שמאי וכד׳ ...)`.
 
 Tests: 114 total, 0 failures. Build clean. Deploy verified live on bitancpa.com (poll detected new chunk hash `page-78cc834f...` carrying only new label).
+
+## Session: May 5, 2026 — Print Polish + Slider Range + UI Cleanup (Mega Sprint Cont.)
+
+Continuation of the calculator sprint. Six items shipped across PRs #57, #58, #59, #61.
+
+### PR #57 — Maintenance slider floor
+- אחזקת רכב slider: `min` 3,000 → 1,000. Nodes reshape `[5K,7K,10K,13K]` → `[1K,5K,10K,13K]`.
+
+### PR #58 — Share + phdMedicine
+- Both calcs: native share sheet preferred (`navigator.share` first, clipboard fallback only on `AbortError ≠` cancel or unavailable). Universal — no `isMobile` gate. Was previously "mobile share / desktop copy" — Ron overruled.
+- phdMedicine: 1-year window, 1 nz (was 2-year). Test rewritten (`year=1, year+1=0`).
+
+### PR #59 — Print date + car price range + UI cleanup
+- **Print creation date** (both calcs): `useEffect` injects `data-print-date` on `<html>`; `html::after` in `@media print` renders "הופק: DD/MM/YYYY" top-left of every page. Same fixed-on-`<html>` containing-block trick as the watermark — `<html>` has no transformed/animated ancestor → fixed positioning reliably repeats per page.
+- **Car price slider** (leasing, both `מחיר הרכב` and `שווי רכב חדש מהיצרן`): range `50,000 → 596,860` (2026 vehicle benefit cap from CLAUDE.md). Node anchors `[50K, 150K, 300K, 450K, 596K]` so 50K is right-side floor (RTL min) and 596K is left-side ceiling (RTL max).
+- **קרן השתלמות subtitle** (employer): `תקרה לזיכוי ממס` → `תקרה להטבת מס`.
+- **phdDirect single year input** (employer): ~~dropped~~ → **REVERTED same session**. Ron clarified via WhatsApp: TWO inputs ARE needed for מסלול ישיר לדוקטורט. Original "2 buttons for no reason" complaint was about the confusing placeholder ("שנת התחלת דוקטורט"), not the existence of two inputs. Restored two inputs with Ron's correct labels: `שנת זכאות תואר ראשון` (year, 1 nz × 3yr window) + `שנת זכאות תואר שלישי` (phdYear, 0.5 nz × 2yr window). Engine logic unchanged throughout.
+
+### PR #62 — phdDirect labels + share email speedup
+- **phdDirect dual-input restored** with Ron's exact Hebrew labels (see entry above). Reverted the auto-sync from PR #59.
+- **Share button "stuck on email"**: dropped the redundant `text` field from `navigator.share({ title, text, url })` payloads on both calcs. When sharing to Mail, body = text + url; with `text === title` (duplicate) plus a long encoded URL, Gmail/Apple Mail stalled rendering the bloated body. Now body = url only → mail composer opens instantly.
+
+### PR #61 — Print page-break safety
+- Employer calc was missing the page-break controls leasing already had — cards/sections were splitting mid-card across page boundaries (Ron flagged "cut-off top/bottom").
+- Added: `break-inside: avoid` on `.rounded-2xl, .rounded-xl, .bg-primary, .bg-surface, .grid, details, .border-t, tr`.
+- Added: `break-after: avoid` on `h2, h3, h4` (headings stay glued to following content).
+- Both calcs: `@page { margin: 14mm 10mm 12mm 10mm }` — top extra room so the print-date stamp at `top: 5mm` never collides with first content row; bottom extra for clean break.
+
+### Scenario card view-vs-edit (employer, prior PR #56 already merged)
+- Fixed click-to-edit conflation: outer `<div role="button">` flips `activeIdx` (which scenario's breakdown renders below); nested `<button onClick={(e) => { e.stopPropagation(); onEdit() }}>` ערוך routes to wizard. Active card gets `ring-2 ring-gold-dark shadow-md` + "• מוצג" label.
+
+### Electric default fix (prior PR #57 already merged)
+- `getDefaultInputsForOption(option, carPrice, isElectric)` now threads `isElectric` through. Electric `defaultFuel = 200` (was leaking petrol's 1500). Fixed in `LeasingCalculator.tsx:179, 183` for both `setComparisonInputs` and `setPrimaryInputs` paths.
+
+### Print Watermark Per-Page (prior PR #57 already merged)
+- Watermark moved from `.lc-watermark`/`.ec-watermark` divs (which were trapped inside transformed/animated ancestors → only rendered on whichever page the element landed in document order) → `html::before` with `position: fixed`. Repeats reliably on every page in Chrome/Safari/Firefox.
+
+### Bars Glitch with %'s — UNRESOLVED
+- Ron flagged a "bars glitch UI with %'s" in the audit but the screenshot didn't survive context compaction. Audited `SliderInput.tsx` fillPercent gradient and the % sliders in StepDetails (הון עצמי, ריבית [min=-1, max=3], הקדמה, residualPercent). One suspect: `ריבית` shows 25% gold fill at default P+0% because of negative `min`. Awaiting screenshot to pinpoint.
+
+### Test + Build State
+- Tests: **114/114 pass** (no new tests this session — all changes were UI/print/copy)
+- Builds clean across all PRs
+- Live verification done after each merge
+
+### Key Files Changed
+- `src/components/tools/calculator/ResultsView.tsx` — print date `html::after`, share unified, watermark `html::before`, page-break + @page margins
+- `src/components/tools/calculator/StepBase.tsx` — car price + manufacturer price slider range 50K → 596,860, node labels
+- `src/components/tools/calculator/StepDetails.tsx` — maintenance min 1K
+- `src/components/tools/calculator/LeasingCalculator.tsx` — electric default 200 ₪ via `getDefaultInputsForOption(option, carPrice, isElectric)`
+- `src/components/tools/employer/EmployerResults.tsx` — print date `html::after`, share unified, watermark `html::before`, scenario card view/edit split, page-break safety
+- `src/components/tools/employer/EmployerCalculator.tsx` — phdDirect single year input + auto-sync, קרן השתלמות subtitle copy
+- `src/components/tools/employer/degree-credits.ts` — phdMedicine 1-year window (1 nz, year only)
+- `src/components/tools/employer/__tests__/engine.test.ts` — phdMedicine test rewritten
+
+### Patterns Locked In
+- **html::before for watermark + html::after for date stamp**: both use `position: fixed` on `<html>` so the containing block is the viewport (no ancestor creates a new containing block). Reliable per-page repeat in all major browsers.
+- **Dynamic CSS content from JS state**: `useEffect` writes `data-print-date` attribute on `document.documentElement`; CSS `content: 'הופק: ' attr(data-print-date)`. No React re-render during print event; cleanup on unmount.
+- **Native share first**: `navigator.share()` with `AbortError` distinction (cancel = silent return, no fallback). Clipboard fallback only when share unavailable or fails for non-cancel reason.
+- **Print page-break safety checklist**: `break-inside: avoid` on cards/grids/details, `break-after: avoid` on headings, generous `@page` margins (14mm top to clear fixed stamps). Apply to BOTH calcs to prevent drift.
+- **Single-year UI for dual-window credit math**: When two related fields conceptually map to one user input, sync at the input boundary (year onChange → set phdYear=year) rather than modifying engine logic. Keeps domain math intact, simplifies UI. **CAVEAT** (learned this session): for tax credit math, two inputs may be domain-truthful and the user's complaint may be about *labels*, not *existence*. Always confirm with Ron/Avi before collapsing what looks like UI redundancy.
+- **Web Share API on macOS Mail**: when `text` is provided, mail body = `text + url`. Duplicate `text === title` plus a long encoded URL stalls Gmail/Apple Mail rendering. Send `{ title, url }` only — body becomes `url` and composer opens instantly.

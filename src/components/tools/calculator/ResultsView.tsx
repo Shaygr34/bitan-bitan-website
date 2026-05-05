@@ -110,7 +110,10 @@ export function ResultsView({ primary, comparison, onCompare, onRestart, shareUr
     // navigator.share is unavailable or rejects with a non-cancel error.
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
-        await navigator.share({ title: emailSubject, text: emailSubject, url })
+        // Drop redundant `text` (was duplicate of title) — when sharing to mail,
+        // body = text + url; omitting text keeps the body short = mail client
+        // (Gmail/Apple Mail) opens instantly instead of stalling on a bloated body.
+        await navigator.share({ title: emailSubject, url })
         return
       } catch (err) {
         // AbortError = user cancelled — don't fall back, don't surface a message
