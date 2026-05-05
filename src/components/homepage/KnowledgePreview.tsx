@@ -14,7 +14,7 @@ import {
 } from '@/components/ui'
 import type { ArticleCard } from '@/sanity/types'
 import { urlFor } from '@/sanity/image'
-import { formatRelativeHebrew } from '@/lib/format-date'
+import { formatHebrewDate } from '@/lib/format-date'
 
 const FALLBACK_ARTICLES = [
   { tag: 'מס הכנסה', title: 'מדריך להגשת דוח שנתי למס הכנסה', excerpt: 'כל מה שצריך לדעת על הגשת הדוח השנתי — לוחות זמנים, מסמכים נדרשים וטיפים לחיסכון.' },
@@ -24,7 +24,7 @@ const FALLBACK_ARTICLES = [
 
 function ArticlePreviewCard({ article }: { article: ArticleCard }) {
   const imgUrl = urlFor(article.mainImage, 400)
-  const dateLabel = formatRelativeHebrew(article.publishedAt)
+  const dateLabel = formatHebrewDate(article.publishedAt)
   return (
     <Link href={`/knowledge/${article.slug?.current ?? ''}`}>
       <Card className={imgUrl ? '!p-0 overflow-hidden' : ''}>

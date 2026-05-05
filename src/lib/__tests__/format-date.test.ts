@@ -1,73 +1,43 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { formatRelativeHebrew } from '../format-date'
+import { formatHebrewDate } from '../format-date'
 
-const NOW = new Date('2026-05-05T10:00:00+03:00')
-
-const daysAgo = (n: number) => {
-  const d = new Date(NOW)
-  d.setDate(d.getDate() - n)
-  return d.toISOString()
-}
-
-describe('formatRelativeHebrew', () => {
+describe('formatHebrewDate', () => {
   it('returns empty string for missing input', () => {
-    assert.equal(formatRelativeHebrew(undefined, NOW), '')
-    assert.equal(formatRelativeHebrew(null, NOW), '')
-    assert.equal(formatRelativeHebrew('', NOW), '')
+    assert.equal(formatHebrewDate(undefined), '')
+    assert.equal(formatHebrewDate(null), '')
+    assert.equal(formatHebrewDate(''), '')
   })
 
-  it('היום for same day', () => {
-    assert.equal(formatRelativeHebrew(NOW.toISOString(), NOW), 'היום')
-    assert.equal(formatRelativeHebrew(daysAgo(0), NOW), 'היום')
+  it('returns empty string for invalid input', () => {
+    assert.equal(formatHebrewDate('not-a-date'), '')
   })
 
-  it('אתמול for 1 day ago', () => {
-    assert.equal(formatRelativeHebrew(daysAgo(1), NOW), 'אתמול')
+  it('formats month/day/year in Hebrew (March)', () => {
+    assert.equal(formatHebrewDate('2026-03-06T12:00:00Z'), '6 במרץ 2026')
   })
 
-  it('לפני N ימים for 2-6 days ago', () => {
-    assert.equal(formatRelativeHebrew(daysAgo(2), NOW), 'לפני יומיים')
-    assert.equal(formatRelativeHebrew(daysAgo(3), NOW), 'לפני 3 ימים')
-    assert.equal(formatRelativeHebrew(daysAgo(6), NOW), 'לפני 6 ימים')
+  it('formats May correctly', () => {
+    assert.equal(formatHebrewDate('2025-05-05T12:00:00Z'), '5 במאי 2025')
   })
 
-  it('לפני שבוע for 7-13 days ago', () => {
-    assert.equal(formatRelativeHebrew(daysAgo(7), NOW), 'לפני שבוע')
-    assert.equal(formatRelativeHebrew(daysAgo(13), NOW), 'לפני שבוע')
-  })
-
-  it('לפני שבועיים for 14-20 days ago', () => {
-    assert.equal(formatRelativeHebrew(daysAgo(14), NOW), 'לפני שבועיים')
-    assert.equal(formatRelativeHebrew(daysAgo(20), NOW), 'לפני שבועיים')
-  })
-
-  it('לפני N שבועות for 21-29 days ago', () => {
-    assert.equal(formatRelativeHebrew(daysAgo(21), NOW), 'לפני 3 שבועות')
-    assert.equal(formatRelativeHebrew(daysAgo(28), NOW), 'לפני 4 שבועות')
-  })
-
-  it('לפני חודש for 30-59 days ago', () => {
-    assert.equal(formatRelativeHebrew(daysAgo(30), NOW), 'לפני חודש')
-    assert.equal(formatRelativeHebrew(daysAgo(45), NOW), 'לפני חודש')
-    assert.equal(formatRelativeHebrew(daysAgo(59), NOW), 'לפני חודש')
-  })
-
-  it('absolute Hebrew date for >= 60 days ago', () => {
-    // 60 days before May 5, 2026 = March 6, 2026
-    assert.equal(formatRelativeHebrew(daysAgo(60), NOW), '6 במרץ 2026')
-    // 365 days before = May 5, 2025
-    assert.equal(formatRelativeHebrew(daysAgo(365), NOW), '5 במאי 2025')
-  })
-
-  it('handles future dates as "היום"', () => {
-    // Edge case — published timestamp in the future. Treat as today, never negative.
-    const future = new Date(NOW.getTime() + 60 * 60 * 1000).toISOString()
-    assert.equal(formatRelativeHebrew(future, NOW), 'היום')
-  })
-
-  it('uses real "now" when not provided', () => {
-    const today = new Date().toISOString()
-    assert.equal(formatRelativeHebrew(today), 'היום')
+  it('formats all 12 months with correct Hebrew names', () => {
+    const months = [
+      ['2026-01-15T12:00:00Z', '15 בינואר 2026'],
+      ['2026-02-10T12:00:00Z', '10 בפברואר 2026'],
+      ['2026-03-01T12:00:00Z', '1 במרץ 2026'],
+      ['2026-04-20T12:00:00Z', '20 באפריל 2026'],
+      ['2026-05-05T12:00:00Z', '5 במאי 2026'],
+      ['2026-06-30T12:00:00Z', '30 ביוני 2026'],
+      ['2026-07-04T12:00:00Z', '4 ביולי 2026'],
+      ['2026-08-18T12:00:00Z', '18 באוגוסט 2026'],
+      ['2026-09-09T12:00:00Z', '9 בספטמבר 2026'],
+      ['2026-10-31T12:00:00Z', '31 באוקטובר 2026'],
+      ['2026-11-11T12:00:00Z', '11 בנובמבר 2026'],
+      ['2026-12-25T12:00:00Z', '25 בדצמבר 2026'],
+    ] as const
+    for (const [iso, expected] of months) {
+      assert.equal(formatHebrewDate(iso), expected)
+    }
   })
 })
