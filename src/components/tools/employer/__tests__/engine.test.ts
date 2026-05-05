@@ -25,12 +25,12 @@ function makeInputs(overrides: Partial<EmployerInputs> = {}): EmployerInputs {
   return { ...getDefaultEmployerInputs(), ...overrides }
 }
 
-// Ron May 2026: backstage evaluation date (month/year) defaults to "now"
+// Ron May 2026: backstage evaluation date — month follows now, year hardlocked to 2026.
 describe('evaluationDate (Ron May 2026)', () => {
-  it('defaults to current month/year', () => {
+  it('defaults to current month with year hardlocked to 2026', () => {
     const d = getDefaultEmployerInputs()
     const now = new Date()
-    assert.equal(d.evaluationDate.year, now.getFullYear())
+    assert.equal(d.evaluationDate.year, 2026)
     assert.equal(d.evaluationDate.month, now.getMonth() + 1) // 1-12
   })
 
@@ -161,9 +161,8 @@ describe('calculateEmployerCost', () => {
   })
 
   // ─── Ron's exact numeric examples (April 30, 2026 feedback) ──────────────────
-  // Per Ron #14-15: travel allowance IS in tax/NII calc base, but NOT shown in
-  // displayed totalTaxableIncome row. Tests pass grossSalary + travelAllowance
-  // separately; engine combines them for tax/NII calc only.
+  // Per Ron #14 + Ron May 5 sprint: travel allowance IS in tax/NII calc base AND
+  // IS shown in the displayed totalTaxableIncome row (sprint update — was excluded).
 
   it("Ron — gross 30,000 + travel 315 → NII employee = 3,081 (7,703×4.27% + 22,612×12.17%)", () => {
     const r = calculateEmployerCost(makeInputs({
@@ -217,13 +216,13 @@ describe('calculateEmployerCost', () => {
     assert.equal(r.employee.niiEmployee, 5709)
   })
 
-  it("Ron — displayed totalTaxableIncome EXCLUDES travel (Ron #15)", () => {
-    // grossSalary 30,000 + travel 315: displayed taxable = 30,000 (no travel, no שווי)
+  it("Ron May 5 — displayed totalTaxableIncome INCLUDES travel", () => {
+    // grossSalary 30,000 + travel 315: displayed taxable = 30,315 (sprint update).
     const r = calculateEmployerCost(makeInputs({
       grossSalary: 30000, pensionSalary: 30000, travelAllowance: 315,
       maritalStatus: 'single', hasPension: false, hasEducationFund: false, childrenAges: [],
     }))
-    assert.equal(r.employee.totalTaxableIncome, 30000)
+    assert.equal(r.employee.totalTaxableIncome, 30315)
   })
 
   it("Ron — severance cap 45,600: 50K × 6% < cap → no imputed", () => {

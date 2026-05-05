@@ -141,7 +141,7 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
         <div className="p-space-4">
           <Section title="נתונים לחישוב שכר" rows={[
             { label: 'שכר ברוטו', value: `${fmt(emp.grossSalary)} ₪` },
-            { label: 'נסיעות *', value: `${fmt(emp.travelAllowance)} ₪`, muted: true },
+            { label: 'נסיעות', value: `${fmt(emp.travelAllowance)} ₪` },
             ...(emp.vehicleTaxBenefit > 0 ? [{ label: 'שווי רכב', value: `${fmt(emp.vehicleTaxBenefit)} ₪` }] : []),
             ...(emp.mealBenefit > 0 ? [{ label: 'שווי ארוחות', value: `${fmt(emp.mealBenefit)} ₪` }] : []),
             ...(emp.otherBenefit > 0 ? [{ label: 'שווי מס נוסף', value: `${fmt(emp.otherBenefit)} ₪` }] : []),
@@ -151,7 +151,6 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             ...(emp.imputedSeverance > 0 ? [{ label: 'שווי זקופות פיצויים', value: `${fmt(emp.imputedSeverance)} ₪` }] : []),
             { label: 'סה"כ שכר עבודה חייב במס', value: `${fmt(emp.totalTaxableIncome)} ₪`, bold: true },
           ]} />
-          <p className="text-caption text-text-muted -mt-space-2 mb-space-3 px-2">{'* נסיעות אינן נכללות בסה"כ שכר עבודה חייב במס'}</p>
 
           <Section title="ניכויים" rows={[
             { label: 'ביטוח לאומי', value: `${fmt(emp.niiEmployee)} ₪` },
@@ -161,11 +160,13 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             { label: 'סה"כ ניכויים', value: `${fmt(emp.totalDeductions)} ₪`, bold: true },
           ]} />
 
-          {/* NII bracket breakdown — Ron May 2026 #45 + v2 (May 5) full pair display */}
+          {/* NII bracket breakdown — Ron May 2026 #45 + v2 (May 5) full pair display.
+              Sprint update: SUM shown in collapsed summary (Ron — "show the sum"). */}
           {(() => {
             const cfg = DEFAULT_EMPLOYER_CONFIG
             const rates = getNIIRatesV2(inputs.niiCategoryV2, inputs.niiCalcType)
-            const niiBase = emp.totalTaxableIncome + inputs.travelAllowance
+            // niiBase: travel is already inside totalTaxableIncome (sprint update).
+            const niiBase = emp.totalTaxableIncome
             const lowAmount = Math.min(niiBase, cfg.niiLowThreshold)
             const highAmount = Math.max(niiBase - cfg.niiLowThreshold, 0)
             const lowNii = Math.round(lowAmount * rates.employeeLow)
@@ -174,12 +175,13 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
             const calcLabel = NII_CALCTYPE_LABELS[inputs.niiCalcType]
             return (
               <details className="mb-space-3 -mt-space-2">
-                <summary className="cursor-pointer text-caption text-text-muted hover:text-primary px-2 py-1">
-                  📐 פירוט חישוב ביטוח לאומי
+                <summary className="cursor-pointer text-caption text-text-muted hover:text-primary px-2 py-1 flex items-center justify-between gap-2">
+                  <span>📐 פירוט חישוב ביטוח לאומי</span>
+                  <span className="font-bold text-primary">{fmt(emp.niiEmployee)} ₪</span>
                 </summary>
                 <div className="text-caption text-text-muted bg-surface/40 rounded-lg p-space-3 mt-1 space-y-0.5">
                   <div>סיווג: {catLabel} / {calcLabel}</div>
-                  <div>בסיס חישוב (כולל נסיעות): {fmt(niiBase)} ₪</div>
+                  <div>בסיס חישוב: {fmt(niiBase)} ₪</div>
                   <div>מתחת לתקרה ({fmt(cfg.niiLowThreshold)} ₪) × {(rates.employeeLow * 100).toFixed(2)}% = {fmt(lowNii)} ₪</div>
                   {highAmount > 0 && (
                     <div>מעל לתקרה ({fmt(highAmount)} ₪) × {(rates.employeeHigh * 100).toFixed(2)}% = {fmt(highNii)} ₪</div>

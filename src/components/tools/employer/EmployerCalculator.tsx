@@ -487,6 +487,42 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               )}
             </div>
 
+            {/* Backstage evaluation date (Ron May 2026, moved to step 1 May 5 sprint).
+                Sets reference month for service eligibility (36-mo window) + degree
+                credit windows. Year hardlocked to 2026; month overridable. */}
+            <details className="mt-space-4 text-caption text-text-muted">
+              <summary className="cursor-pointer select-none hover:text-primary">
+                ⚙️ הגדרות מתקדמות — תאריך חישוב: {String(inputs.evaluationDate.month).padStart(2, '0')}/{inputs.evaluationDate.year}
+              </summary>
+              <div className="mt-space-2 bg-surface/40 rounded-lg p-space-3 grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-caption text-text-muted mb-1">חודש בדיקה</label>
+                  <select
+                    value={inputs.evaluationDate.month}
+                    onChange={e => update({ evaluationDate: { ...inputs.evaluationDate, month: parseInt(e.target.value, 10) } })}
+                    className="w-full rounded-lg border border-border px-2 py-1.5 text-body-sm focus:border-gold focus:outline-none"
+                  >
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                      <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-caption text-text-muted mb-1">שנת בדיקה</label>
+                  <input
+                    type="text"
+                    value={2026}
+                    readOnly
+                    aria-readonly="true"
+                    className="w-full rounded-lg border border-border bg-surface/60 px-2 py-1.5 text-body-sm text-text-muted cursor-not-allowed"
+                  />
+                </div>
+                <p className="col-span-2 text-caption text-text-muted/80 italic">
+                  שנת המס נעולה ל-2026. רלוונטי לזכאות שירות צבאי (חלון 36 חודשים) ולנקודות זיכוי תואר.
+                </p>
+              </div>
+            </details>
+
             <NextButton onClick={next} />
           </div>
         )}
@@ -687,7 +723,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                     <option value="phdRegular">דוקטורט רגיל (0.5 נ.ז × 3 שנים)</option>
                     <option value="phdMedicine">דוקטורט ברפואה (1+0.5 נ.ז × 2 שנים)</option>
                     <option value="phdDirect">מסלול ישיר לדוקטורט</option>
-                    <option value="professional">מקצוע (טאבון / שמאי וכד׳ — 1 נ.ז × שנה אחת)</option>
+                    <option value="professional">מקצוע (שמאי וכד׳ — 1 נ.ז × שנה אחת)</option>
                   </select>
                   <input
                     type="number"
@@ -976,14 +1012,13 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                   value={inputs.reserveDays}
                   onChange={v => update({ reserveDays: v })}
                   min={50}
-                  max={150}
+                  max={110}
                   step={5}
                   nodes={[
                     { value: 50, label: '50' },
                     { value: 70, label: '70' },
                     { value: 90, label: '90' },
-                    { value: 110, label: '110 (תקרה)' },
-                    { value: 130, label: '130' },
+                    { value: 110, label: '110' },
                   ]}
                   suffix=" ימים"
                 />
@@ -1000,44 +1035,6 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                 </div>
               )}
             </div>
-
-            {/* Backstage evaluation date (Ron May 2026) — sets reference month/year for
-                service eligibility (36-mo window) and degree credit windows. Hidden by
-                default; user can override (e.g. for retroactive simulations). */}
-            <details className="mt-space-4 text-caption text-text-muted">
-              <summary className="cursor-pointer select-none hover:text-primary">
-                ⚙️ הגדרות מתקדמות — תאריך חישוב: {String(inputs.evaluationDate.month).padStart(2, '0')}/{inputs.evaluationDate.year}
-              </summary>
-              <div className="mt-space-2 bg-surface/40 rounded-lg p-space-3 grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-caption text-text-muted mb-1">חודש בדיקה</label>
-                  <select
-                    value={inputs.evaluationDate.month}
-                    onChange={e => update({ evaluationDate: { ...inputs.evaluationDate, month: parseInt(e.target.value, 10) } })}
-                    className="w-full rounded-lg border border-border px-2 py-1.5 text-body-sm focus:border-gold focus:outline-none"
-                  >
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                      <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-caption text-text-muted mb-1">שנת בדיקה</label>
-                  <select
-                    value={inputs.evaluationDate.year}
-                    onChange={e => update({ evaluationDate: { ...inputs.evaluationDate, year: parseInt(e.target.value, 10) } })}
-                    className="w-full rounded-lg border border-border px-2 py-1.5 text-body-sm focus:border-gold focus:outline-none"
-                  >
-                    {Array.from({ length: 5 }, (_, i) => 2024 + i).map(y => (
-                      <option key={y} value={y}>{y}</option>
-                    ))}
-                  </select>
-                </div>
-                <p className="col-span-2 text-caption text-text-muted/80 italic">
-                  ברירת מחדל — חודש/שנה נוכחיים. רלוונטי לזכאות שירות צבאי (חלון 36 חודשים) ולנקודות זיכוי תואר.
-                </p>
-              </div>
-            </details>
 
             <div className="mt-space-7 text-center">
               {(() => {

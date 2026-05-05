@@ -362,16 +362,16 @@ export function calculateEmployerCost(
   )
 
   // ─── Total Taxable Income ───
-  // Display value (Ron #15: travel allowance does NOT appear in this row).
-  const totalTaxableWithShvui = grossSalary + totalShvuiMas +
+  // Ron May 5 sprint: travel is now INCLUDED in the displayed taxable wage row
+  // (was excluded in Ron #15). The number now equals the tax/NII calc base.
+  const totalTaxableWithShvui = grossSalary + travelAllowance + totalShvuiMas +
     imputed.imputedEducation + imputed.imputedPension + imputed.imputedSeverance
-  const totalTaxableWithoutShvui = grossSalary +
+  const totalTaxableWithoutShvui = grossSalary + travelAllowance +
     imputed.imputedEducation + imputed.imputedPension + imputed.imputedSeverance
 
-  // Tax/NII calculation base (Ron #14: includes travel + שווי מס + שווי זקופות).
-  // Display value above keeps travel separate; engine math always adds it.
-  const taxCalcBaseWith = totalTaxableWithShvui + travelAllowance
-  const taxCalcBaseWithout = totalTaxableWithoutShvui + travelAllowance
+  // Tax/NII calculation base — same as displayed total (post sprint).
+  const taxCalcBaseWith = totalTaxableWithShvui
+  const taxCalcBaseWithout = totalTaxableWithoutShvui
 
   // ─── Credit Points (with breakdown) ───
   const employeeGetsAllowance = childAllowanceRecipient === 'employee'
@@ -535,9 +535,10 @@ export function getDefaultEmployerInputs(): EmployerInputs {
     niiCategory: 'standard',
     niiCategoryV2: '18-retirement',
     niiCalcType: 'regular',
+    // Ron May 5 sprint: tax year hardlocked to 2026. Month follows current month.
     evaluationDate: (() => {
       const now = new Date()
-      return { month: now.getMonth() + 1, year: now.getFullYear() }
+      return { month: now.getMonth() + 1, year: 2026 }
     })(),
     yishuvName: null,
     degrees: [],
