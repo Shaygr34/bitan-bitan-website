@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ArrowRight, Wallet, Receipt, TrendingDown, Users, Printer, Share2, BarChart3, ChevronDown } from 'lucide-react'
 import type { EmployerCalcResult, EmployerInputs } from './types'
 import { DEFAULT_EMPLOYER_CONFIG } from './config'
@@ -15,13 +15,15 @@ type Props = {
   comparisonResult: EmployerCalcResult | null
   comparisonInputs: EmployerInputs | null
   onRemoveComparison: () => void
+  onEditPrimary: () => void
+  onEditComparison: () => void
 }
 
 function fmt(n: number): string {
   return n.toLocaleString('he-IL')
 }
 
-export function EmployerResults({ result, inputs, onRestart, onCompare, comparisonResult, comparisonInputs, onRemoveComparison }: Props) {
+export function EmployerResults({ result, inputs, onRestart, onCompare, comparisonResult, comparisonInputs, onRemoveComparison, onEditPrimary, onEditComparison }: Props) {
   const { employee: emp, employer: empr, hasShvuiMas } = result
   const creditBreakdown = emp.creditPointsBreakdown
 
@@ -67,13 +69,28 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
           .print-only / body font-size !important rules. */}
       <div aria-hidden="true" className="ec-watermark" suppressHydrationWarning>להמחשה בלבד</div>
 
-      {/* Comparison Table — CENTER STAGE when comparing */}
+      {/* Comparison Table — CENTER STAGE when comparing.
+          Scenario buttons are click-to-edit (Ron May 5 2026):
+          tapping תרחיש א׳/ב׳ reloads its inputs into the wizard. */}
       {comparisonResult && comparisonInputs && (
         <ComparisonBlock
           primary={{ result, inputs }}
           comparison={{ result: comparisonResult, inputs: comparisonInputs }}
           onRemove={onRemoveComparison}
+          onEditPrimary={onEditPrimary}
+          onEditComparison={onEditComparison}
         />
+      )}
+
+      {/* Scenario heading — labels the per-scenario detail block when in compare mode.
+          Without this, it's unclear which scenario the breakdown sections refer to. */}
+      {comparisonResult && comparisonInputs && (
+        <div className="mb-space-4 flex items-center justify-between gap-3 px-1">
+          <h3 className="text-h4 font-bold text-primary">תרחיש א׳ — פירוט מלא</h3>
+          <span className="text-caption text-text-muted">
+            לפירוט תרחיש ב׳ — לחצו על הכפתור למעלה
+          </span>
+        </div>
       )}
 
       {/* Key Metrics — Top Summary */}
@@ -413,34 +430,77 @@ export function EmployerResults({ result, inputs, onRestart, onCompare, comparis
   )
 }
 
-/* ─── Comparison Block (Ron May 2026 #47): tabs + swap A/B + verdict ─── */
+/* ─── Comparison Block (Ron May 5 2026): scenario cards are click-to-edit ─── */
 
 type Scenario = { result: EmployerCalcResult; inputs: EmployerInputs }
+
+function ScenarioCard({
+  label,
+  scenario,
+  onEdit,
+  cheaper,
+}: {
+  label: string
+  scenario: Scenario
+  onEdit: () => void
+  cheaper: boolean
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onEdit}
+      aria-label={`ערוך ${label}`}
+      className={[
+        'group text-start rounded-xl border-2 p-space-3 transition-all cursor-pointer no-print',
+        cheaper
+          ? 'border-gold bg-gold/5 hover:bg-gold/10'
+          : 'border-border bg-white hover:border-gold/60 hover:bg-surface/40',
+      ].join(' ')}
+    >
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-caption text-text-muted font-medium flex items-center gap-1.5">
+          <BarChart3 className="h-3.5 w-3.5" />
+          {label}
+        </span>
+        <span className="text-caption text-gold-dark font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+          ✏ ערוך
+        </span>
+      </div>
+      <div className="text-body font-bold text-primary">{'ברוטו '}{fmt(scenario.inputs.grossSalary)} ₪</div>
+      <div className="text-caption text-text-muted mt-0.5">
+        {'עלות מעסיק: '}{fmt(scenario.result.employer.totalWithShvui)} ₪
+      </div>
+      <div className="text-caption text-text-muted">
+        {'נטו עובד: '}{fmt(scenario.result.employee.netWithShvui)} ₪
+      </div>
+    </button>
+  )
+}
 
 function ComparisonBlock({
   primary,
   comparison,
   onRemove,
+  onEditPrimary,
+  onEditComparison,
 }: {
   primary: Scenario
   comparison: Scenario
   onRemove: () => void
+  onEditPrimary: () => void
+  onEditComparison: () => void
 }) {
-  // Default activeIdx = scenario with lower employer cost (preferred-first parity).
-  const preferredIdx = useMemo<0 | 1>(() => {
-    return primary.result.employer.totalWithShvui <= comparison.result.employer.totalWithShvui ? 0 : 1
-  }, [primary, comparison])
-  const [activeIdx, setActiveIdx] = useState<0 | 1>(preferredIdx)
-
-  // Reorder so the active scenario is column A
-  const colA = activeIdx === 0 ? primary : comparison
-  const colB = activeIdx === 0 ? comparison : primary
+  // Always show A on the left, B on the right (no activeIdx swap — click = edit).
+  const colA = primary
+  const colB = comparison
 
   const cheaperLabel = colA.result.employer.totalWithShvui < colB.result.employer.totalWithShvui ? "תרחיש א׳"
     : colA.result.employer.totalWithShvui > colB.result.employer.totalWithShvui ? "תרחיש ב׳" : null
 
   const higherNetLabel = colA.result.employee.netWithShvui > colB.result.employee.netWithShvui ? "תרחיש א׳"
     : colA.result.employee.netWithShvui < colB.result.employee.netWithShvui ? "תרחיש ב׳" : null
+
+  const cheaperA = colA.result.employer.totalWithShvui <= colB.result.employer.totalWithShvui
 
   return (
     <div className="mb-space-6">
@@ -452,31 +512,14 @@ function ComparisonBlock({
         </button>
       </div>
 
-      {/* Scenario tabs (icon parity with leasing #28) */}
-      <div className="flex justify-center gap-2 mb-space-3 no-print" role="tablist" aria-label="תרחישים">
-        {([0, 1] as const).map((idx) => {
-          const scen = idx === 0 ? primary : comparison
-          const active = idx === activeIdx
-          return (
-            <button
-              key={idx}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setActiveIdx(idx)}
-              className={[
-                'inline-flex items-center gap-2 rounded-xl px-4 py-2 text-body-sm font-bold border-2 transition-all cursor-pointer',
-                active
-                  ? 'border-gold bg-gold/10 text-gold scale-105 shadow-sm'
-                  : 'border-border bg-white text-text-muted hover:bg-surface',
-              ].join(' ')}
-            >
-              <BarChart3 className="h-4 w-4" />
-              ברוטו {fmt(scen.inputs.grossSalary)} ₪
-            </button>
-          )
-        })}
+      {/* Scenario cards — click any to reload its inputs into the wizard for editing. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-space-3 no-print">
+        <ScenarioCard label="תרחיש א׳" scenario={primary} onEdit={onEditPrimary} cheaper={cheaperA} />
+        <ScenarioCard label="תרחיש ב׳" scenario={comparison} onEdit={onEditComparison} cheaper={!cheaperA} />
       </div>
+      <p className="text-caption text-text-muted text-center mb-space-3 no-print">
+        לחצו על תרחיש כדי לחזור ולשנות את הנתונים שלו
+      </p>
 
       <div className="bg-white rounded-2xl border border-border shadow-md overflow-hidden">
         <table className="w-full text-body-sm" dir="rtl">
