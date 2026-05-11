@@ -152,8 +152,21 @@ describe('formatCompactCurrency', () => {
     assert.equal(formatCompactCurrency(999), '999')
   })
 
-  it('handles fractional thousands', () => {
-    assert.equal(formatCompactCurrency(1500), '2K') // rounds to nearest K
-    assert.equal(formatCompactCurrency(1400), '1K')
+  it('keeps 1 decimal for non-exact-K values below 100K (honest)', () => {
+    assert.equal(formatCompactCurrency(1500), '1.5K')
+    assert.equal(formatCompactCurrency(1400), '1.4K')
+    assert.equal(formatCompactCurrency(7500), '7.5K')
+    assert.equal(formatCompactCurrency(12500), '12.5K')
+  })
+
+  it('drops trailing .0 for exact-K integers', () => {
+    assert.equal(formatCompactCurrency(1000), '1K')
+    assert.equal(formatCompactCurrency(15000), '15K')
+    assert.equal(formatCompactCurrency(100000), '100K')
+  })
+
+  it('rounds to integer K at >=100K scale (drift <0.5%)', () => {
+    assert.equal(formatCompactCurrency(596860), '597K')
+    assert.equal(formatCompactCurrency(150000), '150K')
   })
 })

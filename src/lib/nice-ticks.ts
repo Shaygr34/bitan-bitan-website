@@ -64,11 +64,15 @@ function niceStep(rough: number): number {
 
 /**
  * Compact currency formatter for tick labels. Renders K/M suffixes so 5 axis
- * labels stay short on mobile RTL layouts:
- *   50,000   → "50K"
- *   596,860  → "597K"   (rounded to nearest K)
+ * labels stay short on mobile RTL layouts. Tiered precision keeps labels
+ * honest for small ranges (where rounding to nearest K would lie by >5%)
+ * while staying compact at large scale:
+ *   50,000    → "50K"      (exact K, integer)
+ *   1,500     → "1.5K"     (< 100K, keep 1 decimal — fixes נסיעות display)
+ *   12,500    → "12.5K"    (< 100K, keep 1 decimal)
+ *   596,860   → "597K"     (≥ 100K, round — drift ~0.02% is acceptable)
  *   2,500,000 → "2.5M"
- *   999      → "999"    (no suffix below 1K)
+ *   999       → "999"      (no suffix below 1K)
  */
 export function formatCompactCurrency(n: number): string {
   if (!Number.isFinite(n)) return String(n)
@@ -78,7 +82,10 @@ export function formatCompactCurrency(n: number): string {
     return `${Number(m.toFixed(1))}M`.replace(/\.0M$/, 'M')
   }
   if (abs >= 1000) {
-    return `${Math.round(n / 1000)}K`
+    const k = n / 1000
+    if (Number.isInteger(k)) return `${k}K`
+    if (abs < 100_000) return `${k.toFixed(1)}K`
+    return `${Math.round(k)}K`
   }
   return String(Math.round(n))
 }
