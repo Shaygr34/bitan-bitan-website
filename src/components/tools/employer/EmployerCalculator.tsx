@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { SliderInput } from '../calculator/SliderInput'
 import { ToggleGroup, YesNoToggle } from '../calculator/InputGroup'
 import { calculateEmployerCost, getDefaultEmployerInputs } from './engine'
-import { DEFAULT_EMPLOYER_CONFIG, SALARY_PRESETS, PENSION_EMPLOYEE_RATES, PENSION_EMPLOYER_RATES, SEVERANCE_RATES, EDUCATION_EMPLOYER_RATES, VEHICLE_FUEL_OPTIONS, getServiceThresholds } from './config'
+import { DEFAULT_EMPLOYER_CONFIG, PENSION_EMPLOYEE_RATES, PENSION_EMPLOYER_RATES, SEVERANCE_RATES, EDUCATION_EMPLOYER_RATES, VEHICLE_FUEL_OPTIONS, getServiceThresholds } from './config'
 import { EmployerResults } from './EmployerResults'
 import type { EmployerInputs, EmployerCalcResult, EmployerCalcConfig, VehicleFuelType, Gender, MaritalStatus } from './types'
 import {
@@ -14,6 +14,7 @@ import {
   NII_CALCTYPES_BY_CATEGORY,
 } from '@/lib/tax-tables-2026'
 import { YISHUV_MUTAV_LIST } from './yishuv-mutav'
+import { formatCompactCurrency } from '@/lib/nice-ticks'
 
 type EmployerCalculatorProps = {
   config?: Partial<EmployerCalcConfig>
@@ -398,8 +399,8 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               min={5000} max={100000} step={500}
               value={inputs.grossSalary}
               onChange={v => update({ grossSalary: v, pensionSalary: v, educationFundSalary: Math.min(v, effectiveConfig.educationFundCap) })}
-              nodes={SALARY_PRESETS.map(s => ({ value: s, label: `${fmt(s)}` }))}
               format={fmt}
+              tickFormat={formatCompactCurrency}
             />
 
             <SliderInput
@@ -407,13 +408,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
               min={0} max={1500} step={5}
               value={inputs.travelAllowance}
               onChange={v => update({ travelAllowance: v })}
-              nodes={[
-                { value: 0, label: '0' },
-                { value: 315, label: '315' },
-                { value: 500, label: '500' },
-                { value: 1000, label: '1,000' },
-                { value: 1500, label: '1,500' },
-              ]}
+              tickFormat={formatCompactCurrency}
               format={fmt}
             />
 
@@ -431,12 +426,8 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                   min={0} max={inputs.grossSalary} step={500}
                   value={Math.min(inputs.pensionSalary, inputs.grossSalary)}
                   onChange={v => update({ pensionSalary: v })}
-                  nodes={[
-                    { value: 0, label: '0' },
-                    { value: Math.round(inputs.grossSalary / 2), label: fmt(Math.round(inputs.grossSalary / 2)) },
-                    { value: inputs.grossSalary, label: fmt(inputs.grossSalary) },
-                  ]}
                   format={fmt}
+                  tickFormat={formatCompactCurrency}
                 />
               )}
             </div>
@@ -455,12 +446,8 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                   min={0} max={inputs.grossSalary} step={500}
                   value={Math.min(inputs.educationFundSalary, inputs.grossSalary)}
                   onChange={v => update({ educationFundSalary: v })}
-                  nodes={[
-                    { value: 0, label: '0' },
-                    { value: Math.min(effectiveConfig.educationFundCap, inputs.grossSalary), label: fmt(Math.min(effectiveConfig.educationFundCap, inputs.grossSalary)) },
-                    { value: inputs.grossSalary, label: fmt(inputs.grossSalary) },
-                  ]}
                   format={fmt}
+                  tickFormat={formatCompactCurrency}
                 />
               )}
             </div>
@@ -489,12 +476,8 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                       min={50000} max={600000} step={5000}
                       value={inputs.manufacturerPrice}
                       onChange={v => update({ manufacturerPrice: v })}
-                      nodes={[
-                        { value: 100000, label: '100K' },
-                        { value: 200000, label: '200K' },
-                        { value: 400000, label: '400K' },
-                      ]}
                       format={fmt}
+                      tickFormat={formatCompactCurrency}
                     />
                   )}
 
@@ -520,13 +503,7 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                   min={0} max={2000} step={50}
                   value={inputs.mealBenefitAmount}
                   onChange={v => update({ mealBenefitAmount: v })}
-                  nodes={[
-                    { value: 0, label: '0' },
-                    { value: 500, label: '500' },
-                    { value: 1000, label: '1,000' },
-                    { value: 1500, label: '1,500' },
-                    { value: 2000, label: '2,000' },
-                  ]}
+                  tickFormat={formatCompactCurrency}
                   format={fmt}
                 />
               )}
@@ -545,13 +522,8 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                   min={0} max={3000} step={50}
                   value={inputs.otherBenefitAmount}
                   onChange={v => update({ otherBenefitAmount: v })}
-                  nodes={[
-                    { value: 0, label: '0' },
-                    { value: 1000, label: '1,000' },
-                    { value: 2000, label: '2,000' },
-                    { value: 3000, label: '3,000' },
-                  ]}
                   format={fmt}
+                  tickFormat={formatCompactCurrency}
                 />
               )}
             </div>
@@ -907,7 +879,6 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                     })
                   }
                 }}
-                nodes={[{ value: 0, label: '0' }, { value: 2, label: '2' }, { value: 4, label: '4' }, { value: 6, label: '6' }]}
                 format={v => `${v}`}
                 suffix=""
                 allowManual={false}
@@ -1123,12 +1094,6 @@ export function EmployerCalculator({ config: cmsConfig }: EmployerCalculatorProp
                   min={50}
                   max={110}
                   step={5}
-                  nodes={[
-                    { value: 50, label: '50' },
-                    { value: 70, label: '70' },
-                    { value: 90, label: '90' },
-                    { value: 110, label: '110' },
-                  ]}
                   suffix=" ימים"
                 />
               )}

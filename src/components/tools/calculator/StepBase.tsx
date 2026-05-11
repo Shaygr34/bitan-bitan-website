@@ -3,6 +3,7 @@
 import { Car, Truck } from 'lucide-react'
 import { ToggleGroup } from './InputGroup'
 import { SliderInput } from './SliderInput'
+import { formatCompactCurrency } from '@/lib/nice-ticks'
 import type { BaseInputs, VehicleType, UserType } from './types'
 
 type StepBaseProps = {
@@ -165,7 +166,7 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
       </div>
 
       {/* Car Price — Slider. Range 50K → 596,860 (2026 vehicle benefit cap).
-          50K node anchors the bar minimum on the right (RTL), 596K on the left. */}
+          Tick labels auto-generated from min/max via generateNiceTicks (honest axis). */}
       <SliderInput
         label="מחיר הרכב"
         subtitle="כולל מע״מ"
@@ -174,14 +175,8 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         step={5000}
         value={values.carPrice || 150000}
         onChange={(v) => onChange({ carPrice: v })}
-        nodes={[
-          { value: 50000, label: '50K' },
-          { value: 150000, label: '150K' },
-          { value: 300000, label: '300K' },
-          { value: 450000, label: '450K' },
-          { value: 596860, label: '596K' },
-        ]}
         format={formatCurrency}
+        tickFormat={formatCompactCurrency}
       />
 
       {/* Monthly Income — label changes for company */}
@@ -197,14 +192,8 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
         step={1000}
         value={values.monthlyIncome || 20000}
         onChange={(v) => onChange({ monthlyIncome: v })}
-        nodes={[
-          { value: 15000, label: '15K' },
-          { value: 20000, label: '20K' },
-          { value: 30000, label: '30K' },
-          { value: 40000, label: '40K' },
-          { value: 50000, label: '50K' },
-        ]}
         format={formatCurrency}
+        tickFormat={formatCompactCurrency}
       />
 
       {/* Manufacturer Price — company/employee only, AND not commercial (no שווי שימוש on commercial) */}
@@ -217,14 +206,8 @@ export function StepBase({ values, onChange, onNext }: StepBaseProps) {
           step={5000}
           value={values.manufacturerPrice || 200000}
           onChange={(v) => onChange({ manufacturerPrice: v })}
-          nodes={[
-            { value: 50000, label: '50K' },
-            { value: 150000, label: '150K' },
-            { value: 300000, label: '300K' },
-            { value: 450000, label: '450K' },
-            { value: 596860, label: '596K' },
-          ]}
           format={formatCurrency}
+          tickFormat={formatCompactCurrency}
         />
       )}
 

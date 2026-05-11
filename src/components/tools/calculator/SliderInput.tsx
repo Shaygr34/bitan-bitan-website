@@ -1,11 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-
-type NodePoint = {
-  value: number
-  label: string
-}
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import { generateNiceTicks } from '@/lib/nice-ticks'
 
 type SliderInputProps = {
   label: string
@@ -15,8 +11,13 @@ type SliderInputProps = {
   step?: number
   value: number
   onChange: (value: number) => void
-  nodes?: NodePoint[]
   format?: (value: number) => string
+  /**
+   * Optional formatter for tick labels on the axis. Defaults to `format`.
+   * Pass a compact formatter (e.g. formatCompactCurrency) for currency
+   * sliders so 5 axis labels stay short.
+   */
+  tickFormat?: (value: number) => string
   suffix?: string
   allowManual?: boolean
   computedDisplay?: string
@@ -36,8 +37,8 @@ export function SliderInput({
   step = 1,
   value,
   onChange,
-  nodes,
   format = defaultFormat,
+  tickFormat,
   suffix = '₪',
   allowManual = true,
   computedDisplay,
@@ -84,7 +85,12 @@ export function SliderInput({
 
   // Displayed value text — goldFormat overrides for the large display only
   const goldDisplayValue = goldFormat ? goldFormat(value) : `${format(value)} ${suffix}`.trim()
-  const displayValue = `${format(value)} ${suffix}`.trim()
+
+  // Auto-generated tick values across [min, max]. Honest axis: visual position
+  // = real value (flex justify-between spreads them evenly, and the values are
+  // themselves evenly distributed via generateNiceTicks).
+  const ticks = useMemo(() => generateNiceTicks(min, max), [min, max])
+  const labelFor = tickFormat ?? format
 
   return (
     <div className={compact ? 'mb-space-5' : 'mb-space-6'}>
@@ -117,19 +123,20 @@ export function SliderInput({
         />
       </div>
 
-      {/* Node points — evenly distributed labels.
-          Uniform font-weight (medium) prevents layout shift when active node
-          changes during drag — only color swaps, widths stay stable. */}
-      {nodes && nodes.length > 0 && (
+      {/* Auto-generated tick labels — honest axis across [min, max].
+          Uniform font-weight (medium) prevents layout shift when active tick
+          changes during drag — only color swaps, widths stay stable.
+          First/last tick === min/max exactly (guaranteed by generateNiceTicks). */}
+      {ticks.length > 0 && (
         <div className="flex justify-between mt-space-1 px-1">
-          {nodes.map((node) => {
-            const isActive = value === node.value
-            const isClose = Math.abs(value - node.value) < (max - min) * 0.05
+          {ticks.map((tickValue) => {
+            const isActive = value === tickValue
+            const isClose = Math.abs(value - tickValue) < (max - min) * 0.05
             return (
               <button
-                key={node.value}
+                key={tickValue}
                 type="button"
-                onClick={() => handleNodeClick(node.value)}
+                onClick={() => handleNodeClick(tickValue)}
                 className={[
                   'text-caption font-medium px-1 py-0.5 rounded transition-colors cursor-pointer whitespace-nowrap',
                   isActive || isClose
@@ -137,7 +144,7 @@ export function SliderInput({
                     : 'text-text-muted hover:text-primary',
                 ].join(' ')}
               >
-                {node.label}
+                {labelFor(tickValue)}
               </button>
             )
           })}

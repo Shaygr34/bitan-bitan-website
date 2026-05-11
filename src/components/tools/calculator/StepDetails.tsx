@@ -2,6 +2,7 @@
 
 import { SliderInput } from './SliderInput'
 import { YesNoToggle } from './InputGroup'
+import { formatCompactCurrency } from '@/lib/nice-ticks'
 import {
   ELECTRIC_KM_PRESETS,
   DEFAULT_FUEL_MONTHLY,
@@ -139,12 +140,6 @@ function PurchaseFields({
           step={5}
           value={equity}
           onChange={(v) => onChange({ equityPercent: v })}
-          nodes={[
-            { value: 25, label: '25%' },
-            { value: 50, label: '50%' },
-            { value: 75, label: '75%' },
-            { value: 100, label: '100%' },
-          ]}
           format={formatPercent}
           suffix=""
           computedDisplay={equity < 100 ? `הלוואה: ${formatCurrency(loanAmount)} ₪` : undefined}
@@ -157,16 +152,10 @@ function PurchaseFields({
               label="ריבית"
               subtitle={`פריים: ${primeRate}%`}
               min={-1}
-              max={3}
+              max={4.5}
               step={0.5}
               value={spread}
               onChange={(v) => onChange({ interestSpread: v })}
-              nodes={[
-                { value: -1, label: `${(primeRate - 1).toFixed(1)}%` },
-                { value: 0, label: `${primeRate.toFixed(1)}%` },
-                { value: 1, label: `${(primeRate + 1).toFixed(1)}%` },
-                { value: 2, label: `${(primeRate + 2).toFixed(1)}%` },
-              ]}
               goldFormat={(v) => v === 0 ? 'P + 0%' : v > 0 ? `P + ${v}%` : `P - ${Math.abs(v)}%`}
               format={(v) => `${(primeRate + v).toFixed(1)}%`}
               suffix=""
@@ -180,12 +169,6 @@ function PurchaseFields({
               step={6}
               value={inputs.periodMonths ?? 60}
               onChange={(v) => onChange({ periodMonths: v })}
-              nodes={[
-                { value: 24, label: '24' },
-                { value: 36, label: '36' },
-                { value: 48, label: '48' },
-                { value: 60, label: '60' },
-              ]}
               format={(v) => `${v}`}
               suffix="חודשים"
               compact
@@ -250,12 +233,6 @@ function FinancialFields({
           step={5}
           value={downPct}
           onChange={(v) => onChange({ downPaymentPercent: v })}
-          nodes={[
-            { value: 15, label: '15%' },
-            { value: 20, label: '20%' },
-            { value: 30, label: '30%' },
-            { value: 40, label: '40%' },
-          ]}
           format={formatPercent}
           suffix=""
           computedDisplay={`${formatCurrency(downAmount)} ₪`}
@@ -269,12 +246,6 @@ function FinancialFields({
           step={5}
           value={residualPct}
           onChange={(v) => onChange({ residualPercent: v })}
-          nodes={[
-            { value: 30, label: '30%' },
-            { value: 35, label: '35%' },
-            { value: 40, label: '40%' },
-            { value: 50, label: '50%' },
-          ]}
           format={formatPercent}
           suffix=""
           computedDisplay={`${formatCurrency(residualAmount)} ₪`}
@@ -314,15 +285,8 @@ function FinancialFields({
           step={100}
           value={monthlyPayment}
           onChange={(v) => onChange({ monthlyLeasingPayment: v })}
-          nodes={[
-            { value: 500, label: '500' },
-            { value: 2000, label: '2,000' },
-            { value: 4000, label: '4,000' },
-            { value: 6000, label: '6,000' },
-            { value: 8000, label: '8,000' },
-            { value: 10000, label: '10,000' },
-          ]}
           format={formatCurrency}
+          tickFormat={formatCompactCurrency}
           compact
         />
 
@@ -356,12 +320,6 @@ function FinancialFields({
           step={6}
           value={periodMonths}
           onChange={(v) => onChange({ periodMonths: v })}
-          nodes={[
-            { value: 24, label: '24' },
-            { value: 36, label: '36' },
-            { value: 48, label: '48' },
-            { value: 60, label: '60' },
-          ]}
           format={(v) => `${v}`}
           suffix="חודשים"
           allowManual={false}
@@ -403,12 +361,6 @@ function OperationalFields({
           step={5}
           value={inputs.downPaymentPercent ?? 5}
           onChange={(v) => onChange({ downPaymentPercent: v })}
-          nodes={[
-            { value: 5, label: '5%' },
-            { value: 10, label: '10%' },
-            { value: 15, label: '15%' },
-            { value: 20, label: '20%' },
-          ]}
           format={formatPercent}
           suffix=""
           computedDisplay={`${formatCurrency(Math.round(carPrice * ((inputs.downPaymentPercent ?? 5) / 100)))} ₪`}
@@ -423,8 +375,8 @@ function OperationalFields({
           step={100}
           value={inputs.monthlyLeasingPayment ?? bracket.defaultRate}
           onChange={(v) => onChange({ monthlyLeasingPayment: v })}
-          nodes={bracket.options.map((o) => ({ value: o, label: formatCurrency(o) }))}
           format={formatCurrency}
+          tickFormat={formatCompactCurrency}
           compact
         />
       </div>
@@ -450,8 +402,8 @@ function OperationalFields({
                   fuelMonthly: match ? match.cost : Math.round(km * 0.1333),
                 })
               }}
-              nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.km, label: `${(e.km / 1000).toFixed(1)}K` }))}
               format={(v) => v.toLocaleString('he-IL')}
+              tickFormat={formatCompactCurrency}
               suffix='ק"מ'
               compact
             />
@@ -469,7 +421,6 @@ function OperationalFields({
                   kmPerMonth: match ? match.km : Math.round(cost / 0.1333 / 100) * 100,
                 })
               }}
-              nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.cost, label: `${e.cost}` }))}
               format={(v) => v.toLocaleString('he-IL')}
               suffix='₪'
               compact
@@ -480,18 +431,12 @@ function OperationalFields({
             label="דלק (לחודש)"
             subtitle="כולל מע״מ"
             min={300}
-            max={3000}
+            max={5000}
             step={100}
             value={(inputs.fuelMonthly as number) ?? DEFAULT_FUEL_MONTHLY}
             onChange={(v) => onChange({ fuelMonthly: v })}
-            nodes={[
-              { value: 500, label: '500' },
-              { value: 1000, label: '1,000' },
-              { value: 1500, label: '1,500' },
-              { value: 2000, label: '2,000' },
-              { value: 2500, label: '2,500' },
-            ]}
             format={formatCurrency}
+            tickFormat={formatCompactCurrency}
             compact
           />
         )}
@@ -538,8 +483,8 @@ function RunningCosts({
                 fuelMonthly: match ? match.cost : Math.round(km * 0.1333),
               })
             }}
-            nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.km, label: `${(e.km / 1000).toFixed(1)}K` }))}
             format={(v) => v.toLocaleString('he-IL')}
+            tickFormat={formatCompactCurrency}
             suffix='ק"מ'
             compact
           />
@@ -557,7 +502,6 @@ function RunningCosts({
                 kmPerMonth: match ? match.km : Math.round(cost / 0.1333 / 100) * 100,
               })
             }}
-            nodes={ELECTRIC_KM_PRESETS.map((e) => ({ value: e.cost, label: `${e.cost}` }))}
             format={(v) => v.toLocaleString('he-IL')}
             suffix='₪'
             compact
@@ -568,18 +512,12 @@ function RunningCosts({
           label="דלק (לחודש)"
           subtitle="כולל מע״מ"
           min={300}
-          max={3000}
+          max={5000}
           step={100}
           value={(inputs.fuelMonthly as number) ?? DEFAULT_FUEL_MONTHLY}
           onChange={(v) => onChange({ fuelMonthly: v })}
-          nodes={[
-            { value: 500, label: '500' },
-            { value: 1000, label: '1K' },
-            { value: 1500, label: '1.5K' },
-            { value: 2000, label: '2K' },
-            { value: 2500, label: '2.5K' },
-          ]}
           format={formatCurrency}
+          tickFormat={formatCompactCurrency}
           compact
         />
       )}
@@ -593,13 +531,8 @@ function RunningCosts({
             step={500}
             value={(inputs.maintenanceYearly as number) ?? DEFAULT_MAINTENANCE_YEARLY}
             onChange={(v) => onChange({ maintenanceYearly: v })}
-            nodes={[
-              { value: 1000, label: '1K' },
-              { value: 5000, label: '5K' },
-              { value: 10000, label: '10K' },
-              { value: 13000, label: '13K' },
-            ]}
             format={formatCurrency}
+            tickFormat={formatCompactCurrency}
             compact
           />
 
@@ -610,13 +543,8 @@ function RunningCosts({
             step={500}
             value={(inputs.insuranceYearly as number) ?? DEFAULT_INSURANCE_YEARLY}
             onChange={(v) => onChange({ insuranceYearly: v })}
-            nodes={[
-              { value: 7000, label: '7K' },
-              { value: 9000, label: '9K' },
-              { value: 11000, label: '11K' },
-              { value: 13000, label: '13K' },
-            ]}
             format={formatCurrency}
+            tickFormat={formatCompactCurrency}
             compact
           />
         </>
