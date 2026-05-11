@@ -973,3 +973,37 @@ Continuation of the calculator sprint. Six items shipped across PRs #57, #58, #5
 - **Print page-break safety checklist**: `break-inside: avoid` on cards/grids/details, `break-after: avoid` on headings, generous `@page` margins (14mm top to clear fixed stamps). Apply to BOTH calcs to prevent drift.
 - **Single-year UI for dual-window credit math**: When two related fields conceptually map to one user input, sync at the input boundary (year onChange → set phdYear=year) rather than modifying engine logic. Keeps domain math intact, simplifies UI. **CAVEAT** (learned this session): for tax credit math, two inputs may be domain-truthful and the user's complaint may be about *labels*, not *existence*. Always confirm with Ron/Avi before collapsing what looks like UI redundancy.
 - **Web Share API on macOS Mail**: when `text` is provided, mail body = `text + url`. Duplicate `text === title` plus a long encoded URL stalls Gmail/Apple Mail rendering. Send `{ title, url }` only — body becomes `url` and composer opens instantly.
+
+## Session: May 11, 2026 — Slider Honest-Axis Fix (Ron/Haya feedback)
+
+Recurring "bars don't match numbers" complaint surfaced again via Ron + Haya. Two structural fixes shipped this session.
+
+### Root cause — two-layer bug
+1. **Layer 1 — drifting tick values**: every `SliderInput` caller passed a hardcoded `nodes={[...]}` array. As `min`/`max` evolved (Ron bumps, range tweaks), the arrays drifted. Income slider had `nodes=[15K..50K]` while min=5K, max=60K — axis lied about both ends.
+2. **Layer 2 — lying label formatter**: even after fixing tick *values*, `formatCompactCurrency(1500)` returned `"2K"` (`Math.round(1.5)`). So נסיעות slider (max=1500) showed leftmost tick as "2K" past the actual ceiling. Unit test had this codified as expected.
+
+### Fix 1 — Auto-generated honest ticks (commit `82d78fa`)
+- New util `src/lib/nice-ticks.ts` — `generateNiceTicks(min, max, count=5)`. Guarantees: `ticks[0] === min` exact, `ticks[-1] === max` exact, middle snapped to nice 1/2.5/5 × 10^n steps. 22 TDD tests.
+- `SliderInput.tsx` — dropped `nodes` prop entirely. Auto-derives ticks via `useMemo`.
+- 21 caller invocations across 3 files cleaned (`StepBase.tsx`, `StepDetails.tsx`, `EmployerCalculator.tsx`).
+- Ron range bumps applied same commit: ריבית `max: 3 → 4.5`, דלק (both Operational + RunningCosts) `max: 3K → 5K`.
+
+### Fix 2 — Tiered formatter precision (commit `ffc85fa`)
+- `formatCompactCurrency` tiered: exact-K → integer (`1K`, `15K`, `100K`); non-exact below 100K → 1 decimal (`1.5K`, `12.5K`); ≥100K → round (`597K`, drift <0.5%).
+- 2 new test assertions flipped the old "rounds to 2K" expectation.
+
+### Tests + Verification
+- 138/138 pass (was 136 + 2 new format assertions)
+- Browser-verified live on bitancpa.com — every slider's first/last tick now matches its `min`/`max` exactly across both calculators
+- Ron WhatsApp summary sent
+
+### Lesson (added to "Key Gotchas")
+- **Two-layer axis bug**: structurally honest ticks ≠ honest *labels*. A `formatCompactCurrency` rounding to nearest K silently re-introduces the "axis lies" complaint after the value-level fix. Production verification, not unit tests, caught it — because the unit test had codified the bug as "correct behavior." When user reports "looks wrong," check BOTH layers: data → render.
+
+### Key Files Changed
+- `src/lib/nice-ticks.ts` — new utility (generateNiceTicks + formatCompactCurrency)
+- `src/lib/__tests__/nice-ticks.test.ts` — 25 tests total
+- `src/components/tools/calculator/SliderInput.tsx` — auto-tick derivation, `nodes` prop removed
+- `src/components/tools/calculator/StepBase.tsx`, `StepDetails.tsx` — 14 sliders cleaned + 3 Ron range bumps
+- `src/components/tools/employer/EmployerCalculator.tsx` — 7 sliders cleaned
+- `docs/superpowers/plans/2026-05-11-slider-honest-axis.md` — design doc
