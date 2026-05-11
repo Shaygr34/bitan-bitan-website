@@ -124,19 +124,36 @@ export function SliderInput({
       </div>
 
       {/* Auto-generated tick labels — honest axis across [min, max].
-          Uniform font-weight (medium) prevents layout shift when active tick
-          changes during drag — only color swaps, widths stay stable.
-          First/last tick === min/max exactly (guaranteed by generateNiceTicks). */}
+          Absolute positioning at proportional location (not flex justify-between),
+          so each tick sits at its TRUE position within [min, max]. This matters
+          whenever generateNiceTicks snaps middle ticks to clean numbers that
+          aren't uniform quartiles (e.g. interest [-1, 4.5] → [-1, 0, 2, 3, 4.5]).
+          RTL: min is on the right; right: X% positions from the right edge.
+          First/last ticks pinned to edges (no translate) so they don't overflow. */}
       {ticks.length > 0 && (
-        <div className="flex justify-between mt-space-1 px-1">
-          {ticks.map((tickValue) => {
+        <div className="relative mt-space-1 px-1 h-7">
+          {ticks.map((tickValue, idx) => {
             const isActive = value === tickValue
             const isClose = Math.abs(value - tickValue) < (max - min) * 0.05
+            const isFirst = idx === 0
+            const isLast = idx === ticks.length - 1
+            // Position percentage from min (right edge in RTL)
+            const pct = ((tickValue - min) / (max - min)) * 100
+            const positionStyle: React.CSSProperties = { position: 'absolute', top: 0 }
+            if (isFirst) {
+              positionStyle.right = 0
+            } else if (isLast) {
+              positionStyle.left = 0
+            } else {
+              positionStyle.right = `${pct}%`
+              positionStyle.transform = 'translateX(50%)'
+            }
             return (
               <button
                 key={tickValue}
                 type="button"
                 onClick={() => handleNodeClick(tickValue)}
+                style={positionStyle}
                 className={[
                   'text-caption font-medium px-1 py-0.5 rounded transition-colors cursor-pointer whitespace-nowrap',
                   isActive || isClose
