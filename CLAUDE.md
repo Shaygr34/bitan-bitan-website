@@ -948,8 +948,8 @@ Continuation of the calculator sprint. Six items shipped across PRs #57, #58, #5
 ### Print Watermark Per-Page (prior PR #57 already merged)
 - Watermark moved from `.lc-watermark`/`.ec-watermark` divs (which were trapped inside transformed/animated ancestors → only rendered on whichever page the element landed in document order) → `html::before` with `position: fixed`. Repeats reliably on every page in Chrome/Safari/Firefox.
 
-### Bars Glitch with %'s — UNRESOLVED
-- Ron flagged a "bars glitch UI with %'s" in the audit but the screenshot didn't survive context compaction. Audited `SliderInput.tsx` fillPercent gradient and the % sliders in StepDetails (הון עצמי, ריבית [min=-1, max=3], הקדמה, residualPercent). One suspect: `ריבית` shows 25% gold fill at default P+0% because of negative `min`. Awaiting screenshot to pinpoint.
+### Bars Glitch with %'s — RESOLVED May 11 (see "Slider Honest-Axis Fix" session below)
+- Was a three-layer rendering bug (tick values, label format, tick positions). Fixed across commits `82d78fa`, `ffc85fa`, `4162abf`. Browser-verified.
 
 ### Test + Build State
 - Tests: **114/114 pass** (no new tests this session — all changes were UI/print/copy)
