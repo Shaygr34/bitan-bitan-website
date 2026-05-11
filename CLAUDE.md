@@ -976,11 +976,12 @@ Continuation of the calculator sprint. Six items shipped across PRs #57, #58, #5
 
 ## Session: May 11, 2026 — Slider Honest-Axis Fix (Ron/Haya feedback)
 
-Recurring "bars don't match numbers" complaint surfaced again via Ron + Haya. Two structural fixes shipped this session.
+Recurring "bars don't match numbers" complaint surfaced again via Ron + Haya. **Three** structural fixes shipped this session — each layer's correct fix unmasked the next layer's lie.
 
-### Root cause — two-layer bug
+### Root cause — three-layer bug
 1. **Layer 1 — drifting tick values**: every `SliderInput` caller passed a hardcoded `nodes={[...]}` array. As `min`/`max` evolved (Ron bumps, range tweaks), the arrays drifted. Income slider had `nodes=[15K..50K]` while min=5K, max=60K — axis lied about both ends.
 2. **Layer 2 — lying label formatter**: even after fixing tick *values*, `formatCompactCurrency(1500)` returned `"2K"` (`Math.round(1.5)`). So נסיעות slider (max=1500) showed leftmost tick as "2K" past the actual ceiling. Unit test had this codified as expected.
+3. **Layer 3 — lying tick positions**: even after fixing values + labels, the tick label container was `flex justify-between` — uniform visual spacing regardless of real values. For ריבית `[-1, 4.5]` with ticks `[-1, 0, 2, 3, 4.5]` (non-uniform steps 1/2/1/1.5), tick "5.5%" (value=0) sat at 25% from right but its true proportional position is 18.18%. ~7% visual lie.
 
 ### Fix 1 — Auto-generated honest ticks (commit `82d78fa`)
 - New util `src/lib/nice-ticks.ts` — `generateNiceTicks(min, max, count=5)`. Guarantees: `ticks[0] === min` exact, `ticks[-1] === max` exact, middle snapped to nice 1/2.5/5 × 10^n steps. 22 TDD tests.
@@ -992,18 +993,25 @@ Recurring "bars don't match numbers" complaint surfaced again via Ron + Haya. Tw
 - `formatCompactCurrency` tiered: exact-K → integer (`1K`, `15K`, `100K`); non-exact below 100K → 1 decimal (`1.5K`, `12.5K`); ≥100K → round (`597K`, drift <0.5%).
 - 2 new test assertions flipped the old "rounds to 2K" expectation.
 
+### Fix 3 — Proportional tick positioning (commit `4162abf`)
+- `SliderInput.tsx` tick label container `flex justify-between` → `relative` with absolutely-positioned buttons.
+- Each tick button: `position: absolute; right: ${pct}%; transform: translateX(50%)` where `pct = (tickValue - min) / (max - min) * 100`.
+- First/last pinned to container edges (`right: 0` / `left: 0`, no transform) so they don't overflow.
+- Browser-verified on bitancpa.com: ריבית inline styles confirm `right: 0px, 18.18%, 54.55%, 72.73%, left: 0px` — tick "5.5%" moved from visual 25% to true 18.18%.
+- Render-only change — no engine math touched, no new tests needed.
+
 ### Tests + Verification
 - 138/138 pass (was 136 + 2 new format assertions)
-- Browser-verified live on bitancpa.com — every slider's first/last tick now matches its `min`/`max` exactly across both calculators
+- Browser-verified live on bitancpa.com after each commit — values, labels, AND positions all honest
 - Ron WhatsApp summary sent
 
 ### Lesson (added to "Key Gotchas")
-- **Two-layer axis bug**: structurally honest ticks ≠ honest *labels*. A `formatCompactCurrency` rounding to nearest K silently re-introduces the "axis lies" complaint after the value-level fix. Production verification, not unit tests, caught it — because the unit test had codified the bug as "correct behavior." When user reports "looks wrong," check BOTH layers: data → render.
+- **N-layer axis bug**: structurally honest ticks ≠ honest labels ≠ honest positions. Each fix unmasks the next layer. A `formatCompactCurrency` rounding to nearest K silently re-introduces the "axis lies" complaint after the value-level fix; then `flex justify-between` re-introduces it again after the format fix. Production verification of inline styles, not unit tests, catches the final layer — because unit tests can't observe DOM positioning. When user reports "looks wrong," check ALL THREE layers: data → format → position.
 
 ### Key Files Changed
 - `src/lib/nice-ticks.ts` — new utility (generateNiceTicks + formatCompactCurrency)
 - `src/lib/__tests__/nice-ticks.test.ts` — 25 tests total
-- `src/components/tools/calculator/SliderInput.tsx` — auto-tick derivation, `nodes` prop removed
+- `src/components/tools/calculator/SliderInput.tsx` — auto-tick derivation + proportional absolute positioning, `nodes` prop removed
 - `src/components/tools/calculator/StepBase.tsx`, `StepDetails.tsx` — 14 sliders cleaned + 3 Ron range bumps
 - `src/components/tools/employer/EmployerCalculator.tsx` — 7 sliders cleaned
 - `docs/superpowers/plans/2026-05-11-slider-honest-axis.md` — design doc
