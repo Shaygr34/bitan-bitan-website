@@ -1015,3 +1015,33 @@ Recurring "bars don't match numbers" complaint surfaced again via Ron + Haya. **
 - `src/components/tools/calculator/StepBase.tsx`, `StepDetails.tsx` — 14 sliders cleaned + 3 Ron range bumps
 - `src/components/tools/employer/EmployerCalculator.tsx` — 7 sliders cleaned
 - `docs/superpowers/plans/2026-05-11-slider-honest-axis.md` — design doc
+
+## Cross-repo pointer — Onboarding Batch 4 (deferred)
+
+The 2026-05-12 cut-off was resumed on 2026-05-13 and Shay pivoted to a different work thread
+(the office manual-overtake arc — PRs #131–#136 in `bitan-bitan-os`). Batch 4 below is still
+in scope, just deferred. Canonical state is in `bitan-bitan-os/CLAUDE.md` under the section
+"Deferred — Onboarding Batch 4 (spouse fields + BTL link + doc badges)".
+
+### What Batch 4 touches in THIS repo (`bitan-bitan-website`)
+- **Intake form spouse fields** (sub-task 1b): add `spouseFullName`, `spouseIdNumber`,
+  `spousePhone` to the intake form (`src/app/intake/`). Bundled-only — no new Summit Customer
+  Properties. Data flows into office-notification email body + הערה + `submittedData` JSON
+  on the `onboardingRecord` (in the OS repo's Sanity).
+- **Doc badges on reopen** (sub-task 3): when a client opens an update-mode intake link, look
+  up matching `clientDocument` rows in Sanity for that client and render `✓ הועלה — {filename}`
+  badges under each doc slot they previously filled. (Note: the OFFICE side now sees per-doc
+  upload state via the new "⤴ העלה / החלף" buttons shipped in `bitan-bitan-os` PR #135. This
+  Batch 4 sub-task is about the CLIENT-side reopen UI, which is a separate surface.)
+
+### What Batch 4 touches in `bitan-bitan-os` (not here)
+- `onboardingRecord` schema (Sanity): new `nationalInsuranceRepLink` (URL) field
+- `ClientInfoCard` UI: input for the BTL rep link
+- Email-notification builder: append spouse fields
+- `submittedData` JSON: include spouse fields
+
+### Resume rules
+- Read `bitan-bitan-os/CLAUDE.md` "Deferred — Onboarding Batch 4" section first.
+- Start with sub-task 3 (doc badges) — clearest scope, lowest risk, lives almost entirely here.
+- Decisions LOCKED with Shay (do not re-ask): spouse fields are bundled-only (1b); BTL link is
+  office-side managed (2a).
