@@ -137,6 +137,15 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Upload progress (per-byte). null when not uploading or no files.
+  // loaded/total in bytes; percent derived. The denominator includes all
+  // form bytes (XHR fires onprogress against the multipart body, not just
+  // file slices), so the bar reflects what's actually on the wire.
+  const [uploadProgress, setUploadProgress] = useState<{
+    loaded: number
+    total: number
+    percent: number
+  } | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const progressTrackRef = useRef<HTMLDivElement>(null)
   const [fillWidth, setFillWidth] = useState('0%')
@@ -391,14 +400,51 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
         fd.append(`label_${key}`, docField?.label ?? key)
       }
 
-      const res = await fetch('/api/intake', { method: 'POST', body: fd })
+      // XHR (not fetch) so we get per-byte upload.onprogress. The browser's
+      // fetch() API has no upload progress hook — this is the documented
+      // workaround. Once Streams ReadableStream + duplex: 'half' is universal
+      // we can revisit, but as of 2026 XHR is still the only portable path.
+      const hasFiles = Object.keys(files).length > 0
+      if (hasFiles) setUploadProgress({ loaded: 0, total: 1, percent: 0 })
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(
-          body?.error ?? 'אירעה שגיאה בשליחת הטופס. נסו שוב.',
-        )
-      }
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', '/api/intake')
+
+        xhr.upload.onprogress = (e) => {
+          if (!e.lengthComputable) return
+          const percent = Math.min(99, Math.floor((e.loaded / e.total) * 100))
+          setUploadProgress({ loaded: e.loaded, total: e.total, percent })
+        }
+
+        xhr.upload.onload = () => {
+          // Body fully sent — server is now processing (Sanity CDN +
+          // Sumit). Pin at 99% so the bar doesn't sit at 100% during
+          // server-side work; flips to "complete" when xhr.onload fires.
+          setUploadProgress((prev) =>
+            prev ? { ...prev, percent: 99 } : prev,
+          )
+        }
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            setUploadProgress((prev) => prev ? { ...prev, percent: 100 } : prev)
+            resolve()
+          } else {
+            let msg = 'אירעה שגיאה בשליחת הטופס. נסו שוב.'
+            try {
+              const body = JSON.parse(xhr.responseText)
+              if (body?.error) msg = body.error
+            } catch { /* fallthrough */ }
+            reject(new Error(msg))
+          }
+        }
+
+        xhr.onerror = () => reject(new Error('שגיאת רשת — בדקו את החיבור ונסו שוב'))
+        xhr.onabort = () => reject(new Error('השליחה בוטלה'))
+
+        xhr.send(fd)
+      })
 
       // Clear localStorage draft on successful submit
       try { localStorage.removeItem(storageKey) } catch { /* ignore */ }
@@ -407,6 +453,7 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       setError(err instanceof Error ? err.message : 'שגיאה לא צפויה')
     } finally {
       setSubmitting(false)
+      setUploadProgress(null)
     }
   }
 
@@ -983,6 +1030,40 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
         )}
 
         {error && <div className={styles.error}>{error}</div>}
+
+        {uploadProgress && (
+          <div
+            className={styles.uploadProgress}
+            role="progressbar"
+            aria-valuenow={uploadProgress.percent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div className={styles.uploadProgressHeader}>
+              <span className={styles.uploadProgressLabel}>
+                {uploadProgress.percent < 99
+                  ? 'מעלה קבצים...'
+                  : uploadProgress.percent === 100
+                    ? 'הושלם — סיום שמירה...'
+                    : 'הקבצים נשלחו — המתינו לשמירה...'}
+              </span>
+              <span className={styles.uploadProgressValue}>
+                {uploadProgress.percent}%
+              </span>
+            </div>
+            <div className={styles.uploadProgressBar}>
+              <div
+                className={styles.uploadProgressFill}
+                style={{ width: `${uploadProgress.percent}%` }}
+              />
+            </div>
+            {uploadProgress.total > 1 && uploadProgress.percent < 99 && (
+              <div className={styles.uploadProgressBytes}>
+                {formatFileSize(uploadProgress.loaded)} / {formatFileSize(uploadProgress.total)}
+              </div>
+            )}
+          </div>
+        )}
 
         {hasMissingDocs && !showConfirmSubmit && (
           <div className={styles.warningBanner}>
