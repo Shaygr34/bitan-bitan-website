@@ -114,13 +114,28 @@ export interface DocField {
   transferOnly?: boolean
 }
 
-/** Document upload fields per client type category */
+/**
+ * Document upload fields per client type category.
+ *
+ * IMPORTANT: As of 2026-05-14, `osekMurshe` (תעודת עוסק מורשה) and
+ * `ptihaTikMaam` (פתיחת תיק מע"מ) were intentionally dropped from this list.
+ * New clients don't generate these themselves — the office produces them
+ * during onboarding stage 4 (פתיחת תיק ממשלתי). The office uploads them
+ * directly into the client's Sumit card via the OS DocumentsCard "⤴ העלה"
+ * action. Keeping them as client-facing required-fields was confusing — the
+ * client doesn't have these documents until the OFFICE creates them.
+ *
+ * The two `summitField` mappings still exist in:
+ *   - bitan-bitan-os `apps/os-hub/src/lib/onboarding/office-doc-storage.ts`
+ *     `OFFICE_DOC_SUMMIT_FIELDS` — for the office-side upload path.
+ *   - bitan-bitan-os `apps/os-hub/src/lib/onboarding/summit-client.ts`
+ *     `extractTypedFileFieldPresence` — for round-trip reflection in the
+ *     OS DocumentsCard's typed-field UI.
+ */
 export const DOC_FIELDS: DocField[] = [
   { key: 'idCard', label: 'צילום ת.ז + ספח', summitField: 'ת.ז/ רישיון בעלים', required: true, categories: ['individual', 'company', 'exempt'] },
   { key: 'driverLicense', label: 'צילום רישיון נהיגה', summitField: 'ת.ז/ רישיון בעלים', required: true, categories: ['individual', 'company', 'exempt'] },
   { key: 'bankApproval', label: 'אישור ניהול חשבון / שיק מבוטל', summitField: 'אישור ניהול חשבון', required: true, categories: ['individual', 'company'] },
-  { key: 'osekMurshe', label: 'תעודת עוסק מורשה', summitField: 'תעודת עוסק מורשה', required: false, categories: ['individual'] },
-  { key: 'ptihaTikMaam', label: 'פתיחת תיק מע"מ', summitField: 'פתיחת תיק מעמ', required: false, categories: ['individual', 'company'] },
   { key: 'teudatHitagdut', label: 'תעודת התאגדות', summitField: 'תעודת התאגדות', required: true, categories: ['company'] },
   { key: 'takanonHevra', label: 'תקנון חברה', summitField: 'תקנון חברה', required: false, categories: ['company'] },
   { key: 'protokolMurshe', label: 'פרוטוקול מורשה חתימה', summitField: 'פרוטוקול מורשה חתימה', required: false, categories: ['company'] },
