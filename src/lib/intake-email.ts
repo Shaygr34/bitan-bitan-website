@@ -27,6 +27,9 @@ type IntakeNotificationData = {
   phone: string
   email: string
   fileCount: number
+  spouseFullName?: string
+  spouseIdNumber?: string
+  spousePhone?: string
 }
 
 /**
@@ -36,7 +39,7 @@ type IntakeNotificationData = {
 export async function sendIntakeNotification(data: IntakeNotificationData): Promise<boolean> {
   if (!RESEND_API_KEY || !EMAIL_TO) return false
 
-  const rows = [
+  const rows: Array<[string, string]> = [
     ['שם מלא', escapeHtml(data.fullName)],
     ['סוג לקוח', escapeHtml(data.clientType)],
     ['ת"ז / ח"פ', escapeHtml(data.companyNumber)],
@@ -44,6 +47,9 @@ export async function sendIntakeNotification(data: IntakeNotificationData): Prom
     ['דוא"ל', escapeHtml(data.email)],
     ['מסמכים שהועלו', String(data.fileCount)],
   ]
+  if (data.spouseFullName) rows.push(['שם בן/בת זוג', escapeHtml(data.spouseFullName)])
+  if (data.spouseIdNumber) rows.push(['ת"ז בן/בת זוג', escapeHtml(data.spouseIdNumber)])
+  if (data.spousePhone) rows.push(['טלפון בן/בת זוג', escapeHtml(data.spousePhone)])
 
   const tableRows = rows
     .map(

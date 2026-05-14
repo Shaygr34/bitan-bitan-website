@@ -31,6 +31,14 @@ interface FormFields {
   city: string
   zipCode: string
   birthdate: string
+  // Spouse fields (2026-05-14 — bundled-only per Shay's locked decision in
+  // Batch 4.1b. Data flows into office-notification email + הערה + submittedData
+  // JSON. NO new Summit Customer Properties — too much schema churn for what
+  // is effectively reference data the office cross-references with the main
+  // client record.)
+  spouseFullName: string
+  spouseIdNumber: string
+  spousePhone: string
   // Business fields (new)
   businessName: string
   businessNumber: string // מס' ע.מ / ח.פ (osek number)
@@ -57,6 +65,9 @@ const EMPTY_FORM: FormFields = {
   city: '',
   zipCode: '',
   birthdate: '',
+  spouseFullName: '',
+  spouseIdNumber: '',
+  spousePhone: '',
   businessName: '',
   businessNumber: '',
   businessSector: '',
@@ -77,12 +88,13 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export default function IntakeForm({ token, prefillClientType, previousData, summitEntityId, isUpdate }: {
+export default function IntakeForm({ token, prefillClientType, previousData, summitEntityId, isUpdate, uploadedDocs }: {
   token: string
   prefillClientType?: string
   previousData?: Record<string, string>
   summitEntityId?: string
   isUpdate?: boolean
+  uploadedDocs?: Record<string, string>
 }) {
   const skipTypeStep = !!prefillClientType
   const stepLabels = skipTypeStep ? STEP_LABELS_SHORT : STEP_LABELS_FULL
@@ -103,6 +115,9 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       city: previousData.city || '',
       zipCode: previousData.zipCode || '',
       birthdate: previousData.birthdate || '',
+      spouseFullName: previousData.spouseFullName || '',
+      spouseIdNumber: previousData.spouseIdNumber || '',
+      spousePhone: previousData.spousePhone || '',
       businessName: previousData.businessName || '',
       businessNumber: previousData.businessNumber || '',
       businessSector: previousData.businessSector || '',
@@ -227,7 +242,9 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
   const relevantDocs: DocField[] = DOC_FIELDS.filter((d) =>
     d.categories.includes(docCategory),
   )
-  const missingRequiredDocs = relevantDocs.filter(d => d.required && !files[d.key])
+  const missingRequiredDocs = relevantDocs.filter(
+    d => d.required && !files[d.key] && !uploadedDocs?.[d.key],
+  )
   const hasMissingDocs = missingRequiredDocs.length > 0
 
   const updateField = useCallback(
@@ -350,6 +367,10 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
       if (formData.city.trim()) fd.append('city', formData.city.trim())
       if (formData.zipCode.trim()) fd.append('zipCode', formData.zipCode.trim())
       if (formData.birthdate) fd.append('birthdate', formData.birthdate)
+      // Spouse fields (bundled-only — not Sumit Customer Properties)
+      if (formData.spouseFullName.trim()) fd.append('spouseFullName', formData.spouseFullName.trim())
+      if (formData.spouseIdNumber.trim()) fd.append('spouseIdNumber', formData.spouseIdNumber.trim())
+      if (formData.spousePhone.trim()) fd.append('spousePhone', formData.spousePhone.trim())
       // Business fields
       if (formData.businessName.trim()) fd.append('businessName', formData.businessName.trim())
       if (formData.businessNumber.trim()) fd.append('businessNumber', formData.businessNumber.trim())
@@ -606,6 +627,27 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
             </select>
           </div>
         </div>
+
+        {/* Spouse fields — optional, bundled-only per locked Batch 4.1b decision.
+            Data flows into: office notification email + Sumit הערה + Sanity
+            intakeToken submittedData JSON. NO new Sumit Customer Properties. */}
+        <div
+          style={{
+            marginTop: '0.5rem',
+            paddingTop: '1rem',
+            borderTop: '1px dashed var(--border, #E5E7EB)',
+          }}
+        >
+          <h3 style={{ fontSize: '0.95rem', color: 'var(--text-heading, #1B2A4A)', marginBottom: '0.25rem' }}>
+            פרטי בן/בת זוג (לא חובה)
+          </h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-caption, #6B7280)', marginBottom: '0.75rem' }}>
+            רלוונטי לעצמאים בלבד — אם אין בן/בת זוג, ניתן לדלג.
+          </p>
+          {renderInput('spouseFullName', 'שם מלא של בן/בת הזוג', false)}
+          {renderInput('spouseIdNumber', 'מספר ת.ז של בן/בת הזוג', false)}
+          {renderInput('spousePhone', 'טלפון של בן/בת הזוג', false, 'tel')}
+        </div>
         {/* businessSector + shareholders moved to business step */}
 
         <div className={styles.buttonRow}>
@@ -837,6 +879,15 @@ export default function IntakeForm({ token, prefillClientType, previousData, sum
 
             {fileErrors[doc.key] && (
               <div className={styles.fieldError}>{fileErrors[doc.key]}</div>
+            )}
+
+            {!files[doc.key] && uploadedDocs?.[doc.key] && (
+              <div className={styles.uploadedBadge}>
+                ✓ הועלה בעבר — {uploadedDocs[doc.key]}
+                <span className={styles.uploadedBadgeHint}>
+                  ניתן להעלות קובץ חדש כדי להחליף
+                </span>
+              </div>
             )}
           </div>
         ))}
