@@ -114,6 +114,29 @@ export default async function IntakeTokenPage({ params }: Props) {
     }
   }
 
+  // Reopen-mode doc badges: look up clientDocument rows for this Summit
+  // entity so the form can render "✓ הועלה — {filename}" hints under each
+  // doc slot the client previously filled. Per-doc-type, latest wins.
+  let uploadedDocs: Record<string, string> = {}
+  if (doc.summitEntityId) {
+    try {
+      const rows = await client.fetch<Array<{ docType: string; fileName?: string; _createdAt: string }>>(
+        `*[_type == "clientDocument" && summitEntityId == $eid] | order(_createdAt desc){
+          docType, "fileName": file.asset->originalFilename, _createdAt
+        }`,
+        { eid: doc.summitEntityId },
+        { next: { revalidate: 0 } },
+      )
+      for (const r of rows) {
+        if (r.docType && !uploadedDocs[r.docType]) {
+          uploadedDocs[r.docType] = r.fileName || 'קובץ'
+        }
+      }
+    } catch {
+      // non-fatal — badges simply won't render
+    }
+  }
+
   // status === 'pending', 'opened', or 'completed' (within 4 days) — show the form
   return (
     <IntakeForm
@@ -122,6 +145,7 @@ export default async function IntakeTokenPage({ params }: Props) {
       previousData={previousData}
       summitEntityId={doc.summitEntityId}
       isUpdate={doc.status === 'completed' && isEditable}
+      uploadedDocs={uploadedDocs}
     />
   )
 }

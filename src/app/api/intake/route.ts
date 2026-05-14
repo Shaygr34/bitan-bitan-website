@@ -280,6 +280,12 @@ export async function POST(req: NextRequest) {
     const city = get('city') || undefined
     const zipCode = get('zipCode') || undefined
     const birthdate = get('birthdate') || undefined
+    // Spouse — bundled-only per Shay's locked Batch 4.1b decision. Flows
+    // into office email + Sumit הערה + submittedData JSON. NOT a Sumit
+    // Customer Property (no schema change).
+    const spouseFullName = get('spouseFullName') || undefined
+    const spouseIdNumber = get('spouseIdNumber') || undefined
+    const spousePhone = get('spousePhone') || undefined
     // V2 fields
     const businessName = get('businessName') || undefined
     const businessNumber = get('businessNumber') || undefined
@@ -446,9 +452,14 @@ export async function POST(req: NextRequest) {
     // -----------------------------------------------------------------------
     // 6. Write file URLs to Summit entity fields + notes
     // -----------------------------------------------------------------------
-    if (entityId && fileResults.length > 0) {
+    const hasSpouse = !!(spouseFullName || spouseIdNumber || spousePhone)
+    if (entityId && (fileResults.length > 0 || hasSpouse)) {
       const summitFileProps: Record<string, string> = {}
-      const noteLines: string[] = ['מסמכים שהועלו:', '']
+      const noteLines: string[] = []
+
+      if (fileResults.length > 0) {
+        noteLines.push('מסמכים שהועלו:', '')
+      }
 
       // Fetch files from Sanity CDN, base64 encode, and map to Summit File fields
       for (const f of fileResults) {
@@ -469,6 +480,14 @@ export async function POST(req: NextRequest) {
             // Non-fatal: file fetch failed, skip this field
           }
         }
+      }
+
+      if (hasSpouse) {
+        if (noteLines.length > 0) noteLines.push('')
+        noteLines.push('פרטי בן/בת זוג:')
+        if (spouseFullName) noteLines.push(`שם: ${spouseFullName}`)
+        if (spouseIdNumber) noteLines.push(`ת"ז: ${spouseIdNumber}`)
+        if (spousePhone) noteLines.push(`טלפון: ${spousePhone}`)
       }
 
       // Update Summit: native File fields + הערות with URLs
@@ -539,6 +558,9 @@ export async function POST(req: NextRequest) {
       birthdate,
       businessSector,
       shareholderDetails,
+      spouseFullName,
+      spouseIdNumber,
+      spousePhone,
       fileCount: fileResults.length > 0 ? fileResults.length : (previousFileData.fileCount || 0),
       fileNames: fileResults.length > 0 ? fileResults.map((f) => f.filename) : (previousFileData.fileNames || []),
       sanityDocIds: fileResults.length > 0 ? fileResults.map((f) => f.sanityDocId) : (previousFileData.sanityDocIds || []),
@@ -568,6 +590,9 @@ export async function POST(req: NextRequest) {
         phone,
         email,
         fileCount: fileResults.length,
+        spouseFullName,
+        spouseIdNumber,
+        spousePhone,
       }),
       sendWelcomeEmail(email, fullName),
       // SMS confirmation to client — only on new submissions (not updates)

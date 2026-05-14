@@ -667,6 +667,26 @@
   margin-top: 0.25rem;
 }
 
+/* Reopen-mode badge: prior upload exists, client can choose to replace */
+.uploadedBadge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: #F0FAF4;
+  border: 1px solid #B7E0C4;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  color: #1F6F43;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+.uploadedBadgeHint {
+  color: #4A5568;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
 /* ─── Warning banner (amber) ─── */
 .warningBanner {
   background: #FFFBEB;

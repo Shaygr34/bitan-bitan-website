@@ -1016,32 +1016,35 @@ Recurring "bars don't match numbers" complaint surfaced again via Ron + Haya. **
 - `src/components/tools/employer/EmployerCalculator.tsx` — 7 sliders cleaned
 - `docs/superpowers/plans/2026-05-11-slider-honest-axis.md` — design doc
 
-## Cross-repo pointer — Onboarding Batch 4 (deferred)
+## Session: May 14, 2026 — Onboarding Batch 4 closed (cross-repo)
 
-The 2026-05-12 cut-off was resumed on 2026-05-13 and Shay pivoted to a different work thread
-(the office manual-overtake arc — PRs #131–#136 in `bitan-bitan-os`). Batch 4 below is still
-in scope, just deferred. Canonical state is in `bitan-bitan-os/CLAUDE.md` under the section
-"Deferred — Onboarding Batch 4 (spouse fields + BTL link + doc badges)".
+PR #66 closes Batch 4.1b (spouse fields) and 4.3 (doc badges on reopen) in this repo.
+Companion cleanup PR shipped in `bitan-bitan-os` (#145, dead 2Sign endpoints removed).
+Canonical session writeup lives in `bitan-bitan-os/CLAUDE.md` under "Session: May 14, 2026".
 
-### What Batch 4 touches in THIS repo (`bitan-bitan-website`)
-- **Intake form spouse fields** (sub-task 1b): add `spouseFullName`, `spouseIdNumber`,
-  `spousePhone` to the intake form (`src/app/intake/`). Bundled-only — no new Summit Customer
-  Properties. Data flows into office-notification email body + הערה + `submittedData` JSON
-  on the `onboardingRecord` (in the OS repo's Sanity).
-- **Doc badges on reopen** (sub-task 3): when a client opens an update-mode intake link, look
-  up matching `clientDocument` rows in Sanity for that client and render `✓ הועלה — {filename}`
-  badges under each doc slot they previously filled. (Note: the OFFICE side now sees per-doc
-  upload state via the new "⤴ העלה / החלף" buttons shipped in `bitan-bitan-os` PR #135. This
-  Batch 4 sub-task is about the CLIENT-side reopen UI, which is a separate surface.)
+### What changed in this repo (PR #66)
+- **Spouse fields** (`src/lib/intake-email.ts`, `src/app/api/intake/route.ts`,
+  `src/app/intake/[token]/IntakeForm.tsx`): `spouseFullName`/`spouseIdNumber`/`spousePhone`
+  flow into office email (conditional rows), Sumit הערה (`פרטי בן/בת זוג:` block, write
+  triggers on `files OR spouse`), and `submittedData` JSON. **Bundled-only — no Sumit schema
+  change.** Form already had the input fields wired from the in-flight session work.
+- **Doc badges on reopen** (`src/app/intake/[token]/page.tsx`,
+  `src/app/intake/[token]/IntakeForm.tsx`, `src/app/intake/[token]/intake.module.css`): GROQ
+  fetch of `clientDocument` rows by `summitEntityId` (latest per `docType`), `uploadedDocs`
+  map passed to form, `✓ הועלה בעבר — {filename}` badge renders under each unfilled slot
+  whose `docKey` matches a prior upload. `missingRequiredDocs` now treats prior uploads as
+  satisfied so reopen doesn't false-flag.
 
-### What Batch 4 touches in `bitan-bitan-os` (not here)
-- `onboardingRecord` schema (Sanity): new `nationalInsuranceRepLink` (URL) field
-- `ClientInfoCard` UI: input for the BTL rep link
-- Email-notification builder: append spouse fields
-- `submittedData` JSON: include spouse fields
+### Patterns worth keeping
+- **GROQ "latest per category" via `order(_createdAt desc)` + first-match loop in JS**: the
+  page.tsx doc-badge lookup uses this rather than a more complex GROQ aggregation. Works
+  cleanly when N is small (typically ≤12 doc types per client).
+- **Form fields can satisfy required-doc checks even when no new File input exists**: a prior
+  Sanity-CDN upload is just as valid as a fresh `File` blob. Pattern: any `missingRequired`
+  computation should OR-merge the live form state with the historical record before flagging.
 
-### Resume rules
-- Read `bitan-bitan-os/CLAUDE.md` "Deferred — Onboarding Batch 4" section first.
-- Start with sub-task 3 (doc badges) — clearest scope, lowest risk, lives almost entirely here.
-- Decisions LOCKED with Shay (do not re-ask): spouse fields are bundled-only (1b); BTL link is
-  office-side managed (2a).
+### Decisions LOCKED (do not re-ask)
+- Spouse fields stay bundled-only — Shay deliberately has not opened Sumit Customer
+  Properties for them.
+- BTL ב"ל מיוצגים link is office-side managed (shipped earlier in OS repo PR #140), not
+  client-entered.
