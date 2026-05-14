@@ -60,6 +60,33 @@ export default defineType({
       title: 'הערות',
       type: 'text',
     }),
+    defineField({
+      name: 'nationalInsuranceRepLink',
+      title: 'קישור ב"ל מיוצגים',
+      description: 'קישור שהמשרד מקבל לאחר רישום הלקוח באתר meyutzagim.btl.gov.il. נדבק כאן ידנית על ידי אבי/רון ונשלח ללקוח בעת ייפוי הכוח של ב"ל מיוצגים.',
+      type: 'url',
+      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] }),
+    }),
+    defineField({
+      name: 'otherDocs',
+      title: 'מסמכים אחרים (אופיס)',
+      description: 'מסמכים נוספים שהועלו דרך ה-OS שלא נכללים בתבנית. מקור האמת לרשימה — סאמיט שומר רק את הקובץ האחרון בשדה "קבצים אחרים" (multi-file overwrites). כאן נשמרים כל הקבצים כקישורי Sanity.',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({ name: 'label', title: 'תיוג', type: 'string' }),
+            defineField({ name: 'filename', title: 'שם הקובץ', type: 'string' }),
+            defineField({ name: 'url', title: 'קישור Sanity', type: 'url' }),
+            defineField({ name: 'uploadedAt', title: 'תאריך העלאה', type: 'datetime' }),
+          ],
+          preview: {
+            select: { title: 'label', subtitle: 'filename' },
+          },
+        },
+      ],
+    }),
   ],
   preview: {
     select: { title: 'clientName', type: 'clientType', date: 'startDate' },
