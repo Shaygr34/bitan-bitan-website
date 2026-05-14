@@ -6,6 +6,7 @@ import { LTR } from '@/components/ui'
 import { Phone, Mail, MapPin, Clock, Facebook, Linkedin, Instagram } from 'lucide-react'
 import { useSiteSettings } from '@/components/SiteSettingsContext'
 import { trackPhoneClick } from '@/lib/analytics'
+import { NewsletterSignup } from '@/components/NewsletterSignup'
 
 const NAV_LINKS = [
   { label: 'דף הבית', href: '/' },
@@ -42,6 +43,11 @@ export function Footer() {
   return (
     <footer className="bg-white border-t border-border">
       <div className="max-w-content mx-auto px-6 py-space-8">
+        {/* Newsletter strip */}
+        <div className="pb-space-7 mb-space-7 border-b border-border-light max-w-narrow mx-auto">
+          <NewsletterSignup surface="strip" />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-space-8">
           {/* Column 1: Firm info + contact */}
           <div>

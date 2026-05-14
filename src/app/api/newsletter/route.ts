@@ -10,7 +10,6 @@ const WRITE_CLIENT = client.withConfig({
 
 export async function POST(req: NextRequest) {
   try {
-    // Check token presence at runtime
     if (!token) {
       console.error('Newsletter: SANITY_API_TOKEN is not set')
       return NextResponse.json(
@@ -26,31 +25,45 @@ export async function POST(req: NextRequest) {
       categoryIds?: string[]
     }
 
-    // Validate email
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       return NextResponse.json({ error: 'כתובת דוא"ל לא תקינה' }, { status: 400 })
     }
 
-    // Validate categories
-    if (!categoryIds || categoryIds.length === 0) {
-      return NextResponse.json({ error: 'נא לבחור לפחות נושא אחד' }, { status: 400 })
-    }
-
-    // Check for duplicate
     const existing = await WRITE_CLIENT.fetch<number>(
       `count(*[_type == "newsletterSubscriber" && email == $email && isActive == true])`,
       { email }
     )
     if (existing > 0) {
-      return NextResponse.json({ error: 'כתובת דוא"ל זו כבר רשומה לעדכונים' }, { status: 409 })
+      return NextResponse.json(
+        { error: 'כתובת דוא"ל זו כבר רשומה לעדכונים' },
+        { status: 409 }
+      )
     }
 
-    // Create subscriber
+    // Default to all categories when caller doesn't specify.
+    // Schema requires subscribedCategories.min(1); fetch live list so the field
+    // stays meaningful if/when segmentation is wired in later.
+    let resolvedCategoryIds = categoryIds ?? []
+    if (resolvedCategoryIds.length === 0) {
+      const all = await WRITE_CLIENT.fetch<string[]>(
+        `*[_type == "category"]._id`
+      )
+      resolvedCategoryIds = all
+    }
+
+    if (resolvedCategoryIds.length === 0) {
+      console.error('Newsletter: no categories available to assign')
+      return NextResponse.json(
+        { error: 'שגיאת תצורה. פנו אלינו ישירות.' },
+        { status: 500 }
+      )
+    }
+
     await WRITE_CLIENT.create({
       _type: 'newsletterSubscriber',
       email,
       name: name || undefined,
-      subscribedCategories: categoryIds.map((id: string) => ({
+      subscribedCategories: resolvedCategoryIds.map((id: string) => ({
         _type: 'reference',
         _ref: id,
         _key: id,
@@ -59,12 +72,16 @@ export async function POST(req: NextRequest) {
       subscribedAt: new Date().toISOString(),
     })
 
+    console.log(`Newsletter: new subscriber ${email}`)
     return NextResponse.json({ success: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error('Newsletter signup error:', message)
     return NextResponse.json(
-      { error: 'שגיאה בהרשמה. נסו שוב.', debug: process.env.NODE_ENV === 'development' ? message : undefined },
+      {
+        error: 'שגיאה בהרשמה. נסו שוב.',
+        debug: process.env.NODE_ENV === 'development' ? message : undefined,
+      },
       { status: 500 }
     )
   }
