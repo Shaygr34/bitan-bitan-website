@@ -667,6 +667,52 @@
   margin-top: 0.25rem;
 }
 
+/* ─── Upload progress (XHR per-byte) ─── */
+.uploadProgress {
+  background: #FFFFFF;
+  border: 1px solid #E2E0DB;
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 10px rgba(27, 42, 74, 0.06);
+}
+.uploadProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+.uploadProgressLabel {
+  color: #1B2A4A;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.uploadProgressValue {
+  color: #C5A572;
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.uploadProgressBar {
+  height: 8px;
+  background: #F1EFEA;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.uploadProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #C5A572 0%, #D9BC8C 100%);
+  border-radius: 999px;
+  transition: width 0.2s ease-out;
+  box-shadow: 0 0 6px rgba(197, 165, 114, 0.4);
+}
+.uploadProgressBytes {
+  margin-top: 0.4rem;
+  color: #718096;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Reopen-mode badge: prior upload exists, client can choose to replace */
 .uploadedBadge {
   display: flex;
