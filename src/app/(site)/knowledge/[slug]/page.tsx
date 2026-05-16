@@ -8,6 +8,7 @@ import { SectionHeader } from '@/components/ui'
 import { JsonLd } from '@/components/JsonLd'
 import { SITE_URL } from '@/lib/site-url'
 import { Breadcrumb } from '@/components/Breadcrumb'
+import { NewsletterSignup } from '@/components/NewsletterSignup'
 import {
   Calendar,
   Tag,
@@ -443,6 +444,13 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {/* Newsletter signup */}
+      <section className="bg-white py-space-7 px-6 border-t border-border">
+        <div className="max-w-narrow mx-auto">
+          <NewsletterSignup />
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="bg-primary py-space-9 px-6">

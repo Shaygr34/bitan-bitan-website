@@ -18,6 +18,7 @@ import { Pagination } from "./Pagination";
 import { KnowledgeSearch } from "@/components/KnowledgeSearch";
 import { warnFallback } from "@/lib/fallback-warning";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export const revalidate = 300 // ISR — revalidate every 5 min
 
@@ -139,6 +140,13 @@ export default async function KnowledgePage({ searchParams }: KnowledgePageProps
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Newsletter signup */}
+      <section className="bg-white py-space-7 px-6 border-t border-border">
+        <div className="max-w-narrow mx-auto">
+          <NewsletterSignup />
         </div>
       </section>
 
