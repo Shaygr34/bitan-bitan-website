@@ -1018,9 +1018,10 @@ Recurring "bars don't match numbers" complaint surfaced again via Ron + Haya. **
 
 ## Session: May 14, 2026 — Onboarding Batch 4 closed (cross-repo)
 
-PR #66 closes Batch 4.1b (spouse fields) and 4.3 (doc badges on reopen) in this repo.
-Companion cleanup PR shipped in `bitan-bitan-os` (#145, dead 2Sign endpoints removed).
-Canonical session writeup lives in `bitan-bitan-os/CLAUDE.md` under "Session: May 14, 2026".
+Compound day — 2 PRs in this repo (#66, #67) + 2 in `bitan-bitan-os` (#145, #146) + a
+Sumit Sync spine bump. PR #66 closes Batch 4.1b (spouse fields) + 4.3 (doc badges on
+reopen); PR #67 adds real per-byte upload progress. Canonical session writeup lives in
+`bitan-bitan-os/CLAUDE.md` under "Session: May 14, 2026".
 
 ### What changed in this repo (PR #66)
 - **Spouse fields** (`src/lib/intake-email.ts`, `src/app/api/intake/route.ts`,
@@ -1034,6 +1035,16 @@ Canonical session writeup lives in `bitan-bitan-os/CLAUDE.md` under "Session: Ma
   map passed to form, `✓ הועלה בעבר — {filename}` badge renders under each unfilled slot
   whose `docKey` matches a prior upload. `missingRequiredDocs` now treats prior uploads as
   satisfied so reopen doesn't false-flag.
+
+### What changed in this repo (PR #67 — XHR upload progress)
+- `src/app/intake/[token]/IntakeForm.tsx` + `intake.module.css`: submit path moved from
+  `fetch()` to `XMLHttpRequest` so `upload.onprogress` is available. `uploadProgress
+  { loaded, total, percent }` state → gold progress bar above the submit button. 99% pin
+  on `xhr.upload.onload` (body sent, server still doing Sanity + Sumit writes), 100% on
+  `xhr.onload` 2xx. Bar only renders when files exist.
+- **Do not "modernize" back to fetch.** fetch() has no upload-progress hook; XHR is the
+  documented, universally-supported workaround. Revisit only when `ReadableStream` +
+  `duplex: 'half'` request streaming is universal.
 
 ### Patterns worth keeping
 - **GROQ "latest per category" via `order(_createdAt desc)` + first-match loop in JS**: the
