@@ -140,7 +140,7 @@ export const DOC_FIELDS: DocField[] = [
   { key: 'takanonHevra', label: 'תקנון חברה', summitField: 'תקנון חברה', required: false, categories: ['company'] },
   { key: 'protokolMurshe', label: 'פרוטוקול מורשה חתימה', summitField: 'פרוטוקול מורשה חתימה', required: false, categories: ['company'] },
   { key: 'nesahHevra', label: 'נסח חברה', summitField: 'נסח חברה', required: false, categories: ['company'] },
-  { key: 'rentalContract', label: 'חוזה שכירות (ככל וקיים)', summitField: '', required: false, categories: ['individual', 'company'] },
+  { key: 'rentalContract', label: 'חוזה שכירות לעסק (אם קיים)', summitField: '', required: false, categories: ['individual', 'company'] },
 ]
 
 /* ─── Business Sector Taxonomy (25 categories) ─── */
